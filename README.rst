@@ -2,14 +2,18 @@
 Population Shift Monitoring
 ===========================
 
+.. image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
+
 * Version: 0.3.1. Released: April 2020
 * Documentation: https://popmon.readthedocs.io
 * Repository: https://github.com/ing-bank/popmon
 * Authors: ING Wholesale Banking Advanced Analytics
 
-.. figure:: https://github.com/ing-bank/popmon/blob/master/docs/source/assets/popmon-logo.png
-   :width: 300px
-   :align: center
+.. raw:: html
+
+   <div align="center">
+         <a href="https://github.com/ing-bank/popmon"><img width="400px" src="https://github.com/ing-bank/popmon/blob/master/docs/source/assets/popmon-logo.png" alt="popmon logo"></a>
+   </div>
 
 `popmon` is a package that allows one to check the stability of a dataset.
 `popmon` works with both pandas and spark datasets.
