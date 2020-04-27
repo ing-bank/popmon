@@ -1,0 +1,127 @@
+===========================
+Population Shift Monitoring
+===========================
+
+* Version: 0.3.1. Released: April 2020
+* Documentation: https://popmon.readthedocs.io
+* Repository: https://github.com/ing-bank/popmon
+
+.. figure:: https://github.com/ing-bank/popmon/blob/master/docs/source/assets/popmon-logo.png
+   :width: 300px
+   :align: center
+
+`popmon` is a package that allows one to check the stability of a dataset.
+`popmon` works with both pandas and spark datasets.
+
+`popmon` creates histograms of features binned in time-slices,
+and compares the stability of the profiles and distributions of
+those histograms using statistical tests, both over time and with respect to a reference.
+It works with numerical, ordinal, categorical features, and the histograms can be higher-dimensional,
+e.g. it can also track correlations between any two features.
+`popmon` can automatically flag and alert on changes observed over time, such
+as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
+using monitoring business rules.
+
+Documentation
+=============
+
+The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
+
+
+Examples
+========
+
+- `Flight Delays and Cancellations Kaggle data <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_
+
+Check it out
+============
+
+The `popmon` library requires Python 3.6 and is pip friendly. To get started, simply do:
+
+.. code-block:: bash
+
+  $ pip install popmon
+
+or check out the code from our GitHub repository:
+
+.. code-block:: bash
+
+  $ git clone https://github.com/ing-bank/popmon.git
+  $ pip install -e popmon
+
+where in this example the code is installed in edit mode (option -e).
+
+You can now use the package in Python with:
+
+.. code-block:: python
+
+  import popmon
+
+**Congratulations, you are now ready to use the popmon library!**
+
+Quick run
+=========
+
+As a quick example, you can do:
+
+.. code-block:: python
+
+  import pandas as pd
+  import popmon
+  from popmon import resources
+
+  # open fake car insurance data
+  df = pd.read_csv(resources.data('test.csv.gz'))
+  df['date'] = pd.to_datetime(df['date'])
+  df.head()
+
+  # generate stability report using automatic binning of all encountered features
+  report = df.pm_stability_report(time_axis='date')
+
+  # to show the output of the report in a Jupyter notebook you can simply run:
+  report
+
+  # or save the report to file and open in a browser
+  report.to_file("monitoring_report.html")
+
+To specify your own binning specifications and features you want to report on, you do:
+
+.. code-block:: python
+
+  # time-axis specifications alone; all other features are auto-binned.
+  report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
+
+  # histogram selections. Here 'date' is the first axis of each histogram.
+  features=[
+      'date:isActive', 'date:age', 'date:eyeColor', 'date:gender',
+      'date:latitude', 'date:longitude', 'date:isActive:age'
+  ]
+
+  # Specify your own binning specifications for individual features or combinations thereof.
+  # This bin specification uses open-ended ("sparse") histograms; unspecified features get
+  # auto-binned. The time-axis binning, when specified here, needs to be in nanoseconds.
+  bin_specs={
+      'longitude': {'bin_width': 5.0, 'bin_offset': 0.0},
+      'latitude': {'bin_width': 5.0, 'bin_offset': 0.0},
+      'age': {'bin_width': 10.0, 'bin_offset': 0.0},
+      'date': {'bin_width': pd.Timedelta('4w').value,
+               'bin_offset': pd.Timestamp('2015-1-1').value}
+  }
+
+  # generate stability report
+  report = df.pm_stability_report(features=features, bin_specs=bin_specs)
+
+These examples also works with spark dataframes.
+You can see the output of such example notebook code `here <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_.
+For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
+
+Contact and support
+===================
+
+* Issues & Ideas & Support: https://github.com/ing-bank/popmon/issues
+
+Please note that ING WBAA provides support only on a best-effort basis.
+
+License
+=======
+`popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.

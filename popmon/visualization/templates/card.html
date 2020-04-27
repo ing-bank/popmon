@@ -1,0 +1,11 @@
+<div class="col-md-6 mb-5">
+    <div class="card shadow-sm">
+        <div class="card-body" style="text-align: center">
+            <h4 class="card-title">{{metric.name}}</h4>
+            {% if metric.description|length %}
+                <p class="card-text">{{metric.description}}</p>
+            {% endif %}
+        </div>
+        <img class="card-img-top" src="data:image/png;base64,{{metric.plot}}" alt="">
+    </div>
+</div>

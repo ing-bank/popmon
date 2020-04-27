@@ -1,0 +1,32 @@
+<section data-section-title="{{ section_title }}" class="{{'bg-light' if section_index % 2 == 0 }}">
+  <div class="container">
+
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>{{ section_title }}</h2>
+      <div class="dropdown feature-select">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Feature: {{ features[0].name }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+          {% for feature in features %}
+            <button class="dropdown-item" type="button" data-feature="{{ feature.name }}">{{ feature.name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <hr>
+    {% if section_description|length %}
+      <div class="section-description">{{section_description}}</div><hr>
+    {% endif %}
+    {% for feature in features %}
+      <div class="row section_feature" data-section-feature="{{ feature.name }}">
+          {% for metric in feature.plots %}
+            {% with metric=metric %}
+              {% include 'card.html' %}
+            {% endwith %}
+          {% endfor %}
+      </div>
+    {% endfor %}
+
+  </div>
+</section>

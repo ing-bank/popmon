@@ -1,0 +1,11 @@
+numpy
+pandas>=0.25.1
+scipy>=1.1.0
+histogrammar>=1.0.12
+phik
+jinja2
+tqdm
+matplotlib>=2.2.3
+joblib>=0.14.0
+pybase64>=1.0.1
+htmlmin

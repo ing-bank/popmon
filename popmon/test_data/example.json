@@ -1,0 +1,10 @@
+{
+  "array": [11, 7, 24],
+  "boolean": true,
+  "category": {
+    "a": 0,
+    "b": 1,
+    "c": 2
+  },
+  "string": "Hello World"
+}

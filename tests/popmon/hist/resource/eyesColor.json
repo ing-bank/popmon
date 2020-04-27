@@ -1,0 +1,9 @@
+{"data": {"bins": {"blue": 77.0,
+                   "brown": 71.0,
+                   "green": 82.0,
+                   "grey": 76.0,
+                   "red": 94.0},
+          "bins:type": "Count",
+          "entries": 400.0},
+ "type": "Categorize",
+ "version": "1.0"}

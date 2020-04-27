@@ -1,0 +1,12 @@
+.flake8
+.coverage
+
+*.pyc
+*.egg-info
+.coverage
+docs/build
+
+version.py
+
+.vscode
+.idea

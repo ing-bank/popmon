@@ -1,0 +1,68 @@
+################################################################################################
+#
+# NOTICE: pass-through licensing of bundled components
+#
+# Population Shift Monitoring ("popmon") gathers together a toolkit of pre-existing third-party 
+# open-source software components. These software components are governed by their own licenses 
+# which Population Shift Monitoring does not modify or supersede, please consult the originating 
+# authors. These components altogether have a mixture of the following licenses: Apache 2.0, GNU,
+# MIT, BSD2, BSD3 licenses.
+#
+# Although we have examined the licenses to verify acceptance of commercial and non-commercial
+# use, please see and consult the original licenses or authors.
+#
+# Here is the full list of license dependencies:
+#
+# numpy: https://github.com/numpy/numpy/blob/master/LICENSE.txt
+# scipy: https://github.com/scipy/scipy/blob/master/LICENSE.txt
+# pandas: https://github.com/pandas-dev/pandas/blob/master/LICENSE
+# histogrammar: https://github.com/histogrammar/histogrammar-python/blob/master/LICENSE
+# phik: https://github.com/KaveIO/PhiK/blob/master/LICENSE
+# pyyaml: https://github.com/yaml/pyyaml/blob/master/LICENSE
+# jinja2: https://github.com/noirbizarre/jinja2/blob/master/LICENSE
+# tqdm: https://github.com/tqdm/tqdm/blob/master/LICENCE
+# matplotlib: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
+# joblib: https://github.com/joblib/joblib/blob/master/LICENSE.txt
+# pybase64: https://github.com/mayeut/pybase64/blob/master/LICENSE
+# htmlmin: https://github.com/mankyd/htmlmin/blob/master/LICENSE
+# eskapade: https://github.com/KaveIO/Eskapade/blob/master/LICENSE
+# statsmodels: https://github.com/statsmodels/statsmodels/blob/master/LICENSE.txt
+# root: https://root.cern.ch/license
+#
+# There are several popmon functions/classes where code or techniques have been reproduced and/or modified
+# from existing open-source packages. We list these here:
+#
+# Package: ROOT
+# popmon file: popmon/stats/numpy.py
+#    Functions: uu_chi2(), ks_test(), ks_prob()
+#    Reference: https://root.cern.ch/doc/master/classTH1.html
+# License: GNU
+#    For details see: https://root.cern.ch/license
+#
+# Package: StatsModels
+# popmon file: popmon/stats/numpy.py
+#    Functions: mad()
+#    Reference: https://www.statsmodels.org/dev/_modules/statsmodels/robust/scale.html#mad
+# License:
+#    For details see: https://github.com/statsmodels/statsmodels/blob/master/LICENSE.txt
+#
+# Package: Eskapade
+# popmon file: popmon/visualization/backend.py
+#    Functions: set_matplotlib_backend(), check_interactive_backend(), in_ipynb()
+#    Reference: https://github.com/KaveIO/Eskapade-Core/blob/master/python/escore/utils.py
+# popmon file: popmon/visualization/utils.py
+#    Functions: plot_overlay_1d_histogram_b64()
+#    Reference: https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
+# popmon file: popmon/hist/filling/spark_histogrammar.py
+#    Class: SparkHistogrammar
+#    Ref: https://github.com/KaveIO/Eskapade-Spark/blob/master/python/eskapadespark/links/spark_histogrammar_filler.py
+# popmon file: popmon/hist/filling/pandas_histogrammar.py
+#    Class: PandasHistogrammar
+#    Reference: https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/analysis/links/hist_filler.py
+# popmon file: popmon/hist/filling/histogram_filler_base.py
+#    Class: HistogramFillerBase
+#    Reference: https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/analysis/histogram_filling.py
+# License: Apache v2.0
+#    For details see: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
+#
+################################################################################################

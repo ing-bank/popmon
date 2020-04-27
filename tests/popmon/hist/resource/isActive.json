@@ -1,0 +1,5 @@
+{"data": {"bins": {"False": 208.0, "True": 192.0},
+          "bins:type": "Count",
+          "entries": 400.0},
+ "type": "Categorize",
+ "version": "1.0"}
