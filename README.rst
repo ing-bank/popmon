@@ -5,6 +5,7 @@ Population Shift Monitoring
 * Version: 0.3.1. Released: April 2020
 * Documentation: https://popmon.readthedocs.io
 * Repository: https://github.com/ing-bank/popmon
+* Authors: ING Wholesale Banking Advanced Analytics
 
 .. figure:: https://github.com/ing-bank/popmon/blob/master/docs/source/assets/popmon-logo.png
    :width: 300px
@@ -124,4 +125,4 @@ Please note that ING WBAA provides support only on a best-effort basis.
 
 License
 =======
-`popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
+Copyright ING WBAA. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
