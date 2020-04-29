@@ -8,8 +8,8 @@ The tutorials are available in the ``popmon/notebooks`` directory. We have:
 * A basic tutorial: this covers generating a stability report from a DataFrame, as well as various simple configurations.
 * Incremental data: a tutorial showing how to stitch the histograms of incremental (batch-wise) datasets and to generate reports from those.
 
-You can open these notebooks directly:
+You can see these notebooks here:
 
-* Run them interactively at `MyBinder <https://mybinder.org/v2/gh/ing-bank/popmon/master?filepath=popmon%2Fnotebooks>`_.
-* View them statically: `detailed example tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_ and `basic tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb>`_ and `incremental datasets <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_.
-
+* `detailed example <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_
+* `basic tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb>`_
+* `incremental datasets <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_.
