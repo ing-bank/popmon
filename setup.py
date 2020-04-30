@@ -2,16 +2,18 @@ from setuptools import setup, find_packages
 
 NAME = 'popmon'
 
-
 MAJOR = 0
 REVISION = 3
-PATCH = 1
+PATCH = 2
 DEV = False
-
 # NOTE: also update version at: README.rst
 
 with open('requirements.txt') as f:
     REQUIREMENTS = f.read().splitlines()
+
+# read the contents of abstract file
+with open("ABSTRACT.rst", encoding="utf-8") as f:
+    long_description = f.read()
 
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
 FULL_VERSION = VERSION
@@ -57,6 +59,13 @@ def setup_package() -> None:
 
     setup(name=NAME,
           version=VERSION,
+          url='https://github.com/ing-bank/popmon',
+          license='MIT',
+          author='ING Wholesale Banking Advanced Analytics',
+          description='Monitor the stability of a pandas or spark dataset',
+          keywords="pandas spark data-science data-analysis monitoring statistics python jupyter ipython",
+          long_description=long_description,
+          long_description_content_type="text/x-rst",
           python_requires='>=3.6',
           packages=find_packages(),
           install_requires=REQUIREMENTS,
