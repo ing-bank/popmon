@@ -2,18 +2,15 @@
 Population Shift Monitoring
 ===========================
 
-.. image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
+|build| |docs|
 
 * Version: 0.3.2. Released: April 2020
 * Documentation: https://popmon.readthedocs.io
 * Repository: https://github.com/ing-bank/popmon
 * Authors: ING Wholesale Banking Advanced Analytics
 
-.. raw:: html
-
-   <div align="center">
-         <a href="https://github.com/ing-bank/popmon"><img width="400px" src="https://github.com/ing-bank/popmon/blob/master/docs/source/assets/popmon-logo.png" alt="popmon logo"></a>
-   </div>
+|
+|logo|
 
 `popmon` is a package that allows one to check the stability of a dataset.
 `popmon` works with both pandas and spark datasets.
@@ -36,7 +33,8 @@ The entire `popmon` documentation including tutorials can be found at `read-the-
 Examples
 ========
 
-- `Flight Delays and Cancellations Kaggle data <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_
+- `Flight Delays and Cancellations Kaggle data <http://crclz.com/popmon/reports/flight_delays_report.html>`_
+- `Synthetic data (code example below) <http://crclz.com/popmon/reports/test_data_report.html>`_
 
 Check it out
 ============
@@ -75,7 +73,7 @@ As a quick example, you can do:
   import popmon
   from popmon import resources
 
-  # open fake car insurance data
+  # open synthetic data
   df = pd.read_csv(resources.data('test.csv.gz'))
   df['date'] = pd.to_datetime(df['date'])
   df.head()
@@ -114,10 +112,10 @@ To specify your own binning specifications and features you want to report on, y
   }
 
   # generate stability report
-  report = df.pm_stability_report(features=features, bin_specs=bin_specs)
+  report = df.pm_stability_report(features=features, bin_specs=bin_specs, time_axis=True)
 
-These examples also works with spark dataframes.
-You can see the output of such example notebook code `here <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_.
+These examples also work with spark dataframes.
+You can see the output of such example notebook code `here <http://crclz.com/popmon/reports/test_data_report.html>`_.
 For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
 
 Contact and support
@@ -130,3 +128,13 @@ Please note that ING WBAA provides support only on a best-effort basis.
 License
 =======
 Copyright ING WBAA. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
+
+.. |logo| raw:: html
+
+    <div align="center">
+        <a href="https://github.com/ing-bank/popmon"><img width="400px" src="https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png" alt="popmon logo"></a>
+    </div>
+.. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
+    :alt: Build status
+.. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
+    :alt: Package docs status
