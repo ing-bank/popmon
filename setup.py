@@ -4,7 +4,7 @@ NAME = 'popmon'
 
 MAJOR = 0
 REVISION = 3
-PATCH = 2
+PATCH = 3
 DEV = False
 # NOTE: also update version at: README.rst
 
@@ -12,7 +12,7 @@ with open('requirements.txt') as f:
     REQUIREMENTS = f.read().splitlines()
 
 # read the contents of abstract file
-with open("ABSTRACT.rst", encoding="utf-8") as f:
+with open("README.rst", encoding="utf-8") as f:
     long_description = f.read()
 
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
