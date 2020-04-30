@@ -4,7 +4,7 @@ Population Shift Monitoring
 
 .. image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
 
-* Version: 0.3.1. Released: April 2020
+* Version: 0.3.2. Released: April 2020
 * Documentation: https://popmon.readthedocs.io
 * Repository: https://github.com/ing-bank/popmon
 * Authors: ING Wholesale Banking Advanced Analytics
