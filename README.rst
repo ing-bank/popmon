@@ -10,6 +10,7 @@ Population Shift Monitoring
 * Authors: ING Wholesale Banking Advanced Analytics
 
 |
+
 |logo|
 
 `popmon` is a package that allows one to check the stability of a dataset.
@@ -130,11 +131,9 @@ License
 =======
 Copyright ING WBAA. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
 
-.. |logo| raw:: html
-
-    <div align="center">
-        <a href="https://github.com/ing-bank/popmon"><img width="400px" src="https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png" alt="popmon logo"></a>
-    </div>
+.. |logo| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png
+    :alt: POPMON logo
+    :target: https://github.com/ing-bank/popmon
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
