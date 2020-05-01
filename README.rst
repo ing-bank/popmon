@@ -39,7 +39,7 @@ Examples
 Check it out
 ============
 
-The `popmon` library requires Python 3.6 and is pip friendly. To get started, simply do:
+The `popmon` library requires Python 3.6+ and is pip friendly. To get started, simply do:
 
 .. code-block:: bash
 
@@ -79,6 +79,7 @@ As a quick example, you can do:
   df.head()
 
   # generate stability report using automatic binning of all encountered features
+  # (importing popmon automatically adds this functionality to a dataframe)
   report = df.pm_stability_report(time_axis='date')
 
   # to show the output of the report in a Jupyter notebook you can simply run:
