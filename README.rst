@@ -34,8 +34,8 @@ The entire `popmon` documentation including tutorials can be found at `read-the-
 Examples
 ========
 
-- `Flight Delays and Cancellations Kaggle data <http://crclz.com/popmon/reports/flight_delays_report.html>`_
-- `Synthetic data (code example below) <http://crclz.com/popmon/reports/test_data_report.html>`_
+- `Flight Delays and Cancellations Kaggle data <https://crclz.com/popmon/reports/flight_delays_report.html>`_
+- `Synthetic data (code example below) <https://crclz.com/popmon/reports/test_data_report.html>`_
 
 Check it out
 ============
@@ -117,7 +117,7 @@ To specify your own binning specifications and features you want to report on, y
   report = df.pm_stability_report(features=features, bin_specs=bin_specs, time_axis=True)
 
 These examples also work with spark dataframes.
-You can see the output of such example notebook code `here <http://crclz.com/popmon/reports/test_data_report.html>`_.
+You can see the output of such example notebook code `here <https://crclz.com/popmon/reports/test_data_report.html>`_.
 For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
 
 Contact and support
