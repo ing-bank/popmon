@@ -75,13 +75,12 @@ As a quick example, you can do:
   from popmon import resources
 
   # open synthetic data
-  df = pd.read_csv(resources.data('test.csv.gz'))
-  df['date'] = pd.to_datetime(df['date'])
+  df = pd.read_csv(resources.data('test.csv.gz'), parse_dates=['date'])
   df.head()
 
   # generate stability report using automatic binning of all encountered features
   # (importing popmon automatically adds this functionality to a dataframe)
-  report = df.pm_stability_report(time_axis='date')
+  report = df.pm_stability_report(time_axis='date', features=['date:age', 'date:gender'])
 
   # to show the output of the report in a Jupyter notebook you can simply run:
   report
