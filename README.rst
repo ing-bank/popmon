@@ -119,6 +119,11 @@ These examples also work with spark dataframes.
 You can see the output of such example notebook code `here <https://crclz.com/popmon/reports/test_data_report.html>`_.
 For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
 
+Project contributors
+====================
+
+Special thanks to the following people who have contributed to the development of this package: `Ahmet Erdem <https://github.com/aerdem4>`_, `Fabian Jansen <https://github.com/faab5>`_, `Nanne Aben <https://github.com/nanne-aben>`_, Mathieu Grimal.
+
 Contact and support
 ===================
 
