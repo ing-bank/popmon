@@ -11,15 +11,9 @@ from ...hist.histogram import sum_entries
 DEFAULT_STATS = {
     "mean": pm_np.mean,
     "std": pm_np.std,
-    "min": lambda x, w: pm_np.quantile(x, q=0.00, weights=w),
-    "max": lambda x, w: pm_np.quantile(x, q=1.00, weights=w),
-    "p01": lambda x, w: pm_np.quantile(x, q=0.01, weights=w),
-    "p05": lambda x, w: pm_np.quantile(x, q=0.05, weights=w),
-    "p16": lambda x, w: pm_np.quantile(x, q=0.16, weights=w),
-    "p50": lambda x, w: pm_np.quantile(x, q=0.50, weights=w),
-    "p84": lambda x, w: pm_np.quantile(x, q=0.84, weights=w),
-    "p95": lambda x, w: pm_np.quantile(x, q=0.95, weights=w),
-    "p99": lambda x, w: pm_np.quantile(x, q=0.99, weights=w),
+    "min,max,p01,p05,p16,p50,p84,p95,p99": lambda x, w: pm_np.quantile(
+        x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
+    ),
 }
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -78,7 +72,7 @@ class HistProfiler(Module):
 
         self.stats_functions = stats_functions
         if self.stats_functions is None:
-            self.stats_functions = dict(DEFAULT_STATS)
+            self.stats_functions = DEFAULT_STATS
             self.logger.debug(
                 f"No stats function dict is provided. {self.stats_functions.keys()} is set as default"
             )
@@ -113,13 +107,21 @@ class HistProfiler(Module):
         profile["most_probable_value"] = mpv if not is_ts else pd.Timestamp(mpv)
 
         if is_num and profile["filled"] > 0:
-            for f_name, func in self.stats_functions.items():
-                profile[f_name] = func(bin_labels, bin_counts)
+            for f_names, func in self.stats_functions.items():
+                names = f_names.split(",")
+                results = func(bin_labels, bin_counts)
+                if len(names) == 1:
+                    results = [results]
+
                 if is_ts:
-                    pf = profile[f_name]
-                    profile[f_name] = (
-                        pd.Timedelta(pf) if f_name == "std" else pd.Timestamp(pf)
-                    )
+                    results = [
+                        pd.Timedelta(result)
+                        if f_name == "std"
+                        else pd.Timestamp(result)
+                        for f_name, result in zip(name, results)
+                    ]
+
+                profile.update({k: v for k, v in zip(names, results)})
         elif not is_num:
             profile["fraction_true"] = pm_np.fraction_of_true(bin_labels, bin_counts)
 
@@ -143,14 +145,13 @@ class HistProfiler(Module):
         try:
             phi_k = phik.phik_from_hist2d(observed=grid)
             # p, Z = significance.significance_from_hist2d(values=grid, significance_method='asymptotic')
-            profile = dict(phik=phi_k)
-        except AssertionError:
+        except ValueError:
             self.logger.debug(
                 f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
             )
-            profile = dict(phik=np.nan)
+            phi_k = np.nan
 
-        return {"count": sume, **profile}
+        return {"count": sume, "phik": phi_k}
 
     def _profile_hist(self, split, hist_name):
         if len(split) == 0:
@@ -162,11 +163,11 @@ class HistProfiler(Module):
         is_num = hist0.is_num
 
         # these are the profiled quantities we will monitor
-        fields = list()
+        fields = []
         if dimension == 1:
             fields = list(self.general_stats_1d)
             fields += (
-                [key for key, value in self.stats_functions.items()]
+                [v for key in self.stats_functions.keys() for v in key.split(",")]
                 if is_num
                 else list(self.category_stats_1d)
             )
