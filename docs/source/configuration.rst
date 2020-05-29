@@ -45,7 +45,7 @@ Binning specifications
 ----------------------
 
 Without any specific binning specification provided, by default automatic binning is applied to numeric and timestamp
-features. Binning specificaton is a dictionary used for specific rebinning of numeric or timestamp features.
+features. Binning specification is a dictionary used for specific rebinning of numeric or timestamp features.
 
 To specify the time-axis binning alone, do:
 
