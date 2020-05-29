@@ -1,6 +1,6 @@
-======================
+=============
 Main concepts
-======================
+=============
 
 There are many scenarios in which you want to monitor whether a dataset remains stable over time.
 For example, if we train a classification model using our data at time `T0-T4`, we want to ensure that all data at `T5`, `T6`, etc. come from a similar distribution.
@@ -16,12 +16,12 @@ For each column, the stability is determined by taking a reference (for example 
 
 The reference can be defined in four different ways:
 
-1. Using the DataFrame on which you build the stability report as the reference, essentially allowing you to identify outlier timeslots within the provided data.
+1. Using the DataFrame on which you build the stability report as the reference, essentially allowing you to identify outlier time slots within the provided data.
 2. Using a separate reference DataFrame (for example the data on which your classifier was trained, as in the above example), allowing you to identify which time slots deviate from this reference DataFrame.
 3. Using a sliding window, allowing you to compare each time slot to a window of preceding time slots (by default the 10 preceding time slots).
 4. Using an expanding reference, allowing you to compare each time slot to all preceding time slots.
 
-We define the normalized residual of a value of interest wrt the selected reference as:
+We define the normalized residual of a value of interest with respect to the selected reference as:
 
 .. code-block:: text
 
@@ -40,9 +40,9 @@ To determine the difference compared to the reference, we also compute the value
 on the reference data (top panel) and determine the mean and standard deviations across time units
 (center panel). We then determine the traffic lights as follows:
 
-* Green traffic light: indicates that there is no meaningful difference compared to the reference, i.e. the value of interest is less than four standard deviations away from the reference.
-* Yellow traffic light: indicates that there is a moderate difference compared to the reference, i.e. the value of interest is between four and seven standard deviations away from the reference.
-* Red traffic light: indicates that there is a big difference compared to the reference, i.e. the value of interest is more than seven standard deviations away from the reference.
+* 🟢 Green traffic light: indicates that there is no meaningful difference compared to the reference, i.e. the value of interest is less than four standard deviations away from the reference.
+* 🟡 Yellow traffic light: indicates that there is a moderate difference compared to the reference, i.e. the value of interest is between four and seven standard deviations away from the reference.
+* 🔴 Red traffic light: indicates that there is a big difference compared to the reference, i.e. the value of interest is more than seven standard deviations away from the reference.
 
 Of course, the exact thresholds (four and seven standard deviations) can be configured as a parameter. These traffic light bounds are then applied to the value of interest on the data from our initial DataFrame (bottom panel).
 
