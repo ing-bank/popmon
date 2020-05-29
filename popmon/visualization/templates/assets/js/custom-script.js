@@ -7,7 +7,7 @@ $(document).on("click", "button.dropdown-item", function() {
     obj = $(this)
     obj.closest("section").find("div.section_feature").hide()
     obj.closest("section").find("div[data-section-feature='" + obj.attr("data-feature") + "']").show()
-    obj.parent().siblings("button").text("Feature: " + obj.text().toLowerCase())
+    obj.parent().siblings("button").text("Feature: " + obj.text()())
 });
 // making navigation work: after clicking a nav link scrolling to the corresponding section's position
 $(document).on("click", "a.nav-link", function(e) {
