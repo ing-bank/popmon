@@ -40,14 +40,11 @@ full_version = '{full_version!s}'
 release = {is_release!s}
 """
 
-    version_file = open(filename, 'w')
-    try:
+    with open(filename, 'w') as version_file:
         version_file.write(version_str.format(name=NAME.lower(),
                                               version=VERSION,
                                               full_version=FULL_VERSION,
                                               is_release=not DEV))
-    finally:
-        version_file.close()
 
 
 def setup_package() -> None:
@@ -69,6 +66,11 @@ def setup_package() -> None:
           python_requires='>=3.6',
           packages=find_packages(),
           install_requires=REQUIREMENTS,
+          classifiers=[
+              "Programming Language :: Python :: 3",
+              "License :: OSI Approved :: MIT License",
+              "Operating System :: OS Independent",
+          ],
           # files to be shipped with the installation, under: popmon/popmon/
           # after installation, these can be found with the functions in resources.py
           package_data=dict(popmon=['visualization/templates/*.html', 'visualization/templates/assets/css/*.css',
