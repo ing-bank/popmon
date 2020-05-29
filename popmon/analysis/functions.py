@@ -1,15 +1,20 @@
-import pandas as pd
 import numpy as np
-from scipy.stats import linregress, norm
+import pandas as pd
 from numpy.lib.stride_tricks import as_strided
-from scipy import stats, linalg
-from ..stats.numpy import probability_distribution_mean_covariance
+from scipy import linalg, stats
+from scipy.stats import linregress, norm
+
+from ..analysis.hist_numpy import (
+    check_similar_hists,
+    get_consistent_numpy_2dgrids,
+    get_consistent_numpy_entries,
+    set_2dgrid,
+)
 from ..hist.histogram import HistogramContainer
-from ..analysis.hist_numpy import check_similar_hists, get_consistent_numpy_2dgrids, \
-    get_consistent_numpy_entries, set_2dgrid
+from ..stats.numpy import probability_distribution_mean_covariance
 
 
-def pull(row, suffix_mean='_mean', suffix_std='_std', cols=None):
+def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
     """Calculate normalized residual (pull) for list of cols
 
     Function can be used by ApplyFunc module.
@@ -31,14 +36,14 @@ def pull(row, suffix_mean='_mean', suffix_std='_std', cols=None):
                     cols.append(m)
     for m in cols:
         x[m] = np.nan
-        required = [m, m+suffix_mean, m+suffix_std]
+        required = [m, m + suffix_mean, m + suffix_std]
         if not all(r in row for r in required):
             continue
         if any(pd.isnull(row[required])):
             continue
-        if row[m+suffix_std] == 0.0:
+        if row[m + suffix_std] == 0.0:
             continue
-        x[m] = (row[m] - row[m+suffix_mean]) / row[m+suffix_std]
+        x[m] = (row[m] - row[m + suffix_mean]) / row[m + suffix_std]
     return x
 
 
@@ -136,7 +141,11 @@ def rolling_lr(df, window, index=0, shift=0):
     :return: df with rolling results of lin_regress() function applied to all columns
     """
     # raw=True suppresses Future warning
-    return df.shift(shift).rolling(window).apply(lambda x: linregress(np.arange(len(x)), x)[index], raw=True)
+    return (
+        df.shift(shift)
+        .rolling(window)
+        .apply(lambda x: linregress(np.arange(len(x)), x)[index], raw=True)
+    )
 
 
 def rolling_lr_zscore(df, window, shift=0):
@@ -161,6 +170,7 @@ def rolling_lr_zscore(df, window, shift=0):
             except Exception:
                 y[name] = np.nan
         return y
+
     return roll(df, window=window, shift=shift).apply(func, axis=1)
 
 
@@ -172,7 +182,9 @@ def roll(df, window, shift=1):
     :param int shift: shift of dataframe, default is 1 (optional)
     """
     assert shift >= 0
-    assert isinstance(df, (pd.DataFrame, pd.Series)), 'input should be a dataframe or series'
+    assert isinstance(
+        df, (pd.DataFrame, pd.Series)
+    ), "input should be a dataframe or series"
 
     cols = df.columns if isinstance(df, pd.DataFrame) else [df.name]
     x = df.values
@@ -203,6 +215,7 @@ def roll(df, window, shift=1):
     # reshape to new data frame
     def reshape(vs, i):
         return vs if len(vs.shape) == 1 else vs[:, i]
+
     d = [{c: reshape(vals, i) for i, c in enumerate(cols)} for vals in arr]
     rolled_df = pd.DataFrame(data=d, index=df.index)
 
@@ -219,11 +232,13 @@ def expand(df, shift=1):
     :param fillvalue: default value to fill dataframe in case shift > 0 (optional)
     """
     assert shift >= 0
-    assert isinstance(df, (pd.DataFrame, pd.Series)), 'input should be a dataframe or series'
+    assert isinstance(
+        df, (pd.DataFrame, pd.Series)
+    ), "input should be a dataframe or series"
 
     cols = df.columns if isinstance(df, pd.DataFrame) else [df.name]
     x = df.values
-    arr = [x[:max(i + 1 - shift, 0)] for i in range(x.shape[0])]
+    arr = [x[: max(i + 1 - shift, 0)] for i in range(x.shape[0])]
 
     # fill up missing values b/c off shift with Nones
     fill_value = np.array([[None] * len(cols)])
@@ -233,6 +248,7 @@ def expand(df, shift=1):
     # reshape to new data frame
     def reshape(vs, i):
         return vs if len(vs.shape) == 1 else vs[:, i]
+
     d = [{c: reshape(vals, i) for i, c in enumerate(cols)} for vals in arr]
     expanded_df = pd.DataFrame(data=d, index=df.index)
 
@@ -265,10 +281,12 @@ def rolling_hist(df, window, shift=1, *args, **kwargs):
     :param kwargs: kwargs passed on to hist_sum function
     :return: dataframe with rolling hist_sum results
     """
-    return roll(df, window=window, shift=shift).apply(hist_sum, axis=1, args=args, **kwargs)
+    return roll(df, window=window, shift=shift).apply(
+        hist_sum, axis=1, args=args, **kwargs
+    )
 
 
-def hist_sum(x, hist_name=''):
+def hist_sum(x, hist_name=""):
     """Return sum of histograms
 
     Usage: df['hists'].apply(hist_sum) ; series.apply(hist_sum)
@@ -283,7 +301,7 @@ def hist_sum(x, hist_name=''):
     else:
         hist_list = x.values
         if len(hist_name) == 0:
-            hist_name = 'histogram'
+            hist_name = "histogram"
 
     if len(hist_list) == 0:
         raise RuntimeError("List of input histograms is empty.")
@@ -322,7 +340,9 @@ def roll_norm_hist_mean_cov(df, window, shift=1, *args, **kwargs):
     :param kwargs: kwargs passed on to hist_sum function
     :return: dataframe with rolling normalized_hist_mean_cov results
     """
-    return roll(df, window=window, shift=shift).apply(normalized_hist_mean_cov, axis=1, args=args, **kwargs)
+    return roll(df, window=window, shift=shift).apply(
+        normalized_hist_mean_cov, axis=1, args=args, **kwargs
+    )
 
 
 def expand_norm_hist_mean_cov(df, shift=1, *args, **kwargs):
@@ -336,10 +356,12 @@ def expand_norm_hist_mean_cov(df, shift=1, *args, **kwargs):
     :param kwargs: kwargs passed on to hist_sum function
     :return: dataframe with expanding normalized_hist_mean_cov results
     """
-    return expand(df, shift=shift).apply(normalized_hist_mean_cov, axis=1, args=args, **kwargs)
+    return expand(df, shift=shift).apply(
+        normalized_hist_mean_cov, axis=1, args=args, **kwargs
+    )
 
 
-def normalized_hist_mean_cov(x, hist_name=''):
+def normalized_hist_mean_cov(x, hist_name=""):
     """ Mean normalized histogram and its covariance of list of input histograms
 
     Usage: df['hists'].apply(normalized_hist_mean_cov) ; series.apply(normalized_hist_mean_cov)
@@ -354,16 +376,16 @@ def normalized_hist_mean_cov(x, hist_name=''):
     else:
         hist_list = x.values
         if len(hist_name) == 0:
-            hist_name = 'histogram'
+            hist_name = "histogram"
 
     if len(hist_list) == 0:
         raise RuntimeError("List of input histograms is empty.")
 
     # initialize
     o = pd.Series()
-    o[hist_name + '_mean'] = None
-    o[hist_name + '_cov'] = None
-    o[hist_name + '_binning'] = None
+    o[hist_name + "_mean"] = None
+    o[hist_name + "_cov"] = None
+    o[hist_name + "_binning"] = None
 
     # basic checks
     all_hc = all([isinstance(hc, HistogramContainer) for hc in hist_list])
@@ -375,23 +397,36 @@ def normalized_hist_mean_cov(x, hist_name=''):
 
     # get entries as numpy arrays
     if hist_list[0].n_dim == 1:
-        entries_list, binning = get_consistent_numpy_entries(hist_list, get_bin_labels=True)
+        entries_list, binning = get_consistent_numpy_entries(
+            hist_list, get_bin_labels=True
+        )
         entries_list = np.array(entries_list, dtype=np.float)
     else:
-        entries_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hist_list, get_bin_labels=True)
+        entries_list, xkeys, ykeys = get_consistent_numpy_2dgrids(
+            hist_list, get_bin_labels=True
+        )
         entries_list = np.array([h.flatten() for h in entries_list], dtype=np.float)
         binning = (xkeys, ykeys)
 
     # calculation of mean normalized histogram and its covariance matrix
-    normalized_hist_mean, normalized_hist_covariance = probability_distribution_mean_covariance(entries_list)
+    (
+        normalized_hist_mean,
+        normalized_hist_covariance,
+    ) = probability_distribution_mean_covariance(entries_list)
 
-    o[hist_name + '_mean'] = normalized_hist_mean
-    o[hist_name + '_cov'] = normalized_hist_covariance
-    o[hist_name + '_binning'] = binning
+    o[hist_name + "_mean"] = normalized_hist_mean
+    o[hist_name + "_cov"] = normalized_hist_covariance
+    o[hist_name + "_binning"] = binning
     return o
 
 
-def relative_chi_squared(row, hist_name='histogram', suffix_mean='_mean', suffix_cov='_cov', suffix_binning='_binning'):
+def relative_chi_squared(
+    row,
+    hist_name="histogram",
+    suffix_mean="_mean",
+    suffix_cov="_cov",
+    suffix_binning="_binning",
+):
     """Calculate chi squared of normalized histogram with pre-calculated mean normalized histogram
 
     :param pd.Series row: row to apply chi_squared function to.
@@ -401,12 +436,17 @@ def relative_chi_squared(row, hist_name='histogram', suffix_mean='_mean', suffix
     :param str suffix_binning: suffix of binning. binning column = hist_name + suffix_binning (optional)
     """
     x = pd.Series()
-    x['chi2'] = np.nan
-    x['naive_pvalue'] = np.nan
-    x['naive_zscore'] = np.nan
-    x['max_res'] = np.nan
+    x["chi2"] = np.nan
+    x["naive_pvalue"] = np.nan
+    x["naive_zscore"] = np.nan
+    x["max_res"] = np.nan
 
-    required = [hist_name, hist_name + suffix_mean, hist_name + suffix_cov, hist_name + suffix_binning]
+    required = [
+        hist_name,
+        hist_name + suffix_mean,
+        hist_name + suffix_cov,
+        hist_name + suffix_binning,
+    ]
     if not all(r in row for r in required):
         return x
 
@@ -427,7 +467,11 @@ def relative_chi_squared(row, hist_name='histogram', suffix_mean='_mean', suffix
 
     # get entries as numpy arrays
     if hc.n_dim == 1:
-        entries = hc.hist.bin_entries(xvalues=binning) if hc.is_num else hc.hist.bin_entries(labels=binning)
+        entries = (
+            hc.hist.bin_entries(xvalues=binning)
+            if hc.is_num
+            else hc.hist.bin_entries(labels=binning)
+        )
     else:
         assert len(binning) == 2
         entries = set_2dgrid(hc.hist, binning[0], binning[1])
@@ -439,12 +483,16 @@ def relative_chi_squared(row, hist_name='histogram', suffix_mean='_mean', suffix
     try:
         # We try to use the precision matrix (inverse covariance matrix) for the chi-squared calculation
         pm = linalg.inv(cov)
-        chi_squared = np.dot((norm_mean - single_norm), np.dot(pm, (norm_mean - single_norm)))
+        chi_squared = np.dot(
+            (norm_mean - single_norm), np.dot(pm, (norm_mean - single_norm))
+        )
         if chi_squared <= 0:
             chi_squared = np.finfo(np.float).eps
     except linalg.LinAlgError:
         # If a covariance matrix is singular we fall back on using variances
-        chi_squared = np.sum((norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps))
+        chi_squared = np.sum(
+            (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)
+        )
 
     # pvalue and zvalue based on naive number of degrees of freedom
     ndof = len(entries) - 1
@@ -458,10 +506,12 @@ def relative_chi_squared(row, hist_name='histogram', suffix_mean='_mean', suffix
         u = -np.log(2 * np.pi) - ndof * np.log(z) + ndof * (z - 1)
         z_score = np.sqrt(u - np.log(u))
 
-    max_resid = np.max(np.abs((norm_mean - single_norm) / np.sqrt(variance + np.finfo(np.float).eps)))
+    max_resid = np.max(
+        np.abs((norm_mean - single_norm) / np.sqrt(variance + np.finfo(np.float).eps))
+    )
 
-    x['chi2'] = chi_squared
-    x['naive_pvalue'] = p_value
-    x['naive_zscore'] = z_score
-    x['max_res'] = max_resid
+    x["chi2"] = chi_squared
+    x["naive_pvalue"] = p_value
+    x["naive_zscore"] = z_score
+    x["max_res"] = max_resid
     return x

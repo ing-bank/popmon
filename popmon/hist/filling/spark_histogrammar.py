@@ -10,8 +10,10 @@ All modifications copyright ING WBAA.
 
 import numpy as np
 from tqdm import tqdm
+
 import histogrammar as hg
 import histogrammar.sparksql
+
 from ...hist.filling.histogram_filler_base import HistogramFillerBase
 
 try:
@@ -28,8 +30,21 @@ class SparkHistogrammar(HistogramFillerBase):
     with Spark. Timestamp features are converted to nanoseconds before the binning
     is applied. Final histograms are stored in the datastore.
     """
-    def __init__(self, features=None, binning='unit', bin_specs=None, time_axis='', var_dtype=None,
-                 read_key=None, store_key=None, nbins_1d=40, nbins_2d=20, nbins_3d=10, max_nunique=500):
+
+    def __init__(
+        self,
+        features=None,
+        binning="unit",
+        bin_specs=None,
+        time_axis="",
+        var_dtype=None,
+        read_key=None,
+        store_key=None,
+        nbins_1d=40,
+        nbins_2d=20,
+        nbins_3d=10,
+        max_nunique=500,
+    ):
         """Initialize module instance.
 
         Store and do basic check on the attributes HistogramFillerBase.
@@ -69,10 +84,24 @@ class SparkHistogrammar(HistogramFillerBase):
         :param int nbins_3d: auto-binning number of bins for 3d histograms. default is 10.
         :param int max_nunique: auto-binning threshold for unique categorical values. default is 500.
         """
-        HistogramFillerBase.__init__(self, features, binning, bin_specs, time_axis, var_dtype, read_key, store_key,
-                                     nbins_1d, nbins_2d, nbins_3d, max_nunique)
-        self._unit_timestamp_specs = {k: float(self._unit_timestamp_specs[k])
-                                      for i, k in enumerate(self._unit_timestamp_specs)}
+        HistogramFillerBase.__init__(
+            self,
+            features,
+            binning,
+            bin_specs,
+            time_axis,
+            var_dtype,
+            read_key,
+            store_key,
+            nbins_1d,
+            nbins_2d,
+            nbins_3d,
+            max_nunique,
+        )
+        self._unit_timestamp_specs = {
+            k: float(self._unit_timestamp_specs[k])
+            for i, k in enumerate(self._unit_timestamp_specs)
+        }
 
     def assert_dataframe(self, df):
         """Check that input data is a filled spark data frame.
@@ -80,8 +109,8 @@ class SparkHistogrammar(HistogramFillerBase):
         :param df: input (spark) data frame
         """
         if not isinstance(df, DataFrame):
-            raise TypeError('retrieved object not of type Spark DataFrame')
-        assert not len(df.head(1)) == 0, 'input dataframe is empty'
+            raise TypeError("retrieved object not of type Spark DataFrame")
+        assert not len(df.head(1)) == 0, "input dataframe is empty"
         return df
 
     def get_features(self, df):
@@ -122,18 +151,16 @@ class SparkHistogrammar(HistogramFillerBase):
         :param str col: column
         """
         if col not in df.columns:
-            raise KeyError(
-                'Column "{0:s}" not in input dataframe.'.format(col)
-            )
+            raise KeyError('Column "{0:s}" not in input dataframe.'.format(col))
         dt = dict(df.dtypes)[col]
         # spark conversions to numpy or python equivalent
-        if dt == 'string':
-            dt = 'str'
-        elif dt == 'timestamp':
+        if dt == "string":
+            dt = "str"
+        elif dt == "timestamp":
             dt = np.datetime64
-        elif dt == 'boolean':
+        elif dt == "boolean":
             dt = bool
-        elif dt == 'bigint':
+        elif dt == "bigint":
             dt = np.int64
 
         return np.dtype(dt)
@@ -148,16 +175,18 @@ class SparkHistogrammar(HistogramFillerBase):
         :rtype: DataFrame
         """
         # make alias df for value counting (used below)
-        idf = df.alias('')
+        idf = df.alias("")
 
         # timestamp variables are converted here to ns since 1970-1-1
         # histogrammar does not yet support long integers, so convert timestamps to float
         # epoch = (sparkcol("ts").cast("bigint") * 1000000000).cast("bigint")
         for col in cols_by_type["dt"]:
             self.logger.debug(
-                'Converting column "{col}" of type "{type}" to nanosec.'.format(col=col, type=self.var_dtype[col])
+                'Converting column "{col}" of type "{type}" to nanosec.'.format(
+                    col=col, type=self.var_dtype[col]
+                )
             )
-            to_ns = (sparkcol(col).cast("float") * 1e9)
+            to_ns = sparkcol(col).cast("float") * 1e9
             idf = idf.withColumn(col, to_ns)
 
         hg.sparksql.addMethods(idf)
@@ -192,10 +221,10 @@ class SparkHistogrammar(HistogramFillerBase):
                 # numbers and timestamps are put in a sparse binned histogram
                 specs = self.var_bin_specs(features, features.index(col))
                 hist = hg.SparselyBin(
-                    binWidth=specs['bin_width'],
-                    origin=specs['bin_offset'],
+                    binWidth=specs["bin_width"],
+                    origin=specs["bin_offset"],
                     quantity=df[col],
-                    value=hist
+                    value=hist,
                 )
             else:
                 # string and boolians are treated as categories
@@ -212,7 +241,9 @@ class SparkHistogrammar(HistogramFillerBase):
         :param idf: input data frame used for filling histogram
         """
         for cols in tqdm(self.features, ncols=100):
-            self.logger.debug('Processing feature "{cols}".'.format(cols=':'.join(cols)))
+            self.logger.debug(
+                'Processing feature "{cols}".'.format(cols=":".join(cols))
+            )
             self.fill_histogram(idf, cols)
 
     def fill_histogram(self, idf, features):
@@ -221,7 +252,7 @@ class SparkHistogrammar(HistogramFillerBase):
         :param idf: input data frame used for filling histogram
         :param list features: histogram column(s)
         """
-        name = ':'.join(features)
+        name = ":".join(features)
         if name not in self._hists:
             # create an (empty) histogram of right type
             self._hists[name] = self.construct_empty_hist(idf, features)

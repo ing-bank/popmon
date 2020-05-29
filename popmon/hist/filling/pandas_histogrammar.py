@@ -8,16 +8,19 @@ https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/analysis/links/hi
 All modifications copyright ING WBAA.
 """
 
-import joblib
-import multiprocessing
 import contextlib
-from joblib import Parallel, delayed
+import multiprocessing
+
+import joblib
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 from tqdm import tqdm
+
 import histogrammar as hg
-from ...hist.filling.histogram_filler_base import HistogramFillerBase
+
 from ...hist.filling import utils
+from ...hist.filling.histogram_filler_base import HistogramFillerBase
 
 
 class PandasHistogrammar(HistogramFillerBase):
@@ -28,8 +31,20 @@ class PandasHistogrammar(HistogramFillerBase):
     the binning is applied. Final histograms are stored in the datastore.
     """
 
-    def __init__(self, features=None, binning='unit', bin_specs=None, time_axis='', var_dtype=None,
-                 read_key=None, store_key=None, nbins_1d=40, nbins_2d=20, nbins_3d=10, max_nunique=500):
+    def __init__(
+        self,
+        features=None,
+        binning="unit",
+        bin_specs=None,
+        time_axis="",
+        var_dtype=None,
+        read_key=None,
+        store_key=None,
+        nbins_1d=40,
+        nbins_2d=20,
+        nbins_3d=10,
+        max_nunique=500,
+    ):
         """Initialize module instance.
 
         Store and do basic check on the attributes HistogramFillerBase.
@@ -68,8 +83,20 @@ class PandasHistogrammar(HistogramFillerBase):
         :param int nbins_3d: auto-binning number of bins for 3d histograms. default is 10.
         :param int max_nunique: auto-binning threshold for unique categorical values. default is 500.
         """
-        HistogramFillerBase.__init__(self, features, binning, bin_specs, time_axis, var_dtype, read_key, store_key,
-                                     nbins_1d, nbins_2d, nbins_3d, max_nunique)
+        HistogramFillerBase.__init__(
+            self,
+            features,
+            binning,
+            bin_specs,
+            time_axis,
+            var_dtype,
+            read_key,
+            store_key,
+            nbins_1d,
+            nbins_2d,
+            nbins_3d,
+            max_nunique,
+        )
 
     def assert_dataframe(self, df):
         """Check that input data is a filled pandas data frame.
@@ -77,9 +104,9 @@ class PandasHistogrammar(HistogramFillerBase):
         :param df: input (pandas) data frame
         """
         if not isinstance(df, pd.DataFrame):
-            raise TypeError('retrieved object not of type {}'.format(pd.DataFrame))
+            raise TypeError("retrieved object not of type {}".format(pd.DataFrame))
         if df.shape[0] == 0:
-            raise RuntimeError('data is empty')
+            raise RuntimeError("data is empty")
         return df
 
     def get_features(self, df):
@@ -127,7 +154,9 @@ class PandasHistogrammar(HistogramFillerBase):
         idf = df[list(cols_by_type["num"]) + list(cols_by_type["str"])].copy()
         for col in cols_by_type["dt"]:
             self.logger.debug(
-                'Converting column "{col}" of type "{type}" to nanosec.'.format(col=col, type=self.var_dtype[col])
+                'Converting column "{col}" of type "{type}" to nanosec.'.format(
+                    col=col, type=self.var_dtype[col]
+                )
             )
             idf[col] = df[col].apply(utils.to_ns)
         return idf
@@ -139,7 +168,7 @@ class PandasHistogrammar(HistogramFillerBase):
         """
         # construct empty histograms if needed
         for cols in self.features:
-            name = ':'.join(cols)
+            name = ":".join(cols)
             if name not in self._hists:
                 # create an (empty) histogram of right type
                 self._hists[name] = self.construct_empty_hist(cols)
@@ -148,7 +177,9 @@ class PandasHistogrammar(HistogramFillerBase):
         num_cores = multiprocessing.cpu_count()
         with tqdm_joblib(tqdm(total=len(self.features), ncols=100)) as progress_bar:  # noqa: F841
             res = Parallel(n_jobs=num_cores)(
-                delayed(_fill_histogram)(idf=idf[c], hist=self._hists[':'.join(c)], features=c)
+                delayed(_fill_histogram)(
+                    idf=idf[c], hist=self._hists[":".join(c)], features=c
+                )
                 for c in self.features
             )
             # update dictionary
@@ -192,24 +223,24 @@ class PandasHistogrammar(HistogramFillerBase):
             if is_number or is_timestamp:
                 # numbers and timestamps are put in a sparse binned histogram
                 specs = self.var_bin_specs(features, features.index(col))
-                if 'bin_width' in specs:
+                if "bin_width" in specs:
                     hist = hg.SparselyBin(
-                        binWidth=specs['bin_width'],
-                        origin=specs.get('bin_offset', 0),
+                        binWidth=specs["bin_width"],
+                        origin=specs.get("bin_offset", 0),
                         quantity=quant,
-                        value=hist
+                        value=hist,
                     )
-                elif 'num' in specs and 'low' in specs and 'high' in specs:
+                elif "num" in specs and "low" in specs and "high" in specs:
                     hist = hg.Bin(
-                        num=specs['num'],
-                        low=specs['low'],
-                        high=specs['high'],
+                        num=specs["num"],
+                        low=specs["low"],
+                        high=specs["high"],
                         quantity=quant,
-                        value=hist
+                        value=hist,
                     )
                 else:
                     raise RuntimeError(
-                        'Do not know how to interpret bin specifications.'
+                        "Do not know how to interpret bin specifications."
                     )
             else:
                 # string and boolians are treated as categories
@@ -227,7 +258,7 @@ def _fill_histogram(idf, hist, features):
     :param hist: empty histogrammar histogram about to be filled
     :param list features: histogram column(s)
     """
-    name = ':'.join(features)
+    name = ":".join(features)
     clm = features[0] if len(features) == 1 else features
     # do the actual filling
     hist.fill.numpy(idf[clm])
@@ -241,6 +272,7 @@ def tqdm_joblib(tqdm_object):
 
     From: https://stackoverflow.com/questions/24983493/tracking-progress-of-joblib-parallel-execution?rq=1
     """
+
     class TqdmBatchCompletionCallback:
         def __init__(self, time, index, parallel):
             self.index = index

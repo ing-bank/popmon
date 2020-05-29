@@ -1,22 +1,34 @@
-import pytest
-import pandas as pd
-import numpy as np
-from os.path import dirname
 from json import load
+from os.path import dirname
+
+import numpy as np
+import pandas as pd
+import pytest
+
 from popmon import resources
 
 
 def get_comparer_data():
 
     test_comparer_df = dict()
-    df = pd.DataFrame(data={'mae': [0.1, 0.11, 0.12, 0.2, 0.09], 'mse': [0.1, 0.1, 0.1, 0.1, 0.1],
-                            'date': [2000, 2001, 2002, 2003, 2004]})
-    df.set_index('date', inplace=True)
-    test_comparer_df['the_feature'] = df
+    df = pd.DataFrame(
+        data={
+            "mae": [0.1, 0.11, 0.12, 0.2, 0.09],
+            "mse": [0.1, 0.1, 0.1, 0.1, 0.1],
+            "date": [2000, 2001, 2002, 2003, 2004],
+        }
+    )
+    df.set_index("date", inplace=True)
+    test_comparer_df["the_feature"] = df
 
-    df = pd.DataFrame(data={'mae': [0.1, 0.11, 0.12, 0.2, 0.09], 'date': [2000, 2001, 2002, 2003, 2004]})
-    df.set_index('date', inplace=True)
-    test_comparer_df['dummy_feature'] = df
+    df = pd.DataFrame(
+        data={
+            "mae": [0.1, 0.11, 0.12, 0.2, 0.09],
+            "date": [2000, 2001, 2002, 2003, 2004],
+        }
+    )
+    df.set_index("date", inplace=True)
+    test_comparer_df["dummy_feature"] = df
 
     return test_comparer_df
 
@@ -27,7 +39,7 @@ def get_ref_comparer_data():
     ref_data["metric"] = ["mae_mean", "mae_std", "mae_pull", "mse_mean"]
     ref_data["value"] = [0.124, 0.0376, 0.0376, 0.09]
     ref_data["feature"] = "the_feature"
-    ref_data["date"] = np.arange(ref_data.shape[0])+2010
+    ref_data["date"] = np.arange(ref_data.shape[0]) + 2010
 
     return ref_data
 

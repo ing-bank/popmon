@@ -1,21 +1,35 @@
 # Resources lookup file for popmon
 
 import pathlib
-from pkg_resources import resource_filename
+
 from jinja2 import Environment, FileSystemLoader
+from pkg_resources import resource_filename
+
 import popmon
 
 # data files that are shipped with popmon.
-_DATA = dict((_.name, _) for _ in pathlib.Path(resource_filename(popmon.__name__, 'test_data')).glob('*'))
+_DATA = dict(
+    (_.name, _)
+    for _ in pathlib.Path(resource_filename(popmon.__name__, "test_data")).glob("*")
+)
 
 # Tutorial notebooks
-_NOTEBOOK = {_.name: _ for _ in pathlib.Path(resource_filename(popmon.__name__, 'notebooks')).glob('*.ipynb')}
+_NOTEBOOK = {
+    _.name: _
+    for _ in pathlib.Path(resource_filename(popmon.__name__, "notebooks")).glob(
+        "*.ipynb"
+    )
+}
 
 # Resource types
 _RESOURCES = dict(data=_DATA, notebook=_NOTEBOOK)
 
 # Environment for visualization templates' directory
-_TEMPLATES_ENV = Environment(loader=FileSystemLoader(resource_filename(popmon.__name__, 'visualization/templates')))
+_TEMPLATES_ENV = Environment(
+    loader=FileSystemLoader(
+        resource_filename(popmon.__name__, "visualization/templates")
+    )
+)
 
 
 def _resource(resource_type, name: str) -> str:
@@ -32,8 +46,11 @@ def _resource(resource_type, name: str) -> str:
     if full_path and full_path.exists():
         return str(full_path)
 
-    raise FileNotFoundError('Could not find {resource_type} "{name!s}"! Does it exist?'
-                            .format(resource_type=resource_type, name=name))
+    raise FileNotFoundError(
+        'Could not find {resource_type} "{name!s}"! Does it exist?'.format(
+            resource_type=resource_type, name=name
+        )
+    )
 
 
 def data(name: str) -> str:
@@ -44,7 +61,7 @@ def data(name: str) -> str:
     :rtype: str
     :raises FileNotFoundError: If the data cannot be found.
     """
-    return _resource('data', name)
+    return _resource("data", name)
 
 
 def notebook(name: str) -> str:
@@ -55,7 +72,7 @@ def notebook(name: str) -> str:
     :rtype: str
     :raises FileNotFoundError: If the notebook cannot be found.
     """
-    return _resource('notebook', name)
+    return _resource("notebook", name)
 
 
 def templates_env(filename=None, **kwargs):

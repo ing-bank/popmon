@@ -1,17 +1,22 @@
 import numpy as np
+
 import histogrammar
 
 # large numbers (time in ns since 1970) used to determine if float corresponds to a timestamp
 DATE_LOW = 5e16  # 1971-08-02 16:53:20 in nanosec
 DATE_HIGH = 9.9e18  # 2260-1-1 in nanosec
 
-COMMON_HIST_TYPES = (histogrammar.Categorize, histogrammar.Bin, histogrammar.SparselyBin,
-                     histogrammar.specialized.CategorizeHistogramMethods,
-                     histogrammar.specialized.HistogramMethods,
-                     histogrammar.specialized.SparselyHistogramMethods,
-                     histogrammar.specialized.CategorizeHistogramMethods,
-                     histogrammar.specialized.TwoDimensionallyHistogramMethods,
-                     histogrammar.specialized.SparselyTwoDimensionallyHistogramMethods)
+COMMON_HIST_TYPES = (
+    histogrammar.Categorize,
+    histogrammar.Bin,
+    histogrammar.SparselyBin,
+    histogrammar.specialized.CategorizeHistogramMethods,
+    histogrammar.specialized.HistogramMethods,
+    histogrammar.specialized.SparselyHistogramMethods,
+    histogrammar.specialized.CategorizeHistogramMethods,
+    histogrammar.specialized.TwoDimensionallyHistogramMethods,
+    histogrammar.specialized.SparselyTwoDimensionallyHistogramMethods,
+)
 
 
 def get_datatype(cls):
@@ -46,9 +51,9 @@ def get_datatype(cls):
             if is_ts:
                 datatype = [np.datetime64]
     # histogram may have a subhistogram. Extract it and recurse
-    if hasattr(cls, 'bins'):
+    if hasattr(cls, "bins"):
         hist = list(cls.bins.values())[0] if cls.bins else histogrammar.Count()
-    elif hasattr(cls, 'values'):
+    elif hasattr(cls, "values"):
         hist = cls.values[0] if cls.values else histogrammar.Count()
     else:
         hist = histogrammar.Count()
@@ -66,7 +71,7 @@ def datatype(self):  # noqa
     :rtype: type or list(type)
     """
     # making an educated guess to determine data-type categories
-    if not hasattr(self, '_datatype'):
+    if not hasattr(self, "_datatype"):
         datatype = get_datatype(self)
         if isinstance(datatype, list):
             if len(datatype) == 1:
@@ -92,8 +97,8 @@ def datatype(self, dt):
     :param type dt: type of the variable represented by the histogram
     :raises RunTimeError: if datatype has already been set, it will not overwritten
     """
-    if hasattr(self, '_datatype'):
-        raise RuntimeError('datatype already set')
+    if hasattr(self, "_datatype"):
+        raise RuntimeError("datatype already set")
     self._datatype = dt
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from ..hist.patched_histogrammer import histogrammar, COMMON_HIST_TYPES
+
+from ..hist.patched_histogrammer import COMMON_HIST_TYPES, histogrammar
 
 HG_FACTORY = histogrammar.Factory()
 
@@ -22,16 +23,16 @@ def sum_entries(hist_data, default=True):
 
     # double check number of entries, sometimes not well set
     sume = 0
-    if hasattr(hist_data, 'bins'):
+    if hasattr(hist_data, "bins"):
         # loop over all counters and integrate over y (=j)
         for i in hist_data.bins:
             bi = hist_data.bins[i]
             sume += sum_entries(bi)
-    elif hasattr(hist_data, 'values'):
+    elif hasattr(hist_data, "values"):
         # loop over all counters and integrate over y (=j)
         for i, bi in enumerate(hist_data.values):
             sume += sum_entries(bi)
-    elif hasattr(hist_data, 'entries'):
+    elif hasattr(hist_data, "entries"):
         # only count histogrammar.Count() objects
         sume += hist_data.entries
     return sume
@@ -44,13 +45,13 @@ def project_on_x(hist_data):
     :return: on x-axis projected histogram (1d)
     """
     # basic check: projecting on itself
-    if hasattr(hist_data, 'n_dim') and hist_data.n_dim <= 1:
+    if hasattr(hist_data, "n_dim") and hist_data.n_dim <= 1:
         return hist_data
     # basic checks on contents
-    if hasattr(hist_data, 'bins'):
+    if hasattr(hist_data, "bins"):
         if len(hist_data.bins) == 0:
             return hist_data
-    elif hasattr(hist_data, 'values'):
+    elif hasattr(hist_data, "values"):
         if len(hist_data.values) == 0:
             return hist_data
     else:
@@ -59,20 +60,27 @@ def project_on_x(hist_data):
     # make empty clone
     # note: cannot do: h_x = hist.zero(), b/c it copies n-dim structure, which screws up hist.toJsonString()
     if isinstance(hist_data, histogrammar.Bin):
-        h_x = histogrammar.Bin(num=hist_data.num, low=hist_data.low, high=hist_data.high,
-                               quantity=hist_data.quantity)
+        h_x = histogrammar.Bin(
+            num=hist_data.num,
+            low=hist_data.low,
+            high=hist_data.high,
+            quantity=hist_data.quantity,
+        )
     elif isinstance(hist_data, histogrammar.SparselyBin):
-        h_x = histogrammar.SparselyBin(binWidth=hist_data.binWidth, origin=hist_data.origin,
-                                       quantity=hist_data.quantity)
+        h_x = histogrammar.SparselyBin(
+            binWidth=hist_data.binWidth,
+            origin=hist_data.origin,
+            quantity=hist_data.quantity,
+        )
     elif isinstance(hist_data, histogrammar.Categorize):
         h_x = histogrammar.Categorize(quantity=hist_data.quantity)
     else:
-        raise RuntimeError('unknown historgram type. cannot get zero copy.')
+        raise RuntimeError("unknown historgram type. cannot get zero copy.")
 
-    if hasattr(hist_data, 'bins'):
+    if hasattr(hist_data, "bins"):
         for key, bi in hist_data.bins.items():
             h_x.bins[key] = histogrammar.Count.ed(sum_entries(bi))
-    elif hasattr(hist_data, 'values'):
+    elif hasattr(hist_data, "values"):
         for i, bi in enumerate(hist_data.values):
             h_x.values[i] = histogrammar.Count.ed(sum_entries(bi))
 
@@ -86,17 +94,17 @@ def sum_over_x(hist_data):
     :return: integrated histogram
     """
     # basic check: nothing to do?
-    if hasattr(hist_data, 'n_dim') and hist_data.n_dim == 0:
+    if hasattr(hist_data, "n_dim") and hist_data.n_dim == 0:
         return hist_data
-    if hasattr(hist_data, 'n_dim') and hist_data.n_dim == 1:
+    if hasattr(hist_data, "n_dim") and hist_data.n_dim == 1:
         return histogrammar.Count.ed(sum_entries(hist_data))
 
     # n_dim >= 2 from now on
     # basic checks on contents
-    if hasattr(hist_data, 'bins'):
+    if hasattr(hist_data, "bins"):
         if len(hist_data.bins) == 0:
             return hist_data
-    elif hasattr(hist_data, 'values'):
+    elif hasattr(hist_data, "values"):
         if len(hist_data.values) == 0:
             return hist_data
     else:
@@ -104,12 +112,12 @@ def sum_over_x(hist_data):
 
     # n_dim >= 2 and we have contents; here we sum over it.
     h_proj = None
-    if hasattr(hist_data, 'bins'):
+    if hasattr(hist_data, "bins"):
         h_proj = list(hist_data.bins.values())[0].zero()
         # loop over all counters and integrate over x (=i)
         for bi in hist_data.bins.values():
             h_proj += bi
-    elif hasattr(hist_data, 'values'):
+    elif hasattr(hist_data, "values"):
         h_proj = hist_data.values[0].zero()
         # loop over all counters and integrate
         for bi in hist_data.values:
@@ -118,7 +126,7 @@ def sum_over_x(hist_data):
     return h_proj
 
 
-def project_split2dhist_on_axis(splitdict, axis='x'):
+def project_split2dhist_on_axis(splitdict, axis="x"):
     """ Project a split 2d-histogram onto one axis
 
     Project a 2d hist that's been split with function split_hist_along_first_dimension
@@ -131,14 +139,16 @@ def project_split2dhist_on_axis(splitdict, axis='x'):
     :rtype: SortedDict
     """
     if not isinstance(splitdict, dict):
-        raise AssertionError('splitdict: {wt}, type should be a dictionary.'.format(wt=type(splitdict)))
-    if axis not in ['x', 'y']:
-        raise AssertionError('axis: {axis}, can only be x or y.'.format(axis=axis))
+        raise AssertionError(
+            "splitdict: {wt}, type should be a dictionary.".format(wt=type(splitdict))
+        )
+    if axis not in ["x", "y"]:
+        raise AssertionError("axis: {axis}, can only be x or y.".format(axis=axis))
 
     hdict = dict()
 
     for key, hxy in splitdict.items():
-        h = project_on_x(hxy) if axis == 'x' else sum_over_x(hxy)
+        h = project_on_x(hxy) if axis == "x" else sum_over_x(hxy)
         hdict[key] = h
 
     return hdict
@@ -147,6 +157,7 @@ def project_split2dhist_on_axis(splitdict, axis='x'):
 class HistogramContainer:
     """Wrapper class around histogrammar histograms with several utility functions.
     """
+
     def __init__(self, hist_obj):
         """Initialization
 
@@ -162,7 +173,9 @@ class HistogramContainer:
         elif isinstance(hist_obj, dict):
             self.hist = HG_FACTORY.fromJson(hist_obj)
         if isinstance(self.hist, type(None)):
-            raise AssertionError('Please provide histogram or histogram container as input.')
+            raise AssertionError(
+                "Please provide histogram or histogram container as input."
+            )
 
         self.is_list = isinstance(self.hist.datatype, list)
         var_type = self.hist.datatype if not self.is_list else self.hist.datatype[0]
@@ -185,9 +198,9 @@ class HistogramContainer:
         if convert_time_index and self.is_ts:
             axis_name = pd.Timestamp(axis_name)
         if not short_keys:
-            axis_name = '{name}={binlabel}'.format(name=xname, binlabel=axis_name)
+            axis_name = "{name}={binlabel}".format(name=xname, binlabel=axis_name)
             if self.n_dim >= 2:
-                axis_name = '{name}[{slice}]'.format(name=yname, slice=axis_name)
+                axis_name = "{name}[{slice}]".format(name=yname, slice=axis_name)
         return axis_name
 
     def sparse_bin_centers_x(self):
@@ -198,7 +211,9 @@ class HistogramContainer:
             # number of bins is set to 1.
             centers = np.array([self.hist.origin + 0.5 * self.hist.binWidth])
         else:
-            centers = np.array([self.hist.origin + (i + 0.5) * self.hist.binWidth for i in keys])
+            centers = np.array(
+                [self.hist.origin + (i + 0.5) * self.hist.binWidth for i in keys]
+            )
 
         values = [self.hist.bins[key] for key in keys]
         return centers, values
@@ -214,8 +229,14 @@ class HistogramContainer:
             centers, values = self.hist.bin_labels(), self.hist.values
         return centers, values
 
-    def split_hist_along_first_dimension(self, xname='x', yname='y', short_keys=True, convert_time_index=True,
-                                         filter_empty_split_hists=True):
+    def split_hist_along_first_dimension(
+        self,
+        xname="x",
+        yname="y",
+        short_keys=True,
+        convert_time_index=True,
+        filter_empty_split_hists=True,
+    ):
         """Split (multi-dimensional) hist into sub-hists along x-axis
 
         Function to split a (multi-dimensional) histogram into sub-histograms
@@ -233,7 +254,7 @@ class HistogramContainer:
 
         # nothing special to do
         if self.n_dim == 0:
-            hdict['dummy'] = self.hist
+            hdict["dummy"] = self.hist
             return hdict
 
         centers, values = self.get_bin_centers()
@@ -279,7 +300,9 @@ def get_hist_props(hist):
     """
     hist = hist.hist if isinstance(hist, HistogramContainer) else hist
 
-    var_type = hist.datatype if not isinstance(hist.datatype, list) else hist.datatype[0]
+    var_type = (
+        hist.datatype if not isinstance(hist.datatype, list) else hist.datatype[0]
+    )
     npdtype = np.dtype(var_type)
 
     # determine data-type categories
@@ -288,7 +311,9 @@ def get_hist_props(hist):
     is_num = is_ts or isinstance(npdtype.type(), np.number)
     is_bool = isinstance(npdtype.type(), np.bool_)
 
-    return dict(dtype=npdtype, is_num=is_num, is_int=is_int, is_ts=is_ts, is_bool=is_bool)
+    return dict(
+        dtype=npdtype, is_num=is_num, is_int=is_int, is_ts=is_ts, is_bool=is_bool
+    )
 
 
 def dumper(obj):
@@ -308,11 +333,11 @@ def dumper(obj):
     :param obj: input object
     :return: output json object
     """
-    if hasattr(obj, 'toJSON'):
+    if hasattr(obj, "toJSON"):
         return obj.toJSON()
-    elif hasattr(obj, 'toJson'):
+    elif hasattr(obj, "toJson"):
         return obj.toJson()
-    elif hasattr(obj, '__dict__'):
+    elif hasattr(obj, "__dict__"):
         return obj.__dict__
     else:
-        raise RuntimeError(f'Do not know how to serialize object type {type(obj)}')
+        raise RuntimeError(f"Do not know how to serialize object type {type(obj)}")

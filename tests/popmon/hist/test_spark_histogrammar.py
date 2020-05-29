@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from os.path import abspath, join, dirname
+from os.path import abspath, dirname, join
+
 import pandas as pd
-from popmon.hist.filling import SparkHistogrammar
+import pytest
+
 # from popmon.hist.filling import make_histograms
 from popmon.base import Pipeline
-
-import pytest
+from popmon.hist.filling import SparkHistogrammar
 
 try:
     from pyspark.sql import SparkSession
+
     spark_found = True
 except (ModuleNotFoundError, AttributeError):
     spark_found = False
@@ -23,23 +25,18 @@ def get_spark():
 
     current_path = dirname(abspath(__file__))
 
-    hist_spark_jar = join(
-        current_path,
-        "jars/histogrammar-sparksql_2.11-1.0.4.jar"
-    )
+    hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.4.jar")
 
-    hist_jar = join(
-        current_path,
-        "jars/histogrammar_2.11-1.0.4.jar"
-    )
+    hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.4.jar")
 
-    spark = SparkSession.builder \
-        .master('local') \
-        .appName('popmon-pytest') \
-        .config("spark.jars", "{},{}".format(hist_spark_jar, hist_jar)) \
-        .config("spark.sql.execution.arrow.enabled", "false") \
-        .config('spark.sql.session.timeZone', 'GMT') \
+    spark = (
+        SparkSession.builder.master("local")
+        .appName("popmon-pytest")
+        .config("spark.jars", "{},{}".format(hist_spark_jar, hist_jar))
+        .config("spark.sql.execution.arrow.enabled", "false")
+        .config("spark.sql.session.timeZone", "GMT")
         .getOrCreate()
+    )
     return spark
 
 
@@ -53,7 +50,9 @@ def spark_co():
 
 
 @pytest.mark.skipif(not spark_found, reason="spark not found")
-@pytest.mark.filterwarnings("ignore:createDataFrame attempted Arrow optimization because")
+@pytest.mark.filterwarnings(
+    "ignore:createDataFrame attempted Arrow optimization because"
+)
 def test_get_histograms(spark_co):
     pytest.age["data"]["name"] = "b'age'"
     pytest.company["data"]["name"] = "b'company'"
@@ -72,31 +71,40 @@ def test_get_histograms(spark_co):
 
     spark_filler = SparkHistogrammar(
         features=[
-            'date', 'isActive', 'age', 'eyeColor', 'gender', 'company',
-            'latitude', 'longitude', ['isActive', 'age'],
-            ['latitude', 'longitude']
+            "date",
+            "isActive",
+            "age",
+            "eyeColor",
+            "gender",
+            "company",
+            "latitude",
+            "longitude",
+            ["isActive", "age"],
+            ["latitude", "longitude"],
         ],
         bin_specs={
-            'longitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-            'latitude': {'bin_width': 5.0, 'bin_offset': 0.0}
+            "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
+            "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
         },
-        read_key='input',
-        store_key='output'
+        read_key="input",
+        store_key="output",
     )
 
     # test get_histograms() function call
     current_hists = spark_filler.get_histograms(spark_df)
     # current_hists = make_histograms(spark_df, features, bin_specs)
-    assert current_hists['age'].toJson() == pytest.age
-    assert current_hists['company'].toJson() == pytest.company
-    assert current_hists['eyeColor'].toJson() == pytest.eyesColor
-    assert current_hists['gender'].toJson() == pytest.gender
-    assert current_hists['latitude'].toJson() == pytest.latitude
-    assert current_hists['longitude'].toJson() == pytest.longitude
+    assert current_hists["age"].toJson() == pytest.age
+    assert current_hists["company"].toJson() == pytest.company
+    assert current_hists["eyeColor"].toJson() == pytest.eyesColor
+    assert current_hists["gender"].toJson() == pytest.gender
+    assert current_hists["latitude"].toJson() == pytest.latitude
+    assert current_hists["longitude"].toJson() == pytest.longitude
 
 
 @pytest.mark.skipif(not spark_found, reason="spark not found")
-@pytest.mark.filterwarnings("ignore:createDataFrame attempted Arrow optimization because")
+@pytest.mark.filterwarnings(
+    "ignore:createDataFrame attempted Arrow optimization because"
+)
 def test_get_histograms_module(spark_co):
     pytest.age["data"]["name"] = "b'age'"
     pytest.company["data"]["name"] = "b'company'"
@@ -115,30 +123,37 @@ def test_get_histograms_module(spark_co):
 
     spark_filler = SparkHistogrammar(
         features=[
-            'date', 'isActive', 'age', 'eyeColor', 'gender', 'company',
-            'latitude', 'longitude', ['isActive', 'age'],
-            ['latitude', 'longitude']
+            "date",
+            "isActive",
+            "age",
+            "eyeColor",
+            "gender",
+            "company",
+            "latitude",
+            "longitude",
+            ["isActive", "age"],
+            ["latitude", "longitude"],
         ],
         bin_specs={
-            'longitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-            'latitude': {'bin_width': 5.0, 'bin_offset': 0.0}
+            "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
+            "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
         },
-        read_key='input',
-        store_key='output'
+        read_key="input",
+        store_key="output",
     )
 
     # test transform() function call
     pipeline = Pipeline(modules=[spark_filler])
-    datastore = pipeline.transform(datastore={'input': spark_df})
+    datastore = pipeline.transform(datastore={"input": spark_df})
 
-    assert 'output' in datastore
-    current_hists = datastore['output']
-    assert current_hists['age'].toJson() == pytest.age
-    assert current_hists['company'].toJson() == pytest.company
-    assert current_hists['eyeColor'].toJson() == pytest.eyesColor
-    assert current_hists['gender'].toJson() == pytest.gender
-    assert current_hists['latitude'].toJson() == pytest.latitude
-    assert current_hists['longitude'].toJson() == pytest.longitude
+    assert "output" in datastore
+    current_hists = datastore["output"]
+    assert current_hists["age"].toJson() == pytest.age
+    assert current_hists["company"].toJson() == pytest.company
+    assert current_hists["eyeColor"].toJson() == pytest.eyesColor
+    assert current_hists["gender"].toJson() == pytest.gender
+    assert current_hists["latitude"].toJson() == pytest.latitude
+    assert current_hists["longitude"].toJson() == pytest.longitude
     # assert current_hists['date'].toJson() == pytest.date
     # assert current_hists['isActive'].toJson() == pytest.isActive
     # assert current_hists['isActive:age'].toJson() == pytest.isActive_age
@@ -146,7 +161,9 @@ def test_get_histograms_module(spark_co):
 
 
 @pytest.mark.skipif(not spark_found, reason="spark not found")
-@pytest.mark.filterwarnings("ignore:createDataFrame attempted Arrow optimization because")
+@pytest.mark.filterwarnings(
+    "ignore:createDataFrame attempted Arrow optimization because"
+)
 def test_get_histograms_timestamp(spark_co):
     from pyspark.sql.functions import to_timestamp
 
@@ -162,25 +179,27 @@ def test_get_histograms_timestamp(spark_co):
         "2018-12-17 00:00:00",
         "2018-12-17 00:00:00",
         "2018-12-17 00:00:00",
-        "2018-12-19 00:00:00"
+        "2018-12-19 00:00:00",
     ]
 
-    df = pd.DataFrame(data_date, columns=['dt'])
-    sdf = spark.createDataFrame(df).withColumn("dt", to_timestamp("dt", "yyyy-MM-dd HH:mm:ss"))
+    df = pd.DataFrame(data_date, columns=["dt"])
+    sdf = spark.createDataFrame(df).withColumn(
+        "dt", to_timestamp("dt", "yyyy-MM-dd HH:mm:ss")
+    )
     expected = {
-        'data': {
-            'binWidth': 2592000000000000.0,
-            'bins': {'108': 9.0, '109': 1.0},
-            'bins:type': 'Count',
-            'entries': 10.0,
-            'name': "b'dt'",
-            'nanflow': 0.0,
-            'nanflow:type': 'Count',
-            'origin': 1.2625632e+18
+        "data": {
+            "binWidth": 2592000000000000.0,
+            "bins": {"108": 9.0, "109": 1.0},
+            "bins:type": "Count",
+            "entries": 10.0,
+            "name": "b'dt'",
+            "nanflow": 0.0,
+            "nanflow:type": "Count",
+            "origin": 1.2625632e18,
         },
-        'type': 'SparselyBin',
-        'version': '1.0'
+        "type": "SparselyBin",
+        "version": "1.0",
     }
-    filler = SparkHistogrammar(features=['dt'])
+    filler = SparkHistogrammar(features=["dt"])
     current_hists = filler.get_histograms(sdf)
-    assert current_hists['dt'].toJson() == expected
+    assert current_hists["dt"].toJson() == expected

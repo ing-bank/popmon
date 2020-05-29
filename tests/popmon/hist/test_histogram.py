@@ -1,13 +1,19 @@
 import numpy as np
 import pandas as pd
+
+from popmon.hist.histogram import (
+    HistogramContainer,
+    project_on_x,
+    project_split2dhist_on_axis,
+    sum_entries,
+    sum_over_x,
+)
 from popmon.hist.patched_histogrammer import histogrammar as hg
-from popmon.hist.histogram import HistogramContainer, sum_entries, sum_over_x, project_on_x, \
-    project_split2dhist_on_axis
 
 
 def get_test_data():
     df = pd.util.testing.makeMixedDataFrame()
-    df['date'] = df['D'].apply(lambda x: pd.to_datetime(x).value)
+    df["date"] = df["D"].apply(lambda x: pd.to_datetime(x).value)
     return df
 
 
@@ -18,10 +24,14 @@ def unit(x):
 def get_histograms():
     df = get_test_data()
 
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist2)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
 
     for hist in [hist1, hist2, hist3]:
         hist.fill.numpy(df)
@@ -66,7 +76,9 @@ def test_sparse_bin_centers_x():
     hist_obj3 = HistogramContainer(hist3)
     centers3, values3 = hist_obj3.sparse_bin_centers_x()
 
-    np.testing.assert_array_equal(centers3, [1.2308112e+18, 1.2308976e+18, 1.2311568e+18, 1.2312432e+18, 1.2313296e+18])
+    np.testing.assert_array_equal(
+        centers3, [1.2308112e18, 1.2308976e18, 1.2311568e18, 1.2312432e18, 1.2313296e18]
+    )
 
 
 def test_split_hist_along_first_dimension():
@@ -75,34 +87,49 @@ def test_split_hist_along_first_dimension():
     hist_obj2 = HistogramContainer(hist2)
     hist_obj3 = HistogramContainer(hist3)
 
-    split3a = hist_obj3.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=True)
-    split3b = hist_obj3.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=False)
-    split3c = hist_obj3.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=False, convert_time_index=True)
+    split3a = hist_obj3.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    split3b = hist_obj3.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=False
+    )
+    split3c = hist_obj3.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=False, convert_time_index=True
+    )
 
     keys3a = list(split3a.keys())
     keys3b = list(split3b.keys())
     keys3c = list(split3c.keys())
 
-    check3a = [pd.Timestamp('2009-01-01 12:00:00'),
-               pd.Timestamp('2009-01-02 12:00:00'), pd.Timestamp('2009-01-05 12:00:00'),
-               pd.Timestamp('2009-01-06 12:00:00'), pd.Timestamp('2009-01-07 12:00:00')]
-    check3b = [1.2308112e+18, 1.2308976e+18, 1.2311568e+18, 1.2312432e+18, 1.2313296e+18]
-    check3c = ['y[x=2009-01-01 12:00:00]', 'y[x=2009-01-02 12:00:00]', 'y[x=2009-01-05 12:00:00]',
-               'y[x=2009-01-06 12:00:00]', 'y[x=2009-01-07 12:00:00]']
+    check3a = [
+        pd.Timestamp("2009-01-01 12:00:00"),
+        pd.Timestamp("2009-01-02 12:00:00"),
+        pd.Timestamp("2009-01-05 12:00:00"),
+        pd.Timestamp("2009-01-06 12:00:00"),
+        pd.Timestamp("2009-01-07 12:00:00"),
+    ]
+    check3b = [1.2308112e18, 1.2308976e18, 1.2311568e18, 1.2312432e18, 1.2313296e18]
+    check3c = [
+        "y[x=2009-01-01 12:00:00]",
+        "y[x=2009-01-02 12:00:00]",
+        "y[x=2009-01-05 12:00:00]",
+        "y[x=2009-01-06 12:00:00]",
+        "y[x=2009-01-07 12:00:00]",
+    ]
 
     np.testing.assert_array_equal(keys3a, check3a)
     np.testing.assert_array_equal(keys3b, check3b)
     np.testing.assert_array_equal(keys3c, check3c)
 
-    split2a = hist_obj2.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=True)
-    split2b = hist_obj2.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=False)
-    split2c = hist_obj2.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=False, convert_time_index=False)
+    split2a = hist_obj2.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    split2b = hist_obj2.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=False
+    )
+    split2c = hist_obj2.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=False, convert_time_index=False
+    )
 
     keys2a = list(split2a.keys())
     keys2b = list(split2b.keys())
@@ -110,26 +137,29 @@ def test_split_hist_along_first_dimension():
 
     check2a = [0.5, 1.5, 2.5, 3.5, 4.5]
     check2b = [0.5, 1.5, 2.5, 3.5, 4.5]
-    check2c = ['y[x=0.5]', 'y[x=1.5]', 'y[x=2.5]', 'y[x=3.5]', 'y[x=4.5]']
+    check2c = ["y[x=0.5]", "y[x=1.5]", "y[x=2.5]", "y[x=3.5]", "y[x=4.5]"]
 
     np.testing.assert_array_equal(keys2a, check2a)
     np.testing.assert_array_equal(keys2b, check2b)
     np.testing.assert_array_equal(keys2c, check2c)
 
-    split1a = hist_obj1.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=True)
-    split1b = hist_obj1.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=True, convert_time_index=False)
-    split1c = hist_obj1.split_hist_along_first_dimension(xname='x', yname='y',
-                                                         short_keys=False, convert_time_index=False)
+    split1a = hist_obj1.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    split1b = hist_obj1.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=False
+    )
+    split1c = hist_obj1.split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=False, convert_time_index=False
+    )
 
     keys1a = list(split1a.keys())
     keys1b = list(split1b.keys())
     keys1c = list(split1c.keys())
 
-    check1a = ['foo1', 'foo2', 'foo3', 'foo4', 'foo5']
-    check1b = ['foo1', 'foo2', 'foo3', 'foo4', 'foo5']
-    check1c = ['x=foo1', 'x=foo2', 'x=foo3', 'x=foo4', 'x=foo5']
+    check1a = ["foo1", "foo2", "foo3", "foo4", "foo5"]
+    check1b = ["foo1", "foo2", "foo3", "foo4", "foo5"]
+    check1c = ["x=foo1", "x=foo2", "x=foo3", "x=foo4", "x=foo5"]
 
     np.testing.assert_array_equal(keys1a, check1a)
     np.testing.assert_array_equal(keys1b, check1b)
@@ -145,8 +175,8 @@ def test_split_hist_along_first_dimension():
     assert isinstance(hs3, hg.Bin)
     assert isinstance(hs2, hg.Categorize)
     assert isinstance(hs1, hg.Count)
-    assert hs3.contentType == 'Categorize'
-    assert hs2.contentType == 'Count'
+    assert hs3.contentType == "Categorize"
+    assert hs2.contentType == "Count"
 
 
 def test_sum_entries():
@@ -160,10 +190,10 @@ def test_sum_entries():
 def test_sum_over_x():
     df = get_test_data()
 
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.Bin(5, 0, 5, unit('A'))
-    hist4 = hg.Categorize(unit('C'), value=hist3)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.Bin(5, 0, 5, unit("A"))
+    hist4 = hg.Categorize(unit("C"), value=hist3)
 
     for hist in [hist1, hist2, hist3, hist4]:
         hist.fill.numpy(df)
@@ -189,10 +219,10 @@ def test_sum_over_x():
 
 def test_project_on_x():
     df = get_test_data()
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.Bin(5, 0, 5, unit('A'))
-    hist4 = hg.Categorize(unit('C'), value=hist3)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.Bin(5, 0, 5, unit("A"))
+    hist4 = hg.Categorize(unit("C"), value=hist3)
 
     for hist in [hist1, hist2, hist3, hist4]:
         hist.fill.numpy(df)
@@ -219,38 +249,58 @@ def test_project_on_x():
 def test_project_split2dhist_on_axis():
     df = get_test_data()
 
-    histA = hg.Bin(5, 0, 5, unit('A'))
-    histC = hg.Categorize(unit('C'))
-    hist1 = hg.Categorize(unit('C'), value=histA)
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=histC)
+    histA = hg.Bin(5, 0, 5, unit("A"))
+    histC = hg.Categorize(unit("C"))
+    hist1 = hg.Categorize(unit("C"), value=histA)
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=histC)
 
-    histDCA = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                             quantity=unit('date'), value=hist1)
-    histDAC = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                             quantity=unit('date'), value=hist2)
+    histDCA = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist1,
+    )
+    histDAC = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
 
-    histDA = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                            quantity=unit('date'), value=histA)
-    histDC = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                            quantity=unit('date'), value=histC)
+    histDA = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=histA,
+    )
+    histDC = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=histC,
+    )
 
     for hist in [histDA, histDC, histDCA, histDAC]:
         hist.fill.numpy(df)
 
     # split along date axis
-    splitAC = HistogramContainer(histDAC).split_hist_along_first_dimension(xname='x', yname='y',
-                                                                           short_keys=True, convert_time_index=True)
-    splitCA = HistogramContainer(histDCA).split_hist_along_first_dimension(xname='x', yname='y',
-                                                                           short_keys=True, convert_time_index=True)
-    splitA0 = HistogramContainer(histDA).split_hist_along_first_dimension(xname='x', yname='y',
-                                                                          short_keys=True, convert_time_index=True)
-    splitC0 = HistogramContainer(histDC).split_hist_along_first_dimension(xname='x', yname='y',
-                                                                          short_keys=True, convert_time_index=True)
+    splitAC = HistogramContainer(histDAC).split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    splitCA = HistogramContainer(histDCA).split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    splitA0 = HistogramContainer(histDA).split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
+    splitC0 = HistogramContainer(histDC).split_hist_along_first_dimension(
+        xname="x", yname="y", short_keys=True, convert_time_index=True
+    )
 
-    splitA1 = project_split2dhist_on_axis(splitAC, 'x')
-    splitA2 = project_split2dhist_on_axis(splitCA, 'y')
-    splitC1 = project_split2dhist_on_axis(splitAC, 'y')
-    splitC2 = project_split2dhist_on_axis(splitCA, 'x')
+    splitA1 = project_split2dhist_on_axis(splitAC, "x")
+    splitA2 = project_split2dhist_on_axis(splitCA, "y")
+    splitC1 = project_split2dhist_on_axis(splitAC, "y")
+    splitC2 = project_split2dhist_on_axis(splitCA, "x")
 
     assert len(splitA0) == len(splitA1)
     assert len(splitA0) == len(splitA2)
