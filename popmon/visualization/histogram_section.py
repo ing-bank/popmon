@@ -54,7 +54,7 @@ class HistogramSection(Module):
         def short_date(date):
             return date if len(date) <= 22 else date[:22]
 
-        for feature in tqdm(features):
+        for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
 
             last_n = len(df.index) if len(df.index) < self.last_n else self.last_n

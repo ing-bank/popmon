@@ -77,7 +77,7 @@ class SectionGenerator(Module):
         def short_date(date):
             return date if len(date) <= 22 else date[:22]
 
-        for feature in tqdm(features):
+        for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
             fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
 

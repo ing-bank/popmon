@@ -146,7 +146,7 @@ class PandasHistogrammar(HistogramFillerBase):
 
         # parallel histogram filling with working progress bar
         num_cores = multiprocessing.cpu_count()
-        with tqdm_joblib(tqdm(total=len(self.features))) as progress_bar:  # noqa: F841
+        with tqdm_joblib(tqdm(total=len(self.features), ncols=100)) as progress_bar:  # noqa: F841
             res = Parallel(n_jobs=num_cores)(
                 delayed(_fill_histogram)(idf=idf[c], hist=self._hists[':'.join(c)], features=c)
                 for c in self.features
