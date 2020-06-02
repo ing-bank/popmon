@@ -140,7 +140,6 @@ cython_debug/
 .flake8
 
 docs/build
-version.py
 
 .vscode
 .idea
