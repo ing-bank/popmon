@@ -211,7 +211,7 @@ class SparkHistogrammar(HistogramFillerBase):
 
         :param idf: input data frame used for filling histogram
         """
-        for cols in tqdm(self.features):
+        for cols in tqdm(self.features, ncols=100):
             self.logger.debug('Processing feature "{cols}".'.format(cols=':'.join(cols)))
             self.fill_histogram(idf, cols)
 

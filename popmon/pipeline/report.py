@@ -316,6 +316,10 @@ class StabilityReport(Module):
         from IPython.core.display import display
         return display(self.to_notebook_iframe())
 
+    def __repr__(self):
+        """Override so that Jupyter Notebook does not print the object."""
+        return ""
+
     def to_html(self, escape=False):
         """HTML code representation of the report (represented as a string).
 
@@ -333,7 +337,7 @@ class StabilityReport(Module):
         with open(filename, "w+") as file:
             file.write(self.to_html())
 
-    def to_notebook_iframe(self, width="992px", height="100%"):
+    def to_notebook_iframe(self, width="100%", height="100%"):
         """HTML representation of the class (report) embedded in an iframe.
 
         :param str width: width of the frame to be shown
