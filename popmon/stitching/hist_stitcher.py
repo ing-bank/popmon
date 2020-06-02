@@ -321,7 +321,7 @@ class HistStitcher(Module):
             raise TypeError(
                 "time_bin_idxs have inconsistent datatypes: {dts}".format(dts=dts)
             )
-        if not isinstance(time_bin_idx[0], (str, int, np.int64)):
+        if not isinstance(time_bin_idx[0], (str, int, np.integer)):
             raise TypeError("time_bin_idxs should be an (ordered) string or integer.")
 
         # consistency checks on histogram definitions
