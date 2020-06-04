@@ -1,23 +1,26 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from phik import phik
+
+import popmon.stats.numpy as pm_np
+
 from ...analysis.hist_numpy import get_2dgrid
 from ...base import Module
 from ...hist.histogram import sum_entries
-import popmon.stats.numpy as pm_np
 
-
-DEFAULT_STATS = {"mean": pm_np.mean,
-                 "std": pm_np.std,
-                 "min": lambda x, w: pm_np.quantile(x, q=0.00, weights=w),
-                 "max": lambda x, w: pm_np.quantile(x, q=1.00, weights=w),
-                 "p01": lambda x, w: pm_np.quantile(x, q=0.01, weights=w),
-                 "p05": lambda x, w: pm_np.quantile(x, q=0.05, weights=w),
-                 "p16": lambda x, w: pm_np.quantile(x, q=0.16, weights=w),
-                 "p50": lambda x, w: pm_np.quantile(x, q=0.50, weights=w),
-                 "p84": lambda x, w: pm_np.quantile(x, q=0.84, weights=w),
-                 "p95": lambda x, w: pm_np.quantile(x, q=0.95, weights=w),
-                 "p99": lambda x, w: pm_np.quantile(x, q=0.99, weights=w)}
+DEFAULT_STATS = {
+    "mean": pm_np.mean,
+    "std": pm_np.std,
+    "min": lambda x, w: pm_np.quantile(x, q=0.00, weights=w),
+    "max": lambda x, w: pm_np.quantile(x, q=1.00, weights=w),
+    "p01": lambda x, w: pm_np.quantile(x, q=0.01, weights=w),
+    "p05": lambda x, w: pm_np.quantile(x, q=0.05, weights=w),
+    "p16": lambda x, w: pm_np.quantile(x, q=0.16, weights=w),
+    "p50": lambda x, w: pm_np.quantile(x, q=0.50, weights=w),
+    "p84": lambda x, w: pm_np.quantile(x, q=0.84, weights=w),
+    "p95": lambda x, w: pm_np.quantile(x, q=0.95, weights=w),
+    "p99": lambda x, w: pm_np.quantile(x, q=0.99, weights=w),
+}
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
@@ -40,8 +43,18 @@ class HistProfiler(Module):
     :param str index_col: key for index in split dictionary
     :param dict stats_functions: function_name, function(bin_labels, bin_counts) dictionary
     """
-    def __init__(self, read_key, store_key, features=None, ignore_features=None, var_timestamp=None,
-                 hist_col='histogram', index_col="date", stats_functions=None):
+
+    def __init__(
+        self,
+        read_key,
+        store_key,
+        features=None,
+        ignore_features=None,
+        var_timestamp=None,
+        hist_col="histogram",
+        index_col="date",
+        stats_functions=None,
+    ):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
@@ -51,14 +64,24 @@ class HistProfiler(Module):
         self.hist_col = hist_col
         self.index_col = index_col
 
-        self.general_stats_1d = ['count', 'filled', 'distinct', 'nan', 'most_probable_value', 'overflow', 'underflow']
-        self.general_stats_2d = ['count', 'phik']
-        self.category_stats_1d = ['fraction_true']
+        self.general_stats_1d = [
+            "count",
+            "filled",
+            "distinct",
+            "nan",
+            "most_probable_value",
+            "overflow",
+            "underflow",
+        ]
+        self.general_stats_2d = ["count", "phik"]
+        self.category_stats_1d = ["fraction_true"]
 
         self.stats_functions = stats_functions
         if self.stats_functions is None:
             self.stats_functions = dict(DEFAULT_STATS)
-            self.logger.debug(f"No stats function dict is provided. {self.stats_functions.keys()} is set as default")
+            self.logger.debug(
+                f"No stats function dict is provided. {self.stats_functions.keys()} is set as default"
+            )
 
     def _profile_1d_histogram(self, name, hc):
         is_num = hc.is_num
@@ -77,9 +100,13 @@ class HistProfiler(Module):
 
         profile = dict()
         profile["filled"] = bin_counts.sum()
-        profile["nan"] = hc.hist.nanflow.entries if hasattr(hc.hist, 'nanflow') else 0
-        profile["overflow"] = hc.hist.overflow.entries if hasattr(hc.hist, 'overflow') else 0
-        profile["underflow"] = hc.hist.underflow.entries if hasattr(hc.hist, 'underflow') else 0
+        profile["nan"] = hc.hist.nanflow.entries if hasattr(hc.hist, "nanflow") else 0
+        profile["overflow"] = (
+            hc.hist.overflow.entries if hasattr(hc.hist, "overflow") else 0
+        )
+        profile["underflow"] = (
+            hc.hist.underflow.entries if hasattr(hc.hist, "underflow") else 0
+        )
         profile["count"] = profile["filled"] + profile["nan"]
         profile["distinct"] = len(np.unique(bin_labels))
         mpv = bin_labels[np.argmax(bin_counts)]  # most probable value
@@ -90,15 +117,19 @@ class HistProfiler(Module):
                 profile[f_name] = func(bin_labels, bin_counts)
                 if is_ts:
                     pf = profile[f_name]
-                    profile[f_name] = pd.Timedelta(pf) if f_name == "std" else pd.Timestamp(pf)
+                    profile[f_name] = (
+                        pd.Timedelta(pf) if f_name == "std" else pd.Timestamp(pf)
+                    )
         elif not is_num:
-            profile['fraction_true'] = pm_np.fraction_of_true(bin_labels, bin_counts)
+            profile["fraction_true"] = pm_np.fraction_of_true(bin_labels, bin_counts)
 
         return profile
 
     def _profile_2d_histogram(self, name, hc):
         if hc.n_dim < 2:
-            self.logger.warning(f'Histogram {name} has {hc.n_dim} dimensions (<2); cannot profile. Returning empty.')
+            self.logger.warning(
+                f"Histogram {name} has {hc.n_dim} dimensions (<2); cannot profile. Returning empty."
+            )
             return []
         try:
             grid = get_2dgrid(hc.hist)
@@ -114,10 +145,12 @@ class HistProfiler(Module):
             # p, Z = significance.significance_from_hist2d(values=grid, significance_method='asymptotic')
             profile = dict(phik=phi_k)
         except AssertionError:
-            self.logger.debug(f'Not enough values in the 2d `{name}` time-split histogram to apply the phik test.')
+            self.logger.debug(
+                f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
+            )
             profile = dict(phik=np.nan)
 
-        return {'count': sume, **profile}
+        return {"count": sume, **profile}
 
     def _profile_hist(self, split, hist_name):
         if len(split) == 0:
@@ -132,7 +165,11 @@ class HistProfiler(Module):
         fields = list()
         if dimension == 1:
             fields = list(self.general_stats_1d)
-            fields += [key for key, value in self.stats_functions.items()] if is_num else list(self.category_stats_1d)
+            fields += (
+                [key for key, value in self.stats_functions.items()]
+                if is_num
+                else list(self.category_stats_1d)
+            )
         elif dimension == 2:
             fields = list(self.general_stats_2d)
 
@@ -148,15 +185,21 @@ class HistProfiler(Module):
             elif dimension == 2:
                 profile.update(self._profile_2d_histogram(hist_name, hc))
 
-            if sorted(profile.keys()) != sorted(fields + [self.index_col, self.hist_col]):
-                self.logger.error(f'Could not extract full profile for sub-hist "{hist_name} {index}". Skipping.')
+            if sorted(profile.keys()) != sorted(
+                fields + [self.index_col, self.hist_col]
+            ):
+                self.logger.error(
+                    f'Could not extract full profile for sub-hist "{hist_name} {index}". Skipping.'
+                )
             else:
                 profile_list.append(profile)
 
         return profile_list
 
     def transform(self, datastore):
-        self.logger.info(f'Profiling histograms \"{self.read_key}\" as \"{self.store_key}\"')
+        self.logger.info(
+            f'Profiling histograms "{self.read_key}" as "{self.store_key}"'
+        )
         data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
         profiled = dict()
 
@@ -164,12 +207,14 @@ class HistProfiler(Module):
 
         for feature in features[:]:
             df = self.get_datastore_object(data, feature, dtype=pd.DataFrame)
-            hc_split_list = df.reset_index().to_dict('records')
+            hc_split_list = df.reset_index().to_dict("records")
 
             self.logger.debug(f'Profiling histogram "{feature}".')
             profile_list = self._profile_hist(split=hc_split_list, hist_name=feature)
             if len(profile_list) > 0:
-                profiled[feature] = pd.DataFrame(profile_list).set_index([self.index_col])
+                profiled[feature] = pd.DataFrame(profile_list).set_index(
+                    [self.index_col]
+                )
 
         datastore[self.store_key] = profiled
         return datastore

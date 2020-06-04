@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+
 from ...hist.filling.pandas_histogrammar import PandasHistogrammar
 
 
@@ -15,8 +16,20 @@ class NumpyHistogrammar(PandasHistogrammar):
     the binning is applied. Final histograms are stored in the datastore.
     """
 
-    def __init__(self, features=None, binning='unit', bin_specs=None, time_axis='', var_dtype=None,
-                 read_key=None, store_key=None, nbins_1d=40, nbins_2d=20, nbins_3d=10, max_nunique=500):
+    def __init__(
+        self,
+        features=None,
+        binning="unit",
+        bin_specs=None,
+        time_axis="",
+        var_dtype=None,
+        read_key=None,
+        store_key=None,
+        nbins_1d=40,
+        nbins_2d=20,
+        nbins_3d=10,
+        max_nunique=500,
+    ):
         """Initialize module instance.
 
         Store and do basic check on the attributes HistogramFillerBase.
@@ -56,10 +69,22 @@ class NumpyHistogrammar(PandasHistogrammar):
         :param int nbins_3d: auto-binning number of bins for 3d histograms. default is 10.
         :param int max_nunique: auto-binning threshold for unique categorical values. default is 500.
         """
-        PandasHistogrammar.__init__(self, features, binning, bin_specs, time_axis, var_dtype, read_key, store_key,
-                                    nbins_1d, nbins_2d, nbins_3d, max_nunique)
+        PandasHistogrammar.__init__(
+            self,
+            features,
+            binning,
+            bin_specs,
+            time_axis,
+            var_dtype,
+            read_key,
+            store_key,
+            nbins_1d,
+            nbins_2d,
+            nbins_3d,
+            max_nunique,
+        )
 
     def _execute(self, df):
         if not isinstance(df, np.ndarray):
-            raise TypeError('retrieved object not of type np.ndarray')
+            raise TypeError("retrieved object not of type np.ndarray")
         return super()._execute(pd.DataFrame(df))

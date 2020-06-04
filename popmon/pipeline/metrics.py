@@ -1,22 +1,40 @@
 import logging
-import pandas as pd
-from ..pipeline.metrics_pipelines import metrics_self_reference, metrics_external_reference, \
-    metrics_rolling_reference, metrics_expanding_reference
-from ..hist.filling.make_histograms import make_histograms, get_time_axes, get_bin_specs
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s [%(module)s]: %(message)s')
+import pandas as pd
+
+from ..hist.filling.make_histograms import get_bin_specs, get_time_axes, make_histograms
+from ..pipeline.metrics_pipelines import (
+    metrics_expanding_reference,
+    metrics_external_reference,
+    metrics_rolling_reference,
+    metrics_self_reference,
+)
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
+)
 logger = logging.getLogger()
 
 _metrics_pipeline = {
-    'self': metrics_self_reference,
-    'external': metrics_external_reference,
-    'rolling': metrics_rolling_reference,
-    'expanding': metrics_expanding_reference,
+    "self": metrics_self_reference,
+    "external": metrics_external_reference,
+    "rolling": metrics_rolling_reference,
+    "expanding": metrics_expanding_reference,
 }
 
 
-def stability_metrics(hists, reference_type='self', reference=None, time_axis='', window=10, shift=1,
-                      monitoring_rules=None, pull_rules=None, features=None, **kwargs):
+def stability_metrics(
+    hists,
+    reference_type="self",
+    reference=None,
+    time_axis="",
+    window=10,
+    shift=1,
+    monitoring_rules=None,
+    pull_rules=None,
+    features=None,
+    **kwargs,
+):
     """ Create a data stability monitoring datastore for given dict of input histograms.
 
     :param dict hists: input histograms to be profiled and monitored over time.
@@ -68,28 +86,33 @@ def stability_metrics(hists, reference_type='self', reference=None, time_axis=''
     # perform basic input checks
     reference_types = list(_metrics_pipeline.keys())
     if reference_type not in reference_types:
-        raise AssertionError(f'reference_type should be one of {str(reference_types)}.')
+        raise AssertionError(f"reference_type should be one of {str(reference_types)}.")
 
     if not isinstance(hists, dict):
-        raise AssertionError('hists should be a dict of histogrammar histograms.')
-    if reference_type == 'external' and not isinstance(reference, dict):
-        raise AssertionError('reference should be a dict of histogrammar histograms.')
+        raise AssertionError("hists should be a dict of histogrammar histograms.")
+    if reference_type == "external" and not isinstance(reference, dict):
+        raise AssertionError("reference should be a dict of histogrammar histograms.")
 
     if not isinstance(monitoring_rules, dict):
-        monitoring_rules = {"*_pull": [7, 4, -4, -7], "*_zscore": [7, 4, -4, -7],
-                            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+        monitoring_rules = {
+            "*_pull": [7, 4, -4, -7],
+            "*_zscore": [7, 4, -4, -7],
+            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+        }
     if not isinstance(pull_rules, dict):
         pull_rules = {"*_pull": [7, 4, -4, -7]}
 
-    if (isinstance(time_axis, str) and len(time_axis) == 0) or (isinstance(time_axis, bool) and time_axis):
+    if (isinstance(time_axis, str) and len(time_axis) == 0) or (
+        isinstance(time_axis, bool) and time_axis
+    ):
         # auto guess the time_axis: find the most frequent first column name in the histograms list
-        first_cols = [k.split(':')[0] for k in list(hists.keys())]
+        first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
     # configuration and datastore for report pipeline
     cfg = {
-        'hists_key': 'hists',
-        'ref_hists_key': 'ref_hists',
+        "hists_key": "hists",
+        "ref_hists_key": "ref_hists",
         "time_axis": time_axis,
         "window": window,
         "shift": shift,
@@ -100,18 +123,32 @@ def stability_metrics(hists, reference_type='self', reference=None, time_axis=''
     cfg.update(kwargs)
 
     datastore = dict()
-    datastore['hists'] = hists
-    if reference_type == 'external':
-        datastore['ref_hists'] = reference
+    datastore["hists"] = hists
+    if reference_type == "external":
+        datastore["ref_hists"] = reference
 
     # execute reporting pipeline
     pipeline = _metrics_pipeline[reference_type](**cfg)
     return pipeline.transform(datastore)
 
 
-def df_stability_metrics(df, time_axis, features=None, binning='auto', bin_specs=None, time_width=None, time_offset=0,
-                         var_dtype=None, reference_type='self', reference=None, window=10, shift=1,
-                         monitoring_rules=None, pull_rules=None, **kwargs):
+def df_stability_metrics(
+    df,
+    time_axis,
+    features=None,
+    binning="auto",
+    bin_specs=None,
+    time_width=None,
+    time_offset=0,
+    var_dtype=None,
+    reference_type="self",
+    reference=None,
+    window=10,
+    shift=1,
+    monitoring_rules=None,
+    pull_rules=None,
+    **kwargs,
+):
     """ Create a data stability monitoring html datastore for given pandas or spark dataframe.
 
     :param df: input pandas/spark dataframe to be profiled and monitored over time.
@@ -198,45 +235,65 @@ def df_stability_metrics(df, time_axis, features=None, binning='auto', bin_specs
     :return: dict with results of metrics pipeline
     """
     # basic checks on presence of time_axis
-    if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (isinstance(time_axis, bool) and time_axis):
-        raise AssertionError('time_axis needs to be a filled string or set to True')
+    if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (
+        isinstance(time_axis, bool) and time_axis
+    ):
+        raise AssertionError("time_axis needs to be a filled string or set to True")
     if isinstance(time_axis, str) and time_axis not in df.columns:
-        raise AssertionError(f'time_axis  \"{time_axis}\" not found in columns of dataframe.')
+        raise AssertionError(
+            f'time_axis  "{time_axis}" not found in columns of dataframe.'
+        )
     if reference is not None and not isinstance(reference, dict):
         if isinstance(time_axis, str) and time_axis not in reference.columns:
-            raise AssertionError(f'time_axis  \"{time_axis}\" not found in columns of reference dataframe.')
+            raise AssertionError(
+                f'time_axis  "{time_axis}" not found in columns of reference dataframe.'
+            )
     if isinstance(time_axis, bool):
         time_axes = get_time_axes(df)
         num = len(time_axes)
         if num == 1:
             time_axis = time_axes[0]
-            logger.info(f'Time-axis automatically set to \"{time_axis}\"')
+            logger.info(f'Time-axis automatically set to "{time_axis}"')
         elif num == 0:
-            raise RuntimeError('No obvious time-axes found. Cannot generate stability report.')
+            raise RuntimeError(
+                "No obvious time-axes found. Cannot generate stability report."
+            )
         else:
-            raise RuntimeError(f'Found {num} time-axes: {time_axes}. Set *one* time_axis manually!')
+            raise RuntimeError(
+                f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
+            )
     if features is not None:
         # by now time_axis is defined. ensure that all histograms start with it.
         if not isinstance(features, list):
-            raise TypeError('features should be list of columns (or combos) to pick up from input data.')
-        features = [c if c.startswith(time_axis) else f'{time_axis}:{c}' for c in features]
+            raise TypeError(
+                "features should be list of columns (or combos) to pick up from input data."
+            )
+        features = [
+            c if c.startswith(time_axis) else f"{time_axis}:{c}" for c in features
+        ]
 
     # interpret time_width and time_offset
-    if isinstance(time_width, (str, int, float)) and isinstance(time_offset, (str, int, float)):
+    if isinstance(time_width, (str, int, float)) and isinstance(
+        time_offset, (str, int, float)
+    ):
         if not isinstance(bin_specs, (type(None), dict)):
-            raise RuntimeError('bin_specs object is not a dictionary')
+            raise RuntimeError("bin_specs object is not a dictionary")
         if bin_specs is None:
             bin_specs = {}
         if time_axis in bin_specs:
-            raise RuntimeError(f'time-axis \"{time_axis}\" already found in binning specifications.')
+            raise RuntimeError(
+                f'time-axis "{time_axis}" already found in binning specifications.'
+            )
         # convert time width and offset to nanoseconds
-        time_specs = {'bin_width': float(pd.Timedelta(time_width).value),
-                      'bin_offset': float(pd.Timestamp(time_offset).value)}
+        time_specs = {
+            "bin_width": float(pd.Timedelta(time_width).value),
+            "bin_offset": float(pd.Timestamp(time_offset).value),
+        }
         bin_specs[time_axis] = time_specs
 
     reference_hists = None
     if reference is not None:
-        reference_type = 'external'
+        reference_type = "external"
         if isinstance(reference, dict):
             # 1. reference is dict of histograms
             # extract features and bin_specs from reference histograms
@@ -246,13 +303,42 @@ def df_stability_metrics(df, time_axis, features=None, binning='auto', bin_specs
         else:
             # 2. reference is pandas or spark dataframe
             # generate histograms and return updated features, bin_specs, time_axis, etc.
-            reference_hists, features, bin_specs, time_axis, var_dtype = \
-                make_histograms(reference, features, binning, bin_specs, time_axis, var_dtype, ret_specs=True)
+            (
+                reference_hists,
+                features,
+                bin_specs,
+                time_axis,
+                var_dtype,
+            ) = make_histograms(
+                reference,
+                features,
+                binning,
+                bin_specs,
+                time_axis,
+                var_dtype,
+                ret_specs=True,
+            )
 
     # use the same features, bin_specs, time_axis, etc as for reference hists
-    hists = make_histograms(df, features=features, binning=binning, bin_specs=bin_specs,
-                            time_axis=time_axis, var_dtype=var_dtype)
+    hists = make_histograms(
+        df,
+        features=features,
+        binning=binning,
+        bin_specs=bin_specs,
+        time_axis=time_axis,
+        var_dtype=var_dtype,
+    )
 
     # generate data stability report
-    return stability_metrics(hists, reference_type, reference_hists, time_axis, window, shift, monitoring_rules,
-                             pull_rules, features, **kwargs)
+    return stability_metrics(
+        hists,
+        reference_type,
+        reference_hists,
+        time_axis,
+        window,
+        shift,
+        monitoring_rules,
+        pull_rules,
+        features,
+        **kwargs,
+    )

@@ -1,14 +1,15 @@
 import os
 import unittest
-import pytest
+
 import nbformat
+import pytest
+from jupyter_client.kernelspec import KernelSpecManager, NoSuchKernel
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors.execute import CellExecutionError
+
 from popmon import resources
-from jupyter_client.kernelspec import KernelSpecManager, NoSuchKernel
 
-
-kernel_name = 'python3'
+kernel_name = "python3"
 
 # check if jupyter python3 kernel can be opened. if kernel not found, skip unit tests below.
 try:
@@ -37,12 +38,12 @@ class NotebookTest(unittest.TestCase):
         except CellExecutionError:
             # store if failed
             status = False
-            executed_notebook = os.getcwd() + '/' + notebook.split('/')[-1]
-            with open(executed_notebook, mode='wt') as f:
+            executed_notebook = os.getcwd() + "/" + notebook.split("/")[-1]
+            with open(executed_notebook, mode="wt") as f:
                 nbformat.write(nb, f)
 
         # check status
-        self.assertTrue(status, 'Notebook execution failed (%s)' % notebook)
+        self.assertTrue(status, "Notebook execution failed (%s)" % notebook)
 
 
 @pytest.mark.filterwarnings("ignore:Session._key_changed is deprecated")
@@ -51,4 +52,4 @@ class PipelineNotebookTest(NotebookTest):
     """Unit test notebook"""
 
     def test_basic_tutorial(self):
-        self.run_notebook(resources.notebook('popmon_tutorial_basic.ipynb'))
+        self.run_notebook(resources.notebook("popmon_tutorial_basic.ipynb"))

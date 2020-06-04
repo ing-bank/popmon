@@ -1,7 +1,8 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 from scipy import stats
-import warnings
 
 
 def fraction_of_true(bin_labels, bin_entries):
@@ -22,19 +23,21 @@ def fraction_of_true(bin_labels, bin_entries):
     if len(bin_labels) == 0 or len(bin_labels) > 2 or np.sum(bin_entries) == 0:
         return np.nan
     if not np.all([isinstance(bl, (bool, np.bool_)) for bl in bin_labels]):
-        if not np.all([isinstance(bl, (str, np.str_, np.string_)) for bl in bin_labels]):
+        if not np.all(
+            [isinstance(bl, (str, np.str_, np.string_)) for bl in bin_labels]
+        ):
             return np.nan
         # all strings from hereon
-        n_true = (bin_labels == 'True').sum() + (bin_labels == 'true').sum()
-        n_false = (bin_labels == 'False').sum() + (bin_labels == 'false').sum()
+        n_true = (bin_labels == "True").sum() + (bin_labels == "true").sum()
+        n_false = (bin_labels == "False").sum() + (bin_labels == "false").sum()
         if n_true + n_false != len(bin_labels):
             return np.nan
         # convert string to boolean
-        bin_labels = np.array([bl == 'True' or bl == 'true' for bl in bin_labels])
+        bin_labels = np.array([bl == "True" or bl == "true" for bl in bin_labels])
 
     sum_true = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl])
     sum_entries = np.sum(bin_entries)
-    return (1. * sum_true) / sum_entries
+    return (1.0 * sum_true) / sum_entries
 
 
 def mean(a, weights=None, axis=None, dtype=None, keepdims=False):
@@ -55,8 +58,9 @@ def mean(a, weights=None, axis=None, dtype=None, keepdims=False):
         return np.mean(a, axis=axis, dtype=dtype, keepdims=keepdims)
     else:
         w = np.array(weights)
-        return np.sum(w * np.array(a), axis=axis, dtype=dtype, keepdims=keepdims) / \
-            np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims)
+        return np.sum(
+            w * np.array(a), axis=axis, dtype=dtype, keepdims=keepdims
+        ) / np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims)
 
 
 def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
@@ -82,8 +86,14 @@ def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
     else:
         w = np.array(weights)
         m = mean(a, weights=w, axis=axis, keepdims=True)
-        return np.sqrt(np.sum(w * (np.array(a) - m)**2, axis=axis, dtype=dtype, keepdims=keepdims) /  # noqa: W504
-                       (np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims) - ddof))
+        return np.sqrt(
+            np.sum(
+                w * (np.array(a) - m) ** 2, axis=axis, dtype=dtype, keepdims=keepdims
+            )
+            / (  # noqa: W504
+                np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims) - ddof
+            )
+        )
 
 
 def median(a, weights=None, axis=None, keepdims=False):
@@ -130,17 +140,17 @@ def quantile(a, q, weights=None, axis=None, keepdims=False):
     """
     q = q if not hasattr(q, "__iter__") else q[0] if len(q) == 1 else tuple(q)
     if weights is None:
-        return np.quantile(a, q, axis=axis, keepdims=keepdims, interpolation='linear')
+        return np.quantile(a, q, axis=axis, keepdims=keepdims, interpolation="linear")
     elif axis is None:
         raveled_data = np.ravel(a)
         idx = np.argsort(raveled_data)
         sorted_data = raveled_data[idx]
         sorted_weights = np.ravel(weights)[idx]
         Sn = np.cumsum(sorted_weights)
-        Pn = (Sn - 0.5*sorted_weights)/Sn[-1]
+        Pn = (Sn - 0.5 * sorted_weights) / Sn[-1]
         y = np.interp(q, Pn, sorted_data)
         if keepdims is True:
-            return y.reshape((*y.shape, *(1, )*np.ndim(a)))
+            return y.reshape((*y.shape, *(1,) * np.ndim(a)))
         else:
             return y
     else:
@@ -151,15 +161,18 @@ def quantile(a, q, weights=None, axis=None, keepdims=False):
 
         # Reshape into a 2D-array, with the first axis the dimensions
         # that are not reduced, and the second the dimensions that are reduced
-        shape = (-1, np.prod(a_moved.shape[-len(axis):]))
+        shape = (-1, np.prod(a_moved.shape[-len(axis) :]))
         a_shaped = a_moved.reshape(shape)
 
         w = np.moveaxis(weights, source=axis, destination=destination).reshape(shape)
 
         # Determine the quantiles and reshape backwards
         y = np.array([quantile(x, q, u, keepdims=False) for x, u in zip(a_shaped, w)]).T
-        shape = (*y.shape[:-1], *[1 if i in axis else x for i, x in enumerate(a.shape)]) if keepdims is True\
-            else (*y.shape[:-1], *a_moved.shape[:-len(destination)])
+        shape = (
+            (*y.shape[:-1], *[1 if i in axis else x for i, x in enumerate(a.shape)])
+            if keepdims is True
+            else (*y.shape[:-1], *a_moved.shape[: -len(destination)])
+        )
         y = y.reshape(shape)
         return y
 
@@ -185,16 +198,18 @@ def uu_chi2(n, m, verbose=False):
     :return: tuple of floats (chi2_value, chi2_norm, z_score, p_value, res)
     """
     if len(n) == 0 or len(m) == 0:
-        raise RuntimeError('Input histogram(s) has zero size.')
+        raise RuntimeError("Input histogram(s) has zero size.")
     if len(n) != len(m):
-        raise RuntimeError('Input histograms have unequal size.')
+        raise RuntimeError("Input histograms have unequal size.")
 
     N = np.sum(n)
     M = np.sum(m)
 
     if N == 0 or M == 0:
         if verbose:
-            warnings.warn('Input histogram(s) is empty and cannot be renormalized. Chi2 is undefined.')
+            warnings.warn(
+                "Input histogram(s) is empty and cannot be renormalized. Chi2 is undefined."
+            )
         return np.nan, np.nan, np.nan, [0] * len(n)
 
     # remove all zero entries in the sum, to present division by zero for individual bins
@@ -203,19 +218,21 @@ def uu_chi2(n, m, verbose=False):
     m = m[z != 0]
 
     dof = ((n != 0) | (m != 0)).sum() - 1
-    chi2_value = _not_finite_to_zero(((M * n - N * m) ** 2)/(n + m)).sum()/M/N
+    chi2_value = _not_finite_to_zero(((M * n - N * m) ** 2) / (n + m)).sum() / M / N
 
     chi2_norm = chi2_value / dof if dof > 0 else np.nan
     p_value = stats.chi2.sf(chi2_value, dof)
     z_score = -stats.norm.ppf(p_value)
 
-    p = (n + m)/(N + M)
+    p = (n + m) / (N + M)
 
     if (p == 1).any():
         # unusual case of (only) one bin with p==1, avoids division with zero below
         res = np.array([np.nan] * len(p))
     else:
-        res = _not_finite_to_zero((n - N * p)/np.sqrt(N * p)/np.sqrt((1 - N/(N + M)) * (1 - p)))
+        res = _not_finite_to_zero(
+            (n - N * p) / np.sqrt(N * p) / np.sqrt((1 - N / (N + M)) * (1 - p))
+        )
 
     return chi2_value, chi2_norm, z_score, p_value, res
 
@@ -236,17 +253,17 @@ def ks_test(hist_1, hist_2):
     :rtype: float
     """
     if len(hist_1) == 0 or len(hist_2) == 0:
-        raise RuntimeError('Input histogram(s) has zero size.')
+        raise RuntimeError("Input histogram(s) has zero size.")
     if len(hist_1) != len(hist_2):
-        raise RuntimeError('Input histograms have unequal size.')
+        raise RuntimeError("Input histograms have unequal size.")
 
     sum_1 = np.sum(hist_1)
     sum_2 = np.sum(hist_2)
     if sum_1 == 0 or sum_2 == 0:
         return np.nan
 
-    normalized_cumsum_1 = np.cumsum(hist_1)/sum_1
-    normalized_cumsum_2 = np.cumsum(hist_2)/sum_2
+    normalized_cumsum_1 = np.cumsum(hist_1) / sum_1
+    normalized_cumsum_2 = np.cumsum(hist_2) / sum_2
 
     d = np.abs(normalized_cumsum_1 - normalized_cumsum_2)
 
@@ -279,11 +296,11 @@ def ks_prob(testscore):
         pvalue = 1
     elif u < 0.755:
         v = np.power(u, -2)
-        pvalue = 1 - w * np.exp(c*v).sum()/u
+        pvalue = 1 - w * np.exp(c * v).sum() / u
     elif u < 6.8116:
         v = np.power(u, 2)
-        max_j = int(max(1, round(3./u)))
-        r[:max_j] = np.exp(fj[:max_j]*v)
+        max_j = int(max(1, round(3.0 / u)))
+        r[:max_j] = np.exp(fj[:max_j] * v)
         pvalue = 2 * (r[0] - r[1] + r[2] - r[3])
 
     return pvalue
@@ -300,9 +317,11 @@ def googl_test(bins_1, bins_2):
     :return: maximum difference between the two entry distributions
     :rtype: float
     """
+
     def dist(bins):
         sum_ = np.sum(bins)
         return bins / sum_ if sum_ else bins
+
     return np.max(np.abs(dist(bins_1) - dist(bins_2)))
 
 
@@ -328,7 +347,10 @@ def probability_distribution_mean_covariance(entries_list):
     # At least two histograms from here on ...
     # Normalize the histograms along the bin axis, so that histograms with different number of entries
     # are still comparable
-    normed_list = entries_list / (np.sum(entries_list, axis=1, dtype=np.float)[:, np.newaxis] + np.finfo(np.float).eps)
+    normed_list = entries_list / (
+        np.sum(entries_list, axis=1, dtype=np.float)[:, np.newaxis]
+        + np.finfo(np.float).eps
+    )
 
     # Determine the mean histogram (unbiased)
     norm_hist_mean = np.sum(normed_list, axis=0) / n_histos
@@ -340,8 +362,10 @@ def probability_distribution_mean_covariance(entries_list):
 
     # Determine the unbiased covariance matrices between bins for all the histograms.
     # note: use one degree of freedom less because of we're using the evaluated mean as input
-    norm_hist_cov = (sum2_cross_entries - norm_hist_mean[:, np.newaxis] * norm_hist_mean[np.newaxis, :]) * \
-                    (n_histos / (n_histos - 1))
+    norm_hist_cov = (
+        sum2_cross_entries
+        - norm_hist_mean[:, np.newaxis] * norm_hist_mean[np.newaxis, :]
+    ) * (n_histos / (n_histos - 1))
 
     return norm_hist_mean, norm_hist_cov
 
@@ -363,7 +387,7 @@ def covariance_multinomial_probability_distribution(entries):
             if i == j:
                 covariance_matrix[i][j] = (prob[i] * (1 - prob[i])) / n_entries
             else:
-                covariance_matrix[i][j] = - (prob[i] * prob[j]) / n_entries
+                covariance_matrix[i][j] = -(prob[i] * prob[j]) / n_entries
                 covariance_matrix[j][i] = covariance_matrix[i][j]
 
     return covariance_matrix
@@ -391,7 +415,7 @@ def mad(a, c=0.6745, axis=0):
     :rtype: float
     """
     if isinstance(a, pd.DataFrame):
-        a = a.select_dtypes([np.number]).dropna(axis=1, how='all')
+        a = a.select_dtypes([np.number]).dropna(axis=1, how="all")
 
     center = a.median(axis=axis)
     rel_abs_diff = (a - center).abs() / c

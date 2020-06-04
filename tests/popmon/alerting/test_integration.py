@@ -1,14 +1,13 @@
 import pandas as pd
 from pytest import test_comparer_df
-from popmon.base import Pipeline
-from popmon.alerting import ComputeTLBounds, traffic_light_summary, AlertsSummary
+
+from popmon.alerting import AlertsSummary, ComputeTLBounds, traffic_light_summary
 from popmon.analysis.apply_func import ApplyFunc
+from popmon.base import Pipeline
 
 
 def test_integration_alerting():
-    datastore = {
-        "test_data": test_comparer_df,
-    }
+    datastore = {"test_data": test_comparer_df}
 
     conf = {
         "monitoring_rules": {
@@ -25,12 +24,12 @@ def test_integration_alerting():
         store_key="traffic_light_bounds",
         apply_funcs_key="traffic_light_funcs",
         ignore_features=["dummy_feature"],
-        monitoring_rules=conf["monitoring_rules"]
+        monitoring_rules=conf["monitoring_rules"],
     )
 
     atlb = ApplyFunc(
         apply_to_key=ctlb.read_key,
-        assign_to_key='output_data',
+        assign_to_key="output_data",
         apply_funcs_key="traffic_light_funcs",
     )
 
@@ -51,9 +50,7 @@ def test_integration_alerting():
 
 
 def test_traffic_light_summary():
-    datastore = {
-        "test_data": test_comparer_df,
-    }
+    datastore = {"test_data": test_comparer_df}
 
     conf = {
         "monitoring_rules": {
@@ -71,22 +68,25 @@ def test_traffic_light_summary():
         apply_funcs_key="traffic_light_funcs",
         ignore_features=["dummy_feature"],
         monitoring_rules=conf["monitoring_rules"],
-        prefix='tl_'
+        prefix="tl_",
     )
 
     atlb = ApplyFunc(
         apply_to_key=ctlb.read_key,
-        assign_to_key='output_data',
+        assign_to_key="output_data",
         apply_funcs_key="traffic_light_funcs",
     )
 
-    tls = ApplyFunc(apply_to_key='output_data', apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix='')],
-                    assign_to_key='alerts')
+    tls = ApplyFunc(
+        apply_to_key="output_data",
+        apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+        assign_to_key="alerts",
+    )
 
     pipeline = Pipeline(modules=[ctlb, atlb, tls])
     datastore = pipeline.transform(datastore)
 
-    output = datastore['alerts']["the_feature"]
+    output = datastore["alerts"]["the_feature"]
 
     assert output["worst"].values[-1] == 2
     assert output["n_green"].values[-1] == 1
@@ -95,9 +95,7 @@ def test_traffic_light_summary():
 
 
 def test_traffic_light_summary_combination():
-    datastore = {
-        "test_data": test_comparer_df,
-    }
+    datastore = {"test_data": test_comparer_df}
 
     conf = {
         "monitoring_rules": {
@@ -115,26 +113,29 @@ def test_traffic_light_summary_combination():
         apply_funcs_key="traffic_light_funcs",
         ignore_features=["dummy_feature"],
         monitoring_rules=conf["monitoring_rules"],
-        prefix='tl_'
+        prefix="tl_",
     )
 
     atlb = ApplyFunc(
         apply_to_key=ctlb.read_key,
-        assign_to_key='output_data',
+        assign_to_key="output_data",
         apply_funcs_key="traffic_light_funcs",
     )
 
-    tls = ApplyFunc(apply_to_key='output_data', apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix='')],
-                    assign_to_key='alerts')
+    tls = ApplyFunc(
+        apply_to_key="output_data",
+        apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+        assign_to_key="alerts",
+    )
 
-    asum = AlertsSummary(read_key='alerts')
+    asum = AlertsSummary(read_key="alerts")
 
     pipeline = Pipeline(modules=[ctlb, atlb, tls, asum])
     datastore = pipeline.transform(datastore)
 
-    alerts = datastore['alerts']
-    assert '_AGGREGATE_' in alerts
-    output = datastore['alerts']["_AGGREGATE_"]
+    alerts = datastore["alerts"]
+    assert "_AGGREGATE_" in alerts
+    output = datastore["alerts"]["_AGGREGATE_"]
 
     assert output["worst"].values[-1] == 2
     assert output["n_green"].values[-1] == 1

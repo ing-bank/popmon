@@ -1,8 +1,9 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 import histogrammar as hg
-from popmon.hist.histogram import HistogramContainer
 from popmon.analysis.profiling.hist_profiler import HistProfiler
+from popmon.hist.histogram import HistogramContainer
 
 
 def test_profile_hist1d():
@@ -16,9 +17,16 @@ def test_profile_hist1d():
     for i in range(split_len):
         h = hg.Bin(num_bins, 0, 1, lambda x: x)
         h.fill.numpy(np.random.uniform(0, 1, num_entries))
-        split.append({"date": pd.Timestamp("2019 - 1 - 1"), hist_name: HistogramContainer(h)})
+        split.append(
+            {"date": pd.Timestamp("2019 - 1 - 1"), hist_name: HistogramContainer(h)}
+        )
 
-    hp = HistProfiler(read_key="dummy_input", store_key="dummy_output", hist_col=hist_name, index_col="date")
+    hp = HistProfiler(
+        read_key="dummy_input",
+        store_key="dummy_output",
+        hist_col=hist_name,
+        index_col="date",
+    )
 
     profiles = hp._profile_hist(split, hist_name="feature")
 

@@ -1,16 +1,32 @@
+import copy
+import logging
+
 import numpy as np
 import pandas as pd
+
 import histogrammar
-import logging
-import copy
+
 from ...hist.filling import PandasHistogrammar, SparkHistogrammar
 from ...hist.filling.utils import check_dtype
 
 logger = logging.getLogger()
 
 
-def make_histograms(df, features=None, binning='auto', bin_specs=None, time_axis='', time_width=None, time_offset=0,
-                    var_dtype=None, ret_specs=False, nbins_1d=40, nbins_2d=20, nbins_3d=10, max_nunique=500):
+def make_histograms(
+    df,
+    features=None,
+    binning="auto",
+    bin_specs=None,
+    time_axis="",
+    time_width=None,
+    time_offset=0,
+    var_dtype=None,
+    ret_specs=False,
+    nbins_1d=40,
+    nbins_2d=20,
+    nbins_3d=10,
+    max_nunique=500,
+):
     """ Create histograms from pandas or spark dataframe.
 
     :param df: input pandas or spark dataframe to create histograms of.
@@ -61,37 +77,66 @@ def make_histograms(df, features=None, binning='auto', bin_specs=None, time_axis
     :return: dict of created histogrammar histograms
     """
     # basic checks on presence of time_axis
-    if (not isinstance(time_axis, (str, bool))) or (isinstance(time_axis, bool) and not time_axis):
-        raise AssertionError('time_axis needs to be a string, or a bool set to True')
-    if isinstance(time_axis, str) and len(time_axis) > 0 and time_axis not in df.columns:
-        raise AssertionError(f'time_axis \"{time_axis}\" not found in columns of dataframe.')
+    if (not isinstance(time_axis, (str, bool))) or (
+        isinstance(time_axis, bool) and not time_axis
+    ):
+        raise AssertionError("time_axis needs to be a string, or a bool set to True")
+    if (
+        isinstance(time_axis, str)
+        and len(time_axis) > 0
+        and time_axis not in df.columns
+    ):
+        raise AssertionError(
+            f'time_axis "{time_axis}" not found in columns of dataframe.'
+        )
     if isinstance(time_axis, bool):
         time_axes = get_time_axes(df)
         num = len(time_axes)
         if num == 1:
             time_axis = time_axes[0]
-            logger.info(f'Time-axis automatically set to \"{time_axis}\"')
+            logger.info(f'Time-axis automatically set to "{time_axis}"')
         elif num == 0:
-            raise RuntimeError('No obvious time-axes found. Cannot generate stability report.')
+            raise RuntimeError(
+                "No obvious time-axes found. Cannot generate stability report."
+            )
         else:
-            raise RuntimeError(f'Found {num} time-axes: {time_axes}. Set *one* time_axis manually!')
+            raise RuntimeError(
+                f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
+            )
 
     # if time_axis present, interpret time_width and time_offset
-    if isinstance(time_axis, str) and len(time_axis) > 0 and \
-            isinstance(time_width, (str, int, float)) and isinstance(time_offset, (str, int, float)):
+    if (
+        isinstance(time_axis, str)
+        and len(time_axis) > 0
+        and isinstance(time_width, (str, int, float))
+        and isinstance(time_offset, (str, int, float))
+    ):
         if not isinstance(bin_specs, (type(None), dict)):
-            raise RuntimeError('bin_specs object is not a dictionary')
+            raise RuntimeError("bin_specs object is not a dictionary")
         bin_specs = copy.copy(bin_specs) if isinstance(bin_specs, dict) else {}
         if time_axis in bin_specs:
-            raise RuntimeError(f'time-axis \"{time_axis}\" already found in binning specifications.')
+            raise RuntimeError(
+                f'time-axis "{time_axis}" already found in binning specifications.'
+            )
         # convert time width and offset to nanoseconds
-        time_specs = {'bin_width': float(pd.Timedelta(time_width).value),
-                      'bin_offset': float(pd.Timestamp(time_offset).value)}
+        time_specs = {
+            "bin_width": float(pd.Timedelta(time_width).value),
+            "bin_offset": float(pd.Timestamp(time_offset).value),
+        }
         bin_specs[time_axis] = time_specs
 
     cls = PandasHistogrammar if isinstance(df, pd.DataFrame) else SparkHistogrammar
-    hist_filler = cls(features=features, binning=binning, bin_specs=bin_specs, time_axis=time_axis, var_dtype=var_dtype,
-                      nbins_1d=nbins_1d, nbins_2d=nbins_2d, nbins_3d=nbins_3d, max_nunique=max_nunique)
+    hist_filler = cls(
+        features=features,
+        binning=binning,
+        bin_specs=bin_specs,
+        time_axis=time_axis,
+        var_dtype=var_dtype,
+        nbins_1d=nbins_1d,
+        nbins_2d=nbins_2d,
+        nbins_3d=nbins_3d,
+        max_nunique=max_nunique,
+    )
     hists = hist_filler.get_histograms(df)
 
     if ret_specs:
@@ -108,24 +153,22 @@ def get_data_type(df, col):
     :param str col: column
     """
     if col not in df.columns:
-        raise KeyError(
-            'Column "{0:s}" not in input dataframe.'.format(col)
-        )
+        raise KeyError('Column "{0:s}" not in input dataframe.'.format(col))
     dt = dict(df.dtypes)[col]
 
-    if hasattr(dt, 'type'):
+    if hasattr(dt, "type"):
         # convert pandas types, such as pd.Int64, into numpy types
         dt = type(dt.type())
 
     try:
         # spark conversions to numpy or python equivalent
-        if dt == 'string':
-            dt = 'str'
-        elif dt == 'timestamp':
+        if dt == "string":
+            dt = "str"
+        elif dt == "timestamp":
             dt = np.datetime64
-        elif dt == 'boolean':
+        elif dt == "boolean":
             dt = bool
-        elif dt == 'bigint':
+        elif dt == "bigint":
             dt = np.int64
     except TypeError:
         pass
@@ -139,7 +182,11 @@ def get_time_axes(df):
     :param df: input dataframe (pandas or spark)
     :return: list of time-axis columns
     """
-    return [c for c in df.columns if np.issubdtype(check_dtype(get_data_type(df, c)), np.datetime64)]
+    return [
+        c
+        for c in df.columns
+        if np.issubdtype(check_dtype(get_data_type(df, c)), np.datetime64)
+    ]
 
 
 def has_one_time_axis(df):
@@ -159,7 +206,7 @@ def get_one_time_axis(df):
     :return: one time-axis column, else empty string
     """
     dt_cols = get_time_axes(df)
-    return dt_cols[0] if len(dt_cols) == 1 else ''
+    return dt_cols[0] if len(dt_cols) == 1 else ""
 
 
 def _get_bin_specs(h):
@@ -181,16 +228,16 @@ def _get_bin_specs(h):
         bin_specs.append(dict(bin_width=h.binWidth, bin_offset=h.origin))
 
     # histogram may have a sub-histogram. Extract it and recurse
-    if hasattr(h, 'bins'):
+    if hasattr(h, "bins"):
         hist = list(h.bins.values())[0] if h.bins else histogrammar.Count()
-    elif hasattr(h, 'values'):
+    elif hasattr(h, "values"):
         hist = h.values[0] if h.values else histogrammar.Count()
     else:
         hist = histogrammar.Count()
     return bin_specs + _get_bin_specs(hist)
 
 
-def _match_first_key(skip_first_axis=None, feature=''):
+def _match_first_key(skip_first_axis=None, feature=""):
     """Helper function to match and remove skip_first_axis from feature
 
     :param skip_first_axis: True or string. if set, ignore first axis of input histogram(s)
@@ -198,9 +245,9 @@ def _match_first_key(skip_first_axis=None, feature=''):
     :return: match and (rest of) feature
     """
     assert isinstance(feature, str)
-    karr = feature.split(':')
+    karr = feature.split(":")
     begin = karr[0]
-    rest_key = ':'.join(karr[1:])
+    rest_key = ":".join(karr[1:])
     if isinstance(skip_first_axis, bool):
         return skip_first_axis, rest_key if skip_first_axis else feature
     elif isinstance(skip_first_axis, str) and len(skip_first_axis) > 0:

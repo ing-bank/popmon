@@ -1,23 +1,36 @@
 import multiprocessing
-from joblib import Parallel, delayed
 
 import pandas as pd
+from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from..base import Module
-from..config import get_stat_description
-from..hist.histogram import get_hist_props
-from..analysis.hist_numpy import assert_similar_hists
-from..visualization.utils import plot_overlay_1d_histogram_b64
-from..analysis.hist_numpy import get_consistent_numpy_entries, get_consistent_numpy_1dhists
+from ..analysis.hist_numpy import (
+    assert_similar_hists,
+    get_consistent_numpy_1dhists,
+    get_consistent_numpy_entries,
+)
+from ..base import Module
+from ..config import get_stat_description
+from ..hist.histogram import get_hist_props
+from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 
 class HistogramSection(Module):
     """This module plots histograms of all selected features for the last 'n' periods.
     """
 
-    def __init__(self, read_key, store_key, section_name='Histograms', features=None, ignore_features=None,
-                 last_n=1, hist_names=None, hist_name_starts_with='histogram', description=""):
+    def __init__(
+        self,
+        read_key,
+        store_key,
+        section_name="Histograms",
+        features=None,
+        ignore_features=None,
+        last_n=1,
+        hist_names=None,
+        hist_name_starts_with="histogram",
+        description="",
+    ):
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
@@ -49,7 +62,7 @@ class HistogramSection(Module):
 
         num_cores = multiprocessing.cpu_count()
 
-        self.logger.info(f"Generating section \"{self.section_name}\".")
+        self.logger.info(f'Generating section "{self.section_name}".')
 
         def short_date(date):
             return date if len(date) <= 22 else date[:22]
@@ -61,25 +74,35 @@ class HistogramSection(Module):
             hist_names = [hn for hn in self.hist_names if hn in df.columns]
             if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
                 # if no columns are given, find histogram columns.
-                hist_names = [c for c in df.columns if c.startswith(self.hist_name_starts_with)]
+                hist_names = [
+                    c for c in df.columns if c.startswith(self.hist_name_starts_with)
+                ]
             if len(hist_names) == 0:
-                self.logger.debug(f'for feature {feature} no histograms found. skipping.')
+                self.logger.debug(
+                    f"for feature {feature} no histograms found. skipping."
+                )
                 continue
 
             # get base64 encoded plot for each metric; do parallel processing to speed up.
             dates = [short_date(str(date)) for date in df.index[-last_n:]]
-            hists = [df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))]
+            hists = [
+                df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
+            ]
 
-            plots = Parallel(n_jobs=num_cores)(delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
-                                               for i in range(last_n))
+            plots = Parallel(n_jobs=num_cores)(
+                delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
+                for i in range(last_n)
+            )
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
-            features_w_metrics.append(dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"])))
+            features_w_metrics.append(
+                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+            )
 
         params = {
             "section_title": self.section_name,
             "section_description": self.description,
-            "features": features_w_metrics
+            "features": features_w_metrics,
         }
 
         if self.store_key in datastore:
@@ -101,22 +124,24 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     """
     # basic checks
     if len(hc_list) != len(hist_names):
-        raise RuntimeError('histogram list and histograms names should have equal length.')
+        raise RuntimeError(
+            "histogram list and histograms names should have equal length."
+        )
     # filter out Nones (e.g. can happen with empty rolling hist)
     none_hists = [i for i, hc in enumerate(hc_list) if hc is None]
     hc_list = [hc for i, hc in enumerate(hc_list) if i not in none_hists]
     hist_names = [hn for i, hn in enumerate(hist_names) if i not in none_hists]
     # more basic checks
     if len(hc_list) == 0:
-        return date, ''
+        return date, ""
     assert_similar_hists(hc_list)
 
     # make plot. note: slow!
     if hc_list[0].n_dim == 1:
         props = get_hist_props(hc_list[0])
-        is_num = props['is_num']
-        is_ts = props['is_ts']
-        y_label = 'Bin count' if len(hc_list) == 1 else 'Bin probability'
+        is_num = props["is_num"]
+        is_ts = props["is_ts"]
+        y_label = "Bin count" if len(hc_list) == 1 else "Bin probability"
 
         if is_num:
             numpy_1dhists = get_consistent_numpy_1dhists(hc_list)
@@ -124,20 +149,27 @@ def _plot_histograms(feature, date, hc_list, hist_names):
             bins = numpy_1dhists[0][1]  # bins = bin-edges
         else:
             # categorical
-            entries_list, bins = get_consistent_numpy_entries(hc_list, get_bin_labels=True)  # bins = bin-labels
+            entries_list, bins = get_consistent_numpy_entries(
+                hc_list, get_bin_labels=True
+            )  # bins = bin-labels
         if len(bins) == 0:
             # skip empty histograms
-            return date, ''
+            return date, ""
 
         # normalize histograms for plotting (comparison!) in case there is more than one.
         if len(hc_list) >= 2:
-            entries_list = [el / hc.entries if hc.entries > 0 else el for el, hc in zip(entries_list, hc_list)]
+            entries_list = [
+                el / hc.entries if hc.entries > 0 else el
+                for el, hc in zip(entries_list, hc_list)
+            ]
         hists = [(el, bins) for el in entries_list]
-        plot = plot_overlay_1d_histogram_b64(hists, feature, hist_names, y_label, is_num, is_ts)
+        plot = plot_overlay_1d_histogram_b64(
+            hists, feature, hist_names, y_label, is_num, is_ts
+        )
     elif hc_list[0].n_dim == 2:
         # grid2d_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hc_list, get_bin_labels=True)
-        plot = ''
+        plot = ""
     else:
-        plot = ''
+        plot = ""
 
     return dict(name=date, description=get_stat_description(date), plot=plot)

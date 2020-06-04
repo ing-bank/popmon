@@ -3,12 +3,12 @@ import multiprocessing
 
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
-from..base import Module
-from..config import get_stat_description
-from..visualization.utils import plot_bars_b64, plot_traffic_lights_b64
+from ..base import Module
+from ..config import get_stat_description
+from ..visualization.utils import plot_bars_b64, plot_traffic_lights_b64
 
 
 class SectionGenerator(Module):
@@ -17,11 +17,26 @@ class SectionGenerator(Module):
     which later will be used for the report generation.
     """
 
-    def __init__(self, read_key, store_key, section_name, features=None, ignore_features=None,
-                 last_n=0, skip_first_n=0, skip_last_n=0, static_bounds=None, dynamic_bounds=None,
-                 prefix='traffic_light_', suffices=['_red_high', '_yellow_high', '_yellow_low', '_red_low'],
-                 ignore_stat_endswith=None, skip_empty_plots=True, description="", show_stats=None,
-                 tl_section=False):
+    def __init__(
+        self,
+        read_key,
+        store_key,
+        section_name,
+        features=None,
+        ignore_features=None,
+        last_n=0,
+        skip_first_n=0,
+        skip_last_n=0,
+        static_bounds=None,
+        dynamic_bounds=None,
+        prefix="traffic_light_",
+        suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
+        ignore_stat_endswith=None,
+        skip_empty_plots=True,
+        description="",
+        show_stats=None,
+        tl_section=False,
+    ):
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
@@ -64,15 +79,21 @@ class SectionGenerator(Module):
     def transform(self, datastore):
         data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
 
-        static_bounds = self.get_datastore_object(datastore, self.static_bounds, dtype=dict, default={})
-        dynamic_bounds = self.get_datastore_object(datastore, self.dynamic_bounds, dtype=dict, default={})
+        static_bounds = self.get_datastore_object(
+            datastore, self.static_bounds, dtype=dict, default={}
+        )
+        dynamic_bounds = self.get_datastore_object(
+            datastore, self.dynamic_bounds, dtype=dict, default={}
+        )
 
         features = self.get_features(data_obj.keys())
         features_w_metrics = []
 
         num_cores = multiprocessing.cpu_count()
 
-        self.logger.info(f"Generating section \"{self.section_name}\". skip empty plots: {self.skip_empty_plots}")
+        self.logger.info(
+            f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
+        )
 
         def short_date(date):
             return date if len(date) <= 22 else date[:22]
@@ -84,28 +105,54 @@ class SectionGenerator(Module):
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
-            df.drop(columns=["histogram", "reference_histogram"], inplace=True, errors="ignore")
+            df.drop(
+                columns=["histogram", "reference_histogram"],
+                inplace=True,
+                errors="ignore",
+            )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
             # get base64 encoded plot for each metric; do parallel processing to speed up.
-            metrics = [m for m in df.columns if not any([m.endswith(s) for s in self.ignore_stat_endswith])]
+            metrics = [
+                m
+                for m in df.columns
+                if not any([m.endswith(s) for s in self.ignore_stat_endswith])
+            ]
             if self.show_stats is not None:
-                metrics = [m for m in metrics if any(fnmatch.fnmatch(m, pattern) for pattern in self.show_stats)]
-            plots = Parallel(n_jobs=num_cores)(delayed(_plot_metric)(feature, metric, dates, df[metric],
-                                                                     static_bounds, fdbounds,
-                                                                     self.prefix, self.suffices, self.last_n,
-                                                                     self.skip_first_n, self.skip_last_n,
-                                                                     self.skip_empty_plots, self.tl_section)
-                                               for metric in metrics)
+                metrics = [
+                    m
+                    for m in metrics
+                    if any(fnmatch.fnmatch(m, pattern) for pattern in self.show_stats)
+                ]
+            plots = Parallel(n_jobs=num_cores)(
+                delayed(_plot_metric)(
+                    feature,
+                    metric,
+                    dates,
+                    df[metric],
+                    static_bounds,
+                    fdbounds,
+                    self.prefix,
+                    self.suffices,
+                    self.last_n,
+                    self.skip_first_n,
+                    self.skip_last_n,
+                    self.skip_empty_plots,
+                    self.tl_section,
+                )
+                for metric in metrics
+            )
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
-            features_w_metrics.append(dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"])))
+            features_w_metrics.append(
+                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+            )
 
         params = {
             "section_title": self.section_name,
             "section_description": self.description,
-            "features": features_w_metrics
+            "features": features_w_metrics,
         }
 
         if self.store_key in datastore:
@@ -116,17 +163,35 @@ class SectionGenerator(Module):
         return datastore
 
 
-def _plot_metric(feature, metric, dates, values, static_bounds, fdbounds, prefix, suffices,
-                 last_n, skip_first_n, skip_last_n, skip_empty, tl_section):
+def _plot_metric(
+    feature,
+    metric,
+    dates,
+    values,
+    static_bounds,
+    fdbounds,
+    prefix,
+    suffices,
+    last_n,
+    skip_first_n,
+    skip_last_n,
+    skip_empty,
+    tl_section,
+):
     """Split off plot histogram generation to allow for parallel processing
     """
     # pick up static traffic light boundaries
-    name = feature + ':' + metric
+    name = feature + ":" + metric
     sbounds = static_bounds.get(name, ())
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
-    dbounds = tuple([_prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-                     for n in names if n in fdbounds.columns])
+    dbounds = tuple(
+        [
+            _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
+            for n in names
+            if n in fdbounds.columns
+        ]
+    )
     # choose dynamic bounds if present
     bounds = dbounds if len(dbounds) > 0 else sbounds
     # prune dates and values
@@ -136,9 +201,7 @@ def _plot_metric(feature, metric, dates, values, static_bounds, fdbounds, prefix
     # make plot. note: slow!
     if tl_section:
         plot = plot_traffic_lights_b64(
-            data=np.array(values),
-            labels=dates,
-            skip_empty=skip_empty
+            data=np.array(values), labels=dates, skip_empty=skip_empty
         )
     else:
         plot = plot_bars_b64(
@@ -146,7 +209,7 @@ def _plot_metric(feature, metric, dates, values, static_bounds, fdbounds, prefix
             labels=dates,
             ylim=True,
             bounds=bounds,
-            skip_empty=skip_empty
+            skip_empty=skip_empty,
         )
     return dict(name=metric, description=get_stat_description(metric), plot=plot)
 

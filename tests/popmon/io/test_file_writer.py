@@ -1,14 +1,12 @@
-import json
 import copy
-import pytest
+import json
+
 import pandas as pd
+import pytest
+
 from popmon.io import FileWriter
 
-
-DATA = {
-    "name": ["Name"],
-    "surname": ["Surname"],
-}
+DATA = {"name": ["Name"], "surname": ["Surname"]}
 
 
 def get_ready_ds():
@@ -43,6 +41,8 @@ def test_file_writer_not_a_func():
 
 def test_file_writer_df():
     datastore = get_ready_ds()
-    FileWriter("my_data", store_key="transformed_data", apply_func=to_pandas).transform(datastore)
+    FileWriter("my_data", store_key="transformed_data", apply_func=to_pandas).transform(
+        datastore
+    )
     assert datastore["my_data"] == DATA
     assert datastore["transformed_data"].to_dict() == to_pandas(DATA).to_dict()

@@ -1,5 +1,5 @@
-from popmon.io import JsonReader
 from popmon import resources
+from popmon.io import JsonReader
 
 
 def test_json_reader():
