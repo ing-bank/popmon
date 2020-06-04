@@ -1,9 +1,9 @@
 import numpy as np
+
 from popmon.base import Module
 
 
 def test_popmon_module():
-
     class Scaler(Module):
         def __init__(self, input_key, output_key, mean, std):
             super().__init__()
@@ -13,7 +13,9 @@ def test_popmon_module():
             self.std = std
 
         def transform(self, datastore):
-            input_array = self.get_datastore_object(datastore, self.input_key, dtype=np.ndarray)
+            input_array = self.get_datastore_object(
+                datastore, self.input_key, dtype=np.ndarray
+            )
             res = input_array - np.mean(input_array)
             res = res / np.std(res)
             res = res * self.std

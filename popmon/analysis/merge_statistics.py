@@ -1,10 +1,12 @@
 import pandas as pd
+
 from ..base import Module
 
 
 class MergeStatistics(Module):
     """ Merging dictionaries of features containing dataframes with statistics as its values.
     """
+
     def __init__(self, read_keys, store_key):
         """Initialize an instance of MergeStatistics.
 
@@ -16,7 +18,10 @@ class MergeStatistics(Module):
         self.store_key = store_key
 
     def transform(self, datastore):
-        dicts = [self.get_datastore_object(datastore, read_key, dtype=dict) for read_key in self.read_keys]
+        dicts = [
+            self.get_datastore_object(datastore, read_key, dtype=dict)
+            for read_key in self.read_keys
+        ]
         merged_stats = dict()
         for dict_ in dicts:
             for feature in dict_.keys():
@@ -24,7 +29,9 @@ class MergeStatistics(Module):
                 # if the feature already exists - we concatenate its dataframe with the existing one
                 if isinstance(dict_[feature], pd.DataFrame):
                     if feature in merged_stats:
-                        merged_stats[feature] = merged_stats[feature].combine_first(dict_[feature])
+                        merged_stats[feature] = merged_stats[feature].combine_first(
+                            dict_[feature]
+                        )
                     else:
                         merged_stats[feature] = dict_[feature]
         datastore[self.store_key] = merged_stats

@@ -8,13 +8,15 @@ https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/analysis/histogra
 All modifications copyright ING WBAA.
 """
 
-import logging
 import copy
+import logging
 from collections import defaultdict
+
 import numpy as np
 import pandas as pd
-from ...hist.filling.utils import check_column, check_dtype
+
 from ...base import Module
+from ...hist.filling.utils import check_column, check_dtype
 
 
 class HistogramFillerBase(Module):
@@ -26,8 +28,20 @@ class HistogramFillerBase(Module):
     Final histograms are stored in the datastore.
     """
 
-    def __init__(self, features=None, binning='unit', bin_specs=None, time_axis='', var_dtype=None,
-                 read_key=None, store_key=None, nbins_1d=40, nbins_2d=20, nbins_3d=10, max_nunique=500):
+    def __init__(
+        self,
+        features=None,
+        binning="unit",
+        bin_specs=None,
+        time_axis="",
+        var_dtype=None,
+        read_key=None,
+        store_key=None,
+        nbins_1d=40,
+        nbins_2d=20,
+        nbins_3d=10,
+        max_nunique=500,
+    ):
         """Initialize module instance.
 
         Store and do basic check on the attributes HistogramFillerBase.
@@ -69,7 +83,7 @@ class HistogramFillerBase(Module):
 
         features = features or []
         self.features = [check_column(c) for c in features]
-        if not any([binning == opt for opt in ['auto', 'unit']]):
+        if not any([binning == opt for opt in ["auto", "unit"]]):
             raise TypeError('binning should be "auto" or "unit".')
         self.binning = binning
         self.bin_specs = bin_specs or {}
@@ -80,10 +94,10 @@ class HistogramFillerBase(Module):
         self.store_key = store_key
 
         # several default unit values
-        self._unit_bin_specs = {'bin_width': 1.0, 'bin_offset': 0.0}
+        self._unit_bin_specs = {"bin_width": 1.0, "bin_offset": 0.0}
         self._unit_timestamp_specs = {
-            'bin_width': pd.Timedelta(days=30).value,
-            'bin_offset': pd.Timestamp('2010-01-04').value
+            "bin_width": pd.Timedelta(days=30).value,
+            "bin_offset": pd.Timestamp("2010-01-04").value,
         }
         self._auto_n_bins_1d = nbins_1d
         self._auto_n_bins_2d = nbins_2d
@@ -165,11 +179,13 @@ class HistogramFillerBase(Module):
         idf = self.process_features(df, cols_by_type)
 
         # 4. complete bin-specs that have not been provided in case of 'auto' binning option
-        if self.binning == 'auto':
+        if self.binning == "auto":
             self.auto_complete_bin_specs(idf, cols_by_type)
 
         # 5. do the actual histogram/counter filling
-        self.logger.info(f'Filling {len(self.features)} specified histograms. {self.binning}-binning.')
+        self.logger.info(
+            f"Filling {len(self.features)} specified histograms. {self.binning}-binning."
+        )
         self.fill_histograms(idf)
 
         return self._hists
@@ -183,35 +199,47 @@ class HistogramFillerBase(Module):
         # user leaves feature selection up to us
         no_initial_features = len(self.features) == 0
 
-        all_cols = list(cols_by_type["num"]) + list(cols_by_type["dt"]) + list(cols_by_type["str"])
+        all_cols = (
+            list(cols_by_type["num"])
+            + list(cols_by_type["dt"])
+            + list(cols_by_type["str"])
+        )
 
         # 1. assign / figure out a time axis
         if isinstance(self.time_axis, str) and len(self.time_axis) > 0:
             # a) specified time axis
             if self.time_axis not in all_cols:
-                raise RuntimeError(f'Specified time-axis \"{self.time_axis}\" not found in dataframe.')
+                raise RuntimeError(
+                    f'Specified time-axis "{self.time_axis}" not found in dataframe.'
+                )
         elif isinstance(self.time_axis, bool) and self.time_axis:
             # b) try to figure out time axis
-            self.time_axis = ''
+            self.time_axis = ""
             num = len(cols_by_type["dt"])
             if num == 1:
                 # the obvious choice
                 self.time_axis = list(cols_by_type["dt"])[0]
-                self.logger.info(f'Time-axis automatically set to \"{self.time_axis}\"')
+                self.logger.info(f'Time-axis automatically set to "{self.time_axis}"')
             elif num == 0:
-                self.logger.warning('No obvious time-axes found to choose from. So not used.')
+                self.logger.warning(
+                    "No obvious time-axes found to choose from. So not used."
+                )
             else:
                 w = f'Found {num} time-axes: {cols_by_type["dt"]}. Set *one* time_axis manually! Now NOT used.'
                 self.logger.warning(w)
         else:
             # c) no time axis
-            self.time_axis = ''
+            self.time_axis = ""
 
         # 2. assign all features to make histograms of, in case not provided by user
         if no_initial_features:
             if len(self.time_axis) > 0:
                 # time-axis is selected: make histograms of all columns in dataframe vs time-axis
-                self.features = [[self.time_axis, c] for c in sorted(self.get_features(df)) if c != self.time_axis]
+                self.features = [
+                    [self.time_axis, c]
+                    for c in sorted(self.get_features(df))
+                    if c != self.time_axis
+                ]
             else:
                 # make histograms of all columns in dataframe
                 self.features = [[c] for c in sorted(self.get_features(df))]
@@ -220,7 +248,7 @@ class HistogramFillerBase(Module):
         all_selected_cols = np.unique([j for i in self.features for j in i])
         for c in all_selected_cols:
             if c not in self.get_features(df):
-                raise RuntimeError(f'Requested feature {c} not in dataframe.')
+                raise RuntimeError(f"Requested feature {c} not in dataframe.")
 
         # 4. check number of unique entries for categorical features
         #    this can be an expensive call, so avoid if possible. do run however when debugging.
@@ -235,9 +263,15 @@ class HistogramFillerBase(Module):
                     # we're the boss. we're not going to histogram this ...
                     huge_cats.append(c)
                 else:  # debug mode
-                    self.logger.warning(f'Column {c} has {nuniq[c]} unique entries (large). Really histogram it?')
+                    self.logger.warning(
+                        f"Column {c} has {nuniq[c]} unique entries (large). Really histogram it?"
+                    )
             # scrub self.features of huge categories.
-            self.features = [cols for cols in self.features if not any([c in huge_cats for c in cols])]
+            self.features = [
+                cols
+                for cols in self.features
+                if not any([c in huge_cats for c in cols])
+            ]
 
     def auto_complete_bin_specs(self, df, cols_by_type):
         """auto complete the bin-specs that have not been provided
@@ -260,7 +294,7 @@ class HistogramFillerBase(Module):
         quantiles_f = self.get_quantiles(df, quantiles=[0.05, 0.95], columns=float_cols)
 
         for cols in self.features:
-            n = ':'.join(cols)
+            n = ":".join(cols)
             if len(cols) == 1 and n not in num_cols:
                 continue
             if n in bs_keys:
@@ -282,8 +316,10 @@ class HistogramFillerBase(Module):
                     # specs for Bin and Sparselybin histograms
                     if q[1] == q[0]:
                         # in case of highly imbalanced data it can happen that q05=q95. If so use min and max instead.
-                        q = (self.get_quantiles(df, quantiles=[0.0, 1.0], columns=[c]))[c]
-                    qdiff = (q[1] - q[0]) * (1.0/0.9) if q[1] > q[0] else 1.0
+                        q = (self.get_quantiles(df, quantiles=[0.0, 1.0], columns=[c]))[
+                            c
+                        ]
+                    qdiff = (q[1] - q[0]) * (1.0 / 0.9) if q[1] > q[0] else 1.0
                     bin_width = qdiff / float(n_bins)
                     bin_offset = q[0] - qdiff * 0.05
                     low = q[0] - qdiff * 0.05
@@ -292,20 +328,22 @@ class HistogramFillerBase(Module):
                     # for ints use bins around integer values
                     low = quantiles_i[c][0]
                     high = quantiles_i[c][1]
-                    bin_width = np.max((np.round((high - low) / float(n_bins)), 1.))
+                    bin_width = np.max((np.round((high - low) / float(n_bins)), 1.0))
                     bin_offset = low = np.floor(low - 0.5) + 0.5
-                    n_bins = int((high - low) // bin_width) + int((high - low) % bin_width > 0.)
+                    n_bins = int((high - low) // bin_width) + int(
+                        (high - low) % bin_width > 0.0
+                    )
                     high = low + n_bins * bin_width
 
                 if c == self.time_axis and idx == 0:
                     # time axis is always sparselybin (unbound)
-                    specs.append({'bin_width': bin_width, 'bin_offset': bin_offset})
+                    specs.append({"bin_width": bin_width, "bin_offset": bin_offset})
                 elif len(cols) >= 3:
                     # always binned histogram for high n-dim histograms, avoid potentially exploding histograms
-                    specs.append({'num': n_bins, 'low': low, 'high': high})
+                    specs.append({"num": n_bins, "low": low, "high": high})
                 else:
                     # sparse allowed for low dimensional histograms (1 and 2 dim)
-                    specs.append({'bin_width': bin_width, 'bin_offset': bin_offset})
+                    specs.append({"bin_width": bin_width, "bin_offset": bin_offset})
             if len(cols) == 1:
                 specs = specs[0]
             self.bin_specs[n] = specs
@@ -329,7 +367,9 @@ class HistogramFillerBase(Module):
         # sort features into numerical, timestamp and category based
         cols_by_type = defaultdict(set)
 
-        features = self.features if self.features else [[c] for c in self.get_features(df)]
+        features = (
+            self.features if self.features else [[c] for c in self.get_features(df)]
+        )
 
         for col_list in features:
             for col in col_list:
@@ -356,7 +396,11 @@ class HistogramFillerBase(Module):
                     if col not in colset:
                         colset.add(col)
 
-                self.logger.debug('Data type of column "{col}" is "{type}".'.format(col=col, type=self.var_dtype[col]))
+                self.logger.debug(
+                    'Data type of column "{col}" is "{type}".'.format(
+                        col=col, type=self.var_dtype[col]
+                    )
+                )
         return cols_by_type
 
     def var_bin_specs(self, c, idx=0):
@@ -368,12 +412,14 @@ class HistogramFillerBase(Module):
         """
         if isinstance(c, str):
             c = [c]
-        n = ':'.join(c)
+        n = ":".join(c)
 
         # determine default bin specs
         dt = np.dtype(self.var_dtype[c[idx]])
         is_timestamp = isinstance(dt.type(), np.datetime64)
-        default = (self._unit_bin_specs if not is_timestamp else self._unit_timestamp_specs)
+        default = (
+            self._unit_bin_specs if not is_timestamp else self._unit_timestamp_specs
+        )
 
         # get bin specs
         if n in self.bin_specs and len(c) > 1 and len(c) == len(self.bin_specs[n]):
@@ -397,7 +443,7 @@ class HistogramFillerBase(Module):
 
         Can then be passed on to other histogram filler to get identical histograms.
         """
-        features = [':'.join(c) for c in self.features]  # rejoin substrings
+        features = [":".join(c) for c in self.features]  # rejoin substrings
         return features, self.bin_specs, self.var_dtype, self.time_axis
 
     def transform(self, datastore):
@@ -407,11 +453,11 @@ class HistogramFillerBase(Module):
         :return: datastore
         """
         if not isinstance(self.read_key, str) and len(self.read_key) > 0:
-            raise AssertionError('read_key has not been properly set.')
+            raise AssertionError("read_key has not been properly set.")
         if not isinstance(self.store_key, str) and len(self.store_key) > 0:
-            raise AssertionError('store_key has not been properly set.')
+            raise AssertionError("store_key has not been properly set.")
         if self.read_key not in datastore:
-            raise RuntimeError('read_key not found in datastore')
+            raise RuntimeError("read_key not found in datastore")
 
         df = datastore[self.read_key]
         hists = self.get_histograms(df)

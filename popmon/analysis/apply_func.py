@@ -1,9 +1,11 @@
 import collections
 import multiprocessing
 import warnings
-from joblib import Parallel, delayed
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+from joblib import Parallel, delayed
+
 from ..base import Module
 
 
@@ -13,8 +15,17 @@ class ApplyFunc(Module):
     Extra parameters (kwargs) can be passed to the apply function.
     """
 
-    def __init__(self, apply_to_key, store_key='', assign_to_key='', apply_funcs_key='',
-                 features=None, apply_funcs=None, metrics=None, msg=''):
+    def __init__(
+        self,
+        apply_to_key,
+        store_key="",
+        assign_to_key="",
+        apply_funcs_key="",
+        features=None,
+        apply_funcs=None,
+        metrics=None,
+        msg="",
+    ):
         """Initialize an instance of ApplyFunc.
 
         :param str apply_to_key: key of the input data to apply funcs to.
@@ -50,7 +61,17 @@ class ApplyFunc(Module):
         for af in apply_funcs:
             self.add_apply_func(**af)
 
-    def add_apply_func(self, func, suffix=None, prefix=None, metrics=[], features=[], entire=None, *args, **kwargs):
+    def add_apply_func(
+        self,
+        func,
+        suffix=None,
+        prefix=None,
+        metrics=[],
+        features=[],
+        entire=None,
+        *args,
+        **kwargs,
+    ):
         """Add function to be applied to dataframe.
 
         Can call this function after module instantiation to add new functions.
@@ -66,15 +87,27 @@ class ApplyFunc(Module):
         """
         # check inputs
         if not isinstance(func, collections.Callable):
-            raise AssertionError('functions in ApplyFunc must be callable objects')
-        if not isinstance(suffix, (str, type(None))) or not isinstance(prefix, (str, type(None))):
-            raise TypeError('prefix, and suffix in ApplyFunc must be strings or None.')
+            raise AssertionError("functions in ApplyFunc must be callable objects")
+        if not isinstance(suffix, (str, type(None))) or not isinstance(
+            prefix, (str, type(None))
+        ):
+            raise TypeError("prefix, and suffix in ApplyFunc must be strings or None.")
         if not isinstance(metrics, list) or not isinstance(features, list):
-            raise TypeError('metrics and features must be lists of strings.')
+            raise TypeError("metrics and features must be lists of strings.")
 
         # add function
-        self.apply_funcs.append({'features': features, 'metrics': metrics, 'func': func, 'entire': entire,
-                                 'suffix': suffix, 'prefix': prefix, 'args': args, 'kwargs': kwargs})
+        self.apply_funcs.append(
+            {
+                "features": features,
+                "metrics": metrics,
+                "func": func,
+                "entire": entire,
+                "suffix": suffix,
+                "prefix": prefix,
+                "args": args,
+                "kwargs": kwargs,
+            }
+        )
 
     def transform(self, datastore):
         """
@@ -89,11 +122,17 @@ class ApplyFunc(Module):
         if self.msg:
             self.logger.info(self.msg)
 
-        apply_to_data = self.get_datastore_object(datastore, self.apply_to_key, dtype=dict)
-        assign_to_data = self.get_datastore_object(datastore, self.assign_to_key, dtype=dict, default={})
+        apply_to_data = self.get_datastore_object(
+            datastore, self.apply_to_key, dtype=dict
+        )
+        assign_to_data = self.get_datastore_object(
+            datastore, self.assign_to_key, dtype=dict, default={}
+        )
 
         if self.apply_funcs_key:
-            apply_funcs = self.get_datastore_object(datastore, self.apply_funcs_key, dtype=list)
+            apply_funcs = self.get_datastore_object(
+                datastore, self.apply_funcs_key, dtype=list
+            )
             self.apply_funcs += apply_funcs
 
         features = self.get_features(apply_to_data.keys())
@@ -102,14 +141,20 @@ class ApplyFunc(Module):
         same_key = self.assign_to_key == self.apply_to_key
 
         res = Parallel(n_jobs=num_cores)(
-            delayed(apply_func_array)(feature=feature,
-                                      metrics=self.metrics,
-                                      apply_to_df=self.get_datastore_object(apply_to_data, feature, dtype=pd.DataFrame),
-                                      assign_to_df=None if same_key else
-                                      self.get_datastore_object(assign_to_data, feature, dtype=pd.DataFrame,
-                                                                default=pd.DataFrame()),
-                                      apply_funcs=self.apply_funcs,
-                                      same_key=same_key)
+            delayed(apply_func_array)(
+                feature=feature,
+                metrics=self.metrics,
+                apply_to_df=self.get_datastore_object(
+                    apply_to_data, feature, dtype=pd.DataFrame
+                ),
+                assign_to_df=None
+                if same_key
+                else self.get_datastore_object(
+                    assign_to_data, feature, dtype=pd.DataFrame, default=pd.DataFrame()
+                ),
+                apply_funcs=self.apply_funcs,
+                same_key=same_key,
+            )
             for feature in features
         )
         new_metrics = {r[0]: r[1] for r in res}
@@ -119,7 +164,9 @@ class ApplyFunc(Module):
         return datastore
 
 
-def apply_func_array(feature, metrics, apply_to_df, assign_to_df, apply_funcs, same_key):
+def apply_func_array(
+    feature, metrics, apply_to_df, assign_to_df, apply_funcs, same_key
+):
     """ Apply list of functions to dataframe
 
     Split off for parallellization reasons
@@ -133,7 +180,9 @@ def apply_func_array(feature, metrics, apply_to_df, assign_to_df, apply_funcs, s
     :return: untion of feature and assign_to_df
     """
     if not isinstance(apply_to_df, pd.DataFrame):
-        raise TypeError(f'apply_to_df of feature \"{feature}\" is not a pandas dataframe.')
+        raise TypeError(
+            f'apply_to_df of feature "{feature}" is not a pandas dataframe.'
+        )
 
     if same_key or (len(assign_to_df.index) == 0 and len(assign_to_df.columns) == 0):
         assign_to_df = pd.DataFrame(index=apply_to_df.index)
@@ -145,10 +194,14 @@ def apply_func_array(feature, metrics, apply_to_df, assign_to_df, apply_funcs, s
             continue
         for new_metric, o in obj.items():
             if isinstance(o, pd.Series):
-                if len(assign_to_df.index) == len(o) and all(assign_to_df.index == o.index):
+                if len(assign_to_df.index) == len(o) and all(
+                    assign_to_df.index == o.index
+                ):
                     assign_to_df[new_metric] = o
                 else:
-                    warnings.warn(f"{feature}:{new_metric}: df_out and object have inconsistent lengths.")
+                    warnings.warn(
+                        f"{feature}:{new_metric}: df_out and object have inconsistent lengths."
+                    )
             else:
                 # o is number or object, assign to every element of new column
                 assign_to_df[new_metric] = [o] * len(assign_to_df.index)
@@ -167,71 +220,111 @@ def apply_func(feature, selected_metrics, df, arr):
     :return: dictionary with outputs of applied-to metric pd.Series
     """
     # basic checks of feature
-    if 'features' in arr and len(arr['features']) > 0:
-        if feature not in arr['features']:
+    if "features" in arr and len(arr["features"]) > 0:
+        if feature not in arr["features"]:
             return {}
 
     # get func input
     keys = list(arr.keys())
 
-    assert 'func' in keys, 'function input is insufficient.'
-    func = arr['func']
+    assert "func" in keys, "function input is insufficient."
+    func = arr["func"]
 
-    if 'prefix' not in keys or arr['prefix'] is None:
-        arr['prefix'] = ''
-    if len(arr['prefix']) > 0 and not arr['prefix'].endswith('_'):
-        arr['prefix'] = arr['prefix'] + '_'
-    if 'suffix' not in keys or arr['suffix'] is None:
-        arr['suffix'] = func.__name__ if len(arr['prefix']) == 0 else ''
-    if len(arr['suffix']) > 0 and not arr['suffix'].startswith('_'):
-        arr['suffix'] = '_' + arr['suffix']
-    suffix = arr['suffix']
-    prefix = arr['prefix']
+    if "prefix" not in keys or arr["prefix"] is None:
+        arr["prefix"] = ""
+    if len(arr["prefix"]) > 0 and not arr["prefix"].endswith("_"):
+        arr["prefix"] = arr["prefix"] + "_"
+    if "suffix" not in keys or arr["suffix"] is None:
+        arr["suffix"] = func.__name__ if len(arr["prefix"]) == 0 else ""
+    if len(arr["suffix"]) > 0 and not arr["suffix"].startswith("_"):
+        arr["suffix"] = "_" + arr["suffix"]
+    suffix = arr["suffix"]
+    prefix = arr["prefix"]
 
     args = ()
     kwargs = {}
-    if 'kwargs' in keys:
-        kwargs = arr['kwargs']
-    if 'args' in keys:
-        args = arr['args']
+    if "kwargs" in keys:
+        kwargs = arr["kwargs"]
+    if "args" in keys:
+        args = arr["args"]
 
     # apply func
-    if len(selected_metrics) > 0 or ('metrics' in keys and len(arr['metrics']) > 0):
-        metrics = arr['metrics'] if ('metrics' in keys and len(arr['metrics']) > 0) else selected_metrics
+    if len(selected_metrics) > 0 or ("metrics" in keys and len(arr["metrics"]) > 0):
+        metrics = (
+            arr["metrics"]
+            if ("metrics" in keys and len(arr["metrics"]) > 0)
+            else selected_metrics
+        )
         metrics = [m for m in metrics if m in df.columns]
         # assert all(m in df.columns for m in metrics)
         if len(metrics) == 0:
             return {}
         df = df[metrics] if len(metrics) >= 2 else df[metrics[0]]
 
-    if 'entire' in arr and arr['entire'] is not None and arr['entire'] is not False and arr['entire'] != 0:
+    if (
+        "entire" in arr
+        and arr["entire"] is not None
+        and arr["entire"] is not False
+        and arr["entire"] != 0
+    ):
         obj = func(df, *args, **kwargs)
     else:
         obj = df.apply(func, args=args, **kwargs)
 
     # convert object to dict format
-    if not isinstance(obj, (pd.Series, pd.DataFrame, list, tuple, np.ndarray)) and isinstance(df, pd.Series):
+    if not isinstance(
+        obj, (pd.Series, pd.DataFrame, list, tuple, np.ndarray)
+    ) and isinstance(df, pd.Series):
         obj = {df.name: obj}
-    elif not isinstance(obj, (pd.Series, pd.DataFrame, list, tuple, np.ndarray)) and isinstance(df, pd.DataFrame):
-        obj = {'_'.join(df.columns): obj}
-    elif isinstance(obj, (list, tuple, np.ndarray)) and isinstance(df, pd.DataFrame) \
-            and len(df.columns) == len(obj):
+    elif not isinstance(
+        obj, (pd.Series, pd.DataFrame, list, tuple, np.ndarray)
+    ) and isinstance(df, pd.DataFrame):
+        obj = {"_".join(df.columns): obj}
+    elif (
+        isinstance(obj, (list, tuple, np.ndarray))
+        and isinstance(df, pd.DataFrame)
+        and len(df.columns) == len(obj)
+    ):
         obj = {c: o for c, o in zip(df.columns, obj)}
-    elif isinstance(obj, (list, tuple, np.ndarray)) and isinstance(df, pd.Series) and len(df.index) == len(obj):
+    elif (
+        isinstance(obj, (list, tuple, np.ndarray))
+        and isinstance(df, pd.Series)
+        and len(df.index) == len(obj)
+    ):
         obj = {df.name: pd.Series(data=obj, index=df.index)}
-    elif isinstance(obj, (list, tuple, np.ndarray)) and isinstance(df, pd.DataFrame) and len(df.index) == len(obj):
-        obj = {'_'.join(df.columns): pd.Series(data=obj, index=df.index)}
-    elif isinstance(obj, pd.Series) and isinstance(df, pd.Series) \
-            and len(obj) == len(df) and all(obj.index == df.index):
+    elif (
+        isinstance(obj, (list, tuple, np.ndarray))
+        and isinstance(df, pd.DataFrame)
+        and len(df.index) == len(obj)
+    ):
+        obj = {"_".join(df.columns): pd.Series(data=obj, index=df.index)}
+    elif (
+        isinstance(obj, pd.Series)
+        and isinstance(df, pd.Series)
+        and len(obj) == len(df)
+        and all(obj.index == df.index)
+    ):
         obj = {df.name: obj}
-    elif isinstance(obj, pd.Series) and isinstance(df, pd.DataFrame) \
-            and len(obj) == len(df) and all(obj.index == df.index):
-        obj = {'_'.join(df.columns): obj}
-    elif isinstance(obj, pd.DataFrame) and len(obj.columns) == 1 and len(obj.index) != len(df.index):
+    elif (
+        isinstance(obj, pd.Series)
+        and isinstance(df, pd.DataFrame)
+        and len(obj) == len(df)
+        and all(obj.index == df.index)
+    ):
+        obj = {"_".join(df.columns): obj}
+    elif (
+        isinstance(obj, pd.DataFrame)
+        and len(obj.columns) == 1
+        and len(obj.index) != len(df.index)
+    ):
         # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
         obj = obj[obj.columns[0]].to_dict()
-    elif isinstance(obj, pd.DataFrame) and len(obj.columns) == 1 and len(obj.index) == len(df.index) \
-            and (obj.index != df.index).any():
+    elif (
+        isinstance(obj, pd.DataFrame)
+        and len(obj.columns) == 1
+        and len(obj.index) == len(df.index)
+        and (obj.index != df.index).any()
+    ):
         # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
         obj = obj[obj.columns[0]].to_dict()
     elif isinstance(obj, pd.Series):
@@ -245,6 +338,6 @@ def apply_func(feature, selected_metrics, df, arr):
     # add prefix and suffix to dict keys
     keys = list(obj.keys())
     for k in keys:
-        obj[prefix+k+suffix] = obj.pop(k)
+        obj[prefix + k + suffix] = obj.pop(k)
 
     return obj

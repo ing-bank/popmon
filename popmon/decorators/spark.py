@@ -1,9 +1,10 @@
 from popmon.hist.filling import make_histograms
-from popmon.pipeline.report import df_stability_report
 from popmon.pipeline.metrics import df_stability_metrics
+from popmon.pipeline.report import df_stability_report
 
 try:
     from pyspark.sql import DataFrame
+
     # add function to create histogrammar histograms
     DataFrame.pm_make_histograms = make_histograms
     # add function to create stability report

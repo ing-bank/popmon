@@ -1,6 +1,7 @@
+import pandas as pd
+
 from ..base import Module
 from ..hist.histogram import HistogramContainer
-import pandas as pd
 
 
 class HistSplitter(Module):
@@ -12,9 +13,21 @@ class HistSplitter(Module):
     where time is the index and each row is a x:y histogram.
     """
 
-    def __init__(self, read_key, store_key, features=None, ignore_features=None, feature_begins_with='',
-                 project_on_axes=True, flatten_output=False, short_keys=True, var_timestamp=None, index_col='date',
-                 hist_col='histogram', filter_empty_split_hists=True):
+    def __init__(
+        self,
+        read_key,
+        store_key,
+        features=None,
+        ignore_features=None,
+        feature_begins_with="",
+        project_on_axes=True,
+        flatten_output=False,
+        short_keys=True,
+        var_timestamp=None,
+        index_col="date",
+        hist_col="histogram",
+        filter_empty_split_hists=True,
+    ):
         """Initialize an instance.
 
         :param str read_key: key of input histogram-dict to read from data store
@@ -45,19 +58,26 @@ class HistSplitter(Module):
         self.filter_empty_split_hists = filter_empty_split_hists
 
         if self.flatten_output and self.short_keys:
-            raise RuntimeError('flatten_output requires short_keys attribute to be False.')
+            raise RuntimeError(
+                "flatten_output requires short_keys attribute to be False."
+            )
 
     def update_divided(self, divided, split, yname):
         if self.flatten_output:
             divided.update(split)
         else:
-            divided[yname] = [{self.index_col: k, self.hist_col: HistogramContainer(h)} for k, h in split.items()]
+            divided[yname] = [
+                {self.index_col: k, self.hist_col: HistogramContainer(h)}
+                for k, h in split.items()
+            ]
         return divided
 
     def transform(self, datastore):
         divided = {}
 
-        self.logger.info(f'Splitting histograms \"{self.read_key}\" as \"{self.store_key}\"')
+        self.logger.info(
+            f'Splitting histograms "{self.read_key}" as "{self.store_key}"'
+        )
         data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
 
         # determine all possible features, used for comparison below
@@ -69,27 +89,35 @@ class HistSplitter(Module):
             hc = HistogramContainer(data[feature])
             if hc.n_dim <= 1:
                 self.logger.debug(
-                    f'Histogram "{feature}" does not have two or more dimensions, nothing to split; skipping.')
+                    f'Histogram "{feature}" does not have two or more dimensions, nothing to split; skipping.'
+                )
                 continue
 
-            cols = feature.split(':')
+            cols = feature.split(":")
             if len(cols) != hc.n_dim:
                 self.logger.error(
-                    f'Dimension of histogram "{feature}" not consistent: {hc.n_dim} vs {len(cols)}; skipping.')
+                    f'Dimension of histogram "{feature}" not consistent: {hc.n_dim} vs {len(cols)}; skipping.'
+                )
                 continue
 
-            xname, yname = cols[0], ':'.join(cols[1:])  # 'time:x:y' -> 'time', 'x:y'
+            xname, yname = cols[0], ":".join(cols[1:])  # 'time:x:y' -> 'time', 'x:y'
             if yname in divided:
-                self.logger.debug(f'HistogramContainer "{yname}" already divided; skipping.')
+                self.logger.debug(
+                    f'HistogramContainer "{yname}" already divided; skipping.'
+                )
                 continue
 
             # if requested split selected histograms along first axis. e.g. time:x:y is split along time
             # then check if sub-hists of x:y can be further projected. eg. x:y is projected on x and y as well.
             # datatype properties
             is_ts = hc.is_ts or xname in self.var_timestamp
-            split = hc.split_hist_along_first_dimension(short_keys=self.short_keys, convert_time_index=is_ts,
-                                                        xname=xname, yname=yname,
-                                                        filter_empty_split_hists=self.filter_empty_split_hists)
+            split = hc.split_hist_along_first_dimension(
+                short_keys=self.short_keys,
+                convert_time_index=is_ts,
+                xname=xname,
+                yname=yname,
+                filter_empty_split_hists=self.filter_empty_split_hists,
+            )
             if not split:
                 self.logger.warning(f'Split histogram "{yname}" is empty; skipping.')
                 continue

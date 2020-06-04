@@ -1,15 +1,17 @@
-import uuid
-import fnmatch
-import numpy as np
-import pandas as pd
 import collections
 import copy
+import fnmatch
+import uuid
 from collections import defaultdict
-from ..base import Module, Pipeline
+
+import numpy as np
+import pandas as pd
+
 from ..analysis.apply_func import ApplyFunc
+from ..base import Module, Pipeline
 
 
-def traffic_light_summary(row, cols=None, prefix=''):
+def traffic_light_summary(row, cols=None, prefix=""):
     """Make a summary of traffic light alerts present in the dataframe
 
     Count number of green, yellow, red traffic lights and worst value.
@@ -21,22 +23,26 @@ def traffic_light_summary(row, cols=None, prefix=''):
     :param str prefix: prefix of traffic light columns, in case cols is empty. default is ``"tl_"``
     """
     x = pd.Series()
-    x['worst'] = np.nan
-    x['n_red'] = np.nan
-    x['n_yellow'] = np.nan
-    x['n_green'] = np.nan
+    x["worst"] = np.nan
+    x["n_red"] = np.nan
+    x["n_yellow"] = np.nan
+    x["n_green"] = np.nan
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find traffic light columns for which summary is made.
-        cols = [m for m in row.index.to_list() if m.startswith(prefix)] if prefix else row.index.to_list()
+        cols = (
+            [m for m in row.index.to_list() if m.startswith(prefix)]
+            if prefix
+            else row.index.to_list()
+        )
     if len(cols) == 0:
         return x
 
     traffic_lights = np.array([row[c] for c in cols])
-    x['worst'] = np.max(traffic_lights)
-    x['n_red'] = (traffic_lights == 2).sum()
-    x['n_yellow'] = (traffic_lights == 1).sum()
-    x['n_green'] = (traffic_lights == 0).sum()
+    x["worst"] = np.max(traffic_lights)
+    x["n_red"] = (traffic_lights == 2).sum()
+    x["n_yellow"] = (traffic_lights == 1).sum()
+    x["n_green"] = (traffic_lights == 0).sum()
     return x
 
 
@@ -51,7 +57,9 @@ def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
 
     :return: corresponding traffic light based on the value and traffic light bounds
     """
-    assert (np.diff([red_high, yellow_high, yellow_low, red_low]) > 0).sum() == 0, "Traffic lights not sorted!"
+    assert (
+        np.diff([red_high, yellow_high, yellow_low, red_low]) > 0
+    ).sum() == 0, "Traffic lights not sorted!"
 
     if value < red_low or value >= red_high:
         return 2
@@ -74,8 +82,8 @@ def collect_traffic_light_bounds(monitoring_rules):
     metrics_per_feature = defaultdict(list)
     metrics = []
     for pattern in monitoring_rules.keys():
-        psplit = pattern.split(':')
-        feature = ':'.join(psplit[:-1])
+        psplit = pattern.split(":")
+        feature = ":".join(psplit[:-1])
         metric = psplit[-1]
         (metrics_per_feature[feature] if feature else metrics).append(metric)
 
@@ -91,9 +99,22 @@ class ComputeTLBounds(Module):
     meant to be generic. Then bounds can be stored as either raw
     values or as directly calculated values on the statistics of the data.
     """
-    def __init__(self, read_key, monitoring_rules=None, store_key='', features=None, ignore_features=None,
-                 apply_funcs_key='', func=None, metrics_wide=False, prefix='traffic_light_', suffix='',
-                 entire=False, **kwargs):
+
+    def __init__(
+        self,
+        read_key,
+        monitoring_rules=None,
+        store_key="",
+        features=None,
+        ignore_features=None,
+        apply_funcs_key="",
+        func=None,
+        metrics_wide=False,
+        prefix="traffic_light_",
+        suffix="",
+        entire=False,
+        **kwargs,
+    ):
         """Initialize an instance of TafficLightBounds module.
 
         :param str read_key: key of input data to read from datastore
@@ -128,20 +149,33 @@ class ComputeTLBounds(Module):
 
         # check inputs
         if not isinstance(self.traffic_light_func, collections.Callable):
-            raise AssertionError('supplied function must be callable object')
+            raise AssertionError("supplied function must be callable object")
 
     def _set_traffic_lights(self, feature, cols, pattern, rule_name):
         process_cols = fnmatch.filter(cols, pattern)
 
         for pcol in process_cols:
-            name = feature + ':' + pcol
+            name = feature + ":" + pcol
             if name not in self.traffic_lights:
                 bounds = self.monitoring_rules[eval(rule_name)]
                 self.traffic_lights[name] = bounds
-                metrics = [pcol] if not self.metrics_wide else [c for c in cols if c.startswith(pcol.split('_')[0])]
-                self.traffic_light_funcs.append({'func': self.traffic_light_func, 'features': [feature],
-                                                 'metrics': metrics, 'args': tuple(bounds), 'prefix': self.prefix,
-                                                 'suffix': self.suffix, 'entire': self.entire, 'kwargs': self.kwargs})
+                metrics = (
+                    [pcol]
+                    if not self.metrics_wide
+                    else [c for c in cols if c.startswith(pcol.split("_")[0])]
+                )
+                self.traffic_light_funcs.append(
+                    {
+                        "func": self.traffic_light_func,
+                        "features": [feature],
+                        "metrics": metrics,
+                        "args": tuple(bounds),
+                        "prefix": self.prefix,
+                        "suffix": self.suffix,
+                        "entire": self.entire,
+                        "kwargs": self.kwargs,
+                    }
+                )
 
     def transform(self, datastore):
         # fetch and check input data
@@ -159,21 +193,31 @@ class ComputeTLBounds(Module):
 
             # --- 1. tl bounds explicitly defined for a particular feature
             if feature in pkeys:
-                explicit_cols = [pcol for pcol in pkeys[feature] if pcol in test_df.columns]
+                explicit_cols = [
+                    pcol for pcol in pkeys[feature] if pcol in test_df.columns
+                ]
                 implicit_cols = set(pkeys[feature]) - set(explicit_cols)
 
                 # --- A1. tl bounds explicitly defined for a particular feature/profile combo
-                self._set_traffic_lights(feature, explicit_cols, pattern="*", rule_name="name")
+                self._set_traffic_lights(
+                    feature, explicit_cols, pattern="*", rule_name="name"
+                )
 
                 # --- B1. tl bounds implicitly defined for particular feature
                 #         see if a wildcard match can be found.
                 for pattern in implicit_cols:
-                    self._set_traffic_lights(feature, test_df.columns, pattern,
-                                             rule_name="feature + ':' + pattern")
+                    self._set_traffic_lights(
+                        feature,
+                        test_df.columns,
+                        pattern,
+                        rule_name="feature + ':' + pattern",
+                    )
             # --- 2. tl bounds not explicitly defined for a particular feature,
             #        see if a wildcard match can be found.
             for pattern in nkeys:
-                self._set_traffic_lights(feature, test_df.columns, pattern, rule_name="pattern")
+                self._set_traffic_lights(
+                    feature, test_df.columns, pattern, rule_name="pattern"
+                )
 
         # storage
         if self.store_key:
@@ -184,8 +228,16 @@ class ComputeTLBounds(Module):
         return datastore
 
 
-def pull_bounds(row, red_high, yellow_high, yellow_low=0, red_low=0,
-                suffix_mean='_mean', suffix_std='_std', cols=None):
+def pull_bounds(
+    row,
+    red_high,
+    yellow_high,
+    yellow_low=0,
+    red_low=0,
+    suffix_mean="_mean",
+    suffix_std="_std",
+    cols=None,
+):
     """Calculate traffic light pull bounds for list of cols
 
     Function can be used with ApplyFunc module.
@@ -199,7 +251,9 @@ def pull_bounds(row, red_high, yellow_high, yellow_low=0, red_low=0,
     :param str suffix_std: suffix of std column. default is '_std' (optional)
     :param list cols: list of cols to calculate bounds of (optional)
     """
-    assert (np.diff([red_high, yellow_high, yellow_low, red_low]) > 0).sum() == 0, "Traffic lights not sorted!"
+    assert (
+        np.diff([red_high, yellow_high, yellow_low, red_low]) > 0
+    ).sum() == 0, "Traffic lights not sorted!"
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find colums for which pulls can be calculated.
@@ -217,22 +271,30 @@ def pull_bounds(row, red_high, yellow_high, yellow_low=0, red_low=0,
 
     x = pd.Series()
     for m in cols:
-        x[m + '_red_high'] = np.nan
-        x[m + '_yellow_high'] = np.nan
-        x[m + '_yellow_low'] = np.nan
-        x[m + '_red_low'] = np.nan
+        x[m + "_red_high"] = np.nan
+        x[m + "_yellow_high"] = np.nan
+        x[m + "_yellow_low"] = np.nan
+        x[m + "_red_low"] = np.nan
         required = [m + suffix_mean, m + suffix_std]
         if any(pd.isnull(row[required])):
             continue
-        x[m + '_red_high'] = row[m + suffix_mean] + row[m + suffix_std] * red_high
-        x[m + '_yellow_high'] = row[m + suffix_mean] + row[m + suffix_std] * yellow_high
-        x[m + '_yellow_low'] = row[m + suffix_mean] + row[m + suffix_std] * yellow_low
-        x[m + '_red_low'] = row[m + suffix_mean] + row[m + suffix_std] * red_low
+        x[m + "_red_high"] = row[m + suffix_mean] + row[m + suffix_std] * red_high
+        x[m + "_yellow_high"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_high
+        x[m + "_yellow_low"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_low
+        x[m + "_red_low"] = row[m + suffix_mean] + row[m + suffix_std] * red_low
     return x
 
 
-def df_single_op_pull_bounds(df, red_high, yellow_high, yellow_low=0, red_low=0,
-                             suffix_mean='_mean', suffix_std='_std', cols=None):
+def df_single_op_pull_bounds(
+    df,
+    red_high,
+    yellow_high,
+    yellow_low=0,
+    red_low=0,
+    suffix_mean="_mean",
+    suffix_std="_std",
+    cols=None,
+):
     """Calculate traffic light pull bounds for list of cols on first row only
 
     Function can be used with ApplyFunc module.
@@ -247,15 +309,20 @@ def df_single_op_pull_bounds(df, red_high, yellow_high, yellow_low=0, red_low=0,
     :param list cols: list of cols to calculate bounds of (optional)
     """
     if len(df.index) == 0:
-        raise RuntimeError('input df has zero length')
+        raise RuntimeError("input df has zero length")
     row = df.iloc[0]
-    return pull_bounds(row, red_high, yellow_high, yellow_low, red_low, suffix_mean, suffix_std, cols)
+    return pull_bounds(
+        row, red_high, yellow_high, yellow_low, red_low, suffix_mean, suffix_std, cols
+    )
 
 
 class DynamicBounds(Pipeline):
     """ Calculate dynamic traffic light bounds based on pull thresholds and dynamic mean and std.deviation.
     """
-    def __init__(self, read_key, rules, store_key='', suffix_mean='_mean', suffix_std='_std'):
+
+    def __init__(
+        self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"
+    ):
         """Initialize an instance of DynamicTrafficLightBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.
@@ -269,22 +336,36 @@ class DynamicBounds(Pipeline):
 
         apply_funcs_key = str(uuid.uuid4())
 
-        expand_bounds = ComputeTLBounds(read_key=read_key, monitoring_rules=rules,
-                                        apply_funcs_key=apply_funcs_key, func=pull_bounds, metrics_wide=True, axis=1,
-                                        suffix_std=suffix_std, suffix_mean=suffix_mean)
-        calc_bounds = ApplyFunc(apply_to_key=read_key, assign_to_key=store_key, apply_funcs_key=apply_funcs_key)
+        expand_bounds = ComputeTLBounds(
+            read_key=read_key,
+            monitoring_rules=rules,
+            apply_funcs_key=apply_funcs_key,
+            func=pull_bounds,
+            metrics_wide=True,
+            axis=1,
+            suffix_std=suffix_std,
+            suffix_mean=suffix_mean,
+        )
+        calc_bounds = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=store_key,
+            apply_funcs_key=apply_funcs_key,
+        )
 
         self.modules = [expand_bounds, calc_bounds]
 
     def transform(self, datastore):
-        self.logger.info(f'Calculating dynamic bounds for \"{self.read_key}\"')
+        self.logger.info(f'Calculating dynamic bounds for "{self.read_key}"')
         return super().transform(datastore)
 
 
 class StaticBounds(Pipeline):
     """ Calculate static traffic light bounds based on pull thresholds and static mean and std.deviation.
     """
-    def __init__(self, read_key, rules, store_key='', suffix_mean='_mean', suffix_std='_std'):
+
+    def __init__(
+        self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"
+    ):
         """Initialize an instance of StaticBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.
@@ -298,15 +379,26 @@ class StaticBounds(Pipeline):
 
         apply_funcs_key = str(uuid.uuid4())
 
-        expand_bounds = ComputeTLBounds(read_key=read_key, monitoring_rules=rules,
-                                        apply_funcs_key=apply_funcs_key, func=df_single_op_pull_bounds, entire=True,
-                                        metrics_wide=True, suffix_std=suffix_std, suffix_mean=suffix_mean)
-        calc_bounds = ApplyFunc(apply_to_key=read_key, assign_to_key=store_key, apply_funcs_key=apply_funcs_key)
+        expand_bounds = ComputeTLBounds(
+            read_key=read_key,
+            monitoring_rules=rules,
+            apply_funcs_key=apply_funcs_key,
+            func=df_single_op_pull_bounds,
+            entire=True,
+            metrics_wide=True,
+            suffix_std=suffix_std,
+            suffix_mean=suffix_mean,
+        )
+        calc_bounds = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=store_key,
+            apply_funcs_key=apply_funcs_key,
+        )
 
         self.modules = [expand_bounds, calc_bounds]
 
     def transform(self, datastore):
-        self.logger.info(f'Calculating static bounds for \"{self.read_key}\"')
+        self.logger.info(f'Calculating static bounds for "{self.read_key}"')
         return super().transform(datastore)
 
 
@@ -318,7 +410,8 @@ class TrafficLightAlerts(Pipeline):
     - Generate static traffic light bounds by expanding the wildcarded monitoring rules
     - Apply them to profiled test statistics data
     """
-    def __init__(self, read_key, store_key, rules, expanded_rules_key=''):
+
+    def __init__(self, read_key, store_key, rules, expanded_rules_key=""):
         """Initialize an instance of TrafficLightBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.
@@ -334,13 +427,22 @@ class TrafficLightAlerts(Pipeline):
         apply_funcs_key = str(uuid.uuid4())
 
         # generate static traffic light bounds by expanding the wildcarded monitoring rules
-        expand_bounds = ComputeTLBounds(read_key=read_key, store_key=expanded_rules_key, prefix='',
-                                        apply_funcs_key=apply_funcs_key, monitoring_rules=rules)
+        expand_bounds = ComputeTLBounds(
+            read_key=read_key,
+            store_key=expanded_rules_key,
+            prefix="",
+            apply_funcs_key=apply_funcs_key,
+            monitoring_rules=rules,
+        )
         # Apply them to profiled test statistics data
-        apply_bounds = ApplyFunc(apply_to_key=read_key, assign_to_key=store_key, apply_funcs_key=apply_funcs_key)
+        apply_bounds = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=store_key,
+            apply_funcs_key=apply_funcs_key,
+        )
 
         self.modules = [expand_bounds, apply_bounds]
 
     def transform(self, datastore):
-        self.logger.info(f'Calculating traffic light alerts for \"{self.read_key}\"')
+        self.logger.info(f'Calculating traffic light alerts for "{self.read_key}"')
         return super().transform(datastore)

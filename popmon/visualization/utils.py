@@ -1,11 +1,12 @@
-import math
 import logging
+import math
 from io import BytesIO
-import pybase64
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
+import pybase64
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -20,10 +21,10 @@ def plt_to_base64():
     """
     tmpfile = BytesIO()
 
-    plt.savefig(tmpfile, format='png')
+    plt.savefig(tmpfile, format="png")
     plt.close()
 
-    return pybase64.b64encode(tmpfile.getvalue()).decode('utf-8')
+    return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
 
 
 def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
@@ -49,20 +50,24 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
         n_nan = pd.isnull(data).sum()
         n_inf = np.sum([np.isinf(x) for x in data if isinstance(x, float)])
         if n_nan + n_zero + n_inf == n_data:
-            logger.debug('skipping plot with empty data.')
-            return ''
+            logger.debug("skipping plot with empty data.")
+            return ""
 
     fig, ax = plt.subplots()
 
     index = np.arange(n)
     width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
-    ax.bar(index, data, width=width, align='center', alpha=0.5)
+    ax.bar(index, data, width=width, align="center", alpha=0.5)
 
     if labels:
         ax.set_xticks(index)
-        ax.set_xticklabels(labels, fontdict={'rotation': 'vertical'})
+        ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
         granularity = math.ceil(len(labels) / 50)
-        [l.set_visible(False) for (i, l) in enumerate(ax.xaxis.get_ticklabels()) if i % granularity != 0]
+        [
+            l.set_visible(False)
+            for (i, l) in enumerate(ax.xaxis.get_ticklabels())
+            if i % granularity != 0
+        ]
 
     # plot boundaries
     try:
@@ -72,28 +77,32 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
 
         if len(bounds) > 0:
             max_r, max_y, min_y, min_r = bounds
-            y_max = max(max(max_r) if isinstance(max_r, (list, tuple)) else max_r, max_value)
-            y_min = min(max(min_r) if isinstance(min_r, (list, tuple)) else min_r, min_value)
+            y_max = max(
+                max(max_r) if isinstance(max_r, (list, tuple)) else max_r, max_value
+            )
+            y_min = min(
+                max(min_r) if isinstance(min_r, (list, tuple)) else min_r, min_value
+            )
             spread = (y_max - y_min) / 20
             y_max += spread
             y_min -= spread
 
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_r, xmin=0, xmax=1, color='r')
+                ax.axhline(y=max_r, xmin=0, xmax=1, color="r")
             else:
-                ax.plot(index, max_r, color='r')
+                ax.plot(index, max_r, color="r")
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_y, xmin=0, xmax=1, color='y')
+                ax.axhline(y=max_y, xmin=0, xmax=1, color="y")
             else:
-                ax.plot(index, max_y, color='y')
+                ax.plot(index, max_y, color="y")
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_y, xmin=0, xmax=1, color='y')
+                ax.axhline(y=min_y, xmin=0, xmax=1, color="y")
             else:
-                ax.plot(index, min_y, color='y')
+                ax.plot(index, min_y, color="y")
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_r, xmin=0, xmax=1, color='r')
+                ax.axhline(y=min_r, xmin=0, xmax=1, color="r")
             else:
-                ax.plot(index, min_r, color='r')
+                ax.plot(index, min_r, color="r")
             if y_max > y_min:
                 ax.set_ylim(y_min, y_max)
         elif ylim:
@@ -105,7 +114,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     except Exception:
         pass
 
-    ax.grid(True, linestyle=':')
+    ax.grid(True, linestyle=":")
 
     fig.tight_layout()
     return plt_to_base64()
@@ -133,8 +142,8 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
         n_nan = pd.isnull(data).sum()
         n_inf = np.sum([np.isinf(x) for x in data if isinstance(x, float)])
         if n_nan + n_zero + n_inf == n_data:
-            logger.debug('skipping plot with empty data.')
-            return ''
+            logger.debug("skipping plot with empty data.")
+            return ""
 
     fig, ax = plt.subplots()
 
@@ -148,15 +157,27 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
 
     for i, color in enumerate(COLORS):
         mask = data == i
-        ax.bar(index[mask], ones[mask], width=1, align='center', color=color, alpha=0.8, edgecolor='black')
+        ax.bar(
+            index[mask],
+            ones[mask],
+            width=1,
+            align="center",
+            color=color,
+            alpha=0.8,
+            edgecolor="black",
+        )
 
     ax.set_yticks([])
 
     if labels:
         ax.set_xticks(index)
-        ax.set_xticklabels(labels, fontdict={'rotation': 'vertical'})
+        ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
         granularity = math.ceil(len(labels) / 50)
-        [l.set_visible(False) for (i, l) in enumerate(ax.xaxis.get_ticklabels()) if i % granularity != 0]
+        [
+            l.set_visible(False)
+            for (i, l) in enumerate(ax.xaxis.get_ticklabels())
+            if i % granularity != 0
+        ]
 
     fig.tight_layout()
 
@@ -179,21 +200,23 @@ def grouped_bar_chart_b64(data, labels, legend):
         raise ValueError("shape mismatch: x-axis labels do not match the data shape")
 
     if len(legend) != n:
-        raise ValueError("shape mismatch: the number of data entry lists does not match the legend shape")
+        raise ValueError(
+            "shape mismatch: the number of data entry lists does not match the legend shape"
+        )
 
     x = np.arange(b)
     max_width = 0.9
-    width = max_width/n
+    width = max_width / n
 
     fig, ax = plt.subplots()
-    offset = (1-n)*width/2
+    offset = (1 - n) * width / 2
     for label, row in zip(legend, data):
         ax.bar(x + offset, row, width, label=label)
         offset += width
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontdict={'rotation': 'vertical'})
+    ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
     ax.legend()
 
     fig.tight_layout()
@@ -201,8 +224,17 @@ def grouped_bar_chart_b64(data, labels, legend):
     return plt_to_base64()
 
 
-def plot_overlay_1d_histogram_b64(hists, x_label, hist_names=[], y_label=None, is_num=True, is_ts=False,
-                                  top=20, width_in=None, xlim=None):
+def plot_overlay_1d_histogram_b64(
+    hists,
+    x_label,
+    hist_names=[],
+    y_label=None,
+    is_num=True,
+    is_ts=False,
+    top=20,
+    width_in=None,
+    xlim=None,
+):
     """Create and plot (overlapping) histogram(s) of column values.
 
     Copyright Eskapade:
@@ -225,23 +257,27 @@ def plot_overlay_1d_histogram_b64(hists, x_label, hist_names=[], y_label=None, i
     """
     # basic checks
     if len(hist_names) == 0:
-        hist_names = [f'hist{i}' for i in range(len(hists))]
+        hist_names = [f"hist{i}" for i in range(len(hists))]
     if hist_names:
         if len(hists) != len(hist_names):
-            raise AssertionError('length of hist and hist_names are different')
+            raise AssertionError("length of hist and hist_names are different")
 
     plt.figure(figsize=(9, 7))
 
-    alpha = 1. / len(hists)
+    alpha = 1.0 / len(hists)
     for i, hist in enumerate(hists):
         try:
             hist_values = hist[0]
             hist_bins = hist[1]
         except BaseException:
-            raise ValueError('Cannot extract binning and values from input histogram')
+            raise ValueError("Cannot extract binning and values from input histogram")
 
-        assert hist_values is not None and len(hist_values), 'Histogram bin values have not been set.'
-        assert hist_bins is not None and len(hist_bins), 'Histogram binning has not been set.'
+        assert hist_values is not None and len(
+            hist_values
+        ), "Histogram bin values have not been set."
+        assert hist_bins is not None and len(
+            hist_bins
+        ), "Histogram binning has not been set."
 
         # basic attribute check: time stamps treated as numeric.
         if is_ts:
@@ -251,9 +287,11 @@ def plot_overlay_1d_histogram_b64(hists, x_label, hist_names=[], y_label=None, i
         if is_num:
             bin_edges = hist_bins
             bin_values = hist_values
-            assert len(bin_edges) == len(bin_values) + 1, \
-                'bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}'\
-                .format(len(bin_edges), len(bin_values), x_label)
+            assert (
+                len(bin_edges) == len(bin_values) + 1
+            ), "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
+                len(bin_edges), len(bin_values), x_label
+            )
 
             if is_ts:
                 # difference in seconds
@@ -268,8 +306,13 @@ def plot_overlay_1d_histogram_b64(hists, x_label, hist_names=[], y_label=None, i
                 width = np.diff(bin_edges)
 
             # plot histogram
-            plt.bar(bin_edges[:-1], bin_values, width=width,
-                    alpha=alpha, label=hist_names[i])
+            plt.bar(
+                bin_edges[:-1],
+                bin_values,
+                width=width,
+                alpha=alpha,
+                label=hist_names[i],
+            )
 
             # set x-axis properties
             if xlim:
@@ -282,29 +325,32 @@ def plot_overlay_1d_histogram_b64(hists, x_label, hist_names=[], y_label=None, i
         else:
             labels = hist_bins
             values = hist_values
-            assert len(labels) == len(values), \
-                'labels and values have different array lengths: {:d} vs {:d}. {}'\
-                .format(len(labels), len(values), x_label)
+            assert len(labels) == len(
+                values
+            ), "labels and values have different array lengths: {:d} vs {:d}. {}".format(
+                len(labels), len(values), x_label
+            )
 
             # plot histogram
             tick_pos = np.arange(len(labels)) + 0.5
-            plt.bar(tick_pos, values, width=0.8,
-                    alpha=alpha, label=hist_names[i])
+            plt.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
 
             # set x-axis properties
             def xtick(lab):
                 """Get x-tick."""
                 lab = str(lab)
                 if len(lab) > top:
-                    lab = lab[:17] + '...'
+                    lab = lab[:17] + "..."
                 return lab
 
-            plt.xlim((0., float(len(labels))))
-            plt.xticks(tick_pos, [xtick(lab) for lab in labels], fontsize=12, rotation=90)
+            plt.xlim((0.0, float(len(labels))))
+            plt.xticks(
+                tick_pos, [xtick(lab) for lab in labels], fontsize=12, rotation=90
+            )
 
     # set common histogram properties
     plt.xlabel(x_label, fontsize=14)
-    plt.ylabel(str(y_label) if y_label is not None else 'Bin count', fontsize=14)
+    plt.ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
     plt.yticks(fontsize=12)
     plt.grid()
     plt.legend()

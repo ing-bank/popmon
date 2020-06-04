@@ -1,5 +1,6 @@
 import pathlib
 from collections.abc import Callable
+
 from ..base import Module
 
 
@@ -18,22 +19,24 @@ class FileReader(Module):
         super().__init__()
         self.store_key = store_key
         if not isinstance(file_path, (str, pathlib.PosixPath)):
-            raise AssertionError('x')
+            raise AssertionError("x")
         self.file_path = file_path
         if not isinstance(apply_func, (type(None), Callable)):
-            raise AssertionError('transformation function must be a callable object')
+            raise AssertionError("transformation function must be a callable object")
         self.apply_func = apply_func
         self.kwargs = kwargs
 
     def transform(self, datastore):
-        with open(self.file_path, 'r') as file:
+        with open(self.file_path, "r") as file:
             data = file.read()
 
         # if a transformation function is provided, transform the data
         if self.apply_func is not None:
             data = self.apply_func(data, **self.kwargs)
 
-        self.logger.info(f'Object \"{self.store_key}\" read from file \"{self.file_path}\".')
+        self.logger.info(
+            f'Object "{self.store_key}" read from file "{self.file_path}".'
+        )
 
         # store the transformed/original contents
         datastore[self.store_key] = data

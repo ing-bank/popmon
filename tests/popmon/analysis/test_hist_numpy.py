@@ -2,11 +2,19 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from popmon.analysis.hist_numpy import (
+    assert_similar_hists,
+    check_similar_hists,
+    get_2dgrid,
+    get_consistent_numpy_1dhists,
+    get_consistent_numpy_2dgrids,
+    get_consistent_numpy_entries,
+    get_contentType,
+    prepare_2dgrid,
+    set_2dgrid,
+)
 from popmon.hist.histogram import HistogramContainer
 from popmon.hist.patched_histogrammer import histogrammar as hg
-from popmon.analysis.hist_numpy import get_contentType, prepare_2dgrid, set_2dgrid, get_2dgrid, \
-    get_consistent_numpy_2dgrids, get_consistent_numpy_1dhists, get_consistent_numpy_entries, \
-    assert_similar_hists, check_similar_hists
 
 
 def to_ns(x):
@@ -25,15 +33,19 @@ def get_test_histograms1():
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
     df = pd.util.testing.makeMixedDataFrame()
-    df['date'] = df['D'].apply(to_ns)
-    df['boolT'] = True
-    df['boolF'] = False
+    df["date"] = df["D"].apply(to_ns)
+    df["boolT"] = True
+    df["boolF"] = False
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist2)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
     # fill them
     hist1.fill.numpy(df)
     hist2.fill.numpy(df)
@@ -54,10 +66,10 @@ def get_test_histograms2():
     df = pd.util.testing.makeMixedDataFrame()
 
     # building 1d-, 2d-histogram (iteratively)
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.Bin(5, 0, 5, unit('A'))
-    hist4 = hg.Categorize(unit('C'), value=hist3)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.Bin(5, 0, 5, unit("A"))
+    hist4 = hg.Categorize(unit("C"), value=hist3)
 
     # fill them
     hist1.fill.numpy(df)
@@ -102,9 +114,9 @@ def test_get_contentType():
     hist2 = hc2.hist
     hist3 = hc3.hist
 
-    assert get_contentType(hist1) == 'Categorize'
-    assert get_contentType(hist2) == 'Bin'
-    assert get_contentType(hist3) == 'SparselyBin'
+    assert get_contentType(hist1) == "Categorize"
+    assert get_contentType(hist2) == "Bin"
+    assert get_contentType(hist3) == "SparselyBin"
 
 
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
@@ -114,10 +126,14 @@ def test_prepare_2dgrid():
     df, hc1, hc2, hc3 = get_test_histograms1()
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist2)
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
     # fill them
     hist1.fill.numpy(df)
     hist2.fill.numpy(df)
@@ -130,7 +146,7 @@ def test_prepare_2dgrid():
     np.testing.assert_array_equal(xkeys1, [])
     np.testing.assert_array_equal(ykeys1, [])
     np.testing.assert_array_equal(xkeys2, [0, 1, 2, 3, 4])
-    np.testing.assert_array_equal(ykeys2, ['foo1', 'foo2', 'foo3', 'foo4', 'foo5'])
+    np.testing.assert_array_equal(ykeys2, ["foo1", "foo2", "foo3", "foo4", "foo5"])
     np.testing.assert_array_equal(xkeys3, [0, 1, 4, 5, 6])
     np.testing.assert_array_equal(ykeys3, [0, 1, 2, 3, 4])
 
@@ -152,8 +168,15 @@ def test_set_2dgrid():
     grid2 = set_2dgrid(hist2, xkeys2, ykeys2)
     grid3 = set_2dgrid(hist3, xkeys3, ykeys3)
 
-    grid_comp = np.asarray([[1., 0., 0., 0., 0.], [0., 1., 0., 0., 0.], [0., 0., 1., 0., 0.],
-                            [0., 0., 0., 1., 0.], [0., 0., 0., 0., 1.]])
+    grid_comp = np.asarray(
+        [
+            [1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0],
+        ]
+    )
 
     assert (grid1 == np.zeros((0, 0))).all()
     assert (grid2 == grid_comp).all()
@@ -173,8 +196,15 @@ def test_get_2dgrid():
     grid2 = get_2dgrid(hist2)
     grid3 = get_2dgrid(hist3)
 
-    grid_comp = np.asarray([[1., 0., 0., 0., 0.], [0., 1., 0., 0., 0.], [0., 0., 1., 0., 0.],
-                            [0., 0., 0., 1., 0.], [0., 0., 0., 0., 1.]])
+    grid_comp = np.asarray(
+        [
+            [1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0],
+        ]
+    )
 
     assert (grid1 == np.zeros((0, 0))).all()
     assert (grid2 == grid_comp).all()
@@ -187,14 +217,22 @@ def test_get_consistent_numpy_2dgrids():
     When first making bin_edges of input histograms consistent to each other.
     """
     df1 = pd.DataFrame(
-        {'A': [0, 1, 2, 3, 4, 3, 2, 1, 1, 1], 'C': ['f1', 'f3', 'f4', 'f3', 'f4', 'f2', 'f2', 'f1', 'f3', 'f4']})
+        {
+            "A": [0, 1, 2, 3, 4, 3, 2, 1, 1, 1],
+            "C": ["f1", "f3", "f4", "f3", "f4", "f2", "f2", "f1", "f3", "f4"],
+        }
+    )
     df2 = pd.DataFrame(
-        {'A': [2, 3, 4, 5, 7, 4, 6, 5, 7, 8], 'C': ['f7', 'f3', 'f5', 'f8', 'f9', 'f2', 'f3', 'f6', 'f7', 'f7']})
+        {
+            "A": [2, 3, 4, 5, 7, 4, 6, 5, 7, 8],
+            "C": ["f7", "f3", "f5", "f8", "f9", "f2", "f3", "f6", "f7", "f7"],
+        }
+    )
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist0 = hg.Categorize(unit('C'))
-    hist1 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A'), value=hist0)
-    hist2 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A'), value=hist0)
+    hist0 = hg.Categorize(unit("C"))
+    hist1 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"), value=hist0)
+    hist2 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"), value=hist0)
 
     # fill them
     hist0.fill.numpy(df1)
@@ -205,7 +243,7 @@ def test_get_consistent_numpy_2dgrids():
     hc1 = HistogramContainer(hist1)
     hc2 = HistogramContainer(hist2)
 
-    args = ['']
+    args = [""]
     try:
         get_consistent_numpy_2dgrids([hc0, hc0])
     except AssertionError as e:
@@ -213,28 +251,38 @@ def test_get_consistent_numpy_2dgrids():
 
     grid2d_list = get_consistent_numpy_2dgrids([hc1, hc2])
 
-    g1 = np.asarray([[1., 1., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 1., 1., 0., 0., 0., 0., 0.],
-                     [0., 2., 0., 1., 0., 0., 0., 0., 0.],
-                     [0., 1., 1., 0., 1., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.]])
-    g2 = np.asarray([[0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 1., 0., 0., 0., 0.],
-                     [0., 0., 0., 1., 0., 0., 1., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 1., 0., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 1., 0., 0., 0.],
-                     [0., 0., 1., 0., 0., 0., 0., 1., 1.],
-                     [0., 0., 0., 0., 0., 1., 0., 0., 0.],
-                     [0., 0., 0., 0., 0., 0., 0., 1., 0.]])
+    g1 = np.asarray(
+        [
+            [1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        ]
+    )
+    g2 = np.asarray(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+        ]
+    )
     grid2d_comp = [g1, g2]
 
     # MB 20190828: not sure if this is the right way to test for exceptions.
-    assert args[0] == 'Input histogram only has 1 dimensions (<2). Cannot compute 2d-grid.'
+    assert (
+        args[0] == "Input histogram only has 1 dimensions (<2). Cannot compute 2d-grid."
+    )
 
     for i in range(2):
         assert (grid2d_list[i] == grid2d_comp[i]).all()
@@ -245,12 +293,12 @@ def test_get_consistent_numpy_1dhists():
 
     When first making bin_edges/bin-labels of input histograms consistent to each other.
     """
-    df1 = pd.DataFrame({'A': [0, 1, 2, 3, 4, 3, 2, 1, 1, 1]})
-    df2 = pd.DataFrame({'A': [2, 3, 4, 5, 7, 4, 6, 5, 7, 8]})
+    df1 = pd.DataFrame({"A": [0, 1, 2, 3, 4, 3, 2, 1, 1, 1]})
+    df2 = pd.DataFrame({"A": [2, 3, 4, 5, 7, 4, 6, 5, 7, 8]})
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist1 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A'))
-    hist2 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A'))
+    hist1 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
+    hist2 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
 
     # fill them
     hist1.fill.numpy(df1)
@@ -262,9 +310,9 @@ def test_get_consistent_numpy_1dhists():
     nphist1, nphist2 = get_consistent_numpy_1dhists([hc1, hc2], get_bin_labels=False)
     nphist_list, centers = get_consistent_numpy_1dhists([hc1, hc2], get_bin_labels=True)
 
-    entries1 = [1., 4., 2., 2., 1., 0., 0., 0., 0.]
-    entries2 = [0., 0., 1., 1., 2., 2., 1., 2., 1.]
-    bin_edges = [0., 1., 2., 3., 4., 5., 6., 7., 8., 9.]
+    entries1 = [1.0, 4.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+    entries2 = [0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 1.0]
+    bin_edges = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
     bin_centers = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5]
 
     np.testing.assert_array_equal(nphist1[0], entries1)
@@ -285,15 +333,27 @@ def test_get_consistent_numpy_entries():
     When first making bin_edges of input histograms consistent to each other.
     """
     df1 = pd.DataFrame(
-        {'A': [0, 1, 2, 3, 4, 3, 2, 1, 1, 1], 'C': ['f1', 'f3', 'f4', 'f3', 'f4', 'f2', 'f2', 'f1', 'f3', 'f4']})
+        {
+            "A": [0, 1, 2, 3, 4, 3, 2, 1, 1, 1],
+            "C": ["f1", "f3", "f4", "f3", "f4", "f2", "f2", "f1", "f3", "f4"],
+        }
+    )
     df2 = pd.DataFrame(
-        {'A': [2, 3, 4, 5, 7, 4, 6, 5, 7, 8], 'C': ['f7', 'f3', 'f5', 'f8', 'f9', 'f2', 'f3', 'f6', 'f7', 'f7']})
+        {
+            "A": [2, 3, 4, 5, 7, 4, 6, 5, 7, 8],
+            "C": ["f7", "f3", "f5", "f8", "f9", "f2", "f3", "f6", "f7", "f7"],
+        }
+    )
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist0 = HistogramContainer(hg.Categorize(unit('C')))
-    hist1 = HistogramContainer(hg.Categorize(unit('C')))
-    hist2 = HistogramContainer(hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A')))
-    hist3 = HistogramContainer(hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit('A')))
+    hist0 = HistogramContainer(hg.Categorize(unit("C")))
+    hist1 = HistogramContainer(hg.Categorize(unit("C")))
+    hist2 = HistogramContainer(
+        hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
+    )
+    hist3 = HistogramContainer(
+        hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
+    )
 
     # fill them
     for hist, df in zip([hist0, hist1, hist2, hist3], [df1, df2, df1, df2]):
@@ -305,12 +365,12 @@ def test_get_consistent_numpy_entries():
     e2, e3 = get_consistent_numpy_entries([hist2, hist3], get_bin_labels=False)
     _, centers23 = get_consistent_numpy_entries([hist2, hist3], get_bin_labels=True)
 
-    entries0 = [2., 2., 3., 3., 0., 0., 0., 0., 0.]
-    entries1 = [0., 1., 2., 0., 1., 1., 3., 1., 1.]
-    labels = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9']
+    entries0 = [2.0, 2.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    entries1 = [0.0, 1.0, 2.0, 0.0, 1.0, 1.0, 3.0, 1.0, 1.0]
+    labels = ["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9"]
 
-    entries2 = [1., 4., 2., 2., 1., 0., 0., 0., 0.]
-    entries3 = [0., 0., 1., 1., 2., 2., 1., 2., 1.]
+    entries2 = [1.0, 4.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+    entries3 = [0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 1.0]
     centers = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5]
 
     np.testing.assert_array_equal(e0, entries0)
@@ -331,17 +391,25 @@ def test_check_similar_hists():
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
     df = pd.util.testing.makeMixedDataFrame()
-    df['date'] = df['D'].apply(to_ns)
+    df["date"] = df["D"].apply(to_ns)
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist0 = hg.Bin(5, 0, 5, unit('A'))
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.Categorize(unit('C'), value=hist0)
-    hist4 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist2)
-    hist5 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist3)
+    hist0 = hg.Bin(5, 0, 5, unit("A"))
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.Categorize(unit("C"), value=hist0)
+    hist4 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
+    hist5 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist3,
+    )
     # fill them
     for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
         hist.fill.numpy(df)
@@ -370,18 +438,26 @@ def test_assert_similar_hists():
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
     df = pd.util.testing.makeMixedDataFrame()
-    df['date'] = df['D'].apply(to_ns)
+    df["date"] = df["D"].apply(to_ns)
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist0 = hg.Bin(5, 0, 5, unit('A'))
-    hist1 = hg.Categorize(unit('C'))
-    hist2 = hg.Bin(5, 0, 5, unit('A'), value=hist1)
-    hist3 = hg.Categorize(unit('C'), value=hist0)
+    hist0 = hg.Bin(5, 0, 5, unit("A"))
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.Bin(5, 0, 5, unit("A"), value=hist1)
+    hist3 = hg.Categorize(unit("C"), value=hist0)
 
-    hist4 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist2)
-    hist5 = hg.SparselyBin(origin=pd.Timestamp('2009-01-01').value, binWidth=pd.Timedelta(days=1).value,
-                           quantity=unit('date'), value=hist3)
+    hist4 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist2,
+    )
+    hist5 = hg.SparselyBin(
+        origin=pd.Timestamp("2009-01-01").value,
+        binWidth=pd.Timedelta(days=1).value,
+        quantity=unit("date"),
+        value=hist3,
+    )
     # fill them
     for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
         hist.fill.numpy(df)
@@ -396,9 +472,9 @@ def test_assert_similar_hists():
     for hc in [hc0, hc1, hc2, hc3, hc4, hc5]:
         assert check_similar_hists([hc, hc])
 
-    args01 = ['']
-    args23 = ['']
-    args45 = ['']
+    args01 = [""]
+    args23 = [""]
+    args45 = [""]
 
     try:
         assert_similar_hists([hc0, hc1])
@@ -415,9 +491,9 @@ def test_assert_similar_hists():
     except AssertionError as e:
         args45 = e.args
 
-    assert args01[0] == 'Input histograms are not all similar.'
-    assert args23[0] == 'Input histograms are not all similar.'
-    assert args45[0] == 'Input histograms are not all similar.'
+    assert args01[0] == "Input histograms are not all similar."
+    assert args23[0] == "Input histograms are not all similar."
+    assert args45[0] == "Input histograms are not all similar."
 
 
 def test_datatype():

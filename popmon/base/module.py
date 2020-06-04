@@ -4,6 +4,7 @@ import logging
 class Module:
     """Base class used for modules in a pipeline.
     """
+
     def __init__(self):
         """Module initialization
         """
@@ -56,7 +57,9 @@ class Module:
         if self.ignore_features:
             features = [k for k in features if k not in self.ignore_features]
 
-        features_not_in_input = [feature for feature in features if feature not in all_features]
+        features_not_in_input = [
+            feature for feature in features if feature not in all_features
+        ]
         features = [feature for feature in features if feature in all_features]
 
         for feature in features_not_in_input:

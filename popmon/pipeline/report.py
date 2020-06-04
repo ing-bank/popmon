@@ -1,27 +1,50 @@
 import logging
+
 import pandas as pd
-from ..resources import templates_env
-from ..pipeline.report_pipelines import self_reference, external_reference, rolling_reference, \
-    expanding_reference, ReportPipe
-from ..hist.filling.make_histograms import make_histograms, get_time_axes, get_bin_specs
+
 from ..base import Module
 from ..config import config
+from ..hist.filling.make_histograms import get_bin_specs, get_time_axes, make_histograms
+from ..pipeline.report_pipelines import (
+    ReportPipe,
+    expanding_reference,
+    external_reference,
+    rolling_reference,
+    self_reference,
+)
+from ..resources import templates_env
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s [%(module)s]: %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
+)
 logger = logging.getLogger()
 
 _report_pipeline = {
-    'self': self_reference,
-    'external': external_reference,
-    'rolling': rolling_reference,
-    'expanding': expanding_reference,
+    "self": self_reference,
+    "external": external_reference,
+    "rolling": rolling_reference,
+    "expanding": expanding_reference,
 }
 
 
-def stability_report(hists, reference_type='self', reference=None, time_axis='', window=10, shift=1,
-                     monitoring_rules=None, pull_rules=None, features=None, skip_empty_plots=True,
-                     last_n=0, plot_hist_n=2, report_filepath=None, extended_report=True,
-                     show_stats=config["limited_stats"], **kwargs):
+def stability_report(
+    hists,
+    reference_type="self",
+    reference=None,
+    time_axis="",
+    window=10,
+    shift=1,
+    monitoring_rules=None,
+    pull_rules=None,
+    features=None,
+    skip_empty_plots=True,
+    last_n=0,
+    plot_hist_n=2,
+    report_filepath=None,
+    extended_report=True,
+    show_stats=config["limited_stats"],
+    **kwargs,
+):
     """ Create a data stability monitoring html report for given dict of input histograms.
 
     :param dict hists: input histograms to be profiled and monitored over time.
@@ -79,22 +102,27 @@ def stability_report(hists, reference_type='self', reference=None, time_axis='',
     # perform basic input checks
     reference_types = list(_report_pipeline.keys())
     if reference_type not in reference_types:
-        raise AssertionError(f'reference_type should be one of {str(reference_types)}.')
+        raise AssertionError(f"reference_type should be one of {str(reference_types)}.")
 
     if not isinstance(hists, dict):
-        raise AssertionError('hists should be a dict of histogrammar histograms.')
-    if reference_type == 'external' and not isinstance(reference, dict):
-        raise AssertionError('reference should be a dict of histogrammar histograms.')
+        raise AssertionError("hists should be a dict of histogrammar histograms.")
+    if reference_type == "external" and not isinstance(reference, dict):
+        raise AssertionError("reference should be a dict of histogrammar histograms.")
 
     if not isinstance(monitoring_rules, dict):
-        monitoring_rules = {"*_pull": [7, 4, -4, -7], "*_zscore": [7, 4, -4, -7],
-                            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+        monitoring_rules = {
+            "*_pull": [7, 4, -4, -7],
+            "*_zscore": [7, 4, -4, -7],
+            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+        }
     if not isinstance(pull_rules, dict):
         pull_rules = {"*_pull": [7, 4, -4, -7]}
 
-    if (isinstance(time_axis, str) and len(time_axis) == 0) or (isinstance(time_axis, bool) and time_axis):
+    if (isinstance(time_axis, str) and len(time_axis) == 0) or (
+        isinstance(time_axis, bool) and time_axis
+    ):
         # auto guess the time_axis: find the most frequent first column name in the histograms list
-        first_cols = [k.split(':')[0] for k in list(hists.keys())]
+        first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
     # if limited report is selected, check if stats list is provided, if not, get a default minimal list
@@ -102,8 +130,8 @@ def stability_report(hists, reference_type='self', reference=None, time_axis='',
 
     # configuration and datastore for report pipeline
     cfg = {
-        'hists_key': 'hists',
-        'ref_hists_key': 'ref_hists',
+        "hists_key": "hists",
+        "ref_hists_key": "ref_hists",
         "time_axis": time_axis,
         "window": window,
         "shift": shift,
@@ -119,9 +147,9 @@ def stability_report(hists, reference_type='self', reference=None, time_axis='',
     cfg.update(kwargs)
 
     datastore = dict()
-    datastore['hists'] = hists
-    if reference_type == 'external':
-        datastore['ref_hists'] = reference
+    datastore["hists"] = hists
+    if reference_type == "external":
+        datastore["ref_hists"] = reference
 
     # execute reporting pipeline
     pipeline = _report_pipeline[reference_type](**cfg)
@@ -130,10 +158,29 @@ def stability_report(hists, reference_type='self', reference=None, time_axis='',
     return stability_report
 
 
-def df_stability_report(df, time_axis, features=None, binning='auto', bin_specs=None, time_width=None, time_offset=0,
-                        var_dtype=None, reference_type='self', reference=None, window=10, shift=1,
-                        monitoring_rules=None, pull_rules=None, skip_empty_plots=True, last_n=0, plot_hist_n=2,
-                        report_filepath=None, extended_report=True, show_stats=config["limited_stats"], **kwargs):
+def df_stability_report(
+    df,
+    time_axis,
+    features=None,
+    binning="auto",
+    bin_specs=None,
+    time_width=None,
+    time_offset=0,
+    var_dtype=None,
+    reference_type="self",
+    reference=None,
+    window=10,
+    shift=1,
+    monitoring_rules=None,
+    pull_rules=None,
+    skip_empty_plots=True,
+    last_n=0,
+    plot_hist_n=2,
+    report_filepath=None,
+    extended_report=True,
+    show_stats=config["limited_stats"],
+    **kwargs,
+):
     """ Create a data stability monitoring html report for given pandas or spark dataframe.
 
     :param df: input pandas/spark dataframe to be profiled and monitored over time.
@@ -226,45 +273,65 @@ def df_stability_report(df, time_axis, features=None, binning='auto', bin_specs=
     :return: dict with results of reporting pipeline
     """
     # basic checks on presence of time_axis
-    if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (isinstance(time_axis, bool) and time_axis):
-        raise AssertionError('time_axis needs to be a filled string or set to True')
+    if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (
+        isinstance(time_axis, bool) and time_axis
+    ):
+        raise AssertionError("time_axis needs to be a filled string or set to True")
     if isinstance(time_axis, str) and time_axis not in df.columns:
-        raise AssertionError(f'time_axis  \"{time_axis}\" not found in columns of dataframe.')
+        raise AssertionError(
+            f'time_axis  "{time_axis}" not found in columns of dataframe.'
+        )
     if reference is not None and not isinstance(reference, dict):
         if isinstance(time_axis, str) and time_axis not in reference.columns:
-            raise AssertionError(f'time_axis  \"{time_axis}\" not found in columns of reference dataframe.')
+            raise AssertionError(
+                f'time_axis  "{time_axis}" not found in columns of reference dataframe.'
+            )
     if isinstance(time_axis, bool):
         time_axes = get_time_axes(df)
         num = len(time_axes)
         if num == 1:
             time_axis = time_axes[0]
-            logger.info(f'Time-axis automatically set to \"{time_axis}\"')
+            logger.info(f'Time-axis automatically set to "{time_axis}"')
         elif num == 0:
-            raise RuntimeError('No obvious time-axes found. Cannot generate stability report.')
+            raise RuntimeError(
+                "No obvious time-axes found. Cannot generate stability report."
+            )
         else:
-            raise RuntimeError(f'Found {num} time-axes: {time_axes}. Set *one* time_axis manually!')
+            raise RuntimeError(
+                f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
+            )
     if features is not None:
         # by now time_axis is defined. ensure that all histograms start with it.
         if not isinstance(features, list):
-            raise TypeError('features should be list of columns (or combos) to pick up from input data.')
-        features = [c if c.startswith(time_axis) else f'{time_axis}:{c}' for c in features]
+            raise TypeError(
+                "features should be list of columns (or combos) to pick up from input data."
+            )
+        features = [
+            c if c.startswith(time_axis) else f"{time_axis}:{c}" for c in features
+        ]
 
     # interpret time_width and time_offset
-    if isinstance(time_width, (str, int, float)) and isinstance(time_offset, (str, int, float)):
+    if isinstance(time_width, (str, int, float)) and isinstance(
+        time_offset, (str, int, float)
+    ):
         if not isinstance(bin_specs, (type(None), dict)):
-            raise RuntimeError('bin_specs object is not a dictionary')
+            raise RuntimeError("bin_specs object is not a dictionary")
         if bin_specs is None:
             bin_specs = {}
         if time_axis in bin_specs:
-            raise RuntimeError(f'time-axis \"{time_axis}\" already found in binning specifications.')
+            raise RuntimeError(
+                f'time-axis "{time_axis}" already found in binning specifications.'
+            )
         # convert time width and offset to nanoseconds
-        time_specs = {'bin_width': float(pd.Timedelta(time_width).value),
-                      'bin_offset': float(pd.Timestamp(time_offset).value)}
+        time_specs = {
+            "bin_width": float(pd.Timedelta(time_width).value),
+            "bin_offset": float(pd.Timestamp(time_offset).value),
+        }
         bin_specs[time_axis] = time_specs
 
     reference_hists = None
     if reference is not None:
-        reference_type = 'external'
+        reference_type = "external"
         if isinstance(reference, dict):
             # 1. reference is dict of histograms
             # extract features and bin_specs from reference histograms
@@ -274,17 +341,51 @@ def df_stability_report(df, time_axis, features=None, binning='auto', bin_specs=
         else:
             # 2. reference is pandas or spark dataframe
             # generate histograms and return updated features, bin_specs, time_axis, etc.
-            reference_hists, features, bin_specs, time_axis, var_dtype = \
-                make_histograms(reference, features, binning, bin_specs, time_axis, var_dtype, ret_specs=True)
+            (
+                reference_hists,
+                features,
+                bin_specs,
+                time_axis,
+                var_dtype,
+            ) = make_histograms(
+                reference,
+                features,
+                binning,
+                bin_specs,
+                time_axis,
+                var_dtype,
+                ret_specs=True,
+            )
 
     # use the same features, bin_specs, time_axis, etc as for reference hists
-    hists = make_histograms(df, features=features, binning=binning, bin_specs=bin_specs,
-                            time_axis=time_axis, var_dtype=var_dtype)
+    hists = make_histograms(
+        df,
+        features=features,
+        binning=binning,
+        bin_specs=bin_specs,
+        time_axis=time_axis,
+        var_dtype=var_dtype,
+    )
 
     # generate data stability report
-    return stability_report(hists, reference_type, reference_hists, time_axis, window, shift, monitoring_rules,
-                            pull_rules, features, skip_empty_plots, last_n, plot_hist_n, report_filepath,
-                            extended_report, show_stats, **kwargs)
+    return stability_report(
+        hists,
+        reference_type,
+        reference_hists,
+        time_axis,
+        window,
+        shift,
+        monitoring_rules,
+        pull_rules,
+        features,
+        skip_empty_plots,
+        last_n,
+        plot_hist_n,
+        report_filepath,
+        extended_report,
+        show_stats,
+        **kwargs,
+    )
 
 
 class StabilityReport(Module):
@@ -294,6 +395,7 @@ class StabilityReport(Module):
     after running the pipeline and generating the report. Report can be represented
     as a HTML string, HTML file or Jupyter notebook's cell output.
     """
+
     def __init__(self, read_key="html_report"):
         """Initialize an instance of StabilityReport.
 
@@ -301,7 +403,7 @@ class StabilityReport(Module):
         """
         super().__init__()
         self.read_key = read_key
-        self.html_report = ''
+        self.html_report = ""
         self.datastore = {}
 
     def transform(self, datastore):
@@ -314,6 +416,7 @@ class StabilityReport(Module):
         :return HTML: HTML report in an iframe
         """
         from IPython.core.display import display
+
         return display(self.to_notebook_iframe())
 
     def __repr__(self):
@@ -327,6 +430,7 @@ class StabilityReport(Module):
         :return str: HTML code of the report
         """
         import html
+
         return html.escape(self.html_report) if escape else self.html_report
 
     def to_file(self, filename):
@@ -350,9 +454,19 @@ class StabilityReport(Module):
         args = dict(src=self.to_html(escape=True), width=width, height=height)
         return HTML(templates_env(filename="notebook_iframe.html", **args))
 
-    def regenerate(self, last_n=0, skip_first_n=0, skip_last_n=0, plot_hist_n=2, skip_empty_plots=True,
-                   report_filepath=None, store_key='html_report', sections_key='report_sections',
-                   extended_report=True, show_stats=config["limited_stats"]):
+    def regenerate(
+        self,
+        last_n=0,
+        skip_first_n=0,
+        skip_last_n=0,
+        plot_hist_n=2,
+        skip_empty_plots=True,
+        report_filepath=None,
+        store_key="html_report",
+        sections_key="report_sections",
+        extended_report=True,
+        show_stats=config["limited_stats"],
+    ):
         """Regenerate HTML report with different plot settings
 
         :param int last_n: plot statistic data for last 'n' periods (optional)
@@ -369,7 +483,7 @@ class StabilityReport(Module):
         """
         # basic checks
         if not self.datastore:
-            self.logger.warning('Empty datastore, cannot regenerate report.')
+            self.logger.warning("Empty datastore, cannot regenerate report.")
             return None
 
         # start from clean slate
@@ -381,9 +495,16 @@ class StabilityReport(Module):
         # if limited report is selected, check if stats list is provided, if not, get a default minimal list
         show_stats = show_stats if not extended_report else None
 
-        pipeline = ReportPipe(sections_key=sections_key, last_n=last_n, skip_first_n=skip_first_n,
-                              skip_last_n=skip_last_n, skip_empty_plots=skip_empty_plots, plot_hist_n=plot_hist_n,
-                              report_filepath=report_filepath, show_stats=show_stats)
+        pipeline = ReportPipe(
+            sections_key=sections_key,
+            last_n=last_n,
+            skip_first_n=skip_first_n,
+            skip_last_n=skip_last_n,
+            skip_empty_plots=skip_empty_plots,
+            plot_hist_n=plot_hist_n,
+            report_filepath=report_filepath,
+            show_stats=show_stats,
+        )
         stability_report = StabilityReport()
         stability_report.transform(pipeline.transform(self.datastore))
         return stability_report

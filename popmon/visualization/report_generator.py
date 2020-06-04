@@ -1,6 +1,7 @@
 import htmlmin
-from..resources import templates_env
-from..base import Module
+
+from ..base import Module
+from ..resources import templates_env
 
 
 class ReportGenerator(Module):
@@ -24,9 +25,13 @@ class ReportGenerator(Module):
         # concatenate HTML sections' code
         sections_html = ""
         for i, section_info in enumerate(sections):
-            sections_html += templates_env(filename="section.html", section_index=i, **section_info)
+            sections_html += templates_env(
+                filename="section.html", section_index=i, **section_info
+            )
 
         # get HTML template for the final report, insert placeholder data and compress the code
         args = dict(sections=sections_html)
-        datastore[self.store_key] = htmlmin.minify(templates_env(filename="core.html", **args))
+        datastore[self.store_key] = htmlmin.minify(
+            templates_env(filename="core.html", **args)
+        )
         return datastore

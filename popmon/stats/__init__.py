@@ -1,3 +1,3 @@
-from ..stats.numpy import mean, std, median, quantile
+from ..stats.numpy import mean, median, quantile, std
 
-__all__ = ['mean', 'std', 'median', 'quantile']
+__all__ = ["mean", "std", "median", "quantile"]
