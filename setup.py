@@ -42,7 +42,7 @@ full_version = '{full_version!s}'
 release = {is_release!s}
 """
 
-    with open(filename, 'w') as version_file:
+    with open(filename, "w") as version_file:
         version_file.write(
             version_str.format(
                 name=NAME.lower(),
