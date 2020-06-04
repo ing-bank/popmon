@@ -1,10 +1,9 @@
 import copy
 import logging
 
+import histogrammar
 import numpy as np
 import pandas as pd
-
-import histogrammar
 
 from ...hist.filling import PandasHistogrammar, SparkHistogrammar
 from ...hist.filling.utils import check_dtype

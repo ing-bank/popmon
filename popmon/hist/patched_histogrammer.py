@@ -1,6 +1,5 @@
-import numpy as np
-
 import histogrammar
+import numpy as np
 
 # large numbers (time in ns since 1970) used to determine if float corresponds to a timestamp
 DATE_LOW = 5e16  # 1971-08-02 16:53:20 in nanosec

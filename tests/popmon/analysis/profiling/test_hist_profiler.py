@@ -1,7 +1,7 @@
+import histogrammar as hg
 import numpy as np
 import pandas as pd
 
-import histogrammar as hg
 from popmon.analysis.profiling.hist_profiler import HistProfiler
 from popmon.hist.histogram import HistogramContainer
 

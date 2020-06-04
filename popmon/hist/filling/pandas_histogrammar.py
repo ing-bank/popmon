@@ -11,13 +11,12 @@ All modifications copyright ING WBAA.
 import contextlib
 import multiprocessing
 
+import histogrammar as hg
 import joblib
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import tqdm
-
-import histogrammar as hg
 
 from ...hist.filling import utils
 from ...hist.filling.histogram_filler_base import HistogramFillerBase
@@ -175,7 +174,9 @@ class PandasHistogrammar(HistogramFillerBase):
 
         # parallel histogram filling with working progress bar
         num_cores = multiprocessing.cpu_count()
-        with tqdm_joblib(tqdm(total=len(self.features), ncols=100)) as progress_bar:  # noqa: F841
+        with tqdm_joblib(
+            tqdm(total=len(self.features), ncols=100)
+        ) as progress_bar:  # noqa: F841
             res = Parallel(n_jobs=num_cores)(
                 delayed(_fill_histogram)(
                     idf=idf[c], hist=self._hists[":".join(c)], features=c
