@@ -5,7 +5,8 @@ import histogrammar
 import numpy as np
 import pandas as pd
 
-from ...hist.filling import PandasHistogrammar, SparkHistogrammar
+from ...hist.filling.numpy_histogrammar import NumpyHistogrammar
+from ...hist.filling.pandas_histogrammar import PandasHistogrammar
 from ...hist.filling.utils import check_dtype
 
 logger = logging.getLogger()
