@@ -1,6 +1,5 @@
-import numpy as np
-
 import histogrammar as hg
+import numpy as np
 
 from ..analysis.hist_numpy import assert_similar_hists
 from ..base import Module

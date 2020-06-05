@@ -8,11 +8,10 @@ https://github.com/KaveIO/Eskapade-Spark/blob/master/python/eskapadespark/links/
 All modifications copyright ING WBAA.
 """
 
-import numpy as np
-from tqdm import tqdm
-
 import histogrammar as hg
 import histogrammar.sparksql
+import numpy as np
+from tqdm import tqdm
 
 from ...hist.filling.histogram_filler_base import HistogramFillerBase
 
