@@ -5,6 +5,7 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pybase64
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
@@ -259,7 +260,7 @@ def plot_overlay_1d_histogram_b64(
         hist_names = [f"hist{i}" for i in range(len(hists))]
     if hist_names:
         if len(hists) != len(hist_names):
-            raise AssertionError("length of hist and hist_names are different")
+            raise ValueError("length of hist and hist_names are different")
 
     plt.figure(figsize=(9, 7))
 

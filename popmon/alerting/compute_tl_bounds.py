@@ -149,7 +149,7 @@ class ComputeTLBounds(Module):
 
         # check inputs
         if not isinstance(self.traffic_light_func, collections.Callable):
-            raise AssertionError("supplied function must be callable object")
+            raise TypeError("supplied function must be callable object")
 
     def _set_traffic_lights(self, feature, cols, pattern, rule_name):
         process_cols = fnmatch.filter(cols, pattern)

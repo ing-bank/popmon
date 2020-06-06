@@ -139,11 +139,11 @@ def project_split2dhist_on_axis(splitdict, axis="x"):
     :rtype: SortedDict
     """
     if not isinstance(splitdict, dict):
-        raise AssertionError(
+        raise TypeError(
             "splitdict: {wt}, type should be a dictionary.".format(wt=type(splitdict))
         )
     if axis not in ["x", "y"]:
-        raise AssertionError("axis: {axis}, can only be x or y.".format(axis=axis))
+        raise ValueError("axis: {axis}, can only be x or y.".format(axis=axis))
 
     hdict = dict()
 
@@ -172,8 +172,8 @@ class HistogramContainer:
             self.hist = HG_FACTORY.fromJsonString(hist_obj)
         elif isinstance(hist_obj, dict):
             self.hist = HG_FACTORY.fromJson(hist_obj)
-        if isinstance(self.hist, type(None)):
-            raise AssertionError(
+        if self.hist is None:
+            raise ValueError(
                 "Please provide histogram or histogram container as input."
             )
 

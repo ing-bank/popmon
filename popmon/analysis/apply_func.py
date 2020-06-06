@@ -87,10 +87,10 @@ class ApplyFunc(Module):
         """
         # check inputs
         if not isinstance(func, collections.Callable):
-            raise AssertionError("functions in ApplyFunc must be callable objects")
-        if not isinstance(suffix, (str, type(None))) or not isinstance(
-            prefix, (str, type(None))
-        ):
+            raise TypeError("functions in ApplyFunc must be callable objects")
+        if suffix is not None and not isinstance(suffix, str):
+            raise TypeError("prefix, and suffix in ApplyFunc must be strings or None.")
+        if prefix is not None and not isinstance(prefix, str):
             raise TypeError("prefix, and suffix in ApplyFunc must be strings or None.")
         if not isinstance(metrics, list) or not isinstance(features, list):
             raise TypeError("metrics and features must be lists of strings.")
