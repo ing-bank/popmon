@@ -115,7 +115,7 @@ def median(a, weights=None, axis=None, keepdims=False):
     return quantile(a, q=0.5, weights=weights, axis=axis, keepdims=keepdims)
 
 
-def quantile(a, q, weights=None, axis=None, keepdims=False):
+def quantile(a, q, weights=None, axis=None, keepdims: bool = False):
     """
     Compute the weighted quantiles along the specified axis
 
@@ -140,7 +140,7 @@ def quantile(a, q, weights=None, axis=None, keepdims=False):
     """
     q = q if not hasattr(q, "__iter__") else q[0] if len(q) == 1 else tuple(q)
     if weights is None:
-        return np.quantile(a, q, axis=axis, keepdims=keepdims, interpolation="linear")
+        return np.quantile(a, q, axis=axis, keepdims=keepdims)
     elif axis is None:
         raveled_data = np.ravel(a)
         idx = np.argsort(raveled_data)
@@ -149,10 +149,10 @@ def quantile(a, q, weights=None, axis=None, keepdims=False):
         Sn = np.cumsum(sorted_weights)
         Pn = (Sn - 0.5 * sorted_weights) / Sn[-1]
         y = np.interp(q, Pn, sorted_data)
-        if keepdims is True:
-            return y.reshape((*y.shape, *(1,) * np.ndim(a)))
-        else:
-            return y
+        if keepdims:
+            y = y.reshape((*y.shape, *(1,) * np.ndim(a)))
+
+        return y
     else:
         # Move the dimensions which are reduced to the back
         axis = [axis] if not hasattr(axis, "__iter__") else axis
@@ -167,12 +167,15 @@ def quantile(a, q, weights=None, axis=None, keepdims=False):
         w = np.moveaxis(weights, source=axis, destination=destination).reshape(shape)
 
         # Determine the quantiles and reshape backwards
-        y = np.array([quantile(x, q, u, keepdims=False) for x, u in zip(a_shaped, w)]).T
-        shape = (
-            (*y.shape[:-1], *[1 if i in axis else x for i, x in enumerate(a.shape)])
-            if keepdims is True
-            else (*y.shape[:-1], *a_moved.shape[: -len(destination)])
-        )
+        y = np.array([quantile(x, q, u) for x, u in zip(a_shaped, w)]).T
+        if keepdims:
+            shape = (
+                *y.shape[:-1],
+                *[1 if i in axis else x for i, x in enumerate(a.shape)],
+            )
+        else:
+            shape = *y.shape[:-1], *a_moved.shape[: -len(destination)]
+
         y = y.reshape(shape)
         return y
 
