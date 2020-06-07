@@ -2,18 +2,26 @@
 Population Shift Monitoring
 ===========================
 
-|build| |docs| |release| |release_date|
+|build| |docs|
+
+* Version: 0.3.3. Released: April 2020
+* Documentation: https://popmon.readthedocs.io
+* Repository: https://github.com/ing-bank/popmon
+* Authors: ING Wholesale Banking Advanced Analytics
+
+|
 
 |logo|
 
 `popmon` is a package that allows one to check the stability of a dataset.
-`popmon` works with both **pandas** and **spark datasets**.
+`popmon` works with both pandas and spark datasets.
 
 `popmon` creates histograms of features binned in time-slices,
 and compares the stability of the profiles and distributions of
 those histograms using statistical tests, both over time and with respect to a reference.
-It works with numerical, ordinal, categorical features, and the histograms can be higher-dimensional, e.g. it can also track correlations between any two features.
-`popmon` can **automatically flag** and alert on **changes observed over time**, such
+It works with numerical, ordinal, categorical features, and the histograms can be higher-dimensional,
+e.g. it can also track correlations between any two features.
+`popmon` can automatically flag and alert on changes observed over time, such
 as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
 using monitoring business rules.
 
@@ -22,27 +30,12 @@ Documentation
 
 The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
 
+
 Examples
 ========
 
 - `Flight Delays and Cancellations Kaggle data <https://crclz.com/popmon/reports/flight_delays_report.html>`_
 - `Synthetic data (code example below) <https://crclz.com/popmon/reports/test_data_report.html>`_
-
-Notebooks
-=========
-
-.. list-table::
-   :widths: 80 20
-   :header-rows: 1
-
-   * - Tutorial
-     - Colab link
-   * - `Basic tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb>`_
-     - |notebook_basic_colab|
-   * - `Detailed example (featuring configuration, Apache Spark and more) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_
-     - |notebook_advanced_colab|
-   * - `Incremental datasets (online analysis) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_
-     - |notebook_incremental_data_colab|
 
 Check it out
 ============
@@ -129,7 +122,6 @@ For all available examples, please see the `tutorials <https://popmon.readthedoc
 Project contributors
 ====================
 
-This package was authored by ING Wholesale Banking Advanced Analytics.
 Special thanks to the following people who have contributed to the development of this package: `Ahmet Erdem <https://github.com/aerdem4>`_, `Fabian Jansen <https://github.com/faab5>`_, `Nanne Aben <https://github.com/nanne-aben>`_, Mathieu Grimal.
 
 Contact and support
@@ -150,20 +142,3 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
     :alt: Package docs status
-    :target: https://popmon.readthedocs.io
-.. |release| image:: https://img.shields.io/github/v/release/ing-bank/popmon
-    :alt: Latest GitHub release
-    :target: https://github.com/ing-bank/popmon/releases
-.. |release_date| image:: https://img.shields.io/github/release-date/ing-bank/popmon
-    :alt: GitHub Release Date
-    :target: https://github.com/ing-bank/popmon/releases
-
-.. |notebook_basic_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
-    :alt: Open in Colab
-    :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb
-.. |notebook_advanced_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
-    :alt: Open in Colab
-    :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb
-.. |notebook_incremental_data_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
-    :alt: Open in Colab
-    :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb
