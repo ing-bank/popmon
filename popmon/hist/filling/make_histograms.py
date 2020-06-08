@@ -80,15 +80,13 @@ def make_histograms(
     if (not isinstance(time_axis, (str, bool))) or (
         isinstance(time_axis, bool) and not time_axis
     ):
-        raise AssertionError("time_axis needs to be a string, or a bool set to True")
+        raise TypeError("time_axis needs to be a string, or a bool set to True")
     if (
         isinstance(time_axis, str)
         and len(time_axis) > 0
         and time_axis not in df.columns
     ):
-        raise AssertionError(
-            f'time_axis "{time_axis}" not found in columns of dataframe.'
-        )
+        raise ValueError(f'time_axis "{time_axis}" not found in columns of dataframe.')
     if isinstance(time_axis, bool):
         time_axes = get_time_axes(df)
         num = len(time_axes)

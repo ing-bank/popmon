@@ -129,7 +129,7 @@ def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
     """
     # --- basic checks
     if len(hc_list) == 0:
-        raise RuntimeError("Input histogram list has zero length.")
+        raise ValueError("Input histogram list has zero length.")
     assert_similar_hists(hc_list)
 
     hist_list = [
@@ -139,7 +139,7 @@ def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
     ykeys = set()
     for hist in hist_list:
         if hist.n_dim < 2:
-            raise AssertionError(
+            raise ValueError(
                 "Input histogram only has {n} dimensions (<2). Cannot compute 2d-grid.".format(
                     n=hist.n_dim
                 )
@@ -229,7 +229,7 @@ def get_consistent_numpy_entries(hc_list, get_bin_labels=False):
     all_num = all(is_num_arr)
     all_cat = not any(is_num_arr)
     if not (all_num or all_cat):
-        raise AssertionError(
+        raise TypeError(
             "Input histograms are mixture of Bin/SparselyBin and Categorize types.".format(
                 n=hc_list[0].hist.n_dim
             )
@@ -297,7 +297,7 @@ def check_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
         return True
     for hist in hist_list:
         if not isinstance(hist, assert_type):
-            raise AssertionError(
+            raise TypeError(
                 "Input histogram type {htype} not of {htypes}.".format(
                     htype=type(hist), htypes=assert_type
                 )
@@ -415,7 +415,7 @@ def assert_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
         hc_list, check_type=check_type, assert_type=assert_type
     )
     if not similar:
-        raise AssertionError("Input histograms are not all similar.")
+        raise ValueError("Input histograms are not all similar.")
 
 
 def check_same_hists(hc1, hc2):

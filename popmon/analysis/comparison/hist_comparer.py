@@ -389,7 +389,7 @@ class RollingNormHistComparer(NormHistComparer):
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         """
         if window < 2:
-            raise AssertionError("Need window size of 2 or greater.")
+            raise ValueError("Need window size of 2 or greater.")
         kws = {"window": window, "shift": shift, "entire": True}
         super().__init__(
             roll_norm_hist_mean_cov, read_key, store_key, read_key, hist_col, **kws

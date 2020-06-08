@@ -246,7 +246,7 @@ def test_get_consistent_numpy_2dgrids():
     args = [""]
     try:
         get_consistent_numpy_2dgrids([hc0, hc0])
-    except AssertionError as e:
+    except ValueError as e:
         args = e.args
 
     grid2d_list = get_consistent_numpy_2dgrids([hc1, hc2])
@@ -478,17 +478,17 @@ def test_assert_similar_hists():
 
     try:
         assert_similar_hists([hc0, hc1])
-    except AssertionError as e:
+    except ValueError as e:
         args01 = e.args
 
     try:
         assert_similar_hists([hc2, hc3])
-    except AssertionError as e:
+    except ValueError as e:
         args23 = e.args
 
     try:
         assert_similar_hists([hc4, hc5])
-    except AssertionError as e:
+    except ValueError as e:
         args45 = e.args
 
     assert args01[0] == "Input histograms are not all similar."
