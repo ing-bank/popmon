@@ -453,11 +453,11 @@ class HistogramFillerBase(Module):
         :return: datastore
         """
         if not isinstance(self.read_key, str) and len(self.read_key) > 0:
-            raise AssertionError("read_key has not been properly set.")
+            raise ValueError("read_key has not been properly set.")
         if not isinstance(self.store_key, str) and len(self.store_key) > 0:
-            raise AssertionError("store_key has not been properly set.")
+            raise ValueError("store_key has not been properly set.")
         if self.read_key not in datastore:
-            raise RuntimeError("read_key not found in datastore")
+            raise KeyError("read_key not found in datastore")
 
         df = datastore[self.read_key]
         hists = self.get_histograms(df)

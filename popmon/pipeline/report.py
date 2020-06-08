@@ -102,12 +102,12 @@ def stability_report(
     # perform basic input checks
     reference_types = list(_report_pipeline.keys())
     if reference_type not in reference_types:
-        raise AssertionError(f"reference_type should be one of {str(reference_types)}.")
+        raise TypeError(f"reference_type should be one of {str(reference_types)}.")
 
     if not isinstance(hists, dict):
-        raise AssertionError("hists should be a dict of histogrammar histograms.")
+        raise TypeError("hists should be a dict of histogrammar histograms.")
     if reference_type == "external" and not isinstance(reference, dict):
-        raise AssertionError("reference should be a dict of histogrammar histograms.")
+        raise TypeError("reference should be a dict of histogrammar histograms.")
 
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
@@ -276,14 +276,12 @@ def df_stability_report(
     if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (
         isinstance(time_axis, bool) and time_axis
     ):
-        raise AssertionError("time_axis needs to be a filled string or set to True")
+        raise ValueError("time_axis needs to be a filled string or set to True")
     if isinstance(time_axis, str) and time_axis not in df.columns:
-        raise AssertionError(
-            f'time_axis  "{time_axis}" not found in columns of dataframe.'
-        )
+        raise ValueError(f'time_axis  "{time_axis}" not found in columns of dataframe.')
     if reference is not None and not isinstance(reference, dict):
         if isinstance(time_axis, str) and time_axis not in reference.columns:
-            raise AssertionError(
+            raise ValueError(
                 f'time_axis  "{time_axis}" not found in columns of reference dataframe.'
             )
     if isinstance(time_axis, bool):
