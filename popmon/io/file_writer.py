@@ -1,6 +1,7 @@
+import collections.abc
 import copy
-from collections.abc import Callable
-from pathlib import PosixPath
+from pathlib import Path
+from typing import Callable, Optional, Union
 
 from ..base import Module
 
@@ -10,7 +11,12 @@ class FileWriter(Module):
     """
 
     def __init__(
-        self, read_key, store_key=None, file_path=None, apply_func=None, **kwargs
+        self,
+        read_key: str,
+        store_key: Optional[str] = None,
+        file_path: Optional[Union[str, Path]] = None,
+        apply_func: Optional[Callable] = None,
+        **kwargs,
     ):
         """Initialize an instance.
 
@@ -21,15 +27,15 @@ class FileWriter(Module):
         :param dict kwargs: additional keyword arguments which would be passed to `apply_func`
         """
         super().__init__()
+        if file_path is not None and not isinstance(file_path, (str, Path)):
+            raise TypeError("file_path should be of type `str` or `pathlib.Path`")
+        if apply_func is not None and not isinstance(
+            apply_func, collections.abc.Callable
+        ):
+            raise TypeError("transformation function must be a callable object")
         self.read_key = read_key
         self.store_key = store_key
-        if not isinstance(file_path, (type(None), str, PosixPath)):
-            raise AssertionError(
-                "file path's format is not supported (must be a string or Posix)."
-            )
         self.file_path = file_path
-        if not isinstance(apply_func, (type(None), Callable)):
-            raise AssertionError("transformation function must be a callable object")
         self.apply_func = apply_func
         self.kwargs = kwargs
 
