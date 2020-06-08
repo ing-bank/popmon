@@ -35,7 +35,7 @@ def test_file_writer_json_with_kwargument():
 
 def test_file_writer_not_a_func():
     datastore = get_ready_ds()
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         FileWriter("my_data", apply_func=dict()).transform(datastore)
 
 
