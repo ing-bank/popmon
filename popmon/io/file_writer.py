@@ -1,7 +1,7 @@
+import collections.abc
 import copy
 from pathlib import Path
-import collections.abc
-from typing import Union, Optional, Callable
+from typing import Callable, Optional, Union
 
 from ..base import Module
 
@@ -10,7 +10,14 @@ class FileWriter(Module):
     """Module transforms specific datastore content and writes it to a file.
     """
 
-    def __init__(self, read_key: str, store_key: Optional[str] = None, file_path: Optional[Union[str, Path]] = None, apply_func: Optional[Callable] = None, **kwargs):
+    def __init__(
+        self,
+        read_key: str,
+        store_key: Optional[str] = None,
+        file_path: Optional[Union[str, Path]] = None,
+        apply_func: Optional[Callable] = None,
+        **kwargs,
+    ):
         """Initialize an instance.
 
         :param str read_key: key of input histogram-dict to read from data store
@@ -22,8 +29,10 @@ class FileWriter(Module):
         super().__init__()
         if file_path is not None and not isinstance(file_path, (str, Path)):
             raise TypeError("file_path should be of type `str` or `pathlib.Path`")
-        if apply_func is not None and not isinstance(apply_func, collections.abc.Callable):
-            raise TypeError('transformation function must be a callable object')
+        if apply_func is not None and not isinstance(
+            apply_func, collections.abc.Callable
+        ):
+            raise TypeError("transformation function must be a callable object")
         self.read_key = read_key
         self.store_key = store_key
         self.file_path = file_path

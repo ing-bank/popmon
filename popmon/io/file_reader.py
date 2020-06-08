@@ -1,6 +1,6 @@
-from pathlib import Path
 import collections.abc
-from typing import Union, Optional,Callable
+from pathlib import Path
+from typing import Callable, Optional, Union
 
 from ..base import Module
 
@@ -9,7 +9,13 @@ class FileReader(Module):
     """Module to read contents from a file, transform the contents with a function and write them to the datastore.
     """
 
-    def __init__(self, store_key: str, file_path: Union[str, Path], apply_func:Optional[Callable]=None, **kwargs):
+    def __init__(
+        self,
+        store_key: str,
+        file_path: Union[str, Path],
+        apply_func: Optional[Callable] = None,
+        **kwargs,
+    ):
         """Initialize an instance.
 
         :param str store_key: key of input data to be stored in the datastore
@@ -20,8 +26,10 @@ class FileReader(Module):
         super().__init__()
         if not isinstance(file_path, (str, Path)):
             raise TypeError("file_path should be of type `str` or `pathlib.Path`")
-        if apply_func is not None and not isinstance(apply_func, collections.abc.Callable):
-            raise TypeError('transformation function must be a callable object')
+        if apply_func is not None and not isinstance(
+            apply_func, collections.abc.Callable
+        ):
+            raise TypeError("transformation function must be a callable object")
 
         self.store_key = store_key
         self.file_path = file_path
