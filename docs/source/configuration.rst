@@ -187,3 +187,22 @@ For example, you will see the keys ``profiles``, ``comparisons``, ``traffic_ligh
 
 Each of these objects is in itself a dictionary that has as keys the features in the corresponding report-section,
 and every key points to a pandas dataframe with the metrics of that feature over time.
+
+Spark usage
+-----------
+
+``popmon`` works with Apache Spark. The following example demonstrates how to use them together.
+
+.. code-block:: python
+
+  import popmon
+	from pyspark.sql import SparkSession
+
+	# downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
+	spark = SparkSession.builder.config('spark.jars.packages','org.diana-hep:histogrammar-sparksql_2.11:1.0.4').getOrCreate()
+
+	# load a dataframe
+	spark_df = spark.read.format('csv').options(header='true').load('file.csv')
+
+	# generate the report
+	report = spark_df.pm_stability_report(time_axis='timestamp')
