@@ -5,7 +5,19 @@ from popmon import resources
 from popmon.base import Pipeline
 from popmon.hist.filling.make_histograms import get_bin_specs
 from popmon.io import JsonReader
-from popmon.pipeline.report import df_stability_report, stability_report
+from popmon.pipeline.report import (
+    df_stability_report,
+    get_default_features,
+    stability_report,
+)
+
+try:
+    from pyspark.sql import SparkSession
+
+    spark_found = True
+except (ModuleNotFoundError, AttributeError):
+    spark_found = False
+    pass
 
 
 def test_hists_stability_report():
@@ -110,3 +122,65 @@ def test_df_stability_report_expanding():
     df_stability_report(
         pytest.test_df, time_axis="date", reference_type="expanding", features=features
     )
+
+
+def test_default_features_pandas():
+    assert get_default_features(pytest.test_df) == [
+        "_id",
+        "address",
+        "age",
+        "balance",
+        "company",
+        "email",
+        "eyeColor",
+        "favoriteFruit",
+        "gender",
+        "guid",
+        "index",
+        "isActive",
+        "latitude",
+        "longitude",
+        "name",
+        "phone",
+        "registered",
+        "tags",
+        "transaction",
+        "currency",
+        "date",
+    ]
+
+
+@pytest.mark.skipif(not spark_found, reason="spark not found")
+def test_default_features_spark():
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.getOrCreate()
+    sdf = spark.createDataFrame(pytest.test_df)
+    assert get_default_features(sdf) == [
+        "_id",
+        "address",
+        "age",
+        "balance",
+        "company",
+        "email",
+        "eyeColor",
+        "favoriteFruit",
+        "gender",
+        "guid",
+        "index",
+        "isActive",
+        "latitude",
+        "longitude",
+        "name",
+        "phone",
+        "registered",
+        "tags",
+        "transaction",
+        "currency",
+        "date",
+    ]
+
+
+def test_default_features_list():
+    with pytest.raises(TypeError):
+        get_default_features(["list", "should", "raise", "error"])

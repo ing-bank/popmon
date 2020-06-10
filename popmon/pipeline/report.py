@@ -162,6 +162,26 @@ def stability_report(
     return stability_report
 
 
+def get_default_features(df) -> list:
+    """ Create a data stability monitoring html report for given pandas or spark dataframe.
+
+    :param df: input pandas/spark dataframe to be profiled and monitored over time.
+    :return: list of features
+    """
+    if isinstance(df, pd.DataFrame):
+        return df.columns.values.tolist()
+
+    try:
+        import pyspark
+
+        if isinstance(df, pyspark.sql.dataframe.DataFrame):
+            return df.schema.names
+    except ImportError:
+        pass
+
+    raise TypeError(f"Could not obtain features from type {type(df)}")
+
+
 def df_stability_report(
     df,
     time_axis,
@@ -302,15 +322,16 @@ def df_stability_report(
             raise RuntimeError(
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
-    if features is not None:
-        # by now time_axis is defined. ensure that all histograms start with it.
-        if not isinstance(features, list):
-            raise TypeError(
-                "features should be list of columns (or combos) to pick up from input data."
-            )
-        features = [
-            c if c.startswith(time_axis) else f"{time_axis}:{c}" for c in features
-        ]
+
+    if features is None:
+        features = get_default_features(df)
+
+    # by now time_axis is defined. ensure that all histograms start with it.
+    if not isinstance(features, list):
+        raise TypeError(
+            "features should be list of columns (or combos) to pick up from input data."
+        )
+    features = [c if c.startswith(time_axis) else f"{time_axis}:{c}" for c in features]
 
     # interpret time_width and time_offset
     if isinstance(time_width, (str, int, float)) and isinstance(
