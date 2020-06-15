@@ -1,3 +1,7 @@
+# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# This file is part of the Population Shift Monitoring package (popmon)
+# Licensed under the MIT License
+
 from ...hist.filling.make_histograms import (
     get_bin_specs,
     get_one_time_axis,
