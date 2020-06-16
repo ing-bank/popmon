@@ -2,6 +2,11 @@
 Release notes
 =============
 
+Version 0.3.5, June 2020
+------------------------
+* Extended the ``make`` commands (added ``make install`` and ``make lint check=1`` for check only).
+* Add license headers to source files.
+
 Version 0.3.4, June 2020
 ------------------------
 

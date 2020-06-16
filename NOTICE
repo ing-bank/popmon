@@ -28,6 +28,7 @@
 # eskapade: https://github.com/KaveIO/Eskapade/blob/master/LICENSE
 # statsmodels: https://github.com/statsmodels/statsmodels/blob/master/LICENSE.txt
 # root: https://root.cern.ch/license
+# pandas-profiling: https://github.com/pandas-profiling/pandas-profiling/blob/master/LICENSE
 #
 # There are several popmon functions/classes where code or techniques have been reproduced and/or modified
 # from existing open-source packages. We list these here:
