@@ -22,9 +22,7 @@ jobs:
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
         go get -v -u github.com/google/addlicense
-    - name: Create License header file
-      run: echo -e "Copyright (c) 2020 ING Wholesale Banking Advanced Analytics\nThis file is part of the Population Shift Monitoring package (popmon)\nLicensed under the MIT License" > header.txt
     - name: Check license
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
-        addlicense -check -f header.txt $(find popmon/ -type f -name '*.py' -not -path popmon/version.py)
+        addlicense -check -l mit -c "ING Wholesale Banking Advanced Analytics" $(find popmon/ -type f -name '*.py' -not -path popmon/version.py)
