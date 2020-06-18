@@ -179,7 +179,7 @@ def df_stability_report(
     pull_rules=None,
     skip_empty_plots=True,
     last_n=0,
-    plot_hist_n=2,
+    plot_hist_n=0,
     report_filepath=None,
     extended_report=True,
     show_stats=config["limited_stats"],

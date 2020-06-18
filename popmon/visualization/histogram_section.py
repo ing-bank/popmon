@@ -3,6 +3,7 @@
 # Licensed under the MIT License
 
 import multiprocessing
+from typing import Dict
 
 import pandas as pd
 from joblib import Parallel, delayed
@@ -16,7 +17,10 @@ from ..analysis.hist_numpy import (
 from ..base import Module
 from ..config import get_stat_description
 from ..hist.histogram import get_hist_props
-from ..visualization.utils import plot_overlay_1d_histogram_b64
+from ..visualization.utils import (
+    plot_heatmap_1d_histogram_b64,
+    plot_overlay_1d_histogram_b64,
+)
 
 
 class HistogramSection(Module):
@@ -34,6 +38,7 @@ class HistogramSection(Module):
         hist_names=None,
         hist_name_starts_with="histogram",
         description="",
+        plot_type="overlay",
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -46,6 +51,7 @@ class HistogramSection(Module):
         :param list hist_names: list of histogram names to plot
         :param str hist_name_starts_with: find histograms in case hist_names is empty. default is histogram.
         :param str description: description of the section. default is empty (optional)
+        :param str plot_type: either "overlay" or "heatmap"
         """
         super().__init__()
         self.read_key = read_key
@@ -53,10 +59,11 @@ class HistogramSection(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
-        self.last_n = last_n if last_n >= 1 else 1
+        self.last_n = last_n if last_n >= 0 else 1
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
+        self.plot_type = plot_type
 
     def transform(self, datastore):
         data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
@@ -73,30 +80,54 @@ class HistogramSection(Module):
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
-
-            last_n = len(df.index) if len(df.index) < self.last_n else self.last_n
-            hist_names = [hn for hn in self.hist_names if hn in df.columns]
-            if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
-                # if no columns are given, find histogram columns.
-                hist_names = [
-                    c for c in df.columns if c.startswith(self.hist_name_starts_with)
-                ]
-            if len(hist_names) == 0:
-                self.logger.debug(
-                    f"for feature {feature} no histograms found. skipping."
-                )
-                continue
-
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
-            dates = [short_date(str(date)) for date in df.index[-last_n:]]
-            hists = [
-                df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
-            ]
-
-            plots = Parallel(n_jobs=num_cores)(
-                delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
-                for i in range(last_n)
+            last_n = (
+                len(df.index)
+                if len(df.index) < self.last_n or self.last_n == 0
+                else self.last_n
             )
+            dates = [short_date(str(date)) for date in df.index[-last_n:]]
+
+            if self.plot_type == "overlay":
+                hist_names = [hn for hn in self.hist_names if hn in df.columns]
+                if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
+                    # if no columns are given, find histogram columns.
+                    hist_names = [
+                        c
+                        for c in df.columns
+                        if c.startswith(self.hist_name_starts_with)
+                    ]
+                if len(hist_names) == 0:
+                    self.logger.debug(
+                        f"for feature {feature} no histograms found. skipping."
+                    )
+                    continue
+
+                # get base64 encoded plot for each metric; do parallel processing to speed up.
+                hists = [
+                    df[hist_names].iloc[-i].values
+                    for i in reversed(range(1, last_n + 1))
+                ]
+
+                plots = Parallel(n_jobs=num_cores)(
+                    delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
+                    for i in range(last_n)
+                )
+            elif self.plot_type == "heatmap":
+                hist_names = dates
+                hists = df["histogram"].iloc[-last_n:].values
+
+                plots = [
+                    _plot_histograms(
+                        feature,
+                        "histogram bins over time",
+                        hists,
+                        hist_names,
+                        plot_type="heatmap",
+                    )
+                ]
+            else:
+                raise ValueError('"plot_type" should be "overlay" or "heatmap"')
+
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
@@ -117,7 +148,9 @@ class HistogramSection(Module):
         return datastore
 
 
-def _plot_histograms(feature, date, hc_list, hist_names):
+def _plot_histograms(
+    feature: str, date: str, hc_list: list, hist_names: list, plot_type="overlay"
+) -> Dict:
     """Split off plot histogram generation to allow for parallel processing
 
     :param str feature: feature
@@ -135,45 +168,50 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     none_hists = [i for i, hc in enumerate(hc_list) if hc is None]
     hc_list = [hc for i, hc in enumerate(hc_list) if i not in none_hists]
     hist_names = [hn for i, hn in enumerate(hist_names) if i not in none_hists]
+
+    plot = ""
+
     # more basic checks
-    if len(hc_list) == 0:
-        return date, ""
-    assert_similar_hists(hc_list)
+    if len(hc_list) != 0:
+        assert_similar_hists(hc_list)
 
-    # make plot. note: slow!
-    if hc_list[0].n_dim == 1:
-        props = get_hist_props(hc_list[0])
-        is_num = props["is_num"]
-        is_ts = props["is_ts"]
-        y_label = "Bin count" if len(hc_list) == 1 else "Bin probability"
+        # make plot. note: slow!
+        if hc_list[0].n_dim == 1:
+            props = get_hist_props(hc_list[0])
+            is_num, is_ts = props["is_num"], props["is_ts"]
+            y_label = "Bin count" if len(hc_list) == 1 else "Bin probability"
 
-        if is_num:
-            numpy_1dhists = get_consistent_numpy_1dhists(hc_list)
-            entries_list = [nphist[0] for nphist in numpy_1dhists]
-            bins = numpy_1dhists[0][1]  # bins = bin-edges
-        else:
-            # categorical
-            entries_list, bins = get_consistent_numpy_entries(
-                hc_list, get_bin_labels=True
-            )  # bins = bin-labels
-        if len(bins) == 0:
+            if is_num:
+                numpy_1dhists = get_consistent_numpy_1dhists(hc_list)
+                entries_list = [nphist[0] for nphist in numpy_1dhists]
+                bins = numpy_1dhists[0][1]  # bins = bin-edges
+            else:
+                # categorical (bins = bin-labels)
+                entries_list, bins = get_consistent_numpy_entries(
+                    hc_list, get_bin_labels=True
+                )
+
             # skip empty histograms
-            return date, ""
+            if len(bins) != 0:
+                # normalize histograms for plotting (comparison!) in case there is more than one.
+                if len(hc_list) >= 2:
+                    entries_list = [
+                        el / hc.entries if hc.entries > 0 else el
+                        for el, hc in zip(entries_list, hc_list)
+                    ]
+                hists = [(el, bins) for el in entries_list]
+                if plot_type == "overlay":
+                    plot = plot_overlay_1d_histogram_b64(
+                        hists, feature, hist_names, y_label, is_num, is_ts
+                    )
+                elif plot_type == "heatmap":
+                    plot = plot_heatmap_1d_histogram_b64(
+                        hists, hist_names, is_num, is_ts
+                    )
+                else:
+                    raise ValueError('"plot_type" should be "overlay" or "heatmap"')
 
-        # normalize histograms for plotting (comparison!) in case there is more than one.
-        if len(hc_list) >= 2:
-            entries_list = [
-                el / hc.entries if hc.entries > 0 else el
-                for el, hc in zip(entries_list, hc_list)
-            ]
-        hists = [(el, bins) for el in entries_list]
-        plot = plot_overlay_1d_histogram_b64(
-            hists, feature, hist_names, y_label, is_num, is_ts
-        )
-    elif hc_list[0].n_dim == 2:
-        # grid2d_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hc_list, get_bin_labels=True)
-        plot = ""
-    else:
-        plot = ""
+        # elif hc_list[0].n_dim == 2:
+        #     # grid2d_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hc_list, get_bin_labels=True)
 
     return dict(name=date, description=get_stat_description(date), plot=plot)

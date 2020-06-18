@@ -2,7 +2,7 @@
 # This file is part of the Population Shift Monitoring package (popmon)
 # Licensed under the MIT License
 
-from pathlib import PosixPath
+from pathlib import Path
 
 from ..base import Pipeline
 from ..config import config
@@ -316,6 +316,15 @@ class ReportPipe(Pipeline):
                 ignore_stat_endswith=["_mean", "_std", "_pull"],
                 **sg_kws("profiles"),
             ),
+            HistogramSection(
+                read_key="split_hists",
+                store_key=sections_key,
+                section_name=histograms_section,
+                hist_name_starts_with="histogram",
+                last_n=plot_hist_n,
+                plot_type="heatmap",
+                description=descs.get("histograms", ""),
+            ),
             SectionGenerator(
                 dynamic_bounds="dynamic_bounds_comparisons",
                 static_bounds="static_bounds_comparisons",
@@ -329,17 +338,9 @@ class ReportPipe(Pipeline):
                 **sg_kws("traffic_lights"),
             ),
             SectionGenerator(section_name=alerts_section, **sg_kws("alerts")),
-            HistogramSection(
-                read_key="split_hists",
-                store_key=sections_key,
-                section_name=histograms_section,
-                hist_name_starts_with="histogram",
-                last_n=plot_hist_n,
-                description=descs.get("histograms", ""),
-            ),
             ReportGenerator(read_key=sections_key, store_key=store_key),
         ]
-        if isinstance(report_filepath, (str, PosixPath)) and len(report_filepath) > 0:
+        if isinstance(report_filepath, (str, Path)) and len(report_filepath) > 0:
             self.modules.append(FileWriter(store_key, file_path=report_filepath))
 
     def transform(self, datastore):
