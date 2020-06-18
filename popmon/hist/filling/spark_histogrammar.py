@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Copyright Eskapade:
 License Apache-2: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
