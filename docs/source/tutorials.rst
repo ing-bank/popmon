@@ -10,9 +10,18 @@ The available tutorials are:
 
 You can see these notebooks here:
 
-* `Basic tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb>`_ |notebook_basic_colab|
-* `Detailed example (featuring configuration, Apache Spark and more) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_ |notebook_advanced_colab|
-* `Incremental datasets (online analysis) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_ |notebook_incremental_data_colab|
+.. list-table::
+   :widths: 80 20
+   :header-rows: 1
+
+   * - Tutorial
+     - Colab link
+   * - `Basic tutorial <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_basic.ipynb>`_
+     - |notebook_basic_colab|
+   * - `Detailed example (featuring configuration, Apache Spark and more) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_advanced.ipynb>`_
+     - |notebook_advanced_colab|
+   * - `Incremental datasets (online analysis) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_
+     - |notebook_incremental_data_colab|
 
 .. |notebook_basic_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
     :alt: Open in Colab
