@@ -3,8 +3,20 @@
 setlocal enabledelayedexpansion
 
 IF "%1%" == "lint" (
-	isort --project popmon --multi-line=3 --trailing-comma --force-grid-wrap=0 --use-parentheses --line-width=88 -y
-	black .
+	IF "%2%" == "check" (
+		SET ISORT_ARG= --check-only
+		SET BLACK_ARG= --check
+	) ELSE (
+		set ISORT_ARG=
+		set BLACK_ARG=
+	)
+	isort !ISORT_ARG! --project popmon --thirdparty histogrammar --thirdparty pybase64 --multi-line=3 --trailing-comma --force-grid-wrap=0 --use-parentheses --line-width=88 -y
+	black !BLACK_ARG! .
+	GOTO end
+)
+
+IF "%1%" == "install" (
+	pip install -e .
 	GOTO end
 )
 

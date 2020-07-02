@@ -2,6 +2,13 @@
 Release notes
 =============
 
+Version 0.3.6, July 2020
+------------------------
+* Extending make.bat and Makefile to support ``make install`` (on all platforms).
+* Add a snippet on how to use ``popmon`` with Spark dataframes to the docs.
+* Update tutorial badges in the documentation.
+* Migrate to standard MIT license header.
+
 Version 0.3.5, June 2020
 ------------------------
 * Extended the ``make`` commands (added ``make install`` and ``make lint check=1`` for check only).

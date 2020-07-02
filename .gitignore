@@ -142,4 +142,4 @@ cython_debug/
 docs/build
 
 .vscode
-.idea
+.idea/
