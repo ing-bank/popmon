@@ -26,10 +26,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pybase64
+from ing_theme_matplotlib import mpl_style
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
+mpl_style(dark=False)
 
 
 def plt_to_base64():
@@ -76,7 +78,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
 
     index = np.arange(n)
     width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
-    ax.bar(index, data, width=width, align="center", alpha=0.5)
+    ax.bar(index, data, width=width, align="center")
 
     if labels:
         ax.set_xticks(index)
