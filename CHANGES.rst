@@ -2,6 +2,11 @@
 Release notes
 =============
 
+Version 0.3.7, July 2020
+------------------------
+* Using ``ING``'s matplotlib style for the report plots (orange plots).
+* Add ``popmon`` installation command at the beginning of example notebooks (seamless running).
+
 Version 0.3.6, July 2020
 ------------------------
 * Extending make.bat and Makefile to support ``make install`` (on all platforms).
