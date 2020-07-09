@@ -2,6 +2,11 @@
 Release notes
 =============
 
+Version 0.3.8, July 2020
+------------------------
+* Fixing automated `PyPi` deployment.
+* Removing enabling of unnecessary notebook extensions.
+
 Version 0.3.7, July 2020
 ------------------------
 * Using ``ING``'s matplotlib style for the report plots (orange plots).
