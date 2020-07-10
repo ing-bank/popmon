@@ -15,7 +15,8 @@ from ...hist.filling.histogram_filler_base import HistogramFillerBase
 
 try:
     from pyspark.sql import DataFrame
-    from pyspark.sql.functions import col as sparkcol, approxCountDistinct
+    from pyspark.sql.functions import approxCountDistinct
+    from pyspark.sql.functions import col as sparkcol
 except (ModuleNotFoundError, AttributeError):
     pass
 

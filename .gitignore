@@ -143,3 +143,6 @@ docs/build
 
 .vscode
 .idea/
+
+# Developer's playground
+/playground/
