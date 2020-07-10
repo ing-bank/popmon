@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 from phik import phik
 
-import popmon.stats.numpy as pm_np
+from popmon.stats import numpy as pm_np
 
 from ...analysis.hist_numpy import get_2dgrid
 from ...base import Module

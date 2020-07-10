@@ -22,11 +22,11 @@ import logging
 import math
 from io import BytesIO
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pybase64
 from ing_theme_matplotlib import mpl_style
+from matplotlib import pyplot as plt
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 

@@ -148,7 +148,7 @@ def in_ipynb():
     :rtype: bool
     """
     try:
-        import IPython.core.getipython as gip
+        from IPython.core import getipython as gip
 
         cfg = gip.get_ipython().config
         return True if "IPKernelApp" in cfg.keys() else False
