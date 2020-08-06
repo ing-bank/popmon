@@ -60,7 +60,7 @@ def fraction_of_true(bin_labels, bin_entries):
     return (1.0 * sum_true) / sum_entries
 
 
-def mean(a, weights=None, axis=None, dtype=None, keepdims=False):
+def mean(a, weights=None, axis=None, dtype=None, keepdims=False, ddof=0):
     """
     Compute the weighted mean along the specified axis.
 
@@ -72,15 +72,17 @@ def mean(a, weights=None, axis=None, dtype=None, keepdims=False):
     :param dtype: data type to use in computing the mean.
     :param bool keepdims: If this is set to True, the axes which are reduced are left
         in the result as dimensions with size one.
+    :param int ddof: delta degrees of freedom
     :return: np.ndarray
     """
     if weights is None:
         return np.mean(a, axis=axis, dtype=dtype, keepdims=keepdims)
     else:
         w = np.array(weights)
-        return np.sum(
-            w * np.array(a), axis=axis, dtype=dtype, keepdims=keepdims
-        ) / np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims)
+
+        return np.sum(w * np.array(a), axis=axis, dtype=dtype, keepdims=keepdims) / (
+            np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims) - ddof
+        )
 
 
 def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
@@ -104,16 +106,9 @@ def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
     if weights is None:
         return np.std(a, axis=axis, dtype=dtype, ddof=ddof, keepdims=keepdims)
     else:
-        w = np.array(weights)
-        m = mean(a, weights=w, axis=axis, keepdims=True)
-        return np.sqrt(
-            np.sum(
-                w * (np.array(a) - m) ** 2, axis=axis, dtype=dtype, keepdims=keepdims
-            )
-            / (  # noqa: W504
-                np.sum(w, axis=axis, dtype=dtype, keepdims=keepdims) - ddof
-            )
-        )
+        m = mean(a, weights=weights, axis=axis, keepdims=True)
+        v = mean((a - m) ** 2, weights=weights, axis=axis, keepdims=keepdims, ddof=ddof)
+        return np.sqrt(v)
 
 
 def median(a, weights=None, axis=None, keepdims=False):
