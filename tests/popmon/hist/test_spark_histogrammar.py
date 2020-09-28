@@ -61,6 +61,7 @@ def test_get_histograms(spark_co):
     pytest.isActive["data"]["name"] = "b'isActive'"
     pytest.latitude["data"]["name"] = "b'latitude'"
     pytest.longitude["data"]["name"] = "b'longitude'"
+    pytest.transaction["data"]["name"] = "b'transaction'"
 
     pytest.latitude_longitude["data"]["name"] = "b'latitude:longitude'"
     pytest.latitude_longitude["data"]["bins:name"] = "unit_func"
@@ -81,8 +82,10 @@ def test_get_histograms(spark_co):
             "longitude",
             ["isActive", "age"],
             ["latitude", "longitude"],
+            "transaction",
         ],
         bin_specs={
+            "transaction": {'num': 100, 'low': -2000, 'high': 2000},
             "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
             "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
         },
@@ -99,6 +102,11 @@ def test_get_histograms(spark_co):
     assert current_hists["gender"].toJson() == pytest.gender
     assert current_hists["latitude"].toJson() == pytest.latitude
     assert current_hists["longitude"].toJson() == pytest.longitude
+    assert current_hists["transaction"].toJson() == pytest.transaction
+
+    # import json
+    # with open('tests/popmon/hist/resource/transaction.json', 'w') as outfile:
+    #     json.dump(current_hists["transaction"].toJson(), outfile, indent=4)
 
 
 @pytest.mark.skipif(not spark_found, reason="spark not found")

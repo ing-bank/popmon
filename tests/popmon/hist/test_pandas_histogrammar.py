@@ -60,8 +60,10 @@ def test_make_histograms():
         "longitude",
         ["isActive", "age"],
         ["latitude", "longitude"],
+        "transaction",
     ]
     bin_specs = {
+        "transaction": {'num': 100, 'low': -2000, 'high': 2000},
         "longitude": {"bin_width": 5, "bin_offset": 0},
         "latitude": {"bin_width": 5, "bin_offset": 0},
     }
@@ -80,6 +82,8 @@ def test_make_histograms():
     assert current_hists["latitude"].toJson() == pytest.latitude
     assert current_hists["longitude"].toJson() == pytest.longitude
     assert current_hists["latitude:longitude"].toJson() == pytest.latitude_longitude
+    assert current_hists["transaction"].toJson() == pytest.transaction
+
 
 
 def test_make_histograms_no_time_axis():
