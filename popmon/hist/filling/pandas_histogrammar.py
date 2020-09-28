@@ -216,34 +216,7 @@ class PandasHistogrammar(HistogramFillerBase):
                 # fix column to col
                 quant = lambda x, fnc=f, clm=col: fnc(x[clm])  # noqa
 
-            is_number = np.issubdtype(dt, np.number)
-            is_timestamp = np.issubdtype(dt, np.datetime64)
-
-            if is_number or is_timestamp:
-                # numbers and timestamps are put in a sparse binned histogram
-                specs = self.var_bin_specs(features, features.index(col))
-                if "bin_width" in specs:
-                    hist = hg.SparselyBin(
-                        binWidth=specs["bin_width"],
-                        origin=specs.get("bin_offset", 0),
-                        quantity=quant,
-                        value=hist,
-                    )
-                elif "num" in specs and "low" in specs and "high" in specs:
-                    hist = hg.Bin(
-                        num=specs["num"],
-                        low=specs["low"],
-                        high=specs["high"],
-                        quantity=quant,
-                        value=hist,
-                    )
-                else:
-                    raise RuntimeError(
-                        "Do not know how to interpret bin specifications."
-                    )
-            else:
-                # string and boolians are treated as categories
-                hist = hg.Categorize(quantity=quant, value=hist)
+            hist = self.get_hist_bin(hist, features, quant, col, dt)
 
         return hist
 
