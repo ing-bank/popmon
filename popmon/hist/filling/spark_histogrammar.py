@@ -211,22 +211,10 @@ class SparkHistogrammar(HistogramFillerBase):
         revcols = list(reversed(features))
         for idx, col in enumerate(revcols):
             # histogram type depends on the data type
-            dt = np.dtype(self.var_dtype[col])
-            is_number = isinstance(dt.type(), np.number)
-            is_timestamp = isinstance(dt.type(), np.datetime64)
+            dt = self.var_dtype[col]
+            quant = df[col]
 
-            if is_number or is_timestamp:
-                # numbers and timestamps are put in a sparse binned histogram
-                specs = self.var_bin_specs(features, features.index(col))
-                hist = hg.SparselyBin(
-                    binWidth=specs["bin_width"],
-                    origin=specs["bin_offset"],
-                    quantity=df[col],
-                    value=hist,
-                )
-            else:
-                # string and boolians are treated as categories
-                hist = hg.Categorize(quantity=df[col], value=hist)
+            hist = self.get_hist_bin(hist, features, quant, col, dt)
 
         # set data types in histogram
         dta = [self.var_dtype[col] for col in features]
