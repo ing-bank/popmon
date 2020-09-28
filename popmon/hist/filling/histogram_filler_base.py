@@ -6,11 +6,11 @@ https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/analysis/histogra
 All modifications copyright ING WBAA.
 """
 
-import histogrammar as hg
 import copy
 import logging
 from collections import defaultdict
 
+import histogrammar as hg
 import numpy as np
 import pandas as pd
 
