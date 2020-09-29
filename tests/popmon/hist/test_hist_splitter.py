@@ -54,7 +54,7 @@ def test_hist_splitter():
 
 @pytest.mark.filterwarnings("ignore:Input histograms have inconsistent dimensions.")
 def test_hist_splitter_filter():
-    """ Test of hist_splitter option filter_empty_split_hists
+    """Test of hist_splitter option filter_empty_split_hists
 
     One of the split histograms of type date:A_score:num_employees is empty and only contains a NaN.
     In this test, those empty split-histograms are *not* removed, leading to split-histograms of

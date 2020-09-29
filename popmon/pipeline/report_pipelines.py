@@ -46,7 +46,7 @@ def self_reference(
     show_stats=None,
     **kwargs,
 ):
-    """ Example pipeline for comparing test data with itself (full test set)
+    """Example pipeline for comparing test data with itself (full test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'
@@ -102,7 +102,7 @@ def external_reference(
     show_stats=None,
     **kwargs,
 ):
-    """ Example pipeline for comparing test data with other (full) external reference set
+    """Example pipeline for comparing test data with other (full) external reference set
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
@@ -160,7 +160,7 @@ def rolling_reference(
     show_stats=None,
     **kwargs,
 ):
-    """ Example pipeline for comparing test data with itself (rolling test set)
+    """Example pipeline for comparing test data with itself (rolling test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'
@@ -218,7 +218,7 @@ def expanding_reference(
     show_stats=None,
     **kwargs,
 ):
-    """ Example pipeline for comparing test data with itself (expanding test set)
+    """Example pipeline for comparing test data with itself (expanding test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'
@@ -262,8 +262,7 @@ def expanding_reference(
 
 
 class ReportPipe(Pipeline):
-    """ Pipeline of modules for generating sections and a final report.
-    """
+    """Pipeline of modules for generating sections and a final report."""
 
     def __init__(
         self,

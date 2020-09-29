@@ -24,8 +24,7 @@ from ..base import Module
 
 
 class Pipeline(Module):
-    """Base class used for to run modules in a pipeline.
-    """
+    """Base class used for to run modules in a pipeline."""
 
     def __init__(self, modules, logger=None):
         """Initialization of the pipeline

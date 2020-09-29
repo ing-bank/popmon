@@ -49,7 +49,7 @@ def plt_to_base64():
 
 
 def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
-    """ Plotting histogram data.
+    """Plotting histogram data.
 
     :param numpy.ndarray data: bin values of a histogram
     :param list labels: common bin labels for all histograms. default is None.
@@ -142,7 +142,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
 
 
 def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
-    """ Plotting histogram data.
+    """Plotting histogram data.
 
     :param np.array data: bin values of a histogram
     :param labels: common bin labels for all histograms (optional)
@@ -206,7 +206,7 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
 
 
 def grouped_bar_chart_b64(data, labels, legend):
-    """ Plotting grouped histogram data.
+    """Plotting grouped histogram data.
 
     :param numpy.ndarray data: bin values of histograms
     :param list labels: common bin labels for all histograms

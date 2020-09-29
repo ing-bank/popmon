@@ -66,7 +66,7 @@ def prepare_2dgrid(hist):
 
 
 def set_2dgrid(hist, xkeys, ykeys):
-    """ Set 2d grid of first two dimenstions of input histogram
+    """Set 2d grid of first two dimenstions of input histogram
 
     Used as input by get_2dgrid(hist).
 
@@ -116,7 +116,7 @@ def set_2dgrid(hist, xkeys, ykeys):
 
 
 def get_2dgrid(hist, get_bin_labels=False):
-    """ Get filled x,y grid of first two dimensions of input histogram
+    """Get filled x,y grid of first two dimensions of input histogram
 
     :param hist: input histogrammar histogram
     :return: x,y grid of first two dimenstions of input histogram
@@ -141,7 +141,7 @@ def get_2dgrid(hist, get_bin_labels=False):
 
 
 def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
-    """ Get list of consistent x,y grids of first two dimensions of (sparse) input histograms
+    """Get list of consistent x,y grids of first two dimensions of (sparse) input histograms
 
     :param list hc_list: list of input histogrammar histograms
     :param bool get_bin_labels: if true, return x-keys and y-keys describing binnings of 2d-grid.
@@ -181,7 +181,7 @@ def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
 
 
 def get_consistent_numpy_1dhists(hc_list, get_bin_labels=False):
-    """ Get list of consistent numpy hists for list of sparse input histograms
+    """Get list of consistent numpy hists for list of sparse input histograms
 
     Note: a numpy histogram is a union of lists of bin_edges and number of entries
 
@@ -232,7 +232,7 @@ def get_consistent_numpy_1dhists(hc_list, get_bin_labels=False):
 
 
 def get_consistent_numpy_entries(hc_list, get_bin_labels=False):
-    """ Get list of consistent numpy bin_entries for list of 1d input histograms
+    """Get list of consistent numpy bin_entries for list of 1d input histograms
 
     :param list hist_list: list of input histogrammar histograms
     :return: list of consistent 1d numpy arrays with bin_entries for list of input histograms
@@ -439,7 +439,7 @@ def assert_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
 
 
 def check_same_hists(hc1, hc2):
-    """ Check if two hists are the same
+    """Check if two hists are the same
 
     :param hc1: input histogram container 1
     :param hc2: input histogram container 2

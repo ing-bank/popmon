@@ -53,7 +53,7 @@ def metrics_self_reference(
     features=None,
     **kwargs,
 ):
-    """ Example metrics pipeline for comparing test data with itself (full test set)
+    """Example metrics pipeline for comparing test data with itself (full test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'
@@ -167,7 +167,7 @@ def metrics_external_reference(
     features=None,
     **kwargs,
 ):
-    """ Example metrics pipeline for comparing test data with other (full) external reference set
+    """Example metrics pipeline for comparing test data with other (full) external reference set
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
@@ -288,7 +288,7 @@ def metrics_rolling_reference(
     features=None,
     **kwargs,
 ):
-    """ Example metrics pipeline for comparing test data with itself (rolling test set)
+    """Example metrics pipeline for comparing test data with itself (rolling test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'
@@ -403,7 +403,7 @@ def metrics_expanding_reference(
     features=None,
     **kwargs,
 ):
-    """ Example metrics pipeline for comparing test data with itself (expanding test set)
+    """Example metrics pipeline for comparing test data with itself (expanding test set)
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str time_axis: name of datetime feature. default is 'date'

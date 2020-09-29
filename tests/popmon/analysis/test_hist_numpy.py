@@ -28,8 +28,7 @@ def unit(x):
 
 
 def get_test_histograms1():
-    """ Get set 1 of test histograms
-    """
+    """Get set 1 of test histograms"""
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
     df = pd.util.testing.makeMixedDataFrame()
@@ -59,8 +58,7 @@ def get_test_histograms1():
 
 
 def get_test_histograms2():
-    """ Get set 2 of test histograms
-    """
+    """Get set 2 of test histograms"""
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
     df = pd.util.testing.makeMixedDataFrame()
@@ -86,8 +84,7 @@ def get_test_histograms2():
 
 
 def test_histogram():
-    """Test the dummy histogram we're working with below
-    """
+    """Test the dummy histogram we're working with below"""
     df, hc1, hc2, hc3 = get_test_histograms1()
     hist1 = hc1.hist
     hist2 = hc2.hist
@@ -107,8 +104,7 @@ def test_histogram():
 
 
 def test_get_contentType():
-    """Test getting type of a histogram
-    """
+    """Test getting type of a histogram"""
     df, hc1, hc2, hc3 = get_test_histograms1()
     hist1 = hc1.hist
     hist2 = hc2.hist
@@ -121,8 +117,7 @@ def test_get_contentType():
 
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
 def test_prepare_2dgrid():
-    """ Test preparation of grid for extraction of number of entries for 2d hists
-    """
+    """Test preparation of grid for extraction of number of entries for 2d hists"""
     df, hc1, hc2, hc3 = get_test_histograms1()
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
@@ -153,8 +148,7 @@ def test_prepare_2dgrid():
 
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
 def test_set_2dgrid():
-    """ Test setting the grid for extraction of number of entries for 2d hists
-    """
+    """Test setting the grid for extraction of number of entries for 2d hists"""
     df, hc1, hc2, hc3 = get_test_histograms1()
     hist1 = hc1.hist
     hist2 = hc2.hist
@@ -185,8 +179,7 @@ def test_set_2dgrid():
 
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
 def test_get_2dgrid():
-    """ Test extraction of number of entries for 2d hists
-    """
+    """Test extraction of number of entries for 2d hists"""
     df, hc1, hc2, hc3 = get_test_histograms1()
     hist1 = hc1.hist
     hist2 = hc2.hist
@@ -212,7 +205,7 @@ def test_get_2dgrid():
 
 
 def test_get_consistent_numpy_2dgrids():
-    """ Test extraction of number of entries for 2d hists
+    """Test extraction of number of entries for 2d hists
 
     When first making bin_edges of input histograms consistent to each other.
     """
@@ -289,7 +282,7 @@ def test_get_consistent_numpy_2dgrids():
 
 
 def test_get_consistent_numpy_1dhists():
-    """ Test extraction of number of entries and bin-edges/labels
+    """Test extraction of number of entries and bin-edges/labels
 
     When first making bin_edges/bin-labels of input histograms consistent to each other.
     """
@@ -328,7 +321,7 @@ def test_get_consistent_numpy_1dhists():
 
 
 def test_get_consistent_numpy_entries():
-    """ Test extraction of number of entries
+    """Test extraction of number of entries
 
     When first making bin_edges of input histograms consistent to each other.
     """
@@ -384,7 +377,7 @@ def test_get_consistent_numpy_entries():
 
 @pytest.mark.filterwarnings("ignore:Input histograms have inconsistent")
 def test_check_similar_hists():
-    """ Test similarity of list of histograms
+    """Test similarity of list of histograms
 
     Check similarity of: type, n-dim, sub-hists, specific type attributes
     """
@@ -431,7 +424,7 @@ def test_check_similar_hists():
 
 @pytest.mark.filterwarnings("ignore:Input histograms have inconsistent")
 def test_assert_similar_hists():
-    """ Test assert on similarity of list of histograms
+    """Test assert on similarity of list of histograms
 
     Check similarity of: type, n-dim, sub-hists, specific type attributes
     """
@@ -497,8 +490,7 @@ def test_assert_similar_hists():
 
 
 def test_datatype():
-    """ Test datatypes assigned to histograms
-    """
+    """Test datatypes assigned to histograms"""
     df, hc1, hc2, hc3 = get_test_histograms1()
     hist1 = hc1.hist
     hist2 = hc2.hist

@@ -59,7 +59,7 @@ def sum_entries(hist_data, default=True):
 
 
 def project_on_x(hist_data):
-    """ Project n-dim histogram onto x-axis
+    """Project n-dim histogram onto x-axis
 
     :param hist_data: input histogrammar histogram
     :return: on x-axis projected histogram (1d)
@@ -108,7 +108,7 @@ def project_on_x(hist_data):
 
 
 def sum_over_x(hist_data):
-    """ Integrate histogram over first dimension
+    """Integrate histogram over first dimension
 
     :param hist_data: input histogrammar histogram
     :return: integrated histogram
@@ -147,7 +147,7 @@ def sum_over_x(hist_data):
 
 
 def project_split2dhist_on_axis(splitdict, axis="x"):
-    """ Project a split 2d-histogram onto one axis
+    """Project a split 2d-histogram onto one axis
 
     Project a 2d hist that's been split with function split_hist_along_first_dimension
     onto x or y axis.
@@ -175,8 +175,7 @@ def project_split2dhist_on_axis(splitdict, axis="x"):
 
 
 class HistogramContainer:
-    """Wrapper class around histogrammar histograms with several utility functions.
-    """
+    """Wrapper class around histogrammar histograms with several utility functions."""
 
     def __init__(self, hist_obj):
         """Initialization
@@ -224,8 +223,7 @@ class HistogramContainer:
         return axis_name
 
     def sparse_bin_centers_x(self):
-        """ Get x-axis bin centers of sparse histogram
-        """
+        """Get x-axis bin centers of sparse histogram"""
         keys = sorted(self.hist.bins.keys())
         if self.hist.minBin is None or self.hist.maxBin is None:
             # number of bins is set to 1.
@@ -239,8 +237,7 @@ class HistogramContainer:
         return centers, values
 
     def get_bin_centers(self):
-        """ Get bin centers or labels of histogram
-        """
+        """Get bin centers or labels of histogram"""
         if isinstance(self.hist, histogrammar.Bin):  # Bin
             centers, values = self.hist.bin_centers(), self.hist.values
         elif isinstance(self.hist, histogrammar.SparselyBin):
@@ -295,7 +292,7 @@ class HistogramContainer:
         return hdict
 
     def _filter_empty_split_hists(self, centers, values):
-        """ Filter empty split histograms from input centers and values
+        """Filter empty split histograms from input centers and values
 
         :param list centers: input center values list
         :param list values: input values list

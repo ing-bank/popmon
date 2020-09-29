@@ -24,8 +24,7 @@ from ..base import Module
 
 
 class MergeStatistics(Module):
-    """ Merging dictionaries of features containing dataframes with statistics as its values.
-    """
+    """Merging dictionaries of features containing dataframes with statistics as its values."""
 
     def __init__(self, read_keys, store_key):
         """Initialize an instance of MergeStatistics.

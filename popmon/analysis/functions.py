@@ -382,7 +382,7 @@ def expand_norm_hist_mean_cov(df, shift=1, *args, **kwargs):
 
 
 def normalized_hist_mean_cov(x, hist_name=""):
-    """ Mean normalized histogram and its covariance of list of input histograms
+    """Mean normalized histogram and its covariance of list of input histograms
 
     Usage: df['hists'].apply(normalized_hist_mean_cov) ; series.apply(normalized_hist_mean_cov)
 

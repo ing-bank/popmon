@@ -135,8 +135,7 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
 
 
 class HistComparer(Pipeline):
-    """ Base pipeline to compare histogram to previous rolling histograms
-    """
+    """Base pipeline to compare histogram to previous rolling histograms"""
 
     def __init__(
         self,
@@ -192,8 +191,7 @@ class HistComparer(Pipeline):
 
 
 class RollingHistComparer(HistComparer):
-    """ Compare histogram to previous rolling histograms
-    """
+    """Compare histogram to previous rolling histograms"""
 
     def __init__(
         self,
@@ -238,8 +236,7 @@ class RollingHistComparer(HistComparer):
 
 
 class PreviousHistComparer(RollingHistComparer):
-    """ Compare histogram to previous histograms
-    """
+    """Compare histogram to previous histograms"""
 
     def __init__(
         self,
@@ -262,8 +259,7 @@ class PreviousHistComparer(RollingHistComparer):
 
 
 class ExpandingHistComparer(HistComparer):
-    """ Compare histogram to previous expanding histograms
-    """
+    """Compare histogram to previous expanding histograms"""
 
     def __init__(
         self,
@@ -305,8 +301,7 @@ class ExpandingHistComparer(HistComparer):
 
 
 class ReferenceHistComparer(HistComparer):
-    """ Compare histogram to reference histograms
-    """
+    """Compare histogram to reference histograms"""
 
     def __init__(
         self,
@@ -349,8 +344,7 @@ class ReferenceHistComparer(HistComparer):
 
 
 class NormHistComparer(Pipeline):
-    """ Base pipeline to compare histogram to normalized histograms
-    """
+    """Base pipeline to compare histogram to normalized histograms"""
 
     def __init__(
         self,
@@ -396,8 +390,7 @@ class NormHistComparer(Pipeline):
 
 
 class RollingNormHistComparer(NormHistComparer):
-    """ Compare histogram to previous rolling normalized histograms
-    """
+    """Compare histogram to previous rolling normalized histograms"""
 
     def __init__(self, read_key, store_key, window, shift=1, hist_col="histogram"):
         """Initialize an instance of RollingNormHistComparer.
@@ -425,8 +418,7 @@ class RollingNormHistComparer(NormHistComparer):
 
 
 class ExpandingNormHistComparer(NormHistComparer):
-    """ Compare histogram to previous expanding normalized histograms
-    """
+    """Compare histogram to previous expanding normalized histograms"""
 
     def __init__(self, read_key, store_key, shift=1, hist_col="histogram"):
         """Initialize an instance of ExpandingNormHistComparer.
@@ -450,8 +442,7 @@ class ExpandingNormHistComparer(NormHistComparer):
 
 
 class ReferenceNormHistComparer(NormHistComparer):
-    """ Compare histogram to reference normalized histograms
-    """
+    """Compare histogram to reference normalized histograms"""
 
     def __init__(self, reference_key, assign_to_key, store_key, hist_col="histogram"):
         """Initialize an instance of ReferenceNormHistComparer.

@@ -67,7 +67,7 @@ def traffic_light_summary(row, cols=None, prefix=""):
 
 
 def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
-    """ Get corresponding traffic light given a value and traffic light bounds.
+    """Get corresponding traffic light given a value and traffic light bounds.
 
     :param float value: value to check
     :param float red_high: higher bound of red traffic light
@@ -337,8 +337,7 @@ def df_single_op_pull_bounds(
 
 
 class DynamicBounds(Pipeline):
-    """ Calculate dynamic traffic light bounds based on pull thresholds and dynamic mean and std.deviation.
-    """
+    """Calculate dynamic traffic light bounds based on pull thresholds and dynamic mean and std.deviation."""
 
     def __init__(
         self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"
@@ -380,8 +379,7 @@ class DynamicBounds(Pipeline):
 
 
 class StaticBounds(Pipeline):
-    """ Calculate static traffic light bounds based on pull thresholds and static mean and std.deviation.
-    """
+    """Calculate static traffic light bounds based on pull thresholds and static mean and std.deviation."""
 
     def __init__(
         self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"

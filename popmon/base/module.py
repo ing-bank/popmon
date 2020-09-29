@@ -22,19 +22,17 @@ import logging
 
 
 class Module:
-    """Base class used for modules in a pipeline.
-    """
+    """Base class used for modules in a pipeline."""
 
     def __init__(self):
-        """Module initialization
-        """
+        """Module initialization"""
         self.logger = logging.getLogger()
         self.features = []
         self.feature_begins_with = []
         self.ignore_features = []
 
     def set_logger(self, logger):
-        """ Set logger of module
+        """Set logger of module
 
         :param logger: input logger
         """

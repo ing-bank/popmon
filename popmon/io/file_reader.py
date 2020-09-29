@@ -26,8 +26,7 @@ from ..base import Module
 
 
 class FileReader(Module):
-    """Module to read contents from a file, transform the contents with a function and write them to the datastore.
-    """
+    """Module to read contents from a file, transform the contents with a function and write them to the datastore."""
 
     def __init__(
         self,

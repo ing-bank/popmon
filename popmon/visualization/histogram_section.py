@@ -36,8 +36,7 @@ from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 
 class HistogramSection(Module):
-    """This module plots histograms of all selected features for the last 'n' periods.
-    """
+    """This module plots histograms of all selected features for the last 'n' periods."""
 
     def __init__(
         self,

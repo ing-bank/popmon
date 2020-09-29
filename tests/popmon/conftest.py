@@ -83,6 +83,9 @@ def pytest_configure():
     with open("{}/{}".format(TEMPLATE_PATH, "latitude_longitude.json")) as f:
         pytest.latitude_longitude = load(f)
 
+    with open("{}/{}".format(TEMPLATE_PATH, "transaction.json")) as f:
+        pytest.transaction = load(f)
+
     df = pd.read_csv(resources.data(CSV_FILE))
     df["date"] = pd.to_datetime(df["date"])
     pytest.test_df = df
