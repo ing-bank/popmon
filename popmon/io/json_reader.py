@@ -26,8 +26,7 @@ from ..io import FileReader
 
 
 class JsonReader(FileReader):
-    """Read json file's contents into the datastore.
-    """
+    """Read json file's contents into the datastore."""
 
     def __init__(self, file_path: Union[str, Path], store_key: str):
         """Initialize an instance.

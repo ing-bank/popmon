@@ -412,7 +412,7 @@ class HistStitcher(Module):
         return ht
 
     def _stitch_by_update(self, mode, hist_list):
-        """ Get sum of histograms using h1.bins.update(h2.bins), from first to last hist
+        """Get sum of histograms using h1.bins.update(h2.bins), from first to last hist
 
         Get sum of list of histograms by using bins.update(), where the update is applied
         by iterating over the histogram list, from the first to the last histogram.

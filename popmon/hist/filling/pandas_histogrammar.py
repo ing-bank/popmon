@@ -107,7 +107,7 @@ class PandasHistogrammar(HistogramFillerBase):
         return df
 
     def get_features(self, df):
-        """ Get columns of (pandas) dataframe
+        """Get columns of (pandas) dataframe
 
         :param df: input pandas dataframe
         """

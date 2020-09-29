@@ -202,7 +202,7 @@ def _not_finite_to_zero(x):
 
 
 def uu_chi2(n, m, verbose=False):
-    """ Normalized Chi^2 formula for two histograms with different number of entries
+    """Normalized Chi^2 formula for two histograms with different number of entries
 
     Copyright ROOT:
     Formulas translated from c++ to python, but formulas otherwise not modified.
@@ -256,7 +256,7 @@ def uu_chi2(n, m, verbose=False):
 
 
 def ks_test(hist_1, hist_2):
-    """ KS-test for two histograms with different number of entries
+    """KS-test for two histograms with different number of entries
 
     Copyright ROOT:
     Formulas translated from c++ to python, but formulas otherwise not modified.
@@ -289,7 +289,7 @@ def ks_test(hist_1, hist_2):
 
 
 def ks_prob(testscore):
-    """ KS-probability corresponding ti KS test score
+    """KS-probability corresponding ti KS test score
 
     Copyright ROOT:
     Formulas translated from c++ to python, but formulas otherwise not modified.
@@ -325,7 +325,7 @@ def ks_prob(testscore):
 
 
 def googl_test(bins_1, bins_2):
-    """ Google-paper test
+    """Google-paper test
 
     Reference link: https://www.sysml.cc/doc/2019/167.pdf
 
@@ -344,7 +344,7 @@ def googl_test(bins_1, bins_2):
 
 
 def probability_distribution_mean_covariance(entries_list):
-    """ Mean normalized histogram and covariance of list of input histograms
+    """Mean normalized histogram and covariance of list of input histograms
 
     :param entries_list: numpy 2D array shape (n_histos, n_bins,) with bin counts of histograms
     :return: mean normalized histogram, covariance probability matrix
@@ -389,7 +389,7 @@ def probability_distribution_mean_covariance(entries_list):
 
 
 def covariance_multinomial_probability_distribution(entries):
-    """ Calculate covariance matrix of a single multinomial probability distribution
+    """Calculate covariance matrix of a single multinomial probability distribution
 
     :param entries: entries of input histogram
     :return: numpy 2D array with covariance matrix of multinomial probability distribution

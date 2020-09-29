@@ -85,7 +85,7 @@ def test_get_histograms(spark_co):
             "transaction",
         ],
         bin_specs={
-            "transaction": {'num': 100, 'low': -2000, 'high': 2000},
+            "transaction": {"num": 100, "low": -2000, "high": 2000},
             "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
             "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
         },

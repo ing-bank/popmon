@@ -486,9 +486,7 @@ class HistogramFillerBase(Module):
                     value=hist,
                 )
             else:
-                raise RuntimeError(
-                    "Do not know how to interpret bin specifications."
-                )
+                raise RuntimeError("Do not know how to interpret bin specifications.")
         else:
             # string and boolians are treated as categories
             hist = hg.Categorize(quantity=quant, value=hist)

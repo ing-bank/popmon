@@ -47,7 +47,7 @@ def make_histograms(
     nbins_3d=10,
     max_nunique=500,
 ):
-    """ Create histograms from pandas or spark dataframe.
+    """Create histograms from pandas or spark dataframe.
 
     :param df: input pandas or spark dataframe to create histograms of.
     :param list features: columns to pick up from input data. (default is all features)

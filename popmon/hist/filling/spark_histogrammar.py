@@ -112,7 +112,7 @@ class SparkHistogrammar(HistogramFillerBase):
         return df
 
     def get_features(self, df):
-        """ Get columns of dataframe
+        """Get columns of dataframe
 
         :param df: input spark dataframe
         """

@@ -55,7 +55,7 @@ def stability_metrics(
     features=None,
     **kwargs,
 ):
-    """ Create a data stability monitoring datastore for given dict of input histograms.
+    """Create a data stability monitoring datastore for given dict of input histograms.
 
     :param dict hists: input histograms to be profiled and monitored over time.
     :param reference_type: type or reference used for comparisons. Options [self, external, rolling, expanding].
@@ -169,7 +169,7 @@ def df_stability_metrics(
     pull_rules=None,
     **kwargs,
 ):
-    """ Create a data stability monitoring html datastore for given pandas or spark dataframe.
+    """Create a data stability monitoring html datastore for given pandas or spark dataframe.
 
     :param df: input pandas/spark dataframe to be profiled and monitored over time.
     :param str time_axis: name of datetime feature, used as time axis, eg 'date'. if True, will be auto-guessed.

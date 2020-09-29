@@ -27,8 +27,7 @@ from ..base import Module
 
 
 class FileWriter(Module):
-    """Module transforms specific datastore content and writes it to a file.
-    """
+    """Module transforms specific datastore content and writes it to a file."""
 
     def __init__(
         self,

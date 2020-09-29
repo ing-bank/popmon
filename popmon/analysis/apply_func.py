@@ -187,7 +187,7 @@ class ApplyFunc(Module):
 def apply_func_array(
     feature, metrics, apply_to_df, assign_to_df, apply_funcs, same_key
 ):
-    """ Apply list of functions to dataframe
+    """Apply list of functions to dataframe
 
     Split off for parallellization reasons
 
@@ -231,7 +231,7 @@ def apply_func_array(
 
 
 def apply_func(feature, selected_metrics, df, arr):
-    """ Apply function to dataframe
+    """Apply function to dataframe
 
     :param str feature: feature currently looping over
     :param list selected_metrics: list of selected metrics to apply to
