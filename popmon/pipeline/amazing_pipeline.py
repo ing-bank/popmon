@@ -29,8 +29,7 @@ from ..pipeline.report_pipelines import self_reference
 
 
 def run():
-    """ Example that run self-reference pipeline and produces monitoring report
-    """
+    """Example that run self-reference pipeline and produces monitoring report"""
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
     )

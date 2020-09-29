@@ -198,8 +198,7 @@ def _plot_metric(
     skip_empty,
     tl_section,
 ):
-    """Split off plot histogram generation to allow for parallel processing
-    """
+    """Split off plot histogram generation to allow for parallel processing"""
     # pick up static traffic light boundaries
     name = feature + ":" + metric
     sbounds = static_bounds.get(name, ())

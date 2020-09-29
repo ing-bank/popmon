@@ -342,8 +342,7 @@ def test_project_split2dhist_on_axis():
 
 
 def test_datatype():
-    """ Test datatypes assigned to histograms
-    """
+    """Test datatypes assigned to histograms"""
     hist1, hist2, hist3 = get_histograms()
     hist0 = hg.Count()
 

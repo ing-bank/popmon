@@ -34,7 +34,7 @@ from ...stats.numpy import mad
 
 
 class PullCalculator(Pipeline):
-    """ Base module for pull calculation, based on mean and standard deviation calculation
+    """Base module for pull calculation, based on mean and standard deviation calculation
 
     Steps as performed by ApplyFunc modules:
 
@@ -103,8 +103,7 @@ class PullCalculator(Pipeline):
 
 
 class RollingPullCalculator(PullCalculator):
-    """ Pull calculation based on rolling mean and standard deviations
-    """
+    """Pull calculation based on rolling mean and standard deviations"""
 
     def __init__(
         self,
@@ -158,8 +157,7 @@ class RollingPullCalculator(PullCalculator):
 
 
 class ExpandingPullCalculator(PullCalculator):
-    """ Pull calculation based on expanding mean and standard deviations
-    """
+    """Pull calculation based on expanding mean and standard deviations"""
 
     def __init__(
         self,
@@ -210,8 +208,7 @@ class ExpandingPullCalculator(PullCalculator):
 
 
 class ReferencePullCalculator(PullCalculator):
-    """ Pull calculation based on reference mean and standard deviations
-    """
+    """Pull calculation based on reference mean and standard deviations"""
 
     def __init__(
         self,
@@ -261,8 +258,7 @@ class ReferencePullCalculator(PullCalculator):
 
 
 class RefMedianMadPullCalculator(PullCalculator):
-    """ Pull calculation based on reference median and mad
-    """
+    """Pull calculation based on reference median and mad"""
 
     def __init__(
         self,
