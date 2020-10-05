@@ -22,13 +22,8 @@ import numpy as np
 import pandas as pd
 
 from ...analysis.apply_func import ApplyFunc
-from ...analysis.functions import (
-    expanding_mean,
-    expanding_std,
-    pull,
-    rolling_mean,
-    rolling_std,
-)
+from ...analysis.functions import (expanding_mean, expanding_std, pull,
+                                   rolling_mean, rolling_std)
 from ...base import Pipeline
 from ...stats.numpy import mad
 

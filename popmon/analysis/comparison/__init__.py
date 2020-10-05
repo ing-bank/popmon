@@ -18,14 +18,12 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from ...analysis.comparison.hist_comparer import (
-    ExpandingHistComparer,
-    ExpandingNormHistComparer,
-    ReferenceHistComparer,
-    ReferenceNormHistComparer,
-    RollingHistComparer,
-    RollingNormHistComparer,
-)
+from ...analysis.comparison.hist_comparer import (ExpandingHistComparer,
+                                                  ExpandingNormHistComparer,
+                                                  ReferenceHistComparer,
+                                                  ReferenceNormHistComparer,
+                                                  RollingHistComparer,
+                                                  RollingNormHistComparer)
 
 __all__ = [
     "ReferenceHistComparer",

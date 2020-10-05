@@ -18,28 +18,19 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from ..alerting import (
-    AlertsSummary,
-    DynamicBounds,
-    StaticBounds,
-    TrafficLightAlerts,
-    traffic_light_summary,
-)
+from ..alerting import (AlertsSummary, DynamicBounds, StaticBounds,
+                        TrafficLightAlerts, traffic_light_summary)
 from ..analysis.apply_func import ApplyFunc
-from ..analysis.comparison.hist_comparer import (
-    ExpandingHistComparer,
-    PreviousHistComparer,
-    ReferenceHistComparer,
-    RollingHistComparer,
-)
+from ..analysis.comparison.hist_comparer import (ExpandingHistComparer,
+                                                 PreviousHistComparer,
+                                                 ReferenceHistComparer,
+                                                 RollingHistComparer)
 from ..analysis.functions import rolling_lr_zscore
 from ..analysis.profiling import HistProfiler
-from ..analysis.profiling.pull_calculator import (
-    ExpandingPullCalculator,
-    ReferencePullCalculator,
-    RefMedianMadPullCalculator,
-    RollingPullCalculator,
-)
+from ..analysis.profiling.pull_calculator import (ExpandingPullCalculator,
+                                                  ReferencePullCalculator,
+                                                  RefMedianMadPullCalculator,
+                                                  RollingPullCalculator)
 from ..base import Pipeline
 from ..hist.hist_splitter import HistSplitter
 

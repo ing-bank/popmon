@@ -23,12 +23,10 @@ from pathlib import PosixPath
 from ..base import Pipeline
 from ..config import config
 from ..io import FileWriter
-from ..pipeline.metrics_pipelines import (
-    metrics_expanding_reference,
-    metrics_external_reference,
-    metrics_rolling_reference,
-    metrics_self_reference,
-)
+from ..pipeline.metrics_pipelines import (metrics_expanding_reference,
+                                          metrics_external_reference,
+                                          metrics_rolling_reference,
+                                          metrics_self_reference)
 from ..visualization import HistogramSection, ReportGenerator, SectionGenerator
 
 

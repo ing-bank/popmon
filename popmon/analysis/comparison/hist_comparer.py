@@ -23,21 +23,14 @@ import pandas as pd
 from scipy.stats import norm, pearsonr
 
 from ...analysis.apply_func import ApplyFunc
-from ...analysis.functions import (
-    expand_norm_hist_mean_cov,
-    expanding_hist,
-    hist_sum,
-    normalized_hist_mean_cov,
-    relative_chi_squared,
-    roll_norm_hist_mean_cov,
-    rolling_hist,
-)
-from ...analysis.hist_numpy import (
-    check_similar_hists,
-    get_consistent_numpy_1dhists,
-    get_consistent_numpy_2dgrids,
-    get_consistent_numpy_entries,
-)
+from ...analysis.functions import (expand_norm_hist_mean_cov, expanding_hist,
+                                   hist_sum, normalized_hist_mean_cov,
+                                   relative_chi_squared,
+                                   roll_norm_hist_mean_cov, rolling_hist)
+from ...analysis.hist_numpy import (check_similar_hists,
+                                    get_consistent_numpy_1dhists,
+                                    get_consistent_numpy_2dgrids,
+                                    get_consistent_numpy_entries)
 from ...base import Pipeline
 from ...hist.histogram import HistogramContainer
 from ...stats.numpy import googl_test, ks_prob, ks_test, uu_chi2

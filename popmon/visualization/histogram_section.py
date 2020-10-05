@@ -24,11 +24,9 @@ import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-from ..analysis.hist_numpy import (
-    assert_similar_hists,
-    get_consistent_numpy_1dhists,
-    get_consistent_numpy_entries,
-)
+from ..analysis.hist_numpy import (assert_similar_hists,
+                                   get_consistent_numpy_1dhists,
+                                   get_consistent_numpy_entries)
 from ..base import Module
 from ..config import get_stat_description
 from ..hist.histogram import get_hist_props

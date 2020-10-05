@@ -24,12 +24,9 @@ from numpy.lib.stride_tricks import as_strided
 from scipy import linalg, stats
 from scipy.stats import linregress, norm
 
-from ..analysis.hist_numpy import (
-    check_similar_hists,
-    get_consistent_numpy_2dgrids,
-    get_consistent_numpy_entries,
-    set_2dgrid,
-)
+from ..analysis.hist_numpy import (check_similar_hists,
+                                   get_consistent_numpy_2dgrids,
+                                   get_consistent_numpy_entries, set_2dgrid)
 from ..hist.histogram import HistogramContainer
 from ..stats.numpy import probability_distribution_mean_covariance
 

@@ -24,14 +24,11 @@ import pandas as pd
 
 from ..base import Module
 from ..config import config
-from ..hist.filling.make_histograms import get_bin_specs, get_time_axes, make_histograms
-from ..pipeline.report_pipelines import (
-    ReportPipe,
-    expanding_reference,
-    external_reference,
-    rolling_reference,
-    self_reference,
-)
+from ..hist.filling.make_histograms import (get_bin_specs, get_time_axes,
+                                            make_histograms)
+from ..pipeline.report_pipelines import (ReportPipe, expanding_reference,
+                                         external_reference, rolling_reference,
+                                         self_reference)
 from ..resources import templates_env
 
 logging.basicConfig(
