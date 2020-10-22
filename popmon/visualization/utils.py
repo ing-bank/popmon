@@ -27,6 +27,7 @@ import pandas as pd
 import pybase64
 from ing_theme_matplotlib import mpl_style
 from matplotlib import pyplot as plt
+from matplotlib.colors import BoundaryNorm, ListedColormap
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -141,6 +142,37 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     return plt_to_base64()
 
 
+def plot_traffic_lights_heatmap_b64(data, metrics=None, labels=None):
+    fig, ax = plt.subplots(figsize=(14, 4.5))
+
+    cm = ListedColormap(["green", "yellow", "red"])
+    norm = BoundaryNorm([0, 1, 2], 2)
+
+    _ = ax.imshow(data, interpolation="none", aspect="equal", cmap=cm, norm=norm)
+
+    # Major ticks
+    ax.set_xticks(np.arange(0, len(labels), 1))
+    ax.set_yticks(np.arange(0, len(metrics), 1))
+
+    # Labels for major ticks
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(metrics)
+
+    # Minor ticks
+    ax.set_xticks(np.arange(-0.50, len(labels), 1), minor=True)
+    ax.set_yticks(np.arange(-0.50, len(metrics), 1), minor=True)
+
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
+
+    # Gridlines based on minor ticks
+    ax.grid(False)
+    ax.grid(which="minor", color="#333333", linestyle="-", linewidth=1, alpha=1)
+
+    fig.tight_layout()
+
+    return plt_to_base64()
+
+
 def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
     """Plotting histogram data.
 
@@ -171,12 +203,12 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
     ax.yaxis.grid(True)
     ax.xaxis.grid(False)
 
-    COLORS = ["green", "yellow", "red"]
+    colors = ["green", "yellow", "red"]
     ones = np.ones(n)
 
     index = np.arange(n)
 
-    for i, color in enumerate(COLORS):
+    for i, color in enumerate(colors):
         mask = data == i
         ax.bar(
             index[mask],
@@ -377,3 +409,21 @@ def plot_overlay_1d_histogram_b64(
     plt.legend()
 
     return plt_to_base64()
+
+
+def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
+    """inline function to select first or last items of input list
+
+    :param values: input list to select from
+    :param int last_n: select last 'n' items of values. default is 0.
+    :param int skip_first_n: skip first n items of values. default is 0. last_n takes precedence.
+    :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
+    :return: list of selected values
+    """
+    if last_n > 0:
+        return values[-last_n:]
+    if skip_first_n > 0:
+        values = values[skip_first_n:]
+    if skip_last_n > 0:
+        values = values[:-skip_last_n]
+    return values

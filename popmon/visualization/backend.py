@@ -107,10 +107,11 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
             raise RuntimeError(
                 "Cannot set Matplotlib backend: pyplot module already loaded."
             )
-        else:
-            logger.warning(
-                "Cannot set Matplotlib backend: pyplot module already loaded."
-            )
+        # Warning is too verbose
+        # else:
+        #     logger.warning(
+        #         "Cannot set Matplotlib backend: pyplot module already loaded."
+        #     )
         return
 
     # set matplotlib backend
