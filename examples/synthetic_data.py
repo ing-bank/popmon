@@ -5,7 +5,6 @@ from popmon import resources
 
 # open synthetic data
 df = pd.read_csv(resources.data("test.csv.gz"), parse_dates=["date"])
-df.head()
 
 # generate stability report using automatic binning of all encountered features
 # (importing popmon automatically adds this functionality to a dataframe)

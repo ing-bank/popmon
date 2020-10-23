@@ -50,10 +50,18 @@ jobs:
           pip install -e .
       - name:
         run: |
-          cd examples && python synthetic_data.py
+          cd examples
+          python synthetic_data.py
+          python flight_delays.py
 
       - uses: actions/upload-artifact@v2
         with:
           name: synthetic-report
           path: examples/test_data_report.html
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: flight-delays-report
+          path: examples/flight_delays_report.html
           if-no-files-found: error
