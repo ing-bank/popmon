@@ -148,7 +148,7 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |logo| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png
     :alt: POPMON logo
     :target: https://github.com/ing-bank/popmon
-.. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/docs-example-image/docs/source/assets/traffic_light_overview.png
+.. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/traffic_light_overview.png
     :alt: Traffic Light Overview
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
