@@ -224,11 +224,14 @@ def _plot_heatmap(metrics, dates, df, last_n, skip_first_n, skip_last_n, skip_em
             values.append(value)
             nonempty_metrics.append(metric)
 
-    values = np.stack(values)
+    if len(values) > 0:
+        values = np.stack(values)
 
-    # make plot. note: slow!
-    plot = plot_traffic_lights_heatmap_b64(
-        values, metrics=nonempty_metrics, labels=dates
-    )
+        # make plot. note: slow!
+        plot = plot_traffic_lights_heatmap_b64(
+            values, metrics=nonempty_metrics, labels=dates
+        )
+    else:
+        plot = ""
 
     return dict(name="Overview", description="", plot=plot, full_width=True)
