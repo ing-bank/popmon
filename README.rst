@@ -17,6 +17,8 @@ It works with numerical, ordinal, categorical features, and the histograms can b
 as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
 using monitoring business rules.
 
+|example|
+
 Documentation
 =============
 
@@ -146,6 +148,8 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |logo| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png
     :alt: POPMON logo
     :target: https://github.com/ing-bank/popmon
+.. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/traffic_light_overview.png
+    :alt: Traffic Light Overview
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
