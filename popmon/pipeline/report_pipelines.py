@@ -29,7 +29,12 @@ from ..pipeline.metrics_pipelines import (
     metrics_rolling_reference,
     metrics_self_reference,
 )
-from ..visualization import HistogramSection, ReportGenerator, SectionGenerator
+from ..visualization import (
+    HistogramSection,
+    ReportGenerator,
+    SectionGenerator,
+    TrafficLightSectionGenerator,
+)
 
 
 def self_reference(
@@ -338,10 +343,8 @@ class ReportPipe(Pipeline):
                 ignore_stat_endswith=["_mean", "_std", "_pull"],
                 **sg_kws("comparisons"),
             ),
-            SectionGenerator(
-                section_name=traffic_lights_section,
-                tl_section=True,
-                **sg_kws("traffic_lights"),
+            TrafficLightSectionGenerator(
+                section_name=traffic_lights_section, **sg_kws("traffic_lights")
             ),
             SectionGenerator(section_name=alerts_section, **sg_kws("alerts")),
             HistogramSection(

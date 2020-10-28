@@ -10,7 +10,7 @@ $(document).on("click", "button.dropdown-item", function() {
     obj.parent().siblings("button").text("Feature: " + obj.text())
 });
 // making navigation work: after clicking a nav link scrolling to the corresponding section's position
-$(document).on("click", "a.nav-link", function(e) {
+$(document).on("click", "a.nav-link,a.navbar-brand", function(e) {
     e.preventDefault();
     obj = $(this)
     $([document.documentElement, document.body]).animate({
@@ -18,10 +18,13 @@ $(document).on("click", "a.nav-link", function(e) {
     }, 1000);
 });
 // automatic insertion of navigation links based on section titles
-$('section').each(function(){
+$('section').each(function(i, el){
     title = $(this).attr("data-section-title");
     code = '<li class="nav-item"><a class="nav-link js-scroll-trigger" data-scroll-to-section="' + title + '">' + title + '</a></li>'
     $("ul#navigation-sections").append(code);
+    if ( i === 0) {
+        $("a.navbar-brand").attr('data-scroll-to-section', title);
+    }
 });
 
 $('#myModal').on('shown.bs.modal', function () {

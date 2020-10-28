@@ -94,7 +94,7 @@ As a quick example, you can do:
   # to show the output of the report in a Jupyter notebook you can simply run:
   report
 
-  # or save the report to file and open in a browser
+  # or save the report to file
   report.to_file("monitoring_report.html")
 
 To specify your own binning specifications and features you want to report on, you do:
