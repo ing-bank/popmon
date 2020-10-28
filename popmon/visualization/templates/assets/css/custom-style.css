@@ -50,3 +50,7 @@ section h2 {
 .feature-select button {
   font-weight: 300
 }
+
+.card-image-top {
+  padding-bottom: 7px;
+}
