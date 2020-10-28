@@ -29,8 +29,12 @@ from ..pipeline.metrics_pipelines import (
     metrics_rolling_reference,
     metrics_self_reference,
 )
-from ..visualization import HistogramSection, ReportGenerator, SectionGenerator
-from ..visualization.traffic_light_section_generator import TrafficLightSectionGenerator
+from ..visualization import (
+    HistogramSection,
+    ReportGenerator,
+    SectionGenerator,
+    TrafficLightSectionGenerator,
+)
 
 
 def self_reference(

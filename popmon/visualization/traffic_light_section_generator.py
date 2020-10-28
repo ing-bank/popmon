@@ -80,6 +80,8 @@ class TrafficLightSectionGenerator(Module):
         :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param str description: description of the section. default is empty (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param bool plot_overview: heatmap overview of traffic lights (features x time)
+        :param bool plot_metrics: individual plot per feature
         """
         super().__init__()
         self.read_key = read_key
