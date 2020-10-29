@@ -12,7 +12,8 @@ def nb_tester():
             "/metadata/language_info",
             "/cells/*/execution_count",
             "/cells/*/outputs/*",
-        )
+        ),
+        exec_timeout=300,
     )
     return nb_regression
 
