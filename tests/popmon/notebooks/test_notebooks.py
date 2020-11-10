@@ -13,7 +13,7 @@ def nb_tester():
             "/cells/*/execution_count",
             "/cells/*/outputs/*",
         ),
-        exec_timeout=300,
+        exec_timeout=1800,
     )
     return nb_regression
 
