@@ -44,7 +44,7 @@ class AlertsSummary(Module):
 
         :param str read_key: key of input data to read from datastore.
         :param str store_key: key of output data to store in datastore (optional).
-        :param str combined_variable: name of artifical variable that combines all alerts. default is '_AGGREGATE_'.
+        :param str combined_variable: name of artificial variable that combines all alerts. default is '_AGGREGATE_'.
         :param list features: features of data frames to pick up from input data (optional).
         :param list ignore_features: list of features to ignore (optional).
         """
@@ -77,7 +77,7 @@ class AlertsSummary(Module):
             df = (self.get_datastore_object(data, feature, dtype=pd.DataFrame)).copy(
                 deep=False
             )
-            df.columns = [feature + "_" + c for c in df.columns]
+            df.columns = [f"{feature}_{c}" for c in df.columns]
             df_list.append(df)
 
         # the different features could technically have different indices.
@@ -99,8 +99,8 @@ class AlertsSummary(Module):
         dfc["worst"] = tlv[cols].values.max(axis=1) if len(cols) else 0
         # colors of traffic lights
         for color in ["green", "yellow", "red"]:
-            cols = fnmatch.filter(tlv.columns, "*_n_{}".format(color))
-            dfc["n_{}".format(color)] = tlv[cols].values.sum(axis=1) if len(cols) else 0
+            cols = fnmatch.filter(tlv.columns, f"*_n_{color}")
+            dfc[f"n_{color}"] = tlv[cols].values.sum(axis=1) if len(cols) else 0
 
         # store combination of traffic alerts
         data[self.combined_variable] = dfc
