@@ -20,7 +20,7 @@
 
 import logging
 import math
-from io import BytesIO
+from io import BytesIO, StringIO
 
 import numpy as np
 import pandas as pd
@@ -35,18 +35,29 @@ logger = logging.getLogger()
 mpl_style(dark=False)
 
 
-def plt_to_base64():
-    """Outputting plot as a base64 encoded string.
+def plt_to_str(format="png"):
+    """Outputting plot as a base64 encoded string or as svg image.
 
-    :return: base64 encoded plot image
+    :return: base64 encoded plot image or svg image
     :rtype:   str
     """
-    tmpfile = BytesIO()
 
-    plt.savefig(tmpfile, format="png")
-    plt.close()
+    if format == "png":
+        tmpfile = BytesIO()
 
-    return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
+        plt.savefig(tmpfile, format="png")
+        plt.close()
+
+        return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
+    elif format == "svg":
+        tmpfile = StringIO()
+
+        plt.savefig(tmpfile, format="svg")
+        plt.close()
+
+        return tmpfile.getvalue().encode("utf-8")
+    else:
+        raise ValueError("Format should be png or svg.")
 
 
 def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
@@ -139,7 +150,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     ax.grid(True, linestyle=":")
 
     fig.tight_layout()
-    return plt_to_base64()
+    return plt_to_str()
 
 
 def plot_traffic_lights_heatmap_b64(data, metrics=None, labels=None):
@@ -170,7 +181,67 @@ def plot_traffic_lights_heatmap_b64(data, metrics=None, labels=None):
 
     fig.tight_layout()
 
-    return plt_to_base64()
+    return plt_to_str()
+
+
+def plot_traffic_lights_alerts_b64(data, metrics=None, labels=None):
+    assert data.shape[0] == 3
+
+    # Reorder metrics if needed
+    pos_green = metrics.index("n_green")
+    pos_yellow = metrics.index("n_yellow")
+    pos_red = metrics.index("n_red")
+
+    if [pos_green, pos_yellow, pos_red] != [2, 1, 0]:
+        data[[0, 1, 2]] = data[[pos_green, pos_yellow, pos_red]]
+
+    metrics = ["n_green", "n_yellow", "n_red"]
+
+    fig, ax = plt.subplots(figsize=(14, 4.5))
+
+    N = 256
+    yellow = np.ones((N, 4))
+    yellow[:, 0] = np.linspace(1, 255 / 256, N)
+    yellow[:, 1] = np.linspace(1, 232 / 256, N)
+    yellow[:, 2] = np.linspace(1, 11 / 256, N)
+    yellow_cmp = ListedColormap(yellow)
+
+    cmaps = reversed(["Reds", yellow_cmp, "Greens"])
+    # https://stackoverflow.com/questions/60325792/seaborn-heatmap-color-by-row
+    for idx, cmap in enumerate(cmaps):
+        _ = ax.imshow(
+            np.vstack([data[idx, :], data[idx, :]]),
+            aspect="equal",
+            cmap=cmap,
+            extent=[-0.5, data.shape[1] - 0.5, idx - 0.5, idx + 0.5],
+        )
+
+    # Major ticks
+    ax.set_xticks(np.arange(0, len(labels), 1))
+    ax.set_yticks(np.arange(0, len(metrics), 1))
+
+    # Labels for major ticks
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(metrics)
+
+    # Minor ticks
+    ax.set_xticks(np.arange(-0.50, len(labels), 1), minor=True)
+    ax.set_yticks(np.arange(-0.50, len(metrics), 1), minor=True)
+
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
+
+    # Annotations
+    for i in range(len(metrics)):
+        for j in range(len(labels)):
+            ax.text(j, i, f"{data[i, j]:.0f}", ha="center", va="center", color="black")
+
+    # Gridlines based on minor ticks
+    ax.grid(False)
+    ax.grid(which="minor", color="#333333", linestyle="-", linewidth=1, alpha=1)
+
+    fig.tight_layout()
+
+    return plt_to_str()
 
 
 def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
@@ -234,7 +305,7 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
 
     fig.tight_layout()
 
-    return plt_to_base64()
+    return plt_to_str()
 
 
 def grouped_bar_chart_b64(data, labels, legend):
@@ -242,7 +313,7 @@ def grouped_bar_chart_b64(data, labels, legend):
 
     :param numpy.ndarray data: bin values of histograms
     :param list labels: common bin labels for all histograms
-    :param list legend: corresponing names of histograms we want to represent
+    :param list legend: corresponding names of histograms we want to represent
     :return: base64 encoded plot image (grouped bar chart)
     :rtype: str
     """
@@ -274,7 +345,7 @@ def grouped_bar_chart_b64(data, labels, legend):
 
     fig.tight_layout()
 
-    return plt_to_base64()
+    return plt_to_str()
 
 
 def plot_overlay_1d_histogram_b64(
@@ -408,7 +479,7 @@ def plot_overlay_1d_histogram_b64(
     plt.grid()
     plt.legend()
 
-    return plt_to_base64()
+    return plt_to_str()
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):

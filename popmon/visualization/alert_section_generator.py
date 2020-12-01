@@ -28,15 +28,11 @@ from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
-from ..visualization.utils import (
-    _prune,
-    plot_traffic_lights_alerts_b64,
-    plot_traffic_lights_b64,
-    plot_traffic_lights_heatmap_b64,
-)
+from ..visualization.utils import _prune, plot_bars_b64
+from .traffic_light_section_generator import _plot_metrics
 
 
-class TrafficLightSectionGenerator(Module):
+class AlertSectionGenerator(Module):
     """This module takes the time-series data of already computed statistics, plots the data and
     combines all the plots into a list which is stored together with the section name in a dictionary
     which later will be used for the report generation.
@@ -60,8 +56,6 @@ class TrafficLightSectionGenerator(Module):
         skip_empty_plots=True,
         description="",
         show_stats=None,
-        plot_overview=True,
-        plot_metrics=False,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -81,8 +75,6 @@ class TrafficLightSectionGenerator(Module):
         :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param str description: description of the section. default is empty (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param bool plot_overview: heatmap overview of traffic lights (features x time)
-        :param bool plot_metrics: individual plot per feature
         """
         super().__init__()
         self.read_key = read_key
@@ -101,12 +93,15 @@ class TrafficLightSectionGenerator(Module):
         self.skip_empty_plots = skip_empty_plots
         self.description = description
         self.show_stats = show_stats
-        self.plot_overview = plot_overview
-        self.plot_metrics = plot_metrics
+        self.plot_overview = True
+        self.plot_metrics = True
 
     def transform(self, datastore):
         data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
 
+        static_bounds = self.get_datastore_object(
+            datastore, self.static_bounds, dtype=dict, default={}
+        )
         dynamic_bounds = self.get_datastore_object(
             datastore, self.dynamic_bounds, dtype=dict, default={}
         )
@@ -154,22 +149,27 @@ class TrafficLightSectionGenerator(Module):
             if self.plot_overview:
                 plots.append(
                     _plot_metrics(
-                        metrics,
+                        [m for m in metrics if not m.endswith("worst")],
                         dates,
                         df,
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
+                        0,
+                        0,
+                        0,
+                        0,
+                        style="alerts",
                     )
                 )
-
             if self.plot_metrics:
                 plots += Parallel(n_jobs=num_cores)(
                     delayed(_plot_metric)(
+                        feature,
                         metric,
                         dates,
                         df[metric],
+                        static_bounds,
+                        fdbounds,
+                        self.prefix,
+                        self.suffices,
                         self.last_n,
                         self.skip_first_n,
                         self.skip_last_n,
@@ -177,7 +177,6 @@ class TrafficLightSectionGenerator(Module):
                     )
                     for metric in metrics
                 )
-
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
@@ -199,53 +198,46 @@ class TrafficLightSectionGenerator(Module):
         return datastore
 
 
-def _plot_metric(metric, dates, values, last_n, skip_first_n, skip_last_n, skip_empty):
+def _plot_metric(
+    feature,
+    metric,
+    dates,
+    values,
+    static_bounds,
+    fdbounds,
+    prefix,
+    suffices,
+    last_n,
+    skip_first_n,
+    skip_last_n,
+    skip_empty,
+):
     """Split off plot histogram generation to allow for parallel processing"""
-
+    # pick up static traffic light boundaries
+    name = feature + ":" + metric
+    sbounds = static_bounds.get(name, ())
+    # pick up dynamic traffic light boundaries
+    names = [prefix + metric + suffix for suffix in suffices]
+    dbounds = tuple(
+        [
+            _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
+            for n in names
+            if n in fdbounds.columns
+        ]
+    )
+    # choose dynamic bounds if present
+    bounds = dbounds if len(dbounds) > 0 else sbounds
     # prune dates and values
     dates = _prune(dates, last_n, skip_first_n, skip_last_n)
     values = _prune(values, last_n, skip_first_n, skip_last_n)
 
     # make plot. note: slow!
-    plot = plot_traffic_lights_b64(
-        data=np.array(values), labels=dates, skip_empty=skip_empty
+    plot = plot_bars_b64(
+        data=np.array(values),
+        labels=dates,
+        ylim=True,
+        bounds=bounds,
+        skip_empty=skip_empty,
     )
 
     return dict(name=metric, description=get_stat_description(metric), plot=plot)
-
-
-def _plot_metrics(
-    metrics, dates, df, last_n, skip_first_n, skip_last_n, skip_empty, style="heatmap"
-):
-    # prune dates and values
-    dates = _prune(dates, last_n, skip_first_n, skip_last_n)
-
-    values = []
-    nonempty_metrics = []
-    for metric in metrics:
-        value = _prune(df[metric], last_n, skip_first_n, skip_last_n)
-
-        if not skip_empty or np.sum(value) > 0:
-            values.append(value)
-            nonempty_metrics.append(metric)
-
-    if len(values) > 0:
-        values = np.stack(values)
-
-        # make plot. note: slow!
-        if style == "heatmap":
-            plot = plot_traffic_lights_heatmap_b64(
-                values, metrics=nonempty_metrics, labels=dates
-            )
-        elif style == "alerts":
-            plot = plot_traffic_lights_alerts_b64(
-                values,
-                metrics=nonempty_metrics,
-                labels=dates,
-            )
-        else:
-            raise ValueError("style must be either 'heatmap' or 'alerts'")
-    else:
-        plot = ""
-
-    return dict(name="Overview", description="", plot=plot, full_width=True)
