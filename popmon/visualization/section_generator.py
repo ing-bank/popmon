@@ -171,10 +171,10 @@ class SectionGenerator(Module):
             "features": features_w_metrics,
         }
 
-        if self.store_key in datastore:
-            datastore[self.store_key].append(params)
-        else:
-            datastore[self.store_key] = [params]
+        if self.store_key not in datastore:
+            datastore[self.store_key] = []
+
+        datastore[self.store_key].append(params)
 
         return datastore
 

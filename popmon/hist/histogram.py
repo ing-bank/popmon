@@ -211,7 +211,7 @@ class HistogramContainer:
         return f"HistogramContainer(dtype={self.npdtype}, n_dims={self.n_dim})"
 
     def __str__(self):
-        return str(self)
+        return repr(self)
 
     def _edit_name(self, axis_name, xname, yname, convert_time_index, short_keys):
         if convert_time_index and self.is_ts:

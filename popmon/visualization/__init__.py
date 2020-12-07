@@ -20,6 +20,7 @@
 
 # flake8: noqa
 
+from popmon.visualization.alert_section_generator import AlertSectionGenerator
 from popmon.visualization.histogram_section import HistogramSection
 from popmon.visualization.report_generator import ReportGenerator
 from popmon.visualization.section_generator import SectionGenerator
@@ -27,7 +28,7 @@ from popmon.visualization.traffic_light_section_generator import (
     TrafficLightSectionGenerator,
 )
 
-# set matplotlib backend to batchmode when running in shell
+# set matplotlib backend to batch mode when running in shell
 # need to do this *before* matplotlib.pyplot gets imported
 from ..visualization.backend import set_matplotlib_backend
 
@@ -39,4 +40,5 @@ __all__ = [
     "HistogramSection",
     "ReportGenerator",
     "TrafficLightSectionGenerator",
+    "AlertSectionGenerator",
 ]
