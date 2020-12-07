@@ -2,7 +2,7 @@
 Population Shift Monitoring
 ===========================
 
-|build| |docs| |release| |release_date|
+|build| |docs| |release| |release_date| |downloads|
 
 |logo|
 
@@ -202,3 +202,4 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |notebook_incremental_data_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
     :alt: Open in Colab
     :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb
+.. |downloads| image:: https://pepy.tech/project/popmo[![Downloads](https://pepy.tech/badge/popmon)](https://pepy.tech/project/popmon)
