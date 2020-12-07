@@ -192,7 +192,7 @@ def plot_traffic_lights_alerts_b64(data, metrics=None, labels=None):
     pos_yellow = metrics.index("n_yellow")
     pos_red = metrics.index("n_red")
 
-    if [pos_green, pos_yellow, pos_red] != [2, 1, 0]:
+    if [pos_green, pos_yellow, pos_red] != [0, 1, 2]:
         data[[0, 1, 2]] = data[[pos_green, pos_yellow, pos_red]]
 
     metrics = ["n_green", "n_yellow", "n_red"]
