@@ -244,6 +244,37 @@ def plot_traffic_lights_alerts_b64(data, metrics=None, labels=None):
     return plt_to_str()
 
 
+def plot_traffic_lights_heatmap_b64(data, metrics=None, labels=None):
+    fig, ax = plt.subplots(figsize=(14, 4.5))
+
+    cm = ListedColormap(["green", "yellow", "red"])
+    norm = BoundaryNorm([0, 1, 2], 2)
+
+    _ = ax.imshow(data, interpolation="none", aspect="equal", cmap=cm, norm=norm)
+
+    # Major ticks
+    ax.set_xticks(np.arange(0, len(labels), 1))
+    ax.set_yticks(np.arange(0, len(metrics), 1))
+
+    # Labels for major ticks
+    ax.set_xticklabels(labels)
+    ax.set_yticklabels(metrics)
+
+    # Minor ticks
+    ax.set_xticks(np.arange(-0.50, len(labels), 1), minor=True)
+    ax.set_yticks(np.arange(-0.50, len(metrics), 1), minor=True)
+
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
+
+    # Gridlines based on minor ticks
+    ax.grid(False)
+    ax.grid(which="minor", color="#333333", linestyle="-", linewidth=1, alpha=1)
+
+    fig.tight_layout()
+
+    return plt_to_base64()
+
+
 def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
     """Plotting histogram data.
 
