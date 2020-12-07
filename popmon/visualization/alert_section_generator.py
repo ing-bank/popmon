@@ -180,6 +180,7 @@ class AlertSectionGenerator(Module):
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
+
             features_w_metrics.append(
                 dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
             )
