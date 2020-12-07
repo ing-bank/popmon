@@ -5,9 +5,15 @@ $( "section" ).each(function() {
 // show corresponding feature's data based on the filter
 $(document).on("click", "button.dropdown-item", function() {
     obj = $(this)
-    obj.closest("section").find("div.section_feature").hide()
-    obj.closest("section").find("div[data-section-feature='" + obj.attr("data-feature") + "']").show()
-    obj.parent().siblings("button").text("Feature: " + obj.text())
+
+//    obj.closest("section").find("div.section_feature").hide()
+//    obj.closest("section").find("div[data-section-feature='" + obj.attr("data-feature") + "']").show()
+//    obj.parent().siblings("button").text("Feature: " + obj.text())
+
+    // Linked dropdowns
+    $("div.section_feature").hide()
+    $("div[data-section-feature='" + obj.attr("data-feature") + "']").show()
+    $("button.dropdown-toggle").text("Feature: " + obj.text())
 });
 // making navigation work: after clicking a nav link scrolling to the corresponding section's position
 $(document).on("click", "a.nav-link,a.navbar-brand", function(e) {
