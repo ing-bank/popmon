@@ -665,11 +665,11 @@ def test_chi_squared1():
         assert f in datastore["output_hist"]
 
     df = datastore["output_hist"]["A_score"]
-    np.testing.assert_almost_equal(df["chi2"][6], 3.275000000000001)
+    np.testing.assert_almost_equal(df["chi2"][6], 4.25)
     df = datastore["output_hist"]["A_score:num_employees"]
     np.testing.assert_almost_equal(df["chi2"][-2], 2.1333333333333315)
     df = datastore["output_hist"]["bankrupt"]
-    np.testing.assert_almost_equal(df["chi2"][6], 0.19687500000000002)
+    np.testing.assert_almost_equal(df["chi2"][6], 0.40000000000000024)
     df = datastore["output_hist"]["country"]
     np.testing.assert_almost_equal(df["chi2"][5], 0.8999999999999994)
     df = datastore["output_hist"]["num_employees"]
@@ -726,13 +726,13 @@ def test_chi_squared2():
         assert f in datastore["output_hist"]
 
     df = datastore["output_hist"]["A_score"]
-    np.testing.assert_almost_equal(df["chi2"][-1], 4.066666666666674)
+    np.testing.assert_almost_equal(df["chi2"][-1], 9.891821919006366)
     df = datastore["output_hist"]["A_score:num_employees"]
     np.testing.assert_almost_equal(df["chi2"][-2], 3.217532467532462)
     df = datastore["output_hist"]["bankrupt"]
-    np.testing.assert_almost_equal(df["chi2"][-1], 0.11718750000000011)
+    np.testing.assert_almost_equal(df["chi2"][-1], 0.23767605633802757)
     df = datastore["output_hist"]["country"]
-    np.testing.assert_almost_equal(df["chi2"][-1], 0.6093749999999999)
+    np.testing.assert_almost_equal(df["chi2"][-1], 1.3717532467532458)
     df = datastore["output_hist"]["num_employees"]
     np.testing.assert_almost_equal(df["chi2"][-1], 1.1858766233766194)
 
@@ -775,7 +775,7 @@ def test_chi_ReferenceNormHistComparer():
         assert f in datastore["comparisons"]
 
     df = datastore["comparisons"]["A_score"]
-    np.testing.assert_almost_equal(df["chi2"][0], 1.2734375)
+    np.testing.assert_almost_equal(df["chi2"][0], 2.2884111855886022)
 
 
 def test_chi_ExpandingNormHistComparer():
@@ -812,7 +812,7 @@ def test_chi_ExpandingNormHistComparer():
         assert f in datastore["comparisons"]
 
     df = datastore["comparisons"]["A_score"]
-    np.testing.assert_almost_equal(df["chi2"][-1], 4.06666667)
+    np.testing.assert_almost_equal(df["chi2"][-1], 9.891821919006366)
 
 
 def test_chi_RollingNormHistComparer():
@@ -851,4 +851,4 @@ def test_chi_RollingNormHistComparer():
         assert f in datastore["comparisons"]
 
     df = datastore["comparisons"]["A_score"]
-    np.testing.assert_almost_equal(df["chi2"][-1], 45.200000)
+    np.testing.assert_almost_equal(df["chi2"][-1], 37.61910112359518)
