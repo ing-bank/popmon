@@ -500,7 +500,12 @@ def relative_chi_squared(
     # calculation of mean normalized histogram and its covariance matrix of input histogram
     single_norm, _ = probability_distribution_mean_covariance([entries])
 
-    try:
+    if (
+        np.linalg.cond(cov) < 0.1 / np.finfo(cov.dtype).eps
+        and np.abs(np.linalg.det(cov)) > np.finfo(cov.dtype).eps
+    ):
+        # check if covariance matrix is invertible
+        # see: https://stackoverflow.com/questions/13249108/efficient-pythonic-check-for-singular-matrix
         # We try to use the precision matrix (inverse covariance matrix) for the chi-squared calculation
         pm = linalg.inv(cov)
         chi_squared = np.dot(
@@ -508,7 +513,7 @@ def relative_chi_squared(
         )
         if chi_squared <= 0:
             chi_squared = np.finfo(np.float).eps
-    except linalg.LinAlgError:
+    else:
         # If a covariance matrix is singular we fall back on using variances
         chi_squared = np.sum(
             (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)
