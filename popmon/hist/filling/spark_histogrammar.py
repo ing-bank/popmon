@@ -154,7 +154,7 @@ class SparkHistogrammar(HistogramFillerBase):
         # spark conversions to numpy or python equivalent
         if dt == "string":
             dt = "str"
-        elif dt == "timestamp":
+        elif dt in ["timestamp", "date"]:
             dt = np.datetime64
         elif dt == "boolean":
             dt = bool
