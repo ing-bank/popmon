@@ -22,7 +22,6 @@ def get_spark():
     current_path = dirname(abspath(__file__))
 
     hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.4.jar")
-
     hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.4.jar")
 
     spark = (
@@ -45,6 +44,7 @@ def spark_co():
     return spark
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -105,6 +105,7 @@ def test_get_histograms(spark_co):
     #     json.dump(current_hists["transaction"].toJson(), outfile, indent=4)
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -164,6 +165,7 @@ def test_get_histograms_module(spark_co):
     # assert current_hists['latitude:longitude'].toJson() == pytest.latitude_longitude
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -209,6 +211,7 @@ def test_get_histograms_timestamp(spark_co):
     assert current_hists["dt"].toJson() == expected
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
