@@ -27,7 +27,7 @@ def get_spark():
     spark = (
         SparkSession.builder.master("local")
         .appName("popmon-pytest")
-        .config("spark.jars", "{},{}".format(hist_spark_jar, hist_jar))
+        .config("spark.jars", f"{hist_spark_jar},{hist_jar}")
         .config("spark.sql.execution.arrow.enabled", "false")
         .config("spark.sql.session.timeZone", "GMT")
         .getOrCreate()

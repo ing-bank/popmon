@@ -91,7 +91,7 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
                 )
             )
         logger.warning(
-            'Set Matplotlib backend to "{0:s}"; non-interactive backend required, but "{1:s}" requested.'.format(
+            'Set Matplotlib backend to "{:s}"; non-interactive backend required, but "{:s}" requested.'.format(
                 ni_backends[0], backend
             )
         )

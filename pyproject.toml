@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-markers =  ["spark", ]
+markers = ["spark"]
 
 [tool.pytest.ini_options.spark_options]
 "spark.executor.id" = "driver"

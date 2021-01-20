@@ -124,9 +124,7 @@ class HistStitcher(Module):
                 )
             dts = [type(tv) for tv in time_bin_idx]
             if not dts.count(dts[0]) == len(dts):
-                raise TypeError(
-                    "time_bin_idxs have inconsistent datatypes: {dts}".format(dts=dts)
-                )
+                raise TypeError(f"time_bin_idxs have inconsistent datatypes: {dts}")
 
         # basic checks and conversions
         if isinstance(hists_basis, dict) and len(hists_basis) > 0:
@@ -338,9 +336,7 @@ class HistStitcher(Module):
             )
         dts = [type(tv) for tv in time_bin_idx]
         if not dts.count(dts[0]) == len(dts):
-            raise TypeError(
-                "time_bin_idxs have inconsistent datatypes: {dts}".format(dts=dts)
-            )
+            raise TypeError(f"time_bin_idxs have inconsistent datatypes: {dts}")
         if not isinstance(time_bin_idx[0], (str, int, np.integer)):
             raise TypeError("time_bin_idxs should be an (ordered) string or integer.")
 

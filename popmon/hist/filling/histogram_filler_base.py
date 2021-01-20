@@ -224,8 +224,9 @@ class HistogramFillerBase(Module):
                     "No obvious time-axes found to choose from. So not used."
                 )
             else:
-                w = f'Found {num} time-axes: {cols_by_type["dt"]}. Set *one* time_axis manually! Now NOT used.'
-                self.logger.warning(w)
+                self.logger.warning(
+                    f'Found {num} time-axes: {cols_by_type["dt"]}. Set *one* time_axis manually! Now NOT used.'
+                )
         else:
             # c) no time axis
             self.time_axis = ""
@@ -275,7 +276,7 @@ class HistogramFillerBase(Module):
     def auto_complete_bin_specs(self, df, cols_by_type):
         """auto complete the bin-specs that have not been provided
 
-        :param df: input dateframe
+        :param df: input dataframe
         :param cols_by_type: dict of columns classified by type
         """
         # auto-determine binning of numerical and time features for which no bin_specs exist
@@ -311,7 +312,7 @@ class HistogramFillerBase(Module):
                 if c in float_cols:
                     q = quantiles_f[c]
                     # by default, n_bins covers range 5-95% quantiles + we add 10%
-                    # basicly this gives a nice plot when plotted
+                    # basically this gives a nice plot when plotted
                     # specs for Bin and Sparselybin histograms
                     if q[1] == q[0]:
                         # in case of highly imbalanced data it can happen that q05=q95. If so use min and max instead.
@@ -354,7 +355,7 @@ class HistogramFillerBase(Module):
         :param str col: column
         """
         if col not in self.get_features(df):
-            raise KeyError('column "{0:s}" not in input dataframe'.format(col))
+            raise KeyError(f'column "{col:s}" not in input dataframe')
         return df[col].dtype
 
     def categorize_features(self, df):
@@ -488,7 +489,7 @@ class HistogramFillerBase(Module):
             else:
                 raise RuntimeError("Do not know how to interpret bin specifications.")
         else:
-            # string and boolians are treated as categories
+            # string and booleans are treated as categories
             hist = hg.Categorize(quantity=quant, value=hist)
 
         return hist

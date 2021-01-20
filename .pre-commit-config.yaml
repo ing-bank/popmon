@@ -3,7 +3,6 @@ repos:
     rev: 20.8b1
     hooks:
     - id: black
-      language_version: python3.6
 -   repo: https://github.com/pycqa/isort
     rev: 5.7.0
     hooks:
@@ -15,3 +14,8 @@ repos:
     hooks:
     -   id: flake8
         args: [ "--select=E9,F63,F7,F82"]
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.7.4
+    hooks:
+    -   id: pyupgrade
+        args: ['--py36-plus','--exit-zero-even-if-changed']

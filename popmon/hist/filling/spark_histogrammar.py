@@ -149,7 +149,7 @@ class SparkHistogrammar(HistogramFillerBase):
         :param str col: column
         """
         if col not in df.columns:
-            raise KeyError('Column "{0:s}" not in input dataframe.'.format(col))
+            raise KeyError(f'Column "{col:s}" not in input dataframe.')
         dt = dict(df.dtypes)[col]
         # spark conversions to numpy or python equivalent
         if dt == "string":

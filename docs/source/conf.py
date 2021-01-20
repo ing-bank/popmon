@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # POPMON documentation build configuration file for sphinx.
 #
