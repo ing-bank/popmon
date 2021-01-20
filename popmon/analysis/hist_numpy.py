@@ -337,9 +337,7 @@ def check_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
         return False
     dts = [hist.datatype for hist in hist_list]
     if not dts.count(dts[0]) == len(dts):
-        warnings.warn(
-            "Input histograms have inconsistent datatypes: {dts}".format(dts=dts)
-        )
+        warnings.warn(f"Input histograms have inconsistent datatypes: {dts}")
         return False
     # Check generic attributes
     if check_type:

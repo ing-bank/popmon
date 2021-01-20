@@ -149,12 +149,12 @@ class SparkHistogrammar(HistogramFillerBase):
         :param str col: column
         """
         if col not in df.columns:
-            raise KeyError('Column "{0:s}" not in input dataframe.'.format(col))
+            raise KeyError(f'Column "{col:s}" not in input dataframe.')
         dt = dict(df.dtypes)[col]
         # spark conversions to numpy or python equivalent
         if dt == "string":
             dt = "str"
-        elif dt == "timestamp":
+        elif dt in ["timestamp", "date"]:
             dt = np.datetime64
         elif dt == "boolean":
             dt = bool
@@ -184,7 +184,9 @@ class SparkHistogrammar(HistogramFillerBase):
                     col=col, type=self.var_dtype[col]
                 )
             )
-            to_ns = sparkcol(col).cast("float") * 1e9
+
+            # first cast to timestamp (in case column is stored as date)
+            to_ns = sparkcol(col).cast("timestamp").cast("float") * 1e9
             idf = idf.withColumn(col, to_ns)
 
         hg.sparksql.addMethods(idf)
@@ -222,7 +224,7 @@ class SparkHistogrammar(HistogramFillerBase):
         return hist
 
     def fill_histograms(self, idf):
-        """Fill the histogramss
+        """Fill the histograms
 
         :param idf: input data frame used for filling histogram
         """

@@ -16,9 +16,7 @@ class LogTransformer(Module):
             datastore, self.input_key, dtype=np.ndarray
         )
         datastore[self.output_key] = np.log(input_array)
-        self.logger.info(
-            "{module_name} is calculated.".format(module_name=self.__class__.__name__)
-        )
+        self.logger.info(f"{self.__class__.__name__} is calculated.")
         return datastore
 
 
@@ -66,9 +64,7 @@ class WeightedSum(Module):
             datastore, self.weight_key, dtype=np.ndarray
         )
         datastore[self.output_key] = np.sum(input_array * weights)
-        self.logger.info(
-            "{module_name} is calculated.".format(module_name=self.__class__.__name__)
-        )
+        self.logger.info(f"{self.__class__.__name__} is calculated.")
         return datastore
 
 

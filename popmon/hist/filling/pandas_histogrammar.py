@@ -101,7 +101,7 @@ class PandasHistogrammar(HistogramFillerBase):
         :param df: input (pandas) data frame
         """
         if not isinstance(df, pd.DataFrame):
-            raise TypeError("retrieved object not of type {}".format(pd.DataFrame))
+            raise TypeError(f"retrieved object not of type {pd.DataFrame}")
         if df.shape[0] == 0:
             raise RuntimeError("data is empty")
         return df

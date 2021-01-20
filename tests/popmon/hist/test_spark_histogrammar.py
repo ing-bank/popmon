@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from os.path import abspath, dirname, join
 
 import pandas as pd
@@ -16,7 +13,6 @@ try:
     spark_found = True
 except (ModuleNotFoundError, AttributeError):
     spark_found = False
-    pass
 
 
 def get_spark():
@@ -26,13 +22,12 @@ def get_spark():
     current_path = dirname(abspath(__file__))
 
     hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.4.jar")
-
     hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.4.jar")
 
     spark = (
         SparkSession.builder.master("local")
         .appName("popmon-pytest")
-        .config("spark.jars", "{},{}".format(hist_spark_jar, hist_jar))
+        .config("spark.jars", f"{hist_spark_jar},{hist_jar}")
         .config("spark.sql.execution.arrow.enabled", "false")
         .config("spark.sql.session.timeZone", "GMT")
         .getOrCreate()
@@ -49,6 +44,7 @@ def spark_co():
     return spark
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -109,6 +105,7 @@ def test_get_histograms(spark_co):
     #     json.dump(current_hists["transaction"].toJson(), outfile, indent=4)
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -168,6 +165,7 @@ def test_get_histograms_module(spark_co):
     # assert current_hists['latitude:longitude'].toJson() == pytest.latitude_longitude
 
 
+@pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
@@ -194,6 +192,50 @@ def test_get_histograms_timestamp(spark_co):
     sdf = spark.createDataFrame(df).withColumn(
         "dt", to_timestamp("dt", "yyyy-MM-dd HH:mm:ss")
     )
+    expected = {
+        "data": {
+            "binWidth": 2592000000000000.0,
+            "bins": {"108": 9.0, "109": 1.0},
+            "bins:type": "Count",
+            "entries": 10.0,
+            "name": "b'dt'",
+            "nanflow": 0.0,
+            "nanflow:type": "Count",
+            "origin": 1.2625632e18,
+        },
+        "type": "SparselyBin",
+        "version": "1.0",
+    }
+    filler = SparkHistogrammar(features=["dt"])
+    current_hists = filler.get_histograms(sdf)
+    assert current_hists["dt"].toJson() == expected
+
+
+@pytest.mark.spark
+@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.filterwarnings(
+    "ignore:createDataFrame attempted Arrow optimization because"
+)
+def test_get_histograms_date(spark_co):
+    from pyspark.sql.functions import to_date
+
+    spark = spark_co
+
+    data_date = [
+        "2018-12-10",
+        "2018-12-10",
+        "2018-12-10",
+        "2018-12-10",
+        "2018-12-10",
+        "2018-12-17",
+        "2018-12-17",
+        "2018-12-17",
+        "2018-12-17",
+        "2018-12-19",
+    ]
+
+    df = pd.DataFrame(data_date, columns=["dt"])
+    sdf = spark.createDataFrame(df).withColumn("dt", to_date("dt", "yyyy-MM-dd"))
     expected = {
         "data": {
             "binWidth": 2592000000000000.0,

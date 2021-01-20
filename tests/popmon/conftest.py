@@ -50,7 +50,7 @@ def pytest_configure():
     pytest.test_ref_comparer_df = get_ref_comparer_data()
 
     parent_path = dirname(__file__)
-    TEMPLATE_PATH = "{parent}/hist/resource".format(parent=parent_path)
+    TEMPLATE_PATH = f"{parent_path}/hist/resource"
     CSV_FILE = "test.csv.gz"
 
     with open("{}/{}".format(TEMPLATE_PATH, "age.json")) as f:
