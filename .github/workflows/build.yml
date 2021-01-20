@@ -21,11 +21,11 @@ jobs:
         python-version: 3.6
     - name: Install Spark
       env:
-        BUILD_DIR: ${{ github.workspace }}
+        BUILD_DIR: ${{ github.home }}
         JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
         SPARK_VERSION: "2.4.7"
         HADOOP_VERSION: "2.7"
-        SPARK_HOME: ${{ github.workspace }}/spark/
+        SPARK_HOME: ${{ github.home }}/spark/
       run: |
         sudo apt-get -y install openjdk-8-jdk
         curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
