@@ -83,7 +83,6 @@ The notation 'num', 'low', 'high' gives a fixed range histogram from 'low' to 'h
 number of bins.
 
 
-
 Monitoring rules
 ----------------
 
@@ -195,7 +194,7 @@ Spark usage
 
 .. code-block:: python
 
-  import popmon
+    import popmon
 	from pyspark.sql import SparkSession
 
 	# downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
@@ -206,3 +205,36 @@ Spark usage
 
 	# generate the report
 	report = spark_df.pm_stability_report(time_axis='timestamp')
+
+
+Spark example on Google Colab
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This snippet contains the instructions for setting up a minimal environment for popmon on Google Colab as a reference.
+
+.. code-block:: console
+
+    !apt-get install openjdk-8-jdk-headless -qq > /dev/null
+    !wget -q https://www-us.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
+    !tar xf spark-2.4.7-bin-hadoop2.7.tgz
+    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/org/diana-hep/histogrammar-sparksql_2.11/1.0.4/histogrammar-sparksql_2.11-1.0.4.jar
+    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/org/diana-hep/histogrammar_2.11/1.0.4/histogrammar_2.11-1.0.4.jar
+    !pip install -q findspark popmon
+
+Now that spark is installed, restart the runtime.
+
+.. code-block:: python
+
+    import os
+    os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
+    os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
+
+    import findspark
+    findspark.init()
+
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.master("local[*]") \
+      .config("spark.jars", "/content/jars/histogrammar_2.11-1.0.4.jar,/content/jars/histogrammar-sparksql_2.11-1.0.4.jar") \
+      .config("spark.sql.execution.arrow.enabled", "false") \
+      .config("spark.sql.session.timeZone", "GMT") \
+      .getOrCreate()

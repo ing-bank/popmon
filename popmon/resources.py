@@ -28,10 +28,10 @@ from pkg_resources import resource_filename
 import popmon
 
 # data files that are shipped with popmon.
-_DATA = dict(
-    (_.name, _)
+_DATA = {
+    _.name: _
     for _ in pathlib.Path(resource_filename(popmon.__name__, "test_data")).glob("*")
-)
+}
 
 # Tutorial notebooks
 _NOTEBOOK = {

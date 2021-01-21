@@ -1,12 +1,5 @@
-ifeq ($(check),1)
-	CHECK_ARG= --check
-else
-	CHECK_ARG=
-endif
-
 lint:
-	isort $(CHECK_ARG) --profile black --project popmon --thirdparty histogrammar --thirdparty pybase64 .
-	black $(CHECK_ARG) .
+	pre-commit run --all-files
 
 install:
 	pip install -e .

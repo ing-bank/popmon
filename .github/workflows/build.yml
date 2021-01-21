@@ -24,16 +24,27 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .
         pip install -r requirements-test.txt
-    - name: Lint with flake8 and black
+    - name: Lint with pre-commit
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # check using isort and black
-        make lint check=1
+        make lint
     - name: Test with pytest
       run: |
-        pip install pytest
-        pytest
+        pytest -m "not spark"
+    - name: Install Spark
+      env:
+        BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
+        JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+        SPARK_VERSION: "2.4.7"
+        HADOOP_VERSION: "2.7"
+        SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
+      run: |
+        sudo apt-get -y install openjdk-8-jdk
+        curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
+        tar -xvzf ${BUILD_DIR}/spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
+        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==2.4.7
+    - name: Test with pytest (spark-specific)
+      run: |
+        pytest -m spark
 
   examples:
     runs-on: ubuntu-latest

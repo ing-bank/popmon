@@ -106,7 +106,7 @@ def metrics_self_reference(
             apply_funcs=[
                 dict(
                     func=rolling_lr_zscore,
-                    suffix="_trend{w}_zscore".format(w=window),
+                    suffix=f"_trend{window}_zscore",
                     entire=True,
                     window=window,
                     metrics=["mean", "phik", "fraction_true"],
@@ -227,7 +227,7 @@ def metrics_external_reference(
             apply_funcs=[
                 dict(
                     func=rolling_lr_zscore,
-                    suffix="_trend{w}_zscore".format(w=window),
+                    suffix=f"_trend{window}_zscore",
                     entire=True,
                     window=window,
                     metrics=["mean", "phik", "fraction_true"],
@@ -342,7 +342,7 @@ def metrics_rolling_reference(
             apply_funcs=[
                 dict(
                     func=rolling_lr_zscore,
-                    suffix="_trend{w}_zscore".format(w=window),
+                    suffix=f"_trend{window}_zscore",
                     entire=True,
                     window=window,
                     metrics=["mean", "phik", "fraction_true"],
@@ -456,7 +456,7 @@ def metrics_expanding_reference(
             apply_funcs=[
                 dict(
                     func=rolling_lr_zscore,
-                    suffix="_trend{w}_zscore".format(w=window),
+                    suffix=f"_trend{window}_zscore",
                     entire=True,
                     window=window,
                     metrics=["mean", "phik", "fraction_true"],

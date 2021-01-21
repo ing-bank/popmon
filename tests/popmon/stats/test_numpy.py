@@ -277,13 +277,13 @@ def test_probability_distribution_mean_covariance():
         cov = norm_cov
         variance = np.diagonal(cov)
 
-        try:
+        if np.linalg.cond(cov) < 0.1 / np.finfo(cov.dtype).eps:
             # We try to use the precision matrix (inverse covariance matrix) for the chi-squared calculation
             pm = linalg.inv(cov)
             chi_squared = np.dot(
                 (norm_mean - single_norm), np.dot(pm, (norm_mean - single_norm))
             )
-        except linalg.LinAlgError:
+        else:
             # If a covariance matrix is singular we fall back on using variances
             chi_squared = np.sum(
                 (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)

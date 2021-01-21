@@ -34,9 +34,7 @@ def check_column(col, sep=":"):
     if isinstance(col, str):
         col = col.split(sep)
     elif not isinstance(col, list):
-        raise TypeError(
-            'Columns "{}" needs to be a string or list of strings'.format(col)
-        )
+        raise TypeError(f'Columns "{col}" needs to be a string or list of strings')
     return col
 
 
@@ -54,7 +52,7 @@ def check_dtype(dtype):
         if dtype in {np.str_, np.string_, np.object_}:
             dtype = np.dtype(str).type
     except BaseException:
-        raise RuntimeError('unknown assigned datatype "{}"'.format(dtype))
+        raise RuntimeError(f'unknown assigned datatype "{dtype}"')
     return dtype
 
 

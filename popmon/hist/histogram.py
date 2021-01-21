@@ -163,7 +163,7 @@ def project_split2dhist_on_axis(splitdict, axis="x"):
             "splitdict: {wt}, type should be a dictionary.".format(wt=type(splitdict))
         )
     if axis not in ["x", "y"]:
-        raise ValueError("axis: {axis}, can only be x or y.".format(axis=axis))
+        raise ValueError(f"axis: {axis}, can only be x or y.")
 
     hdict = dict()
 
@@ -217,9 +217,9 @@ class HistogramContainer:
         if convert_time_index and self.is_ts:
             axis_name = pd.Timestamp(axis_name)
         if not short_keys:
-            axis_name = "{name}={binlabel}".format(name=xname, binlabel=axis_name)
+            axis_name = f"{xname}={axis_name}"
             if self.n_dim >= 2:
-                axis_name = "{name}[{slice}]".format(name=yname, slice=axis_name)
+                axis_name = f"{yname}[{axis_name}]"
         return axis_name
 
     def sparse_bin_centers_x(self):
