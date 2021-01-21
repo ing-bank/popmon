@@ -2,9 +2,60 @@
 Release notes
 =============
 
+Version 0.3.12, Jan 2021
+------------------------
+* Add proper check of matrix invertibility of covariance matrix in stats/numpy.py
+* Add support for the Spark ``date`` type
+* Install Spark on Github Actions to be able to include spark tests in our CI/CD pipeline
+* Upgrade linting to use ``pre-commit`` (including ``pyupgrade`` for ``python3.6`` syntax upgrades)
+* Add documentation on how to run popmon using ``spark`` on ``Google Colab`` (minimal example from scratch)
+
+Version 0.3.11, Dec 2020
+------------------------
+Features:
+
+* Traffic light overview (#62)
+
+Documentation:
+
+* Downloads badge readme
+* List talks and articles in readme (#66)
+* Add image to ``README.rst`` (#64)
+
+Other improvements:
+
+* Change notebook testing to pytest-notebook (previously these tests were skipped in CI). Add try-except ImportError for pyspark code. (#67)
+* Fix a few typo's
+* Suppress ``matplotlib backend`` verbose warning
+* Click on "popmon report" also scrolls to top
+* Update HTML reports using ``Github Actions`` (#63)
+* Bugfix in ``hist.py`` that broke the advanced tutorial.
+
+Notebooks:
+
+* Add ``%%capture`` to pip install inside of notebooks.
+* Make package install in notebooks work with paths with spaces.
+* ``Pickle`` doesn't work with tests (not really a popmon-specific feature anyway). Changed the notebook to fix the issue, left the code for reference.
+
+Version 0.3.10, Oct 2020
+------------------------
+* Traffic light overview
+* Add image to ``README.rst``
+* Add building of examples to Github Actions CI
+* Format notebooks (``nbqa``)
+* Remove ``matplotlib backend`` warning
+* Fix navigation in title of report
+
+Version 0.3.9, Sep 2020
+------------------------
+* Fix: refactorize Bin creation and fix scipy version for pytestDevelop
+* Fix: dataset links in tutorial
+* Lint: isort 5, latest black version
+* Internal: simplification of weighted mean/std computation
+
 Version 0.3.8, July 2020
 ------------------------
-* Fixing automated `PyPi` deployment.
+* Fixing automated ``PyPi`` deployment.
 * Removing enabling of unnecessary notebook extensions.
 
 Version 0.3.7, July 2020
