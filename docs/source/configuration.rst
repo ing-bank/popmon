@@ -12,28 +12,28 @@ Reference types
 When generating a report from a DataFrame, the reference type can be set with the option ``reference_type``,
 in four different ways:
 
-1. Using the DataFrame on which the stability report is built as a self-reference. (This is the default setting.)
+1. Using the DataFrame on which the stability report is built as a self-reference. This reference method is static: each time slot is compared to all the previous slots in the DataFrame (all included in one distribution). This is the default reference setting.
 
     .. code-block:: python
 
       # generate stability report with specific monitoring rules
       report = df.pm_stability_report(reference_type="self")
 
-2. Using an external reference DataFrame or set of histograms:
+2. Using an external reference DataFrame or set of histograms. This is also a static method: each time slot is compared to all the time slots in the reference data.
 
     .. code-block:: python
 
       # generate stability report with specific monitoring rules
       report = df.pm_stability_report(reference_type="external", reference=reference)
 
-3. Using a rolling window as reference, by default the 10 preceding time slots:
+3. Using a rolling window within the same DataFrame as reference. This method is dynamic: we can set the size of the window and the shift from the current time slot. By default the 10 preceding time slots are used as reference (shift=1, window_size=10).
 
     .. code-block:: python
 
       # generate stability report with specific monitoring rules
       report = df.pm_stability_report(reference_type="rolling", window=10, shift=1)
 
-4. Using an expanding window of all preceding time slots:
+4. Using an expanding window on all preceding time slots within the same DataFrame. This is also a dynamic method, with variable window size. All the available previous time slots are used. For example, if we have 2 time slots available and shift=1, window size will be 1 (so the previous slot is the reference), while if we have 10 time slots and shift=1, window size will be 9 (and all previous time slots are reference).
 
     .. code-block:: python
 
@@ -53,7 +53,7 @@ To specify the time-axis binning alone, do:
 
   report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
 
-All other features (except for 'date') are auto-binned in this example.
+The default time width is 4 weeks ('4w'). All other features (except for 'date') are auto-binned in this example.
 
 To specify your own binning specifications for individual features or combinations of features, do:
 
@@ -195,16 +195,16 @@ Spark usage
 .. code-block:: python
 
     import popmon
-	from pyspark.sql import SparkSession
+    from pyspark.sql import SparkSession
 
-	# downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
-	spark = SparkSession.builder.config('spark.jars.packages','io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11').getOrCreate()
+    # downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
+    spark = SparkSession.builder.config('spark.jars.packages','io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11').getOrCreate()
 
-	# load a dataframe
-	spark_df = spark.read.format('csv').options(header='true').load('file.csv')
+    # load a dataframe
+    spark_df = spark.read.format('csv').options(header='true').load('file.csv')
 
-	# generate the report
-	report = spark_df.pm_stability_report(time_axis='timestamp')
+    # generate the report
+    report = spark_df.pm_stability_report(time_axis='timestamp')
 
 
 Spark example on Google Colab
