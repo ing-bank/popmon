@@ -198,7 +198,7 @@ Spark usage
 	from pyspark.sql import SparkSession
 
 	# downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
-	spark = SparkSession.builder.config('spark.jars.packages','org.diana-hep:histogrammar-sparksql_2.11:1.0.4').getOrCreate()
+	spark = SparkSession.builder.config('spark.jars.packages','io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11').getOrCreate()
 
 	# load a dataframe
 	spark_df = spark.read.format('csv').options(header='true').load('file.csv')
@@ -216,8 +216,8 @@ This snippet contains the instructions for setting up a minimal environment for 
     !apt-get install openjdk-8-jdk-headless -qq > /dev/null
     !wget -q https://www-us.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
     !tar xf spark-2.4.7-bin-hadoop2.7.tgz
-    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/org/diana-hep/histogrammar-sparksql_2.11/1.0.4/histogrammar-sparksql_2.11-1.0.4.jar
-    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/org/diana-hep/histogrammar_2.11/1.0.4/histogrammar_2.11-1.0.4.jar
+    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/io/github/histogrammar/histogrammar-sparksql_2.12/1.0.11/histogrammar-sparksql_2.12-1.0.11.jar
+    !wget -P /content/spark-2.4.7-bin-hadoop2.7/jars/ -q https://repo1.maven.org/maven2/io/github/histogrammar/histogrammar_2.12/1.0.11/histogrammar_2.12-1.0.11.jar
     !pip install -q findspark popmon
 
 Now that spark is installed, restart the runtime.
@@ -234,7 +234,7 @@ Now that spark is installed, restart the runtime.
     from pyspark.sql import SparkSession
 
     spark = SparkSession.builder.master("local[*]") \
-      .config("spark.jars", "/content/jars/histogrammar_2.11-1.0.4.jar,/content/jars/histogrammar-sparksql_2.11-1.0.4.jar") \
+      .config("spark.jars", "/content/jars/histogrammar_2.12-1.0.11.jar,/content/jars/histogrammar-sparksql_2.12-1.0.11.jar") \
       .config("spark.sql.execution.arrow.enabled", "false") \
       .config("spark.sql.session.timeZone", "GMT") \
       .getOrCreate()
