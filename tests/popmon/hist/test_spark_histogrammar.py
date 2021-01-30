@@ -21,8 +21,8 @@ def get_spark():
 
     current_path = dirname(abspath(__file__))
 
-    hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.4.jar")
-    hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.4.jar")
+    hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.11.jar")
+    hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.11.jar")
 
     spark = (
         SparkSession.builder.master("local")
