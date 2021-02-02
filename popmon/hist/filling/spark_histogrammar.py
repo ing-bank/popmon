@@ -7,7 +7,6 @@ All modifications copyright ING WBAA.
 """
 
 import histogrammar as hg
-import histogrammar.sparksql
 import numpy as np
 from tqdm import tqdm
 
@@ -189,8 +188,6 @@ class SparkHistogrammar(HistogramFillerBase):
             to_ns = sparkcol(col).cast("timestamp").cast("float") * 1e9
             idf = idf.withColumn(col, to_ns)
 
-        hg.sparksql.addMethods(idf)
-
         return idf
 
     def construct_empty_hist(self, df, features):
@@ -218,9 +215,6 @@ class SparkHistogrammar(HistogramFillerBase):
 
             hist = self.get_hist_bin(hist, features, quant, col, dt)
 
-        # set data types in histogram
-        dta = [self.var_dtype[col] for col in features]
-        hist.datatype = dta[0] if len(features) == 1 else dta
         return hist
 
     def fill_histograms(self, idf):
