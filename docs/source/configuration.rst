@@ -57,7 +57,7 @@ To specify the time-axis binning alone, do:
 
   report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
 
-The default time width is 30 days ('30d'), with time offset 2014-1-4 (a Monday).
+The default time width is 30 days ('30d'), with time offset 2010-1-4 (a Monday).
 All other features (except for 'date') are auto-binned in this example.
 
 To specify your own binning specifications for individual features or combinations of features, do:
