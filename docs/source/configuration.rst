@@ -12,7 +12,7 @@ Reference types
 When generating a report from a DataFrame, the reference type can be set with the option ``reference_type``,
 in four different ways:
 
-1. Using the DataFrame on which the stability report is built as a self-reference. This reference method is static: each time slot is compared to all the previous slots in the DataFrame (all included in one distribution). This is the default reference setting.
+1. Using the DataFrame on which the stability report is built as a self-reference. This reference method is static: each time slot is compared to all the slots in the DataFrame (all included in one distribution). This is the default reference setting.
 
     .. code-block:: python
 
@@ -40,6 +40,10 @@ in four different ways:
       # generate stability report with specific monitoring rules
       report = df.pm_stability_report(reference_type="expanding", shift=1)
 
+Note that, by default, popmon also performs a rolling comparison of the histograms in each time period with those in the
+previous time period. The results of these comparisons contain the term "prev1", and are found in the comparisons section
+of a report.
+
 
 Binning specifications
 ----------------------
@@ -53,7 +57,8 @@ To specify the time-axis binning alone, do:
 
   report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
 
-The default time width is 4 weeks ('4w'). All other features (except for 'date') are auto-binned in this example.
+The default time width is 30 days ('30d'), with time offset 2010-1-4 (a Monday).
+All other features (except for 'date') are auto-binned in this example.
 
 To specify your own binning specifications for individual features or combinations of features, do:
 
