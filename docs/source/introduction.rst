@@ -29,7 +29,7 @@ We define the normalized residual of a value of interest with respect to the sel
 
 This quantity is known as the "pull" of the value. The pull is calculated for every profile
 of every feature. The size of the pull is used in `popmon`
-to flag any significant differences over time with respect to the reference.
+to flag any significant differences over time with respect to the reference. Note that you need to have at least two time slots in the reference in order to calculate the pull. 
 
 We use traffic lights to indicate where large deviations from the reference occur.
 To see how these work, consider the following example.

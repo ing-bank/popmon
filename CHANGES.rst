@@ -2,6 +2,12 @@
 Release notes
 =============
 
+Version 0.3.13, Feb 2021
+------------------------
+* ``Spark 3.0`` support (``histogrammar`` update) (#87)
+* Improved documentation
+* Few minor package improvements
+
 Version 0.3.12, Jan 2021
 ------------------------
 * Add proper check of matrix invertibility of covariance matrix in stats/numpy.py

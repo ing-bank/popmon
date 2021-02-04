@@ -19,10 +19,27 @@ using monitoring business rules.
 
 |example|
 
+Announcements
+=============
+
+Spark 3.0
+---------
+
+With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogrammar` jar file:
+
+.. code-block:: python
+
+  spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11").getOrCreate()
+
+For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
+
+`January 29, 2021`
+
 Documentation
 =============
 
 The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
+
 
 Examples
 ========
