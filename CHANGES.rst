@@ -2,6 +2,11 @@
 Release notes
 =============
 
+
+Version 0.3.14, Feb 2021
+------------------------
+* Pin ``histogrammar`` version for backwards compatibility
+
 Version 0.3.13, Feb 2021
 ------------------------
 * ``Spark 3.0`` support (``histogrammar`` update) (#87)
