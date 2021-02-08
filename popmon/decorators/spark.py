@@ -18,7 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from popmon.hist.filling import make_histograms
+from histogrammar.dfinterface.make_histograms import make_histograms
+
 from popmon.pipeline.metrics import df_stability_metrics
 from popmon.pipeline.report import df_stability_report
 

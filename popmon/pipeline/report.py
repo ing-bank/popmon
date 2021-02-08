@@ -21,10 +21,14 @@
 import logging
 
 import pandas as pd
+from histogrammar.dfinterface.make_histograms import (
+    get_bin_specs,
+    get_time_axes,
+    make_histograms,
+)
 
 from ..base import Module
 from ..config import config
-from ..hist.filling.make_histograms import get_bin_specs, get_time_axes, make_histograms
 from ..pipeline.report_pipelines import (
     ReportPipe,
     expanding_reference,

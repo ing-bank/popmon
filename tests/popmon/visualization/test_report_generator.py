@@ -53,5 +53,5 @@ def test_report_generator():
     assert "final_report" in datastore
     assert (
         isinstance(datastore["final_report"], str)
-        and len(datastore["final_report"]) > 0
+        and len(datastore["final_report"]) > 0  # noqa: W503
     )

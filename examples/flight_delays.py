@@ -1,3 +1,4 @@
+# flake8: noqa
 import pandas as pd
 
 import popmon

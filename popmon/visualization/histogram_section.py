@@ -21,6 +21,7 @@
 import multiprocessing
 
 import pandas as pd
+from histogrammar.util import get_hist_props
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
@@ -31,7 +32,6 @@ from ..analysis.hist_numpy import (
 )
 from ..base import Module
 from ..config import get_stat_description
-from ..hist.histogram import get_hist_props
 from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 

@@ -17,22 +17,22 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# MB 20210323: histogrammming code hade been moved to histogrammar v1.0.20+
+#              these imports are kept for backwards compatibility.
 
-from ...hist.filling.make_histograms import (
+from histogrammar.dfinterface.make_histograms import (
     get_bin_specs,
     get_one_time_axis,
     get_time_axes,
     has_one_time_axis,
     make_histograms,
 )
-from ...hist.filling.numpy_histogrammar import NumpyHistogrammar
-from ...hist.filling.pandas_histogrammar import PandasHistogrammar
-from ...hist.filling.spark_histogrammar import SparkHistogrammar
+from histogrammar.dfinterface.pandas_histogrammar import PandasHistogrammar
+from histogrammar.dfinterface.spark_histogrammar import SparkHistogrammar
 
 __all__ = [
     "PandasHistogrammar",
     "SparkHistogrammar",
-    "NumpyHistogrammar",
     "make_histograms",
     "get_time_axes",
     "get_one_time_axis",

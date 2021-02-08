@@ -26,7 +26,7 @@ from popmon.stats import numpy as pm_np
 
 from ...analysis.hist_numpy import get_2dgrid
 from ...base import Module
-from ...hist.histogram import sum_entries
+from ...hist.hist_utils import get_bin_centers, is_numeric, is_timestamp, sum_entries
 
 DEFAULT_STATS = {
     "mean": pm_np.mean,
@@ -97,12 +97,12 @@ class HistProfiler(Module):
                 f"No stats function dict is provided. {self.stats_functions.keys()} is set as default"
             )
 
-    def _profile_1d_histogram(self, name, hc):
-        is_num = hc.is_num
-        is_ts = hc.is_ts or name in self.var_timestamp
+    def _profile_1d_histogram(self, name, hist):
+        is_num = is_numeric(hist)
+        is_ts = is_timestamp(hist) or name in self.var_timestamp
 
-        bin_labels = np.array(hc.get_bin_centers()[0])
-        bin_counts = np.array([v.entries for v in hc.get_bin_centers()[1]])
+        bin_labels = np.array(get_bin_centers(hist)[0])
+        bin_counts = np.array([v.entries for v in get_bin_centers(hist)[1]])
 
         if len(bin_counts) == 0:
             self.logger.warning(f'Histogram "{name}" is empty; skipping.')
@@ -114,12 +114,10 @@ class HistProfiler(Module):
 
         profile = dict()
         profile["filled"] = bin_counts.sum()
-        profile["nan"] = hc.hist.nanflow.entries if hasattr(hc.hist, "nanflow") else 0
-        profile["overflow"] = (
-            hc.hist.overflow.entries if hasattr(hc.hist, "overflow") else 0
-        )
+        profile["nan"] = hist.nanflow.entries if hasattr(hist, "nanflow") else 0
+        profile["overflow"] = hist.overflow.entries if hasattr(hist, "overflow") else 0
         profile["underflow"] = (
-            hc.hist.underflow.entries if hasattr(hc.hist, "underflow") else 0
+            hist.underflow.entries if hasattr(hist, "underflow") else 0
         )
         profile["count"] = profile["filled"] + profile["nan"]
         profile["distinct"] = len(np.unique(bin_labels))
@@ -147,19 +145,19 @@ class HistProfiler(Module):
 
         return profile
 
-    def _profile_2d_histogram(self, name, hc):
-        if hc.n_dim < 2:
+    def _profile_2d_histogram(self, name, hist):
+        if hist.n_dim < 2:
             self.logger.warning(
-                f"Histogram {name} has {hc.n_dim} dimensions (<2); cannot profile. Returning empty."
+                f"Histogram {name} has {hist.n_dim} dimensions (<2); cannot profile. Returning empty."
             )
             return []
         try:
-            grid = get_2dgrid(hc.hist)
+            grid = get_2dgrid(hist)
         except Exception as e:
             raise e
 
         # calc some basic 2d-histogram statistics
-        sume = int(sum_entries(hc.hist))
+        sume = int(sum_entries(hist))
 
         # calculate phik correlation
         try:
@@ -180,7 +178,7 @@ class HistProfiler(Module):
 
         hist0 = split[0][self.hist_col]
         dimension = hist0.n_dim
-        is_num = hist0.is_num
+        is_num = is_numeric(hist0)
 
         # these are the profiled quantities we will monitor
         fields = []
@@ -197,14 +195,14 @@ class HistProfiler(Module):
         # now loop over split-axis, e.g. time index, and profile each sub-hist x:y
         profile_list = []
         for hist_dict in split:
-            index, hc = hist_dict[self.index_col], hist_dict[self.hist_col]
+            index, hist = hist_dict[self.index_col], hist_dict[self.hist_col]
 
-            profile = {self.index_col: index, self.hist_col: hc}
+            profile = {self.index_col: index, self.hist_col: hist}
 
             if dimension == 1:
-                profile.update(self._profile_1d_histogram(hist_name, hc))
+                profile.update(self._profile_1d_histogram(hist_name, hist))
             elif dimension == 2:
-                profile.update(self._profile_2d_histogram(hist_name, hc))
+                profile.update(self._profile_2d_histogram(hist_name, hist))
 
             if sorted(profile.keys()) != sorted(
                 fields + [self.index_col, self.hist_col]
@@ -228,10 +226,10 @@ class HistProfiler(Module):
 
         for feature in features[:]:
             df = self.get_datastore_object(data, feature, dtype=pd.DataFrame)
-            hc_split_list = df.reset_index().to_dict("records")
+            hist_split_list = df.reset_index().to_dict("records")
 
             self.logger.debug(f'Profiling histogram "{feature}".')
-            profile_list = self._profile_hist(split=hc_split_list, hist_name=feature)
+            profile_list = self._profile_hist(split=hist_split_list, hist_name=feature)
             if len(profile_list) > 0:
                 profiled[feature] = pd.DataFrame(profile_list).set_index(
                     [self.index_col]

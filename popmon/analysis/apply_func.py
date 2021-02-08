@@ -283,9 +283,9 @@ def apply_func(feature, selected_metrics, df, arr):
 
     if (
         "entire" in arr
-        and arr["entire"] is not None
-        and arr["entire"] is not False
-        and arr["entire"] != 0
+        and arr["entire"] is not None  # noqa: W503
+        and arr["entire"] is not False  # noqa: W503
+        and arr["entire"] != 0  # noqa: W503
     ):
         obj = func(df, *args, **kwargs)
     else:
@@ -302,48 +302,48 @@ def apply_func(feature, selected_metrics, df, arr):
         obj = {"_".join(df.columns): obj}
     elif (
         isinstance(obj, (list, tuple, np.ndarray))
-        and isinstance(df, pd.DataFrame)
-        and len(df.columns) == len(obj)
+        and isinstance(df, pd.DataFrame)  # noqa: W503
+        and len(df.columns) == len(obj)  # noqa: W503
     ):
         obj = {c: o for c, o in zip(df.columns, obj)}
     elif (
         isinstance(obj, (list, tuple, np.ndarray))
-        and isinstance(df, pd.Series)
-        and len(df.index) == len(obj)
+        and isinstance(df, pd.Series)  # noqa: W503
+        and len(df.index) == len(obj)  # noqa: W503
     ):
         obj = {df.name: pd.Series(data=obj, index=df.index)}
     elif (
         isinstance(obj, (list, tuple, np.ndarray))
-        and isinstance(df, pd.DataFrame)
-        and len(df.index) == len(obj)
+        and isinstance(df, pd.DataFrame)  # noqa: W503
+        and len(df.index) == len(obj)  # noqa: W503
     ):
         obj = {"_".join(df.columns): pd.Series(data=obj, index=df.index)}
     elif (
         isinstance(obj, pd.Series)
-        and isinstance(df, pd.Series)
-        and len(obj) == len(df)
-        and all(obj.index == df.index)
+        and isinstance(df, pd.Series)  # noqa: W503
+        and len(obj) == len(df)  # noqa: W503
+        and all(obj.index == df.index)  # noqa: W503
     ):
         obj = {df.name: obj}
     elif (
         isinstance(obj, pd.Series)
-        and isinstance(df, pd.DataFrame)
-        and len(obj) == len(df)
-        and all(obj.index == df.index)
+        and isinstance(df, pd.DataFrame)  # noqa: W503
+        and len(obj) == len(df)  # noqa: W503
+        and all(obj.index == df.index)  # noqa: W503
     ):
         obj = {"_".join(df.columns): obj}
     elif (
         isinstance(obj, pd.DataFrame)
-        and len(obj.columns) == 1
-        and len(obj.index) != len(df.index)
+        and len(obj.columns) == 1  # noqa: W503
+        and len(obj.index) != len(df.index)  # noqa: W503
     ):
         # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
         obj = obj[obj.columns[0]].to_dict()
     elif (
         isinstance(obj, pd.DataFrame)
-        and len(obj.columns) == 1
-        and len(obj.index) == len(df.index)
-        and (obj.index != df.index).any()
+        and len(obj.columns) == 1  # noqa: W503
+        and len(obj.index) == len(df.index)  # noqa: W503
+        and (obj.index != df.index).any()  # noqa: W503
     ):
         # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
         obj = obj[obj.columns[0]].to_dict()
