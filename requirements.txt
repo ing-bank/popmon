@@ -1,7 +1,7 @@
 numpy>=1.18.0
 pandas>=0.25.1
 scipy>=1.5.2
-histogrammar>=1.0.12
+histogrammar==1.0.12
 phik
 jinja2
 tqdm
