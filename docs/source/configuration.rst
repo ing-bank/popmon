@@ -203,7 +203,7 @@ Spark usage
     from pyspark.sql import SparkSession
 
     # downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
-    spark = SparkSession.builder.config('spark.jars.packages','io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11').getOrCreate()
+    spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.11,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11").getOrCreate()
 
     # load a dataframe
     spark_df = spark.read.format('csv').options(header='true').load('file.csv')
