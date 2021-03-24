@@ -25,7 +25,6 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-# flake8: noqa
 # pandas/spark dataframe decorators
 from popmon import decorators
 
