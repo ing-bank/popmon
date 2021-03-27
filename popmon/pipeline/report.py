@@ -315,11 +315,11 @@ def df_stability_report(
             time_axis = time_axes[0]
             logger.info(f'Time-axis automatically set to "{time_axis}"')
         elif num == 0:
-            raise RuntimeError(
+            raise ValueError(
                 "No obvious time-axes found. Cannot generate stability report."
             )
         else:
-            raise RuntimeError(
+            raise ValueError(
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
     if features is not None:
@@ -336,12 +336,13 @@ def df_stability_report(
     if isinstance(time_width, (str, int, float)) and isinstance(
         time_offset, (str, int, float)
     ):
-        if not isinstance(bin_specs, (type(None), dict)):
-            raise RuntimeError("bin_specs object is not a dictionary")
         if bin_specs is None:
             bin_specs = {}
+        elif not isinstance(bin_specs, dict):
+            raise ValueError("bin_specs object is not a dictionary")
+
         if time_axis in bin_specs:
-            raise RuntimeError(
+            raise ValueError(
                 f'time-axis "{time_axis}" already found in binning specifications.'
             )
         # convert time width and offset to nanoseconds

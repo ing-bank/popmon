@@ -82,7 +82,7 @@ class HistSplitter(Module):
         self.filter_empty_split_hists = filter_empty_split_hists
 
         if self.flatten_output and self.short_keys:
-            raise RuntimeError(
+            raise ValueError(
                 "flatten_output requires short_keys attribute to be False."
             )
 

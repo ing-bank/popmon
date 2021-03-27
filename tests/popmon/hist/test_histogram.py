@@ -61,12 +61,12 @@ def test_histogrammar():
 def test_histogram_attributes():
     hist1, hist2, hist3 = get_histograms()
 
-    assert is_numeric(hist1) is False
-    assert is_timestamp(hist1) is False
-    assert is_numeric(hist2) is True
-    assert is_timestamp(hist2) is False
-    assert is_numeric(hist3) is True
-    assert is_timestamp(hist3) is True
+    assert not is_numeric(hist1)
+    assert not is_timestamp(hist1)
+    assert is_numeric(hist2)
+    assert not is_timestamp(hist2)
+    assert is_numeric(hist3)
+    assert is_timestamp(hist3)
 
 
 def test_sparse_bin_centers_x():

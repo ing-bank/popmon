@@ -143,7 +143,7 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     """
     # basic checks
     if len(hc_list) != len(hist_names):
-        raise RuntimeError(
+        raise ValueError(
             "histogram list and histograms names should have equal length."
         )
     # filter out Nones (e.g. can happen with empty rolling hist)

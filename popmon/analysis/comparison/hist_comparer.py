@@ -78,7 +78,7 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         hist_name1 = cols[0]
         hist_name2 = cols[1]
     if not all([name in cols for name in [hist_name1, hist_name2]]):
-        raise RuntimeError("Need to provide two histogram column names.")
+        raise ValueError("Need to provide two histogram column names.")
 
     # basic histogram checks
     hist1 = row[hist_name1]

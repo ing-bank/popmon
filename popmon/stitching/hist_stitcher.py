@@ -217,14 +217,14 @@ class HistStitcher(Module):
                     hists_basis, features_basis, time_axis, len(hists_delta)
                 )
                 if time_bin_idx is None:
-                    raise RuntimeError(
+                    raise ValueError(
                         "Request to insert delta hists but time_bin_idx not set. Please do."
                     )
                 self.logger.info(
                     f'Inserting delta histograms in axis "{time_axis}" at bin indices {time_bin_idx}.'
                 )
             if len(hists_delta) != len(time_bin_idx):
-                raise RuntimeError(
+                raise ValueError(
                     "Not enough time_bin_idxs set to insert delta histograms."
                 )
             for key in list(delta_keys):
@@ -327,7 +327,7 @@ class HistStitcher(Module):
         """
         # basic checks on time-values
         if len(hdelta_list) != len(time_bin_idx) or len(hdelta_list) == 0:
-            raise RuntimeError(
+            raise ValueError(
                 "hdelta_list and time_bin_idx should be filled and same size."
             )
         dts = [type(tv) for tv in time_bin_idx]
@@ -338,7 +338,7 @@ class HistStitcher(Module):
 
         # consistency checks on histogram definitions
         if not hasattr(hbasis, "bins"):
-            raise RuntimeError(
+            raise ValueError(
                 "basis histogram does not have bins attribute. cannot insert."
             )
         if len(hbasis.bins) > 0:
@@ -412,7 +412,7 @@ class HistStitcher(Module):
         """
         # --- basic checks
         if len(hist_list) == 0:
-            raise RuntimeError("Input histogram list has zero length.")
+            raise ValueError("Input histogram list has zero length.")
         assert_similar_hists(hist_list)
 
         # --- loop over all histograms and update zeroed-original consecutively

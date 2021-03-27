@@ -54,20 +54,19 @@ def sum_entries(hist, default=True):
             return entries
 
     # double check number of entries, sometimes not well set
-    sume = 0
     if hasattr(hist, "bins"):
         # loop over all counters and integrate over y (=j)
-        for i in hist.bins:
-            bi = hist.bins[i]
-            sume += sum_entries(bi)
+        return sum([sum_entries(bi) for bi in hist.bins])
     elif hasattr(hist, "values"):
         # loop over all counters and integrate over y (=j)
-        for i, bi in enumerate(hist.values):
-            sume += sum_entries(bi)
+        return sum([sum_entries(bi) for bi in hist.values])
     elif hasattr(hist, "entries"):
         # only count histogrammar.Count() objects
-        sume += hist.entries
-    return sume
+        return hist.entries
+    else:
+        raise TypeError(
+            "histogram should have attribute 'bins', 'values' or 'entries'."
+        )
 
 
 def project_on_x(hist):
@@ -107,7 +106,7 @@ def project_on_x(hist):
     elif isinstance(hist, histogrammar.Categorize):
         h_x = histogrammar.Categorize(quantity=hist.quantity)
     else:
-        raise RuntimeError("unknown historgram type. cannot get zero copy.")
+        raise TypeError("Unknown histogram type. cannot get zero copy.")
 
     if hasattr(hist, "bins"):
         for key, bi in hist.bins.items():
@@ -177,11 +176,10 @@ def project_split2dhist_on_axis(splitdict, axis="x"):
     if axis not in ["x", "y"]:
         raise ValueError(f"axis: {axis}, can only be x or y.")
 
-    hdict = dict()
-
-    for key, hxy in splitdict.items():
-        h = project_on_x(hxy) if axis == "x" else sum_over_x(hxy)
-        hdict[key] = h
+    hdict = {
+        key: project_on_x(hxy) if axis == "x" else sum_over_x(hxy)
+        for key, hxy in splitdict.items()
+    }
 
     return hdict
 
@@ -260,7 +258,7 @@ def split_hist_along_first_dimension(
     :returns: sorted dictionary of sub-histograms, with as keys the x-axis name and bin-number
     :rtype: SortedDict
     """
-    hdict = dict()
+    hdict = {}
 
     # nothing special to do
     if hist.n_dim == 0:

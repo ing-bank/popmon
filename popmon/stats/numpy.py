@@ -216,9 +216,9 @@ def uu_chi2(n, m, verbose=False):
     :return: tuple of floats (chi2_value, chi2_norm, z_score, p_value, res)
     """
     if len(n) == 0 or len(m) == 0:
-        raise RuntimeError("Input histogram(s) has zero size.")
+        raise ValueError("Input histogram(s) has zero size.")
     if len(n) != len(m):
-        raise RuntimeError("Input histograms have unequal size.")
+        raise ValueError("Input histograms have unequal size.")
 
     N = np.sum(n)
     M = np.sum(m)
@@ -271,9 +271,9 @@ def ks_test(hist_1, hist_2):
     :rtype: float
     """
     if len(hist_1) == 0 or len(hist_2) == 0:
-        raise RuntimeError("Input histogram(s) has zero size.")
+        raise ValueError("Input histogram(s) has zero size.")
     if len(hist_1) != len(hist_2):
-        raise RuntimeError("Input histograms have unequal size.")
+        raise ValueError("Input histograms have unequal size.")
 
     sum_1 = np.sum(hist_1)
     sum_2 = np.sum(hist_2)
@@ -350,13 +350,13 @@ def probability_distribution_mean_covariance(entries_list):
     :return: mean normalized histogram, covariance probability matrix
     """
     if len(entries_list) == 0:
-        raise RuntimeError("List of input histogram entries is empty.")
+        raise ValueError("List of input histogram entries is empty.")
 
     entries_list = np.atleast_2d(entries_list)
     n_histos = entries_list.shape[0]
 
     if n_histos == 1:
-        # catch potential empty histgram
+        # catch potential empty histogram
         if np.sum(entries_list[0]) == 0:
             return entries_list[0], None
         norm_hist_mean = entries_list[0] / np.sum(entries_list[0])

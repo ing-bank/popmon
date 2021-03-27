@@ -188,7 +188,7 @@ def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
     """
     # --- basic checks
     if len(hist_list) == 0:
-        raise RuntimeError("Input histogram list has zero length.")
+        raise ValueError("Input histogram list has zero length.")
     assert_similar_hists(hist_list)
 
     low_arr = [hist.low for hist in hist_list if hist.low is not None]
@@ -234,7 +234,7 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     """
     # --- basic checks
     if len(hist_list) == 0:
-        raise RuntimeError("Input histogram list has zero length.")
+        raise ValueError("Input histogram list has zero length.")
     assert_similar_hists(hist_list)
 
     # datatype check

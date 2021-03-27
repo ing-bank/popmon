@@ -324,7 +324,7 @@ def hist_sum(x, hist_name=""):
             hist_name = "histogram"
 
     if len(hist_list) == 0:
-        raise RuntimeError("List of input histograms is empty.")
+        raise ValueError("List of input histograms is empty.")
 
     # initialize
     o = pd.Series()
@@ -400,7 +400,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
             hist_name = "histogram"
 
     if len(hist_list) == 0:
-        raise RuntimeError("List of input histograms is empty.")
+        raise ValueError("List of input histograms is empty.")
 
     # initialize
     o = pd.Series()
