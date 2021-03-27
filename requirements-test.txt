@@ -1,4 +1,5 @@
 pytest>=4.0.2
+git+https://github.com/sbrugman/pluggy.git@patch-1
 pytest-notebook>=0.6.1
 jupyter_client>=5.2.3
 ipykernel>=5.1.3
