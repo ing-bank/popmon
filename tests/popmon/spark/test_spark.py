@@ -14,7 +14,8 @@ except (ModuleNotFoundError, AttributeError):
     spark_found = False
 
 
-def get_spark():
+@pytest.fixture
+def spark_context():
     if not spark_found:
         return None
 
@@ -34,24 +35,13 @@ def get_spark():
     return spark
 
 
-@pytest.fixture
-def spark_co():
-    """
-    :return: Spark configuration
-    """
-    spark = get_spark()
-    return spark
-
-
 @pytest.mark.spark
 @pytest.mark.skipif(not spark_found, reason="spark not found")
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
 )
-def test_spark_stability_metrics():
-    spark = get_spark()
-
-    spark_df = spark.createDataFrame(pytest.test_df)
+def test_spark_stability_metrics(spark_context):
+    spark_df = spark_context.createDataFrame(pytest.test_df)
 
     # generate metrics directly from spark dataframe
     features = ["date:isActive", "date:eyeColor", "date:latitude"]
@@ -80,7 +70,7 @@ def test_spark_stability_metrics():
 @pytest.mark.filterwarnings(
     "ignore:createDataFrame attempted Arrow optimization because"
 )
-def test_spark_make_histograms(spark_co):
+def test_spark_make_histograms(spark_context):
     pytest.age["data"]["name"] = "b'age'"
     pytest.company["data"]["name"] = "b'company'"
     pytest.eyesColor["data"]["name"] = "b'eyeColor'"
@@ -93,9 +83,7 @@ def test_spark_make_histograms(spark_co):
     pytest.latitude_longitude["data"]["name"] = "b'latitude:longitude'"
     pytest.latitude_longitude["data"]["bins:name"] = "unit_func"
 
-    spark = get_spark()
-
-    spark_df = spark.createDataFrame(pytest.test_df)
+    spark_df = spark_context.createDataFrame(pytest.test_df)
 
     # test make_histograms() function call with spark df
     current_hists = make_histograms(
