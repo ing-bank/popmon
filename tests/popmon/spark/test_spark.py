@@ -8,6 +8,7 @@ from popmon.pipeline.metrics import df_stability_metrics
 
 try:
     from pyspark.sql import SparkSession
+
     spark_found = True
 except (ModuleNotFoundError, AttributeError):
     spark_found = False
