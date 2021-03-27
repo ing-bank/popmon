@@ -21,8 +21,12 @@
 import logging
 
 import pandas as pd
+from histogrammar.dfinterface.make_histograms import (
+    get_bin_specs,
+    get_time_axes,
+    make_histograms,
+)
 
-from ..hist.filling.make_histograms import get_bin_specs, get_time_axes, make_histograms
 from ..pipeline.metrics_pipelines import (
     metrics_expanding_reference,
     metrics_external_reference,
@@ -273,11 +277,11 @@ def df_stability_metrics(
             time_axis = time_axes[0]
             logger.info(f'Time-axis automatically set to "{time_axis}"')
         elif num == 0:
-            raise RuntimeError(
+            raise ValueError(
                 "No obvious time-axes found. Cannot generate stability report."
             )
         else:
-            raise RuntimeError(
+            raise ValueError(
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
     if features is not None:
@@ -294,12 +298,13 @@ def df_stability_metrics(
     if isinstance(time_width, (str, int, float)) and isinstance(
         time_offset, (str, int, float)
     ):
-        if not isinstance(bin_specs, (type(None), dict)):
-            raise RuntimeError("bin_specs object is not a dictionary")
         if bin_specs is None:
             bin_specs = {}
+        elif not isinstance(bin_specs, dict):
+            raise TypeError("bin_specs object is not a dictionary")
+
         if time_axis in bin_specs:
-            raise RuntimeError(
+            raise ValueError(
                 f'time-axis "{time_axis}" already found in binning specifications.'
             )
         # convert time width and offset to nanoseconds

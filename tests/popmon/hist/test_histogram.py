@@ -1,14 +1,17 @@
+import histogrammar as hg
 import numpy as np
 import pandas as pd
 
-from popmon.hist.histogram import (
-    HistogramContainer,
+from popmon.hist.hist_utils import (
+    is_numeric,
+    is_timestamp,
     project_on_x,
     project_split2dhist_on_axis,
+    sparse_bin_centers_x,
+    split_hist_along_first_dimension,
     sum_entries,
     sum_over_x,
 )
-from popmon.hist.patched_histogrammer import histogrammar as hg
 
 
 def get_test_data():
@@ -58,23 +61,18 @@ def test_histogrammar():
 def test_histogram_attributes():
     hist1, hist2, hist3 = get_histograms()
 
-    hist_obj1 = HistogramContainer(hist1)
-    hist_obj2 = HistogramContainer(hist2)
-    hist_obj3 = HistogramContainer(hist3)
-
-    assert hist_obj1.is_num is False
-    assert hist_obj1.is_ts is False
-    assert hist_obj2.is_num is True
-    assert hist_obj2.is_ts is False
-    assert hist_obj3.is_num is True
-    assert hist_obj3.is_ts is True
+    assert not is_numeric(hist1)
+    assert not is_timestamp(hist1)
+    assert is_numeric(hist2)
+    assert not is_timestamp(hist2)
+    assert is_numeric(hist3)
+    assert is_timestamp(hist3)
 
 
 def test_sparse_bin_centers_x():
     hist1, hist2, hist3 = get_histograms()
 
-    hist_obj3 = HistogramContainer(hist3)
-    centers3, values3 = hist_obj3.sparse_bin_centers_x()
+    centers3, values3 = sparse_bin_centers_x(hist3)
 
     np.testing.assert_array_equal(
         centers3, [1.2308112e18, 1.2308976e18, 1.2311568e18, 1.2312432e18, 1.2313296e18]
@@ -83,18 +81,15 @@ def test_sparse_bin_centers_x():
 
 def test_split_hist_along_first_dimension():
     hist1, hist2, hist3 = get_histograms()
-    hist_obj1 = HistogramContainer(hist1)
-    hist_obj2 = HistogramContainer(hist2)
-    hist_obj3 = HistogramContainer(hist3)
 
-    split3a = hist_obj3.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    split3a = split_hist_along_first_dimension(
+        hist=hist3, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    split3b = hist_obj3.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=False
+    split3b = split_hist_along_first_dimension(
+        hist=hist3, xname="x", yname="y", short_keys=True, convert_time_index=False
     )
-    split3c = hist_obj3.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=False, convert_time_index=True
+    split3c = split_hist_along_first_dimension(
+        hist=hist3, xname="x", yname="y", short_keys=False, convert_time_index=True
     )
 
     keys3a = list(split3a.keys())
@@ -121,14 +116,14 @@ def test_split_hist_along_first_dimension():
     np.testing.assert_array_equal(keys3b, check3b)
     np.testing.assert_array_equal(keys3c, check3c)
 
-    split2a = hist_obj2.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    split2a = split_hist_along_first_dimension(
+        hist=hist2, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    split2b = hist_obj2.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=False
+    split2b = split_hist_along_first_dimension(
+        hist=hist2, xname="x", yname="y", short_keys=True, convert_time_index=False
     )
-    split2c = hist_obj2.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=False, convert_time_index=False
+    split2c = split_hist_along_first_dimension(
+        hist=hist2, xname="x", yname="y", short_keys=False, convert_time_index=False
     )
 
     keys2a = list(split2a.keys())
@@ -143,14 +138,14 @@ def test_split_hist_along_first_dimension():
     np.testing.assert_array_equal(keys2b, check2b)
     np.testing.assert_array_equal(keys2c, check2c)
 
-    split1a = hist_obj1.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    split1a = split_hist_along_first_dimension(
+        hist=hist1, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    split1b = hist_obj1.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=False
+    split1b = split_hist_along_first_dimension(
+        hist=hist1, xname="x", yname="y", short_keys=True, convert_time_index=False
     )
-    split1c = hist_obj1.split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=False, convert_time_index=False
+    split1c = split_hist_along_first_dimension(
+        hist=hist1, xname="x", yname="y", short_keys=False, convert_time_index=False
     )
 
     keys1a = list(split1a.keys())
@@ -284,17 +279,17 @@ def test_project_split2dhist_on_axis():
         hist.fill.numpy(df)
 
     # split along date axis
-    splitAC = HistogramContainer(histDAC).split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    splitAC = split_hist_along_first_dimension(
+        hist=histDAC, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    splitCA = HistogramContainer(histDCA).split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    splitCA = split_hist_along_first_dimension(
+        hist=histDCA, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    splitA0 = HistogramContainer(histDA).split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    splitA0 = split_hist_along_first_dimension(
+        hist=histDA, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
-    splitC0 = HistogramContainer(histDC).split_hist_along_first_dimension(
-        xname="x", yname="y", short_keys=True, convert_time_index=True
+    splitC0 = split_hist_along_first_dimension(
+        hist=histDC, xname="x", yname="y", short_keys=True, convert_time_index=True
     )
 
     splitA1 = project_split2dhist_on_axis(splitAC, "x")
@@ -348,5 +343,5 @@ def test_datatype():
 
     assert isinstance(None, hist0.datatype)
     assert hist1.datatype == str
-    np.testing.assert_array_equal(hist2.datatype, [np.float64, str])
-    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.float64, str])
+    np.testing.assert_array_equal(hist2.datatype, [np.number, str])
+    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.number, str])

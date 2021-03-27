@@ -30,7 +30,7 @@ from ..analysis.hist_numpy import (
     get_consistent_numpy_entries,
     set_2dgrid,
 )
-from ..hist.histogram import HistogramContainer
+from ..hist.hist_utils import COMMON_HIST_TYPES, is_numeric
 from ..stats.numpy import probability_distribution_mean_covariance
 
 
@@ -311,7 +311,7 @@ def hist_sum(x, hist_name=""):
 
     Usage: df['hists'].apply(hist_sum) ; series.apply(hist_sum)
 
-    :param pd.Series x: pandas series to extract HistogramContainer list from.
+    :param pd.Series x: pandas series to extract histogram list from.
     :param str hist_name: name of column to extract histograms from. needs to be set with axis=1 (optional)
     :return: sum histogram
     """
@@ -324,27 +324,28 @@ def hist_sum(x, hist_name=""):
             hist_name = "histogram"
 
     if len(hist_list) == 0:
-        raise RuntimeError("List of input histograms is empty.")
+        raise ValueError("List of input histograms is empty.")
 
     # initialize
     o = pd.Series()
     o[hist_name] = None
 
     # basic checks
-    all_hc = all([isinstance(hc, HistogramContainer) for hc in hist_list])
-    if not all_hc:
+    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    if not all_hist:
         return o
+
     similar = check_similar_hists(hist_list)
     if not similar:
         return o
 
     # MB FIX: h_sum not initialized correctly in a sum by histogrammar for sparselybin (origin); below it is.
-    # h_sum = np.sum([hc.hist for hc in hist_list])
+    # h_sum = np.sum([hist for hist in hist_list])
 
-    h_sum = hist_list[0].hist.zero()
-    for hc in hist_list:
-        h_sum += hc.hist
-    o[hist_name] = HistogramContainer(h_sum)
+    h_sum = hist_list[0].zero()
+    for hist in hist_list:
+        h_sum += hist
+    o[hist_name] = h_sum
     return o
 
 
@@ -386,7 +387,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
 
     Usage: df['hists'].apply(normalized_hist_mean_cov) ; series.apply(normalized_hist_mean_cov)
 
-    :param pd.Series x: pandas series to extract HistogramContainer list from.
+    :param pd.Series x: pandas series to extract histogram list from.
     :param str hist_name: name of column to extract histograms from. needs to be set with axis=1 (optional)
     :return: mean normalized histogram, covariance probability matrix
     """
@@ -399,7 +400,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
             hist_name = "histogram"
 
     if len(hist_list) == 0:
-        raise RuntimeError("List of input histograms is empty.")
+        raise ValueError("List of input histograms is empty.")
 
     # initialize
     o = pd.Series()
@@ -408,8 +409,8 @@ def normalized_hist_mean_cov(x, hist_name=""):
     o[hist_name + "_binning"] = None
 
     # basic checks
-    all_hc = all([isinstance(hc, HistogramContainer) for hc in hist_list])
-    if not all_hc:
+    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    if not all_hist:
         return o
     similar = check_similar_hists(hist_list)
     if not similar:
@@ -470,13 +471,13 @@ def relative_chi_squared(
     if not all(r in row for r in required):
         return x
 
-    hc = row[hist_name]
+    hist = row[hist_name]
     norm_mean = row[hist_name + suffix_mean]
     cov = row[hist_name + suffix_cov]
     binning = row[hist_name + suffix_binning]
 
     # basic checks
-    if not isinstance(hc, HistogramContainer):
+    if not isinstance(hist, COMMON_HIST_TYPES):
         return x
     if any([ho is None for ho in [norm_mean, cov, binning]]):
         return x
@@ -486,15 +487,15 @@ def relative_chi_squared(
     variance = np.diagonal(cov)
 
     # get entries as numpy arrays
-    if hc.n_dim == 1:
+    if hist.n_dim == 1:
         entries = (
-            hc.hist.bin_entries(xvalues=binning)
-            if hc.is_num
-            else hc.hist.bin_entries(labels=binning)
+            hist.bin_entries(xvalues=binning)
+            if is_numeric(hist)
+            else hist.bin_entries(labels=binning)
         )
     else:
         assert len(binning) == 2
-        entries = set_2dgrid(hc.hist, binning[0], binning[1])
+        entries = set_2dgrid(hist, binning[0], binning[1])
         entries = entries.flatten()
 
     # calculation of mean normalized histogram and its covariance matrix of input histogram

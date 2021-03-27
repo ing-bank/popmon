@@ -35,17 +35,17 @@ For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.
 
 `January 29, 2021`
 
-Documentation
-=============
-
-The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
-
-
 Examples
 ========
 
 - `Flight Delays and Cancellations Kaggle data <https://crclz.com/popmon/reports/flight_delays_report.html>`_
 - `Synthetic data (code example below) <https://crclz.com/popmon/reports/test_data_report.html>`_
+
+Documentation
+=============
+
+The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
+
 
 Notebooks
 =========

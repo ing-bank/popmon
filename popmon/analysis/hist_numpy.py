@@ -20,10 +20,11 @@
 
 import warnings
 
+import histogrammar
 import numpy as np
+from histogrammar.util import get_hist_props
 
-from ..hist.histogram import HistogramContainer, get_hist_props
-from ..hist.patched_histogrammer import histogrammar
+from ..hist.hist_utils import is_numeric
 
 used_hist_types = (histogrammar.Bin, histogrammar.SparselyBin, histogrammar.Categorize)
 
@@ -92,10 +93,10 @@ def set_2dgrid(hist, xkeys, ykeys):
                 continue
             i = xkeys.index(k)
             if hasattr(h, "bins"):
-                for l, g in h.bins.items():
-                    if l not in ykeys:
+                for ll, g in h.bins.items():
+                    if ll not in ykeys:
                         continue
-                    j = ykeys.index(l)
+                    j = ykeys.index(ll)
                     grid[j, i] = g.entries  # sum_entries(g)
             elif hasattr(h, "values"):
                 for j, g in enumerate(h.values):
@@ -104,10 +105,10 @@ def set_2dgrid(hist, xkeys, ykeys):
     elif hasattr(hist, "values"):
         for i, h in enumerate(hist.values):
             if hasattr(h, "bins"):
-                for l, g in h.bins.items():
-                    if l not in ykeys:
+                for ll, g in h.bins.items():
+                    if ll not in ykeys:
                         continue
-                    j = ykeys.index(l)
+                    j = ykeys.index(ll)
                     grid[j, i] = g.entries
             elif hasattr(h, "values"):
                 for j, g in enumerate(h.values):
@@ -140,21 +141,18 @@ def get_2dgrid(hist, get_bin_labels=False):
     return grid
 
 
-def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
+def get_consistent_numpy_2dgrids(hist_list=[], get_bin_labels=False):
     """Get list of consistent x,y grids of first two dimensions of (sparse) input histograms
 
-    :param list hc_list: list of input histogrammar histograms
+    :param list hist_list: list of input histogrammar histograms
     :param bool get_bin_labels: if true, return x-keys and y-keys describing binnings of 2d-grid.
     :return: list of consistent x,y grids of first two dimensions of each input histogram in list
     """
     # --- basic checks
-    if len(hc_list) == 0:
+    if len(hist_list) == 0:
         raise ValueError("Input histogram list has zero length.")
-    assert_similar_hists(hc_list)
+    assert_similar_hists(hist_list)
 
-    hist_list = [
-        hc.hist if isinstance(hc, HistogramContainer) else hc for hc in hc_list
-    ]
     xkeys = set()
     ykeys = set()
     for hist in hist_list:
@@ -180,22 +178,19 @@ def get_consistent_numpy_2dgrids(hc_list=[], get_bin_labels=False):
     return grid2d_list
 
 
-def get_consistent_numpy_1dhists(hc_list, get_bin_labels=False):
+def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
     """Get list of consistent numpy hists for list of sparse input histograms
 
     Note: a numpy histogram is a union of lists of bin_edges and number of entries
 
-    :param list hc_list: list of input HistogramContainer objects
+    :param list hist_list: list of input histogram objects
     :return: list of consistent 1d numpy hists for list of sparse input histograms
     """
     # --- basic checks
-    if len(hc_list) == 0:
-        raise RuntimeError("Input histogram list has zero length.")
-    assert_similar_hists(hc_list)
+    if len(hist_list) == 0:
+        raise ValueError("Input histogram list has zero length.")
+    assert_similar_hists(hist_list)
 
-    hist_list = [
-        hc.hist if isinstance(hc, HistogramContainer) else hc for hc in hc_list
-    ]
     low_arr = [hist.low for hist in hist_list if hist.low is not None]
     high_arr = [hist.high for hist in hist_list if hist.high is not None]
 
@@ -231,50 +226,48 @@ def get_consistent_numpy_1dhists(hc_list, get_bin_labels=False):
         return nphist_list
 
 
-def get_consistent_numpy_entries(hc_list, get_bin_labels=False):
+def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     """Get list of consistent numpy bin_entries for list of 1d input histograms
 
     :param list hist_list: list of input histogrammar histograms
     :return: list of consistent 1d numpy arrays with bin_entries for list of input histograms
     """
     # --- basic checks
-    if len(hc_list) == 0:
-        raise RuntimeError("Input histogram list has zero length.")
-    assert_similar_hists(hc_list)
+    if len(hist_list) == 0:
+        raise ValueError("Input histogram list has zero length.")
+    assert_similar_hists(hist_list)
 
     # datatype check
     is_num_arr = []
-    for hc in hc_list:
-        is_num_arr.append(hc.is_num)
+    for hist in hist_list:
+        is_num_arr.append(is_numeric(hist))
     all_num = all(is_num_arr)
     all_cat = not any(is_num_arr)
     if not (all_num or all_cat):
         raise TypeError(
-            "Input histograms are mixture of Bin/SparselyBin and Categorize types.".format(
-                n=hc_list[0].hist.n_dim
-            )
+            "Input histograms are mixture of Bin/SparselyBin and Categorize types."
         )
 
     # union of all labels encountered
     labels = set()
-    for hc in hc_list:
-        bin_labels = hc.hist.bin_centers() if all_num else hc.hist.bin_labels()
+    for hist in hist_list:
+        bin_labels = hist.bin_centers() if all_num else hist.bin_labels()
         labels = labels.union(bin_labels)
     labels = sorted(labels)
 
     # PATCH: deal with boolean labels, which get bin_labels() returns as strings
     cat_labels = labels
-    props = get_hist_props(hc_list[0])
+    props = get_hist_props(hist_list[0])
     if props["is_bool"]:
         cat_labels = [lab == "True" for lab in cat_labels]
 
     # collect list of consistent bin_entries
     entries_list = []
-    for hc in hc_list:
+    for hist in hist_list:
         entries = (
-            hc.hist.bin_entries(xvalues=labels)
+            hist.bin_entries(xvalues=labels)
             if all_num
-            else hc.hist.bin_entries(labels=cat_labels)
+            else hist.bin_entries(labels=cat_labels)
         )
         entries_list.append(entries)
 
@@ -301,18 +294,15 @@ def get_contentType(hist):
     return "Count"
 
 
-def check_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
+def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types):
     """Check consistent list of input histograms
 
     Check that type and dimension of all histograms in input list are the same.
 
-    :param list hc_list: list of input HistogramContainer objects to check on consistency
+    :param list hist_list: list of input histogram objects to check on consistency
     :param bool check_type: if true, also check type consistency of histograms (besides n-dim and datatype).
     :return: bool indicating if lists are similar
     """
-    hist_list = [
-        hc.hist if isinstance(hc, HistogramContainer) else hc for hc in hc_list
-    ]
     if len(hist_list) < 1:
         return True
     for hist in hist_list:
@@ -414,37 +404,36 @@ def check_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
                 if hist.num > 0:
                     sub_hist_list.append(hist.values[0])
         # iterate down
-        sub_hc_list = [HistogramContainer(h) for h in sub_hist_list]
-        if not check_similar_hists(sub_hc_list):
+        if not check_similar_hists(sub_hist_list):
             return False
 
     return True
 
 
-def assert_similar_hists(hc_list, check_type=True, assert_type=used_hist_types):
+def assert_similar_hists(hist_list, check_type=True, assert_type=used_hist_types):
     """Assert consistent list of input histograms
 
     Assert that type and dimension of all histograms in input list are the same.
 
-    :param list hc_list: list of input HistogramContainer objects to check on consistency
+    :param list hist_list: list of input histogram objects to check on consistency
     :param bool assert_type: if true, also assert type consistency of histograms (besides n-dim and datatype).
     """
     similar = check_similar_hists(
-        hc_list, check_type=check_type, assert_type=assert_type
+        hist_list, check_type=check_type, assert_type=assert_type
     )
     if not similar:
         raise ValueError("Input histograms are not all similar.")
 
 
-def check_same_hists(hc1, hc2):
+def check_same_hists(hist1, hist2):
     """Check if two hists are the same
 
-    :param hc1: input histogram container 1
-    :param hc2: input histogram container 2
+    :param hist1: input histogram 1
+    :param hist2: input histogram 2
     :return: boolean, true if two histograms are the same
     """
-    same = check_similar_hists([hc1, hc2])
-    same &= hc1.hist.entries == hc2.hist.entries
-    same &= hc1.hist.n_bins == hc2.hist.n_bins
-    same &= hc1.hist.quantity.name == hc2.hist.quantity.name
+    same = check_similar_hists([hist1, hist2])
+    same &= hist1.entries == hist2.entries
+    same &= hist1.n_bins == hist2.n_bins
+    same &= hist1.quantity.name == hist2.quantity.name
     return same
