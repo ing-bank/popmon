@@ -40,7 +40,7 @@ def fraction_of_true(bin_labels, bin_entries):
 
     # basic checks: dealing with boolean labels
     # also accept strings of 'True' and 'False'
-    if len(bin_labels) == 0 or len(bin_labels) > 2 or np.sum(bin_entries) == 0:
+    if len(bin_labels) == 0 or len(bin_labels) > 3 or np.sum(bin_entries) == 0:
         return np.nan
     if not np.all([isinstance(bl, (bool, np.bool_)) for bl in bin_labels]):
         if not np.all(
@@ -50,7 +50,8 @@ def fraction_of_true(bin_labels, bin_entries):
         # all strings from hereon
         n_true = (bin_labels == "True").sum() + (bin_labels == "true").sum()
         n_false = (bin_labels == "False").sum() + (bin_labels == "false").sum()
-        if n_true + n_false != len(bin_labels):
+        n_nan = (bin_labels == "NaN").sum() + (bin_labels == "nan").sum()
+        if n_true + n_false + n_nan != len(bin_labels):
             return np.nan
         # convert string to boolean
         bin_labels = np.array([bl == "True" or bl == "true" for bl in bin_labels])

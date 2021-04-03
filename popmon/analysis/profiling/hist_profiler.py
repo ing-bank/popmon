@@ -114,7 +114,12 @@ class HistProfiler(Module):
 
         profile = dict()
         profile["filled"] = bin_counts.sum()
-        profile["nan"] = hist.nanflow.entries if hasattr(hist, "nanflow") else 0
+        if hasattr(hist, "nanflow"):
+            profile["nan"] = hist.nanflow.entries
+        elif hasattr(hist, "bins") and "NaN" in hist.bins:
+            profile["nan"] = hist.bins["NaN"].entries
+        else:
+            profile["nan"] = 0
         profile["overflow"] = hist.overflow.entries if hasattr(hist, "overflow") else 0
         profile["underflow"] = (
             hist.underflow.entries if hasattr(hist, "underflow") else 0
