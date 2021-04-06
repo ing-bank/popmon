@@ -37,12 +37,15 @@ jobs:
         SPARK_VERSION: "2.4.7"
         HADOOP_VERSION: "2.7"
         SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
+        SPARK_LOCAL_IP: "localhost"
       run: |
         sudo apt-get -y install openjdk-8-jdk
         curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
         tar -xvzf ${BUILD_DIR}/spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
         pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==2.4.7
     - name: Test with pytest (spark-specific)
+      env:
+        SPARK_LOCAL_IP: "localhost"
       run: |
         pytest -m spark
 
