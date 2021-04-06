@@ -38,9 +38,16 @@ def fraction_of_true(bin_labels, bin_entries):
     bin_entries = np.array(bin_entries)
     assert len(bin_labels) == len(bin_entries)
 
+    def replace(bl):
+        if bl in {"True", "true"}:
+            return True
+        elif bl in {"False", "false"}:
+            return False
+        return np.nan
+
     # basic checks: dealing with boolean labels
     # also accept strings of 'True' and 'False'
-    if len(bin_labels) == 0 or len(bin_labels) > 2 or np.sum(bin_entries) == 0:
+    if len(bin_labels) == 0 or len(bin_labels) > 4 or np.sum(bin_entries) == 0:
         return np.nan
     if not np.all([isinstance(bl, (bool, np.bool_)) for bl in bin_labels]):
         if not np.all(
@@ -50,13 +57,26 @@ def fraction_of_true(bin_labels, bin_entries):
         # all strings from hereon
         n_true = (bin_labels == "True").sum() + (bin_labels == "true").sum()
         n_false = (bin_labels == "False").sum() + (bin_labels == "false").sum()
-        if n_true + n_false != len(bin_labels):
+        n_nan = (
+            (bin_labels == "NaN").sum()
+            + (bin_labels == "nan").sum()
+            + (bin_labels == "None").sum()
+            + (bin_labels == "none").sum()
+            + (bin_labels == "Null").sum()
+            + (bin_labels == "null").sum()
+        )
+        if n_true + n_false + n_nan != len(bin_labels):
             return np.nan
         # convert string to boolean
-        bin_labels = np.array([bl == "True" or bl == "true" for bl in bin_labels])
+        bin_labels = np.array([replace(bl) for bl in bin_labels])
 
-    sum_true = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl])
-    sum_entries = np.sum(bin_entries)
+    sum_true = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl == True])
+    sum_false = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl == False])
+    sum_entries = sum_true + sum_false
+    if sum_entries == 0:
+        # all nans scenario
+        return np.nan
+    # exclude nans from fraction
     return (1.0 * sum_true) / sum_entries
 
 

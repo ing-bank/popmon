@@ -7,6 +7,7 @@ from popmon.hist.filling import make_histograms
 from popmon.pipeline.metrics import df_stability_metrics
 
 try:
+    from pyspark import __version__ as pyspark_version
     from pyspark.sql import SparkSession
 
     spark_found = True
@@ -21,8 +22,11 @@ def spark_context():
 
     current_path = dirname(abspath(__file__))
 
-    hist_spark_jar = join(current_path, "jars/histogrammar-sparksql_2.11-1.0.11.jar")
-    hist_jar = join(current_path, "jars/histogrammar_2.11-1.0.11.jar")
+    scala = "2.12" if int(pyspark_version[0]) >= 3 else "2.11"
+    hist_spark_jar = join(
+        current_path, f"jars/histogrammar-sparksql_{scala}-1.0.11.jar"
+    )
+    hist_jar = join(current_path, f"jars/histogrammar_{scala}-1.0.11.jar")
 
     spark = (
         SparkSession.builder.master("local")
