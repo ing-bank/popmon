@@ -4,7 +4,7 @@ Release notes
 
 Version 0.3.15, Apr 2021
 ------------------------
-* Migrate to version 1.0.24 of Histogrammar.
+* Migrate to version 1.0.25 of Histogrammar.
 
 Version 0.3.14, Feb 2021
 ------------------------
