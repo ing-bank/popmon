@@ -160,7 +160,7 @@ def project_split2dhist_on_axis(splitdict, axis="x"):
     """
     if not isinstance(splitdict, dict):
         raise TypeError(
-            "splitdict: {wt}, type should be a dictionary.".format(wt=type(splitdict))
+            f"splitdict: {type(splitdict)}, type should be a dictionary."
         )
     if axis not in ["x", "y"]:
         raise ValueError(f"axis: {axis}, can only be x or y.")
