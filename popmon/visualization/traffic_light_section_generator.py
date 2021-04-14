@@ -32,7 +32,7 @@ from ..visualization.utils import (
     _prune,
     plot_traffic_lights_alerts_b64,
     plot_traffic_lights_b64,
-    plot_traffic_lights_heatmap_b64,
+    plot_traffic_lights_overview,
 )
 
 
@@ -142,6 +142,7 @@ class TrafficLightSectionGenerator(Module):
             if self.plot_overview:
                 plots.append(
                     _plot_metrics(
+                        feature,
                         metrics,
                         dates,
                         df,
@@ -203,7 +204,15 @@ def _plot_metric(metric, dates, values, last_n, skip_first_n, skip_last_n, skip_
 
 
 def _plot_metrics(
-    metrics, dates, df, last_n, skip_first_n, skip_last_n, skip_empty, style="heatmap"
+    feature,
+    metrics,
+    dates,
+    df,
+    last_n,
+    skip_first_n,
+    skip_last_n,
+    skip_empty,
+    style="heatmap",
 ):
     # prune dates and values
     dates = _prune(dates, last_n, skip_first_n, skip_last_n)
@@ -222,11 +231,12 @@ def _plot_metrics(
 
         # make plot. note: slow!
         if style == "heatmap":
-            plot = plot_traffic_lights_heatmap_b64(
-                values, metrics=nonempty_metrics, labels=dates
+            plot = plot_traffic_lights_overview(
+                feature, values, metrics=nonempty_metrics, labels=dates
             )
         elif style == "alerts":
             plot = plot_traffic_lights_alerts_b64(
+                feature,
                 values,
                 metrics=nonempty_metrics,
                 labels=dates,

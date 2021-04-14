@@ -50,6 +50,7 @@ _TEMPLATES_ENV = Environment(
         resource_filename(popmon.__name__, "visualization/templates")
     )
 )
+_TEMPLATES_ENV.filters["fmt_metric"] = lambda x: x.replace("_", " ")
 
 
 def _resource(resource_type, name: str) -> str:

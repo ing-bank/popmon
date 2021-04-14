@@ -54,3 +54,38 @@ section h2 {
 .card-image-top {
   padding-bottom: 7px;
 }
+
+/* overview tables */
+table.overview{
+    margin: 25px;
+}
+table.overview tbody td.metric{
+    white-space: nowrap;
+}
+table.overview tbody td.cell{
+   border: 1px solid #333333;
+   text-align: center;
+}
+table.overview td.cell-green{
+    background: green;
+}
+table.overview td.cell-yellow{
+    background: yellow;
+}
+table.overview td.cell-red{
+    background: red;
+}
+table.overview tfoot td {
+    padding-top: 5px;
+    text-align: center;
+}
+table.overview tfoot td span{
+    -ms-writing-mode: tb-rl;
+    -webkit-writing-mode: vertical-rl;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+
+    font-size: 14px;
+    font-weight: 300;
+}
