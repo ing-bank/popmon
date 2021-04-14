@@ -21,13 +21,15 @@
 import logging
 import math
 from io import BytesIO, StringIO
+from typing import List
 
 import numpy as np
 import pandas as pd
 import pybase64
 from ing_theme_matplotlib import mpl_style
 from matplotlib import pyplot as plt
-from matplotlib.colors import BoundaryNorm, ListedColormap
+
+from popmon.resources import templates_env
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -153,38 +155,55 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     return plt_to_str()
 
 
-def plot_traffic_lights_heatmap_b64(data, metrics=None, labels=None):
-    fig, ax = plt.subplots(figsize=(14, 4.5))
+def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
+    colors = {}
+    color_map = ["green", "yellow", "red"]
+    for c1, metric in enumerate(metrics):
+        colors[metric] = {}
+        for c2, label in enumerate(labels):
+            colors[metric][label] = [color_map[data[c1][c2]]]
 
-    cm = ListedColormap(["green", "yellow", "red"])
-    norm = BoundaryNorm([0, 1, 2], 2)
-
-    _ = ax.imshow(data, interpolation="none", aspect="equal", cmap=cm, norm=norm)
-
-    # Major ticks
-    ax.set_xticks(np.arange(0, len(labels), 1))
-    ax.set_yticks(np.arange(0, len(metrics), 1))
-
-    # Labels for major ticks
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(metrics)
-
-    # Minor ticks
-    ax.set_xticks(np.arange(-0.50, len(labels), 1), minor=True)
-    ax.set_yticks(np.arange(-0.50, len(metrics), 1), minor=True)
-
-    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
-
-    # Gridlines based on minor ticks
-    ax.grid(False)
-    ax.grid(which="minor", color="#333333", linestyle="-", linewidth=1, alpha=1)
-
-    fig.tight_layout()
-
-    return plt_to_str()
+    return templates_env(
+        "table.html",
+        feature=feature,
+        metrics=metrics,
+        labels=labels,
+        data=colors,
+        links=True,
+    )
 
 
-def plot_traffic_lights_alerts_b64(data, metrics=None, labels=None):
+def plot_traffic_lights_overview(feature, data, metrics=None, labels=None):
+    return render_traffic_lights_table(feature, data, metrics, labels)
+
+
+def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List[str]):
+    colors = {}
+    for c1, metric in enumerate(metrics):
+        colors[metric] = {}
+        row_max = np.max(data[c1])
+        for c2, label in enumerate(labels):
+            a = data[c1][c2] / row_max
+            if metric.endswith("green"):
+                rgba = (0, 128, 0, a)
+            elif metric.endswith("yellow"):
+                rgba = (255, 255, 0, a)
+            else:
+                rgba = (255, 0, 0, a)
+            rgba = (str(v) for v in rgba)
+            colors[metric][label] = (rgba, data[c1][c2])
+
+    return templates_env(
+        "table.html",
+        feature=feature,
+        metrics=metrics,
+        labels=labels,
+        data=colors,
+        links=False,
+    )
+
+
+def plot_traffic_lights_alerts_b64(feature, data, metrics=None, labels=None):
     assert data.shape[0] == 3
 
     # Reorder metrics if needed
@@ -195,53 +214,9 @@ def plot_traffic_lights_alerts_b64(data, metrics=None, labels=None):
     if [pos_green, pos_yellow, pos_red] != [0, 1, 2]:
         data[[0, 1, 2]] = data[[pos_green, pos_yellow, pos_red]]
 
-    metrics = ["n_green", "n_yellow", "n_red"]
+    metrics = ["# green", "# yellow", "# red"]
 
-    fig, ax = plt.subplots(figsize=(14, 4.5))
-
-    N = 256
-    yellow = np.ones((N, 4))
-    yellow[:, 0] = np.linspace(1, 255 / 256, N)
-    yellow[:, 1] = np.linspace(1, 232 / 256, N)
-    yellow[:, 2] = np.linspace(1, 11 / 256, N)
-    yellow_cmp = ListedColormap(yellow)
-
-    cmaps = reversed(["Reds", yellow_cmp, "Greens"])
-    # https://stackoverflow.com/questions/60325792/seaborn-heatmap-color-by-row
-    for idx, cmap in enumerate(cmaps):
-        _ = ax.imshow(
-            np.vstack([data[idx, :], data[idx, :]]),
-            aspect="equal",
-            cmap=cmap,
-            extent=[-0.5, data.shape[1] - 0.5, idx - 0.5, idx + 0.5],
-        )
-
-    # Major ticks
-    ax.set_xticks(np.arange(0, len(labels), 1))
-    ax.set_yticks(np.arange(0, len(metrics), 1))
-
-    # Labels for major ticks
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(metrics)
-
-    # Minor ticks
-    ax.set_xticks(np.arange(-0.50, len(labels), 1), minor=True)
-    ax.set_yticks(np.arange(-0.50, len(metrics), 1), minor=True)
-
-    plt.setp(ax.get_xticklabels(), rotation=90, ha="right", rotation_mode="anchor")
-
-    # Annotations
-    for i in range(len(metrics)):
-        for j in range(len(labels)):
-            ax.text(j, i, f"{data[i, j]:.0f}", ha="center", va="center", color="black")
-
-    # Gridlines based on minor ticks
-    ax.grid(False)
-    ax.grid(which="minor", color="#333333", linestyle="-", linewidth=1, alpha=1)
-
-    fig.tight_layout()
-
-    return plt_to_str()
+    return render_alert_aggregate_table(feature, data.astype(int), metrics, labels)
 
 
 def plot_traffic_lights_b64(data, labels=None, skip_empty=True):

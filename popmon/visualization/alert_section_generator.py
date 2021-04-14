@@ -137,6 +137,7 @@ class AlertSectionGenerator(Module):
             if self.plot_overview:
                 plots.append(
                     _plot_metrics(
+                        feature,
                         [m for m in metrics if not m.endswith("worst")],
                         dates,
                         df,
