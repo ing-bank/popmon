@@ -1,0 +1,36 @@
+<table class="overview">
+<tbody>
+{% for metric in metrics %}
+<tr>
+    <td class="metric">
+        {% if links %}
+        <a class="js-scroll-trigger" href="#{{ feature }}-{{ metric.replace('_pull','') }}">
+        {% endif %}
+            {{ metric | fmt_metric }}
+        {% if links %}
+        </a>
+        {% endif %}
+    </td>
+    {% for label in labels %}
+        {% if data[metric][label] | length  == 1 %}
+            {% with class = data[metric][label][0] %}
+            <td class="cell cell-{{ class }}">&nbsp;</td>
+            {% endwith %}
+        {% elif data[metric][label] | length == 2 %}
+            {% with rgba, value = data[metric][label] %}
+            <td class="cell" style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+            {% endwith %}
+        {% endif %}
+    {% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+<tfoot>
+<tr>
+    <td>&nbsp;</td>
+    {% for label in labels %}
+        <td><span>{{ label }}</span></td>
+    {% endfor %}
+</tr>
+</tfoot>
+</table>
