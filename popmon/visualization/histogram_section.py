@@ -32,6 +32,7 @@ from ..analysis.hist_numpy import (
 )
 from ..base import Module
 from ..config import get_stat_description
+from ..utils import short_date
 from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 
@@ -82,9 +83,6 @@ class HistogramSection(Module):
         num_cores = multiprocessing.cpu_count()
 
         self.logger.info(f'Generating section "{self.section_name}".')
-
-        def short_date(date):
-            return date if len(date) <= 22 else date[:22]
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())

@@ -28,6 +28,7 @@ from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
+from ..utils import filter_metrics, short_date
 from ..visualization.utils import _prune, plot_bars_b64
 
 
@@ -112,9 +113,6 @@ class SectionGenerator(Module):
             f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
         )
 
-        def short_date(date):
-            return date if len(date) <= 22 else date[:22]
-
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
             fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
@@ -129,18 +127,10 @@ class SectionGenerator(Module):
             )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
-            metrics = [
-                m
-                for m in df.columns
-                if not any([m.endswith(s) for s in self.ignore_stat_endswith])
-            ]
-            if self.show_stats is not None:
-                metrics = [
-                    m
-                    for m in metrics
-                    if any(fnmatch.fnmatch(m, pattern) for pattern in self.show_stats)
-                ]
+            metrics = filter_metrics(
+                df.columns, self.ignore_stat_endswith, self.show_stats
+            )
+
             plots = Parallel(n_jobs=num_cores)(
                 delayed(_plot_metric)(
                     feature,
