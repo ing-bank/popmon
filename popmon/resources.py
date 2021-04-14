@@ -101,7 +101,7 @@ def templates_env(filename=None, **kwargs):
 
     :param str filename: the name of the template to get retrieved.
     :param kwargs: residual keyword arguments which would be used for rendering
-    :returns: template if a filename is provided (rendered given that keyword arguemnts are provided)
+    :returns: template if a filename is provided (rendered given that keyword arguments are provided)
               otherwise: environment of the templates directory
     """
     if filename:
