@@ -276,7 +276,7 @@ def pull_bounds(
     ).sum() == 0, "Traffic lights not sorted!"
 
     if cols is None or len(cols) == 0:
-        # if no columns are given, find colums for which pulls can be calculated.
+        # if no columns are given, find columns for which pulls can be calculated.
         # e.g. to calculate x_pull, need to have [x, x_mean, x_std] present. If so, put x in cols.
         cols = []
         for m in row.index.to_list():
