@@ -21,7 +21,7 @@
 from fnmatch import fnmatch
 
 profiles = {
-    "count": "Number of entries",
+    "count": "Number of entries (non-NaN and NaN)",
     "distinct": "Number of distinct entries",
     "filled": "Number of non-missing entries (non-NaN)",
     "nan": "Number of missing entries (NaN)",
@@ -100,14 +100,13 @@ config = {
         "*ks",
         "*max_prob_diff",
         "*zscore",
-        "*pull",
         "n_*",
         "worst",
     ],
 }
 
 
-def get_stat_description(name):
+def get_stat_description(name: str):
     """Gets the description of a statistic.
 
     :param str name: the name of the statistic.
