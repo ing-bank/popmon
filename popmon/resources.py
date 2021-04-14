@@ -42,7 +42,7 @@ _NOTEBOOK = {
 }
 
 # Resource types
-_RESOURCES = dict(data=_DATA, notebook=_NOTEBOOK)
+_RESOURCES = {"data": _DATA, "notebook": _NOTEBOOK}
 
 # Environment for visualization templates' directory
 _TEMPLATES_ENV = Environment(

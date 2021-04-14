@@ -170,8 +170,7 @@ def stability_report(
     }
     cfg.update(kwargs)
 
-    datastore = dict()
-    datastore["hists"] = hists
+    datastore = {"hists": hists}
     if reference_type == "external":
         datastore["ref_hists"] = reference
 
@@ -474,8 +473,14 @@ class StabilityReport(Module):
         from IPython.core.display import HTML
 
         # get iframe's snippet code, insert report's HTML code and display it as HTML
-        args = dict(src=self.to_html(escape=True), width=width, height=height)
-        return HTML(templates_env(filename="notebook_iframe.html", **args))
+        return HTML(
+            templates_env(
+                filename="notebook_iframe.html",
+                src=self.to_html(escape=True),
+                width=width,
+                height=height,
+            )
+        )
 
     def regenerate(
         self,

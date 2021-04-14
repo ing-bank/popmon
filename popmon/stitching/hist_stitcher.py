@@ -176,7 +176,7 @@ class HistStitcher(Module):
                     f'Inserting basis histograms in axis "{time_axis}" at bin index 0.'
                 )
                 time_bin_idx = [0]
-            hists_basis_new = dict()
+            hists_basis_new = {}
             for k, hist in hists_basis.items():
                 feature = f"{time_axis}:{k}"
                 self.logger.debug(f'Now creating histogram "{feature}"')
@@ -200,7 +200,7 @@ class HistStitcher(Module):
             )
             return hists_basis
 
-        stitched = dict()
+        stitched = {}
 
         # 2. if delta(s) do not start with "time_axis:", assume that this is a set of batches without time_axis
         features_delta = self.get_features(

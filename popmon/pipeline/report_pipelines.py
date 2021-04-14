@@ -312,16 +312,16 @@ class ReportPipe(Pipeline):
 
         # default keyword arguments for each section
         def sg_kws(read_key):
-            return dict(
-                read_key=read_key,
-                store_key=sections_key,
-                skip_empty_plots=skip_empty_plots,
-                last_n=last_n,
-                skip_first_n=skip_first_n,
-                skip_last_n=skip_last_n,
-                show_stats=show_stats,
-                description=descs.get(read_key, ""),
-            )
+            return {
+                "read_key": read_key,
+                "store_key": sections_key,
+                "skip_empty_plots": skip_empty_plots,
+                "last_n": last_n,
+                "skip_first_n": skip_first_n,
+                "skip_last_n": skip_last_n,
+                "show_stats": show_stats,
+                "description": descs.get(read_key, ""),
+            }
 
         self.modules = [
             # --- o generate sections
