@@ -42,11 +42,9 @@ def traffic_light_summary(row, cols=None, prefix=""):
     :param list cols: list of cols to calculate traffic light summary of (optional)
     :param str prefix: prefix of traffic light columns, in case cols is empty. default is ``"tl_"``
     """
-    x = pd.Series()
-    x["worst"] = np.nan
-    x["n_red"] = np.nan
-    x["n_yellow"] = np.nan
-    x["n_green"] = np.nan
+    x = pd.Series(
+        {"worst": np.nan, "n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
+    )
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find traffic light columns for which summary is made.
