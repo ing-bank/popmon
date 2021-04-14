@@ -51,8 +51,11 @@ class ReportGenerator(Module):
             )
 
         # get HTML template for the final report, insert placeholder data and compress the code
-        args = dict(sections=sections_html)
         datastore[self.store_key] = htmlmin.minify(
-            templates_env(filename="core.html", generator=f"{name} {version}", **args)
+            templates_env(
+                filename="core.html",
+                generator=f"{name} {version}",
+                sections=sections_html,
+            )
         )
         return datastore

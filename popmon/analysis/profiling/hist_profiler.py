@@ -106,28 +106,30 @@ class HistProfiler(Module):
 
         if len(bin_counts) == 0:
             self.logger.warning(f'Histogram "{name}" is empty; skipping.')
-            return dict()
+            return {}
 
         if is_ts:
             to_timestamp = np.vectorize(lambda x: pd.to_datetime(x).value)
             bin_labels = to_timestamp(bin_labels)
 
-        profile = dict()
-        profile["filled"] = bin_counts.sum()
+        profile = {
+            "filled": bin_counts.sum(),
+            "overflow": hist.overflow.entries if hasattr(hist, "overflow") else 0,
+            "underflow": (hist.underflow.entries if hasattr(hist, "underflow") else 0),
+            "distinct": len(np.unique(bin_labels)),
+        }
+
         if hasattr(hist, "nanflow"):
             profile["nan"] = hist.nanflow.entries
         elif hasattr(hist, "bins") and "NaN" in hist.bins:
             profile["nan"] = hist.bins["NaN"].entries
         else:
             profile["nan"] = 0
-        profile["overflow"] = hist.overflow.entries if hasattr(hist, "overflow") else 0
-        profile["underflow"] = (
-            hist.underflow.entries if hasattr(hist, "underflow") else 0
-        )
         profile["count"] = profile["filled"] + profile["nan"]
-        profile["distinct"] = len(np.unique(bin_labels))
-        mpv = bin_labels[np.argmax(bin_counts)]  # most probable value
-        profile["most_probable_value"] = mpv if not is_ts else pd.Timestamp(mpv)
+        most_probable_value = bin_labels[np.argmax(bin_counts)]
+        profile["most_probable_value"] = (
+            most_probable_value if not is_ts else pd.Timestamp(most_probable_value)
+        )
 
         if is_num and profile["filled"] > 0:
             for f_names, func in self.stats_functions.items():
@@ -225,7 +227,7 @@ class HistProfiler(Module):
             f'Profiling histograms "{self.read_key}" as "{self.store_key}"'
         )
         data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
-        profiled = dict()
+        profiled = {}
 
         features = self.get_features(data.keys())
 

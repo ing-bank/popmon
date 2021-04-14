@@ -115,7 +115,7 @@ class HistogramSection(Module):
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
         params = {
@@ -191,4 +191,4 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     else:
         plot = ""
 
-    return dict(name=date, description=get_stat_description(date), plot=plot)
+    return {"name": date, "description": get_stat_description(date), "plot": plot}

@@ -146,8 +146,7 @@ def stability_metrics(
     }
     cfg.update(kwargs)
 
-    datastore = dict()
-    datastore["hists"] = hists
+    datastore = {"hists": hists}
     if reference_type == "external":
         datastore["ref_hists"] = reference
 

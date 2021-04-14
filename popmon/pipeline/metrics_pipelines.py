@@ -104,13 +104,13 @@ def metrics_self_reference(
             apply_to_key="profiles",
             assign_to_key="comparisons",
             apply_funcs=[
-                dict(
-                    func=rolling_lr_zscore,
-                    suffix=f"_trend{window}_zscore",
-                    entire=True,
-                    window=window,
-                    metrics=["mean", "phik", "fraction_true"],
-                )
+                {
+                    "func": rolling_lr_zscore,
+                    "suffix": f"_trend{window}_zscore",
+                    "entire": True,
+                    "window": window,
+                    "metrics": ["mean", "phik", "fraction_true"],
+                }
             ],
             msg="Computing significance of (rolling) trend in means of features",
         ),
@@ -146,7 +146,7 @@ def metrics_self_reference(
         ),
         ApplyFunc(
             apply_to_key="traffic_lights",
-            apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
             assign_to_key="alerts",
             msg="Generating traffic light alerts summary.",
         ),
@@ -225,13 +225,13 @@ def metrics_external_reference(
             apply_to_key="profiles",
             assign_to_key="comparisons",
             apply_funcs=[
-                dict(
-                    func=rolling_lr_zscore,
-                    suffix=f"_trend{window}_zscore",
-                    entire=True,
-                    window=window,
-                    metrics=["mean", "phik", "fraction_true"],
-                )
+                {
+                    "func": rolling_lr_zscore,
+                    "suffix": f"_trend{window}_zscore",
+                    "entire": True,
+                    "window": window,
+                    "metrics": ["mean", "phik", "fraction_true"],
+                }
             ],
             msg="Computing significance of (rolling) trend in means of features",
         ),
@@ -267,7 +267,7 @@ def metrics_external_reference(
         ),
         ApplyFunc(
             apply_to_key="traffic_lights",
-            apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
             assign_to_key="alerts",
             msg="Generating traffic light alerts summary.",
         ),
@@ -340,13 +340,13 @@ def metrics_rolling_reference(
             apply_to_key="profiles",
             assign_to_key="comparisons",
             apply_funcs=[
-                dict(
-                    func=rolling_lr_zscore,
-                    suffix=f"_trend{window}_zscore",
-                    entire=True,
-                    window=window,
-                    metrics=["mean", "phik", "fraction_true"],
-                )
+                {
+                    "func": rolling_lr_zscore,
+                    "suffix": f"_trend{window}_zscore",
+                    "entire": True,
+                    "window": window,
+                    "metrics": ["mean", "phik", "fraction_true"],
+                }
             ],
             msg="Computing significance of (rolling) trend in means of features",
         ),
@@ -382,7 +382,7 @@ def metrics_rolling_reference(
         ),
         ApplyFunc(
             apply_to_key="traffic_lights",
-            apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
             assign_to_key="alerts",
             msg="Generating traffic light alerts summary.",
         ),
@@ -454,13 +454,13 @@ def metrics_expanding_reference(
             apply_to_key="profiles",
             assign_to_key="comparisons",
             apply_funcs=[
-                dict(
-                    func=rolling_lr_zscore,
-                    suffix=f"_trend{window}_zscore",
-                    entire=True,
-                    window=window,
-                    metrics=["mean", "phik", "fraction_true"],
-                )
+                {
+                    "func": rolling_lr_zscore,
+                    "suffix": f"_trend{window}_zscore",
+                    "entire": True,
+                    "window": window,
+                    "metrics": ["mean", "phik", "fraction_true"],
+                }
             ],
             msg="Computing significance of (rolling) trend in means of features",
         ),
@@ -496,7 +496,7 @@ def metrics_expanding_reference(
         ),
         ApplyFunc(
             apply_to_key="traffic_lights",
-            apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
             assign_to_key="alerts",
             msg="Generating traffic light alerts summary.",
         ),
