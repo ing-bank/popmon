@@ -94,7 +94,7 @@ class AlertSectionGenerator(Module):
         self.description = description
         self.show_stats = show_stats
         self.plot_overview = True
-        self.plot_metrics = True
+        self.plot_metrics = False
 
     def transform(self, datastore):
         data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
