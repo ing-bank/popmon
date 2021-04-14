@@ -41,7 +41,7 @@ class MergeStatistics(Module):
             self.get_datastore_object(datastore, read_key, dtype=dict)
             for read_key in self.read_keys
         ]
-        merged_stats = dict()
+        merged_stats = {}
         for dict_ in dicts:
             for feature in dict_.keys():
                 # we add statistics dataframe to the final output for specific feature however

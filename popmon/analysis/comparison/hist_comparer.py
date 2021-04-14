@@ -177,14 +177,14 @@ class HistComparer(Pipeline):
             apply_to_key=assign_to_key,
             assign_to_key=store_key,
             apply_funcs=[
-                dict(
-                    func=hist_compare,
-                    hist_name1=hist_col,
-                    hist_name2=hist_col + "_" + suffix,
-                    prefix=suffix,
-                    axis=1,
-                    max_res_bound=max_res_bound,
-                )
+                {
+                    "func": hist_compare,
+                    "hist_name1": hist_col,
+                    "hist_name2": hist_col + "_" + suffix,
+                    "prefix": suffix,
+                    "axis": 1,
+                    "max_res_bound": max_res_bound,
+                }
             ],
         )
         self.modules = [hist_collector, hist_comparer]
@@ -382,7 +382,12 @@ class NormHistComparer(Pipeline):
             apply_to_key=assign_to_key,
             assign_to_key=store_key,
             apply_funcs=[
-                dict(func=relative_chi_squared, hist_name=hist_col, suffix="", axis=1)
+                {
+                    "func": relative_chi_squared,
+                    "hist_name": hist_col,
+                    "suffix": "",
+                    "axis": 1,
+                }
             ],
         )
 

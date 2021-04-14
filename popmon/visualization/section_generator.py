@@ -162,7 +162,7 @@ class SectionGenerator(Module):
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
         params = {
@@ -221,4 +221,4 @@ def _plot_metric(
         skip_empty=skip_empty,
     )
 
-    return dict(name=metric, description=get_stat_description(metric), plot=plot)
+    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
