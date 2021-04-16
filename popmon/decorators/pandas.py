@@ -18,13 +18,14 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from histogrammar.dfinterface.make_histograms import make_histograms
 from pandas import DataFrame
 
-from ..hist.filling import make_histograms
 from ..pipeline.metrics import df_stability_metrics
 from ..pipeline.report import df_stability_report
 
-# add function to create histogrammar histograms
+# add function to create histogrammar histograms.
+# pm_make_histograms is kept for bkw compatibility.
 DataFrame.pm_make_histograms = make_histograms
 
 # add function to create stability report

@@ -197,15 +197,15 @@ def test_statistics_1():
     def get_quantiles(q):
         _quantiles = np.zeros((3, 6))
         for i in range(a.shape[0]):
-            for l in range(a.shape[3]):
-                isort = np.argsort(_values[i, l])
-                v = _values[i, l][isort]
-                u = _weights[i, l][isort]
+            for ll in range(a.shape[3]):
+                isort = np.argsort(_values[i, ll])
+                v = _values[i, ll][isort]
+                u = _weights[i, ll][isort]
                 U = u.cumsum()
                 r = (U - 0.5 * u) / U[-1]
                 for m in range(1, len(u)):
                     if r[m - 1] <= q and r[m] > q:
-                        _quantiles[i, l] = v[m - 1] + (q - r[m - 1]) / (
+                        _quantiles[i, ll] = v[m - 1] + (q - r[m - 1]) / (
                             r[m] - r[m - 1]
                         ) * (v[m] - v[m - 1])
                         break

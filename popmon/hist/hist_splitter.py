@@ -21,7 +21,11 @@
 import pandas as pd
 
 from ..base import Module
-from ..hist.histogram import HistogramContainer
+from ..hist.hist_utils import (
+    get_histogram,
+    is_timestamp,
+    split_hist_along_first_dimension,
+)
 
 
 class HistSplitter(Module):
@@ -78,7 +82,7 @@ class HistSplitter(Module):
         self.filter_empty_split_hists = filter_empty_split_hists
 
         if self.flatten_output and self.short_keys:
-            raise RuntimeError(
+            raise ValueError(
                 "flatten_output requires short_keys attribute to be False."
             )
 
@@ -87,8 +91,7 @@ class HistSplitter(Module):
             divided.update(split)
         else:
             divided[yname] = [
-                {self.index_col: k, self.hist_col: HistogramContainer(h)}
-                for k, h in split.items()
+                {self.index_col: k, self.hist_col: h} for k, h in split.items()
             ]
         return divided
 
@@ -106,32 +109,31 @@ class HistSplitter(Module):
         # if so requested split selected histograms along first axis, and then divide
         for feature in features[:]:
             self.logger.debug(f'Now splitting histogram "{feature}"')
-            hc = HistogramContainer(data[feature])
-            if hc.n_dim <= 1:
+            hist = get_histogram(data[feature])
+            if hist.n_dim <= 1:
                 self.logger.debug(
                     f'Histogram "{feature}" does not have two or more dimensions, nothing to split; skipping.'
                 )
                 continue
 
             cols = feature.split(":")
-            if len(cols) != hc.n_dim:
+            if len(cols) != hist.n_dim:
                 self.logger.error(
-                    f'Dimension of histogram "{feature}" not consistent: {hc.n_dim} vs {len(cols)}; skipping.'
+                    f'Dimension of histogram "{feature}" not consistent: {hist.n_dim} vs {len(cols)}; skipping.'
                 )
                 continue
 
             xname, yname = cols[0], ":".join(cols[1:])  # 'time:x:y' -> 'time', 'x:y'
             if yname in divided:
-                self.logger.debug(
-                    f'HistogramContainer "{yname}" already divided; skipping.'
-                )
+                self.logger.debug(f'Histogram "{yname}" already divided; skipping.')
                 continue
 
             # if requested split selected histograms along first axis. e.g. time:x:y is split along time
             # then check if sub-hists of x:y can be further projected. eg. x:y is projected on x and y as well.
             # datatype properties
-            is_ts = hc.is_ts or xname in self.var_timestamp
-            split = hc.split_hist_along_first_dimension(
+            is_ts = is_timestamp(hist) or xname in self.var_timestamp
+            split = split_hist_along_first_dimension(
+                hist=hist,
                 short_keys=self.short_keys,
                 convert_time_index=is_ts,
                 xname=xname,

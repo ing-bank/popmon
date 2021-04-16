@@ -47,11 +47,11 @@ comparisons = {
     "chi2_pvalue": "p-value of the chi-squared statistic, comparing each time slot with {ref}",
     "chi2_zscore": "Z-score of the chi-squared statistic, comparing each time slot with {ref}",
     "chi2_max_residual": "The largest absolute normalized residual (|chi|) observed in all bin pairs "
-    + "(one histogram in a time slot and one in {ref})",  # noqa: W504
+    + "(one histogram in a time slot and one in {ref})",
     "chi2_spike_count": "The number of normalized residuals of all bin pairs (one histogram in a time"
-    + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",  # noqa: W504
+    + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",
     "max_prob_diff": "The largest absolute difference between all bin pairs of two normalized "
-    + "histograms (one histogram in a time slot and one in {ref})",  # noqa: W504
+    + "histograms (one histogram in a time slot and one in {ref})",
     "unknown_labels": "Are categories observed in a given time slot that are not present in {ref}?",
 }
 
