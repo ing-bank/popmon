@@ -18,6 +18,7 @@ Contents
    configuration
    tree
    developing
+   changelog
 
 API
 ---
