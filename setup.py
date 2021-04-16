@@ -3,8 +3,8 @@ from setuptools import find_packages, setup
 NAME = "popmon"
 
 MAJOR = 0
-REVISION = 3
-PATCH = 15
+REVISION = 4
+PATCH = 0
 DEV = False
 # NOTE: also update version at: README.rst
 

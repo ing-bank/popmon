@@ -2,9 +2,20 @@
 Release notes
 =============
 
-Version 0.3.15, Apr 2021
-------------------------
-* Migrate to version 1.0.25 of Histogrammar.
+Version 0.4.0, (16-04-2021)
+---------------------------
+Documentation:
+
+* **docs**: include BDTWS presentation
+* **docs**: clarify that ``time_axis`` should be date or numeric
+* **docs**: initialize spark with both histogrammar jar files
+
+Build system
+
+* **build**: Migrate to version 1.0.25 of ``histogrammar``.
+* **build**: update ``pyupgrade`` to v2.12.0
+* **build**: update ``isort`` to 5.8.0
+* **build**: update ``flake8`` to 3.9.0
 
 Version 0.3.14, Feb 2021
 ------------------------
