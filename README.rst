@@ -17,8 +17,6 @@ It works with numerical, ordinal, categorical features, and the histograms can b
 as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
 using monitoring business rules.
 
-Latest release: v0.3.15 (April 2021).
-
 |example|
 
 Announcements
@@ -34,8 +32,6 @@ With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogram
   spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20").getOrCreate()
 
 For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
-
-`April 3, 2021`
 
 Examples
 ========
