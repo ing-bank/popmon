@@ -10,7 +10,7 @@ DATA = {"name": ["Name"], "surname": ["Surname"]}
 
 
 def get_ready_ds():
-    return copy.deepcopy(dict(my_data=DATA))
+    return copy.deepcopy({"my_data": DATA})
 
 
 def to_json(data, **kwargs):
@@ -36,7 +36,7 @@ def test_file_writer_json_with_kwargument():
 def test_file_writer_not_a_func():
     datastore = get_ready_ds()
     with pytest.raises(TypeError):
-        FileWriter("my_data", apply_func=dict()).transform(datastore)
+        FileWriter("my_data", apply_func={}).transform(datastore)
 
 
 def test_file_writer_df():

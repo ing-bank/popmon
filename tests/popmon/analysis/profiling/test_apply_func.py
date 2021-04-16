@@ -21,8 +21,7 @@ def get_test_data():
 
 
 def test_pull():
-    datastore = dict()
-    datastore["to_profile"] = {"asc_numbers": get_test_data()}
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     module1 = ApplyFunc(apply_to_key="to_profile")
     module1.add_apply_func(np.std, suffix="_std", entire=True)
@@ -48,8 +47,7 @@ def test_pull():
 
 
 def test_apply_func_module():
-    datastore = dict()
-    datastore["to_profile"] = {"asc_numbers": get_test_data()}
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     def func(x):
         return x + 1
@@ -73,8 +71,7 @@ def test_apply_func_module():
 
 
 def test_variance_comparer():
-    datastore = dict()
-    datastore["to_profile"] = test_comparer_df
+    datastore = {"to_profile": test_comparer_df}
 
     module1 = ApplyFunc(
         apply_to_key="to_profile", features=["the_feature", "dummy_feature"]
@@ -101,8 +98,7 @@ def test_variance_comparer():
 
 
 def test_reference_pull_comparer():
-    datastore = dict()
-    datastore["to_profile"] = test_comparer_df
+    datastore = {"to_profile": test_comparer_df}
 
     mod = ReferencePullCalculator(
         reference_key="to_profile",
@@ -120,8 +116,7 @@ def test_reference_pull_comparer():
 
 
 def test_median_mad_pull_comparer():
-    datastore = dict()
-    datastore["to_profile"] = test_comparer_df
+    datastore = {"to_profile": test_comparer_df}
 
     mod = RefMedianMadPullCalculator(
         reference_key="to_profile",
@@ -139,8 +134,7 @@ def test_median_mad_pull_comparer():
 
 
 def test_rolling_pull_comparer():
-    datastore = dict()
-    datastore["to_profile"] = test_comparer_df
+    datastore = {"to_profile": test_comparer_df}
 
     mod = RollingPullCalculator(
         read_key="to_profile", features=["the_feature", "dummy_feature"], window=3
@@ -157,8 +151,7 @@ def test_rolling_pull_comparer():
 
 
 def test_expanding_pull_comparer():
-    datastore = dict()
-    datastore["to_profile"] = test_comparer_df
+    datastore = {"to_profile": test_comparer_df}
 
     mod = ExpandingPullCalculator(
         read_key="to_profile", features=["the_feature", "dummy_feature"]
