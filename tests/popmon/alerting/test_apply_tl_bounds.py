@@ -71,8 +71,7 @@ def test_apply_monitoring_business_rules():
 
 
 def test_apply_dynamic_traffic_light_bounds():
-    datastore = dict()
-    datastore["to_profile"] = {"asc_numbers": get_test_data()}
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     conf = {"monitoring_rules": {"*_pull": [7, 4, -4, -7]}}
 
@@ -133,8 +132,7 @@ def test_apply_dynamic_traffic_light_bounds():
 
 
 def test_apply_static_traffic_light_bounds():
-    datastore = dict()
-    datastore["to_profile"] = {"asc_numbers": get_test_data()}
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     conf = {"monitoring_rules": {"*_pull": [7, 4, -4, -7]}}
 
@@ -226,8 +224,7 @@ def test_rolling_window_funcs():
 
 
 def test_report_traffic_light_bounds():
-    datastore = dict()
-    datastore["to_profile"] = {"asc_numbers": get_test_data()}
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     conf = {
         "monitoring_rules": {
