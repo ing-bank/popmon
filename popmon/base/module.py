@@ -54,9 +54,9 @@ class Module:
             if default is not None:
                 obj = default
             else:
-                raise RuntimeError(f"`{feature}` not found in the datastore!")
+                raise ValueError(f"`{feature}` not found in the datastore!")
         if not isinstance(obj, dtype):
-            raise RuntimeError(f"obj `{feature}` is not an instance of `{dtype}`!")
+            raise ValueError(f"obj `{feature}` is not an instance of `{dtype}`!")
         return obj
 
     def get_features(self, all_features):

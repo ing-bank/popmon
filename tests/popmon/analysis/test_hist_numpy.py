@@ -1,3 +1,4 @@
+import histogrammar as hg
 import numpy as np
 import pandas as pd
 import pytest
@@ -13,8 +14,6 @@ from popmon.analysis.hist_numpy import (
     prepare_2dgrid,
     set_2dgrid,
 )
-from popmon.hist.histogram import HistogramContainer
-from popmon.hist.patched_histogrammer import histogrammar as hg
 
 
 def to_ns(x):
@@ -50,11 +49,7 @@ def get_test_histograms1():
     hist2.fill.numpy(df)
     hist3.fill.numpy(df)
 
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-    hc3 = HistogramContainer(hist3)
-
-    return df, hc1, hc2, hc3
+    return df, hist1, hist2, hist3
 
 
 def get_test_histograms2():
@@ -75,20 +70,12 @@ def get_test_histograms2():
     hist3.fill.numpy(df)
     hist4.fill.numpy(df)
 
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-    hc3 = HistogramContainer(hist3)
-    hc4 = HistogramContainer(hist4)
-
-    return df, hc1, hc2, hc3, hc4
+    return df, hist1, hist2, hist3, hist4
 
 
 def test_histogram():
     """Test the dummy histogram we're working with below"""
-    df, hc1, hc2, hc3 = get_test_histograms1()
-    hist1 = hc1.hist
-    hist2 = hc2.hist
-    hist3 = hc3.hist
+    df, hist1, hist2, hist3 = get_test_histograms1()
 
     assert hist1.entries == 5
     assert hist1.n_dim == 1
@@ -105,10 +92,7 @@ def test_histogram():
 
 def test_get_contentType():
     """Test getting type of a histogram"""
-    df, hc1, hc2, hc3 = get_test_histograms1()
-    hist1 = hc1.hist
-    hist2 = hc2.hist
-    hist3 = hc3.hist
+    df, hist1, hist2, hist3 = get_test_histograms1()
 
     assert get_contentType(hist1) == "Categorize"
     assert get_contentType(hist2) == "Bin"
@@ -149,10 +133,7 @@ def test_prepare_2dgrid():
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
 def test_set_2dgrid():
     """Test setting the grid for extraction of number of entries for 2d hists"""
-    df, hc1, hc2, hc3 = get_test_histograms1()
-    hist1 = hc1.hist
-    hist2 = hc2.hist
-    hist3 = hc3.hist
+    df, hist1, hist2, hist3 = get_test_histograms1()
 
     xkeys1, ykeys1 = prepare_2dgrid(hist1)
     xkeys2, ykeys2 = prepare_2dgrid(hist2)
@@ -180,10 +161,7 @@ def test_set_2dgrid():
 @pytest.mark.filterwarnings("ignore:Input histogram only has")
 def test_get_2dgrid():
     """Test extraction of number of entries for 2d hists"""
-    df, hc1, hc2, hc3 = get_test_histograms1()
-    hist1 = hc1.hist
-    hist2 = hc2.hist
-    hist3 = hc3.hist
+    df, hist1, hist2, hist3 = get_test_histograms1()
 
     grid1 = get_2dgrid(hist1)
     grid2 = get_2dgrid(hist2)
@@ -232,17 +210,13 @@ def test_get_consistent_numpy_2dgrids():
     hist1.fill.numpy(df1)
     hist2.fill.numpy(df2)
 
-    hc0 = HistogramContainer(hist0)
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-
     args = [""]
     try:
-        get_consistent_numpy_2dgrids([hc0, hc0])
+        get_consistent_numpy_2dgrids([hist0, hist0])
     except ValueError as e:
         args = e.args
 
-    grid2d_list = get_consistent_numpy_2dgrids([hc1, hc2])
+    grid2d_list = get_consistent_numpy_2dgrids([hist1, hist2])
 
     g1 = np.asarray(
         [
@@ -297,11 +271,12 @@ def test_get_consistent_numpy_1dhists():
     hist1.fill.numpy(df1)
     hist2.fill.numpy(df2)
 
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-
-    nphist1, nphist2 = get_consistent_numpy_1dhists([hc1, hc2], get_bin_labels=False)
-    nphist_list, centers = get_consistent_numpy_1dhists([hc1, hc2], get_bin_labels=True)
+    nphist1, nphist2 = get_consistent_numpy_1dhists(
+        [hist1, hist2], get_bin_labels=False
+    )
+    nphist_list, centers = get_consistent_numpy_1dhists(
+        [hist1, hist2], get_bin_labels=True
+    )
 
     entries1 = [1.0, 4.0, 2.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0]
     entries2 = [0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 1.0]
@@ -339,18 +314,14 @@ def test_get_consistent_numpy_entries():
     )
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
-    hist0 = HistogramContainer(hg.Categorize(unit("C")))
-    hist1 = HistogramContainer(hg.Categorize(unit("C")))
-    hist2 = HistogramContainer(
-        hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
-    )
-    hist3 = HistogramContainer(
-        hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
-    )
+    hist0 = hg.Categorize(unit("C"))
+    hist1 = hg.Categorize(unit("C"))
+    hist2 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
+    hist3 = hg.SparselyBin(origin=0.0, binWidth=1.0, quantity=unit("A"))
 
     # fill them
     for hist, df in zip([hist0, hist1, hist2, hist3], [df1, df2, df1, df2]):
-        hist.hist.fill.numpy(df)
+        hist.fill.numpy(df)
 
     e0, e1 = get_consistent_numpy_entries([hist0, hist1], get_bin_labels=False)
     _, labels01 = get_consistent_numpy_entries([hist0, hist1], get_bin_labels=True)
@@ -407,19 +378,12 @@ def test_check_similar_hists():
     for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
         hist.fill.numpy(df)
 
-    hc0 = HistogramContainer(hist0)
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-    hc3 = HistogramContainer(hist3)
-    hc4 = HistogramContainer(hist4)
-    hc5 = HistogramContainer(hist5)
+    for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
+        assert check_similar_hists([hist, hist])
 
-    for hc in [hc0, hc1, hc2, hc3, hc4, hc5]:
-        assert check_similar_hists([hc, hc])
-
-    assert not check_similar_hists([hc0, hc1])
-    assert not check_similar_hists([hc2, hc3])
-    assert not check_similar_hists([hc4, hc5])
+    assert not check_similar_hists([hist0, hist1])
+    assert not check_similar_hists([hist2, hist3])
+    assert not check_similar_hists([hist4, hist5])
 
 
 @pytest.mark.filterwarnings("ignore:Input histograms have inconsistent")
@@ -455,32 +419,25 @@ def test_assert_similar_hists():
     for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
         hist.fill.numpy(df)
 
-    hc0 = HistogramContainer(hist0)
-    hc1 = HistogramContainer(hist1)
-    hc2 = HistogramContainer(hist2)
-    hc3 = HistogramContainer(hist3)
-    hc4 = HistogramContainer(hist4)
-    hc5 = HistogramContainer(hist5)
-
-    for hc in [hc0, hc1, hc2, hc3, hc4, hc5]:
-        assert check_similar_hists([hc, hc])
+    for hist in [hist0, hist1, hist2, hist3, hist4, hist5]:
+        assert check_similar_hists([hist, hist])
 
     args01 = [""]
     args23 = [""]
     args45 = [""]
 
     try:
-        assert_similar_hists([hc0, hc1])
+        assert_similar_hists([hist0, hist1])
     except ValueError as e:
         args01 = e.args
 
     try:
-        assert_similar_hists([hc2, hc3])
+        assert_similar_hists([hist2, hist3])
     except ValueError as e:
         args23 = e.args
 
     try:
-        assert_similar_hists([hc4, hc5])
+        assert_similar_hists([hist4, hist5])
     except ValueError as e:
         args45 = e.args
 
@@ -491,11 +448,8 @@ def test_assert_similar_hists():
 
 def test_datatype():
     """Test datatypes assigned to histograms"""
-    df, hc1, hc2, hc3 = get_test_histograms1()
-    hist1 = hc1.hist
-    hist2 = hc2.hist
-    hist3 = hc3.hist
+    df, hist1, hist2, hist3 = get_test_histograms1()
 
     assert hist1.datatype == str
-    np.testing.assert_array_equal(hist2.datatype, [np.float64, str])
-    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.float64, str])
+    np.testing.assert_array_equal(hist2.datatype, [np.number, str])
+    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.number, str])

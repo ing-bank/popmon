@@ -78,7 +78,7 @@ def test_expanding_hist():
 
     df = datastore["output_hist"]["num_employees"]
     h = df["histogram_sum"].values[-1]
-    bin_entries = h.hist.bin_entries()
+    bin_entries = h.bin_entries()
 
     check = np.array(
         [
@@ -238,7 +238,7 @@ def test_rolling_hist():
 
     df = datastore["output_hist"]["num_employees"]
     h = df["histogram_sum"].values[-2]
-    bin_entries = h.hist.bin_entries()
+    bin_entries = h.bin_entries()
 
     check = np.array(
         [

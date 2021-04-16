@@ -29,23 +29,21 @@ With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogram
 
 .. code-block:: python
 
-  spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.11,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.11").getOrCreate()
+  spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20").getOrCreate()
 
 For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
-
-`January 29, 2021`
-
-Documentation
-=============
-
-The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
-
 
 Examples
 ========
 
 - `Flight Delays and Cancellations Kaggle data <https://crclz.com/popmon/reports/flight_delays_report.html>`_
 - `Synthetic data (code example below) <https://crclz.com/popmon/reports/test_data_report.html>`_
+
+Documentation
+=============
+
+The entire `popmon` documentation including tutorials can be found at `read-the-docs <https://popmon.readthedocs.io>`_.
+
 
 Notebooks
 =========
@@ -151,19 +149,21 @@ Resources
 Presentations
 -------------
 
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| Title                                                                                          | Host                                                                                             | Date             | Speaker                 |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| Popmon - population monitoring made easy                                                       | `Data Lunch @ Eneco <https://www.eneco.nl/>`_                                                    | October 29, 2020 | Max Baak, Simon Brugman |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| Popmon - population monitoring made easy                                                       | `Data Science Summit 2020 <https://dssconf.pl/en/>`_                                             | October 16, 2020 | Max Baak                |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| `Population Shift Monitoring Made Easy: the popmon package <https://youtu.be/PgaQpxzT_0g>`_    | `Online Data Science Meetup @ ING WBAA <https://www.meetup.com/nl-NL/Tech-Meetups-ING/events/>`_ | July 8 2020      | Tomas Sostak            |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| `Popmon: Population Shift Monitoring Made Easy <https://www.youtube.com/watch?v=HE-3YeVYqPY>`_ | `PyData Fest Amsterdam 2020 <https://amsterdam.pydata.org/>`_                                    | June 16, 2020    | Tomas Sostak            |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
-| Popmon: Population Shift Monitoring Made Easy                                                  | `Amundsen Community Meetup <https://github.com/amundsen-io/amundsen>`_                           | June 4, 2020     | Max Baak                |
-+------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+------------------+-------------------------+
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| Title                                                                                          | Host                                                                                             | Date              | Speaker                 |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| Popmon - population monitoring made easy                                                       | `Big Data Technology Warsaw Summit 2021 <https://bigdatatechwarsaw.eu/>`_                        | February 25, 2021 | Simon Brugman           |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| Popmon - population monitoring made easy                                                       | `Data Lunch @ Eneco <https://www.eneco.nl/>`_                                                    | October 29, 2020  | Max Baak, Simon Brugman |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| Popmon - population monitoring made easy                                                       | `Data Science Summit 2020 <https://dssconf.pl/en/>`_                                             | October 16, 2020  | Max Baak                |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| `Population Shift Monitoring Made Easy: the popmon package <https://youtu.be/PgaQpxzT_0g>`_    | `Online Data Science Meetup @ ING WBAA <https://www.meetup.com/nl-NL/Tech-Meetups-ING/events/>`_ | July 8 2020       | Tomas Sostak            |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| `Popmon: Population Shift Monitoring Made Easy <https://www.youtube.com/watch?v=HE-3YeVYqPY>`_ | `PyData Fest Amsterdam 2020 <https://amsterdam.pydata.org/>`_                                    | June 16, 2020     | Tomas Sostak            |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
+| Popmon: Population Shift Monitoring Made Easy                                                  | `Amundsen Community Meetup <https://github.com/amundsen-io/amundsen>`_                           | June 4, 2020      | Max Baak                |
++------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+-------------------+-------------------------+
 
 
 Articles

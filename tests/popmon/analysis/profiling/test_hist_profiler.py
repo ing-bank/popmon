@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from popmon.analysis.profiling.hist_profiler import HistProfiler
-from popmon.hist.histogram import HistogramContainer
+from popmon.hist.hist_utils import get_bin_centers
 
 
 def test_profile_hist1d():
@@ -17,9 +17,7 @@ def test_profile_hist1d():
     for i in range(split_len):
         h = hg.Bin(num_bins, 0, 1, lambda x: x)
         h.fill.numpy(np.random.uniform(0, 1, num_entries))
-        split.append(
-            {"date": pd.Timestamp("2019 - 1 - 1"), hist_name: HistogramContainer(h)}
-        )
+        split.append({"date": pd.Timestamp("2019 - 1 - 1"), hist_name: h})
 
     hp = HistProfiler(
         read_key="dummy_input",
@@ -32,5 +30,5 @@ def test_profile_hist1d():
 
     assert len(profiles) == split_len
     assert "p95" in profiles[0]
-    assert profiles[1]["max"] == np.max(split[1][hist_name].get_bin_centers()[0])
-    assert len(profiles[0][hist_name].hist.bin_entries()) == num_bins
+    assert profiles[1]["max"] == np.max(get_bin_centers(split[1][hist_name])[0])
+    assert len(profiles[0][hist_name].bin_entries()) == num_bins

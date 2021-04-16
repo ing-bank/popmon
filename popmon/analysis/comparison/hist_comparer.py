@@ -39,7 +39,7 @@ from ...analysis.hist_numpy import (
     get_consistent_numpy_entries,
 )
 from ...base import Pipeline
-from ...hist.histogram import HistogramContainer
+from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
 from ...stats.numpy import googl_test, ks_prob, ks_test, uu_chi2
 
 
@@ -78,21 +78,21 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         hist_name1 = cols[0]
         hist_name2 = cols[1]
     if not all([name in cols for name in [hist_name1, hist_name2]]):
-        raise RuntimeError("Need to provide two histogram column names.")
+        raise ValueError("Need to provide two histogram column names.")
 
     # basic histogram checks
-    hc1 = row[hist_name1]
-    hc2 = row[hist_name2]
-    if not all([isinstance(hc, HistogramContainer) for hc in [hc1, hc2]]):
+    hist1 = row[hist_name1]
+    hist2 = row[hist_name2]
+    if not all([isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]]):
         return x
-    if not check_similar_hists([hc1, hc2]):
+    if not check_similar_hists([hist1, hist2]):
         return x
 
     # compare
-    is_num = hc1.is_num
-    if hc1.n_dim == 1:
+    is_num = is_numeric(hist1)
+    if hist1.n_dim == 1:
         if is_num:
-            numpy_1dhists = get_consistent_numpy_1dhists([hc1, hc2])
+            numpy_1dhists = get_consistent_numpy_1dhists([hist1, hist2])
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             # KS-test only properly defined for (ordered) 1D interval variables
             ks_testscore = ks_test(*entries_list)
@@ -101,14 +101,14 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
             x["ks_pvalue"] = ks_pvalue
             x["ks_zscore"] = -norm.ppf(ks_pvalue)
         else:  # categorical
-            entries_list = get_consistent_numpy_entries([hc1, hc2])
+            entries_list = get_consistent_numpy_entries([hist1, hist2])
             # check consistency of bin_labels
-            labels1 = hc1.hist.bin_labels()
-            labels2 = hc2.hist.bin_labels()
+            labels1 = hist1.bin_labels()
+            labels2 = hist2.bin_labels()
             subset = set(labels1) <= set(labels2)
             unknown_labels = int(not subset)
-    elif hc1.n_dim == 2:
-        numpy_2dgrids = get_consistent_numpy_2dgrids([hc1, hc2])
+    elif hist1.n_dim == 2:
+        numpy_2dgrids = get_consistent_numpy_2dgrids([hist1, hist2])
         entries_list = [entry.flatten() for entry in numpy_2dgrids]
 
     # calculate pearson coefficient

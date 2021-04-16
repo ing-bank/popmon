@@ -23,7 +23,6 @@ import numpy as np
 
 from ..analysis.hist_numpy import assert_similar_hists
 from ..base import Module
-from ..hist.histogram import HistogramContainer
 
 
 class HistStitcher(Module):
@@ -218,14 +217,14 @@ class HistStitcher(Module):
                     hists_basis, features_basis, time_axis, len(hists_delta)
                 )
                 if time_bin_idx is None:
-                    raise RuntimeError(
+                    raise ValueError(
                         "Request to insert delta hists but time_bin_idx not set. Please do."
                     )
                 self.logger.info(
                     f'Inserting delta histograms in axis "{time_axis}" at bin indices {time_bin_idx}.'
                 )
             if len(hists_delta) != len(time_bin_idx):
-                raise RuntimeError(
+                raise ValueError(
                     "Not enough time_bin_idxs set to insert delta histograms."
                 )
             for key in list(delta_keys):
@@ -233,7 +232,7 @@ class HistStitcher(Module):
                 if feature not in features_basis:
                     continue
                 self.logger.debug(f'Now inserting into histogram "{feature}"')
-                hist_list = [HistogramContainer(hd[key]) for hd in hists_delta]
+                hist_list = [hd[key] for hd in hists_delta]
                 stitched[feature] = self._insert_hists(
                     hists_basis[feature], hist_list, time_bin_idx, mode
                 )
@@ -258,7 +257,7 @@ class HistStitcher(Module):
             return hists_basis
         for feature in features_overlap:
             self.logger.debug(f'Now stitching histograms "{feature}"')
-            hist_list = [HistogramContainer(hd[feature]) for hd in hists_list]
+            hist_list = [hd[feature] for hd in hists_list]
             stitched[feature] = self._stitch_by_update(mode, hist_list)
         # add basis hists without any overlap
         for feature in features_basis:
@@ -279,10 +278,7 @@ class HistStitcher(Module):
         assert len(features_basis) > 0
         assert all([f.startswith(time_axis) for f in features_basis])
 
-        hist_list = [
-            h.hist if isinstance(h, HistogramContainer) else h
-            for h in hists_basis.values()
-        ]
+        hist_list = list(hists_basis.values())
 
         all_sparse = all([isinstance(h, hg.SparselyBin) for h in hist_list])
         all_cat = (
@@ -331,7 +327,7 @@ class HistStitcher(Module):
         """
         # basic checks on time-values
         if len(hdelta_list) != len(time_bin_idx) or len(hdelta_list) == 0:
-            raise RuntimeError(
+            raise ValueError(
                 "hdelta_list and time_bin_idx should be filled and same size."
             )
         dts = [type(tv) for tv in time_bin_idx]
@@ -341,14 +337,10 @@ class HistStitcher(Module):
             raise TypeError("time_bin_idxs should be an (ordered) string or integer.")
 
         # consistency checks on histogram definitions
-        hbasis = hbasis.hist if isinstance(hbasis, HistogramContainer) else hbasis
         if not hasattr(hbasis, "bins"):
-            raise RuntimeError(
+            raise ValueError(
                 "basis histogram does not have bins attribute. cannot insert."
             )
-        hdelta_list = [
-            hd.hist if isinstance(hd, HistogramContainer) else hd for hd in hdelta_list
-        ]
         if len(hbasis.bins) > 0:
             hbk0 = list(hbasis.bins.values())[0]
             assert_similar_hists([hbk0] + hdelta_list)
@@ -396,7 +388,6 @@ class HistStitcher(Module):
             raise TypeError(
                 "time_bin_idx not set. should be an (ordered) string or integer."
             )
-        hist = hist.hist if isinstance(hist, HistogramContainer) else hist
 
         ht = (
             hg.SparselyBin(binWidth=1.0, origin=0.0, quantity=lambda x: x)
@@ -419,13 +410,9 @@ class HistStitcher(Module):
         :param list hist_list: list of input histogrammar histograms
         :return: list of consistent 1d numpy arrays with bin_entries for list of input histograms
         """
-        hist_list = [
-            hc.hist if isinstance(hc, HistogramContainer) else hc for hc in hist_list
-        ]
-
         # --- basic checks
         if len(hist_list) == 0:
-            raise RuntimeError("Input histogram list has zero length.")
+            raise ValueError("Input histogram list has zero length.")
         assert_similar_hists(hist_list)
 
         # --- loop over all histograms and update zeroed-original consecutively

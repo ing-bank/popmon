@@ -329,7 +329,7 @@ def df_single_op_pull_bounds(
     :param list cols: list of cols to calculate bounds of (optional)
     """
     if len(df.index) == 0:
-        raise RuntimeError("input df has zero length")
+        raise ValueError("input df has zero length")
     row = df.iloc[0]
     return pull_bounds(
         row, red_high, yellow_high, yellow_low, red_low, suffix_mean, suffix_std, cols
