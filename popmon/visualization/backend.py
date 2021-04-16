@@ -37,7 +37,7 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
     :param str backend: backend to set
     :param bool batch: require backend to be non-interactive
     :param bool silent: do not raise exception if backend cannot be set
-    :raises: RuntimeError
+    :raises: ValueError
     """
     try:
         # it's very useful to call this function in the configuration of popmon,

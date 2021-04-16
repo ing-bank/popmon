@@ -3,7 +3,7 @@ import pytest
 
 from popmon import resources
 from popmon.base import Pipeline
-from popmon.hist.filling.make_histograms import get_bin_specs
+from popmon.hist.filling import get_bin_specs
 from popmon.io import JsonReader
 from popmon.pipeline.report import df_stability_report, stability_report
 
@@ -74,14 +74,10 @@ def test_df_stability_report_self():
     hists = datastore["hists"]
     bin_specs = get_bin_specs(hists)
 
-    assert pd.Timedelta(time_width).value == bin_specs["date:eyeColor"][0]["bin_width"]
-    assert (
-        pd.Timestamp(time_offset).value == bin_specs["date:eyeColor"][0]["bin_offset"]
-    )
-    assert pd.Timedelta(time_width).value == bin_specs["date:latitude"][0]["bin_width"]
-    assert (
-        pd.Timestamp(time_offset).value == bin_specs["date:latitude"][0]["bin_offset"]
-    )
+    assert pd.Timedelta(time_width).value == bin_specs["date:eyeColor"][0]["binWidth"]
+    assert pd.Timestamp(time_offset).value == bin_specs["date:eyeColor"][0]["origin"]
+    assert pd.Timedelta(time_width).value == bin_specs["date:latitude"][0]["binWidth"]
+    assert pd.Timestamp(time_offset).value == bin_specs["date:latitude"][0]["origin"]
 
 
 def test_df_stability_report_external():

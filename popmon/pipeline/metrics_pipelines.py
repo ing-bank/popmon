@@ -171,7 +171,7 @@ def metrics_external_reference(
 
     :param str hists_key: key to test histograms in datastore. default is 'test_hists'
     :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
-    :param str time_axis: name of datetime feature. default is 'date'
+    :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
     :param int window: window size for trend detection. default is 10
     :param dict monitoring_rules: traffic light rules
     :param dict pull_rules: pull rules to determine dynamic boundaries
