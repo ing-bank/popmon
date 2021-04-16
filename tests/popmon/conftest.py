@@ -9,8 +9,7 @@ from popmon import resources
 
 
 def get_comparer_data():
-
-    test_comparer_df = dict()
+    test_comparer_df = {}
     df = pd.DataFrame(
         data={
             "mae": [0.1, 0.11, 0.12, 0.2, 0.09],
