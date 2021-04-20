@@ -74,8 +74,7 @@ section_descriptions = {
                    is represented by one bin). The yellow and red lines represent the corresponding
                    traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data).""",
     "comparisons": "Statistical comparisons of each time period (one bin) to the reference data.",
-    "traffic_lights": """Traffic light calculation for different statistics (based on the calculated
-                         normalized residual, a.k.a. pull) for each time period.""",
+    "traffic_lights": "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default.",
     "alerts": "Alerts aggregated by all traffic lights for each feature.",
     "histograms": "Histograms of the last few time slots (default: 2).",
 }
