@@ -34,7 +34,7 @@ from popmon.resources import templates_env
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
-mpl_style(dark=False)
+mpl_style(dark=False, minor_ticks=False)
 
 
 def plt_to_str(format="png"):
