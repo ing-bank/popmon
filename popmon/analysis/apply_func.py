@@ -58,7 +58,7 @@ class ApplyFunc(Module):
         :param list apply_funcs: functions to apply (list of dicts):
 
           - 'func': function to apply
-          - 'suffix' (string, optional): suffix added to each metric. default is fuction name.
+          - 'suffix' (string, optional): suffix added to each metric. default is function name.
           - 'prefix' (string, optional): prefix added to each metric.
           - 'features' (list, optional): features the function is applied to. Overwrites features above
           - 'metrics' (list, optional): metrics the function is applied to. Overwrites metrics above
