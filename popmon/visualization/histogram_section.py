@@ -33,7 +33,11 @@ from ..analysis.hist_numpy import (
 from ..base import Module
 from ..config import get_stat_description
 from ..utils import short_date
-from ..visualization.utils import plot_overlay_1d_histogram_b64
+from ..visualization.utils import (
+    plot_heatmap_1d_histogram_b64,
+    plot_overlay_1d_histogram_b64,
+    plot_stacked_1d_histogram_b64,
+)
 
 
 class HistogramSection(Module):
@@ -69,7 +73,6 @@ class HistogramSection(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
-        self.last_n = last_n if last_n >= 1 else 1
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
@@ -80,14 +83,11 @@ class HistogramSection(Module):
         features = self.get_features(data_obj.keys())
         features_w_metrics = []
 
-        num_cores = multiprocessing.cpu_count()
-
         self.logger.info(f'Generating section "{self.section_name}".')
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
 
-            last_n = len(df.index) if len(df.index) < self.last_n else self.last_n
             hist_names = [hn for hn in self.hist_names if hn in df.columns]
             if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
                 # if no columns are given, find histogram columns.
@@ -101,15 +101,24 @@ class HistogramSection(Module):
                 continue
 
             # get base64 encoded plot for each metric; do parallel processing to speed up.
-            dates = [short_date(str(date)) for date in df.index[-last_n:]]
-            hists = [
-                df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
-            ]
+            dates = [short_date(str(date)) for date in df.index.values]
+            hists = [x[0] for x in df[["histogram"]].values.tolist()]
 
-            plots = Parallel(n_jobs=num_cores)(
-                delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
-                for i in range(last_n)
-            )
+            plots = [
+                _plot_histograms(
+                    feature,
+                    "histogram (stacked bars)",
+                    hists,
+                    dates,
+                    plot_type="stacked",
+                ),
+            ]
+            # plots.append(
+            #     _plot_histograms(
+            #         feature, "histogram (heatmap)", hists, dates, plot_type="heatmap"
+            #     )
+            # )
+
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
@@ -130,7 +139,7 @@ class HistogramSection(Module):
         return datastore
 
 
-def _plot_histograms(feature, date, hc_list, hist_names):
+def _plot_histograms(feature, date, hc_list, hist_names, plot_type="stacked"):
     """Split off plot histogram generation to allow for parallel processing
 
     :param str feature: feature
@@ -180,13 +189,29 @@ def _plot_histograms(feature, date, hc_list, hist_names):
                 for el, hc in zip(entries_list, hc_list)
             ]
         hists = [(el, bins) for el in entries_list]
-        plot = plot_overlay_1d_histogram_b64(
-            hists, feature, hist_names, y_label, is_num, is_ts
-        )
+        if plot_type == "overlay":
+            plot = plot_overlay_1d_histogram_b64(
+                hists, feature, hist_names, y_label, is_num, is_ts
+            )
+        elif plot_type == "stacked":
+            plot = plot_stacked_1d_histogram_b64(
+                hists, feature, hist_names, y_label, is_num, is_ts
+            )
+        elif plot_type == "heatmap":
+            plot = plot_heatmap_1d_histogram_b64(
+                hists, feature, hist_names, y_label, is_num, is_ts
+            )
+        else:
+            raise ValueError("'plot_type' should be 'overlay', 'stacked' or 'heatmap'")
     elif hc_list[0].n_dim == 2:
         # grid2d_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hc_list, get_bin_labels=True)
         plot = ""
     else:
         plot = ""
 
-    return {"name": date, "description": get_stat_description(date), "plot": plot}
+    return {
+        "name": date,
+        "description": get_stat_description(date),
+        "plot": plot,
+        "full_width": True,
+    }

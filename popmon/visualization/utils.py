@@ -20,21 +20,26 @@
 
 import logging
 import math
+from collections import defaultdict
 from io import BytesIO, StringIO
-from typing import List
+from textwrap import shorten
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 import pybase64
 from ing_theme_matplotlib import mpl_style
 from matplotlib import pyplot as plt
+from matplotlib.colorbar import ColorbarBase
+from matplotlib.colors import BoundaryNorm, ListedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from popmon.resources import templates_env
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
-mpl_style(dark=False)
+mpl_style(dark=False, minor_ticks=False)
 
 
 def plt_to_str(format="png"):
@@ -357,99 +362,88 @@ def plot_overlay_1d_histogram_b64(
     # basic checks
     if len(hist_names) == 0:
         hist_names = [f"hist{i}" for i in range(len(hists))]
+
     if hist_names:
         if len(hists) != len(hist_names):
             raise ValueError("length of hist and hist_names are different")
 
-    plt.figure(figsize=(9, 7))
+    for hist in hists:
+        if len(hist) != 2:
+            raise ValueError("Cannot extract binning and values from input histogram")
+        hist_values, hist_bins = hist
+        if hist_values is None or not len(hist_values):
+            raise ValueError("Histogram bin values have not been set.")
+        if hist_bins is None or not len(hist_bins):
+            raise ValueError("Histogram binning has not been set.")
+
+        if is_num or is_ts:
+            if len(hist_bins) != len(hist_values) + 1:
+                raise ValueError(
+                    "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+        else:
+            if len(hist_bins) != len(hist_values):
+                raise ValueError(
+                    "labels and values have different array lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+
+    y_label = str(y_label) if y_label is not None else "Bin count"
+
+    plt.subplots(figsize=(9, 7))
 
     alpha = 1.0 / len(hists)
-    for i, hist in enumerate(hists):
-        try:
-            hist_values = hist[0]
-            hist_bins = hist[1]
-        except BaseException:
-            raise ValueError("Cannot extract binning and values from input histogram")
 
-        assert hist_values is not None and len(
-            hist_values
-        ), "Histogram bin values have not been set."
-        assert hist_bins is not None and len(
-            hist_bins
-        ), "Histogram binning has not been set."
-
-        # basic attribute check: time stamps treated as numeric.
-        if is_ts:
-            is_num = True
-
+    if is_num or is_ts:
         # plot numeric and time stamps
-        if is_num:
-            bin_edges = hist_bins
-            bin_values = hist_values
-            assert (
-                len(bin_edges) == len(bin_values) + 1
-            ), "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
-                len(bin_edges), len(bin_values), x_label
-            )
-
+        for i, (hist_values, hist_bins) in enumerate(hists):
             if is_ts:
                 # difference in seconds
-                be_tsv = [pd.Timestamp(ts).value for ts in bin_edges]
+                be_tsv = [pd.Timestamp(ts).value for ts in hist_bins]
                 width = np.diff(be_tsv)
                 # pd.Timestamp(ts).value is in ns
-                # maplotlib dates have base of 1 day
+                # matplotlib dates have base of 1 day
                 width = width / NUM_NS_DAY
             elif width_in:
                 width = width_in
             else:
-                width = np.diff(bin_edges)
+                width = np.diff(hist_bins)
 
             # plot histogram
             plt.bar(
-                bin_edges[:-1],
-                bin_values,
+                hist_bins[:-1],
+                hist_values,
                 width=width,
                 alpha=alpha,
                 label=hist_names[i],
             )
 
             # set x-axis properties
-            if xlim:
-                plt.xlim(xlim)
-            else:
-                plt.xlim(min(bin_edges), max(bin_edges))
+            if not xlim:
+                xlim = min(hist_bins), max(hist_bins)
+            plt.xlim(xlim)
             plt.xticks(fontsize=12, rotation=90 if is_ts else 0)
-
+    else:
         # plot categories
-        else:
-            labels = hist_bins
-            values = hist_values
-            assert len(labels) == len(
-                values
-            ), "labels and values have different array lengths: {:d} vs {:d}. {}".format(
-                len(labels), len(values), x_label
-            )
-
+        for i, (hist_values, hist_bins) in enumerate(hists):
             # plot histogram
-            tick_pos = np.arange(len(labels)) + 0.5
-            plt.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
+            tick_pos = np.arange(len(hist_bins)) + 0.5
+            plt.bar(tick_pos, hist_values, width=0.8, alpha=alpha, label=hist_names[i])
+
+            short_labels = [
+                shorten(lab, width=top, placeholder="...") for lab in hist_bins
+            ]
 
             # set x-axis properties
-            def xtick(lab):
-                """Get x-tick."""
-                lab = str(lab)
-                if len(lab) > top:
-                    lab = lab[:17] + "..."
-                return lab
-
-            plt.xlim((0.0, float(len(labels))))
-            plt.xticks(
-                tick_pos, [xtick(lab) for lab in labels], fontsize=12, rotation=90
-            )
+            plt.xlim((0.0, float(len(hist_bins))))
+            plt.xticks(tick_pos, short_labels, fontsize=12, rotation=90)
 
     # set common histogram properties
     plt.xlabel(x_label, fontsize=14)
-    plt.ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
+    plt.ylabel(y_label, fontsize=14)
     plt.yticks(fontsize=12)
     plt.grid()
     plt.legend()
@@ -473,3 +467,309 @@ def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
     if skip_last_n > 0:
         values = values[:-skip_last_n]
     return values
+
+
+def plot_stacked_1d_histogram_b64(
+    hists,
+    x_label,
+    hist_names=[],
+    y_label: Optional[str] = None,
+    is_num=True,
+    is_ts=False,
+    top=20,
+    width_in=None,
+    xlim=None,
+):
+    """Create and plot (overlapping) histogram(s) of column values.
+
+    Copyright Eskapade:
+    Kindly taken from Eskapade package and then modified. Reference link:
+    https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
+    License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
+    Modifications copyright ING WBAA.
+
+    :param list hists: list of input numpy histogram = values, bin_edges
+    :param str x_label: Label for histogram x-axis
+    :param list hist_names: list of histogram names. default is [].
+    :param str y_label: Label for histogram y-axis. default is None.
+    :param bool is_num: True if observable to plot is numeric. default is True.
+    :param bool is_ts: True if observable to plot is a timestamp. default is False.
+    :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
+    :param float width_in: the width of the bars of the histogram in percentage (0-1). default is None.
+    :param tuple xlim: set the x limits of the current axes. default is None.
+    :return: base64 encoded plot image
+    :rtype: str
+    """
+    # basic checks
+    if len(hist_names) == 0:
+        hist_names = [f"hist{i}" for i in range(len(hists))]
+
+    if hist_names:
+        if len(hists) != len(hist_names):
+            raise ValueError("length of hist and hist_names are different")
+
+    for hist in hists:
+        if len(hist) != 2:
+            raise ValueError("Cannot extract binning and values from input histogram")
+        hist_values, hist_bins = hist
+        if hist_values is None or not len(hist_values):
+            raise ValueError("Histogram bin values have not been set.")
+        if hist_bins is None or not len(hist_bins):
+            raise ValueError("Histogram binning has not been set.")
+
+        if is_num or is_ts:
+            if len(hist_bins) != len(hist_values) + 1:
+                raise ValueError(
+                    "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+        else:
+            if len(hist_bins) != len(hist_values):
+                raise ValueError(
+                    "labels and values have different array lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+
+    y_label = str(y_label) if y_label is not None else "Bin count"
+
+    fig, axs = plt.subplots(figsize=(14, 6))
+
+    tick_pos = np.arange(len(hist_names)) + 0.5
+
+    bars_pos = defaultdict(list)
+    bars_val = defaultdict(list)
+
+    if is_num or is_ts:
+        # plot numeric and time stamps
+        # bars_wid = defaultdict(list)
+
+        for i, (hist_values, hist_bins) in enumerate(hists):
+            # if is_ts:
+            #     # difference in seconds
+            #     be_tsv = [pd.Timestamp(ts).value for ts in hist_bins]
+            #     width = np.diff(be_tsv)
+            #     # pd.Timestamp(ts).value is in ns
+            #     # matplotlib dates have base of 1 day
+            #     width = width / NUM_NS_DAY
+            # elif width_in:
+            #     width = width_in
+            # else:
+            #     width = np.diff(hist_bins)
+
+            for bin_name, bin_value in zip(hist_bins[:-1], hist_values):
+                bars_pos[bin_name].append(tick_pos[i])
+                bars_val[bin_name].append(bin_value)
+                # bars_wid[bin_name].append(width)
+
+    else:
+        # plot categories
+        for i, (hist_values, hist_bins) in enumerate(hists):
+            # plot histogram
+            for name, value in zip(hist_bins, hist_values):
+                bars_pos[name].append(tick_pos[i])
+                bars_val[name].append(value)
+
+    # Threshold: only keep top-n
+    if is_num or is_ts:
+        min_probs = 0.001
+        for ij, name in enumerate(list(bars_pos.keys())):
+            prob = np.max(bars_val[name])
+            if prob < min_probs:
+                del bars_pos[name]
+                del bars_val[name]
+    else:
+        top_n = 25
+        if len(bars_pos) > top_n:
+            probs = {}
+            for ij, name in enumerate(list(bars_pos.keys())):
+                probs[name] = np.max(bars_val[name])
+
+            probs = {k: v for k, v in sorted(probs.items(), key=lambda item: item[1])}
+            probs = dict(list(probs.items())[top_n:])
+            for name in probs.keys():
+                del bars_pos[name]
+                del bars_val[name]
+
+    b = None
+    colors = plt.cm.nipy_spectral(np.linspace(0, 1, len(bars_pos)))
+    for ij, name in enumerate(bars_pos.keys()):
+        plt.bar(
+            bars_pos[name],
+            bars_val[name],
+            bottom=b,
+            width=0.8,
+            label=str(name),
+            color=colors[ij],
+        )
+        if b is None:
+            b = bars_val[name]
+        else:
+            b = [v1 + v2 for v1, v2 in zip(b, bars_val[name])]
+
+    # set x-axis properties
+    plt.xlim((0.0, float(len(hist_names))))
+    plt.xticks(tick_pos, hist_names, fontsize=12, rotation=90)
+
+    # set common histogram properties
+    plt.xlabel(x_label, fontsize=14)
+    plt.ylabel(y_label, fontsize=14)
+    plt.yticks(fontsize=12)
+    plt.grid()
+    if not (is_num or is_ts):
+        plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    else:
+        divider = make_axes_locatable(axs)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        # FIXME: bins != edges/boundaries
+        norm = BoundaryNorm(list(bars_pos.keys()), len(bars_pos.keys()))
+        _ = ColorbarBase(
+            cax, cmap=ListedColormap(colors), norm=norm, orientation="vertical"
+        )
+
+    fig.tight_layout()
+
+    return plt_to_str()
+
+
+def plot_heatmap_1d_histogram_b64(
+    hists,
+    x_label,
+    hist_names=[],
+    y_label: Optional[str] = None,
+    is_num=True,
+    is_ts=False,
+    top=20,
+    width_in=None,
+    xlim=None,
+):
+    """Create and plot (overlapping) histogram(s) of column values.
+
+    Copyright Eskapade:
+    Kindly taken from Eskapade package and then modified. Reference link:
+    https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
+    License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
+    Modifications copyright ING WBAA.
+
+    :param list hists: list of input numpy histogram = values, bin_edges
+    :param str x_label: Label for histogram x-axis
+    :param list hist_names: list of histogram names. default is [].
+    :param str y_label: Label for histogram y-axis. default is None.
+    :param bool is_num: True if observable to plot is numeric. default is True.
+    :param bool is_ts: True if observable to plot is a timestamp. default is False.
+    :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
+    :param float width_in: the width of the bars of the histogram in percentage (0-1). default is None.
+    :param tuple xlim: set the x limits of the current axes. default is None.
+    :return: base64 encoded plot image
+    :rtype: str
+    """
+    # basic checks
+    if len(hist_names) == 0:
+        hist_names = [f"hist{i}" for i in range(len(hists))]
+
+    if hist_names:
+        if len(hists) != len(hist_names):
+            raise ValueError("length of hist and hist_names are different")
+
+    for hist in hists:
+        if len(hist) != 2:
+            raise ValueError("Cannot extract binning and values from input histogram")
+        hist_values, hist_bins = hist
+        if hist_values is None or not len(hist_values):
+            raise ValueError("Histogram bin values have not been set.")
+        if hist_bins is None or not len(hist_bins):
+            raise ValueError("Histogram binning has not been set.")
+
+        if is_num or is_ts:
+            if len(hist_bins) != len(hist_values) + 1:
+                raise ValueError(
+                    "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+        else:
+            if len(hist_bins) != len(hist_values):
+                raise ValueError(
+                    "labels and values have different array lengths: {:d} vs {:d}. {}".format(
+                        len(hist_bins), len(hist_values), x_label
+                    )
+                )
+
+    fig, axs = plt.subplots()
+
+    tick_pos = np.arange(len(hist_names))
+
+    bars_pos = defaultdict(list)
+    bars_val = defaultdict(list)
+
+    if is_num or is_ts:
+        # plot numeric and time stamps
+        bars_wid = defaultdict(list)
+
+        for i, (hist_values, hist_bins) in enumerate(hists):
+            if is_ts:
+                # difference in seconds
+                be_tsv = [pd.Timestamp(ts).value for ts in hist_bins]
+                width = np.diff(be_tsv)
+                # pd.Timestamp(ts).value is in ns
+                # matplotlib dates have base of 1 day
+                width = width / NUM_NS_DAY
+            elif width_in:
+                width = width_in
+            else:
+                width = np.diff(hist_bins)
+
+            for bin_name, bin_value in zip(hist_bins[:-1], hist_values):
+                bars_pos[bin_name].append(tick_pos[i])
+                bars_val[bin_name].append(bin_value)
+                bars_wid[bin_name].append(width)
+
+    else:
+        # plot categories
+        for i, (hist_values, hist_bins) in enumerate(hists):
+            # plot histogram
+            for name, value in zip(hist_bins, hist_values):
+                bars_pos[name].append(tick_pos[i])
+                bars_val[name].append(value)
+
+    n_dates = len(hist_names)
+    n_vals = len(bars_pos)
+
+    shape = n_vals, n_dates
+    data = np.zeros(shape)
+    for ij, name in enumerate(bars_pos.keys()):
+        for ji, val in enumerate(bars_val[name]):
+            data[ij, ji] = val
+
+    im = plt.imshow(
+        data,
+        interpolation="none",
+        # aspect="equal",
+        cmap=plt.cm.coolwarm,
+    )
+
+    # set x-axis properties
+    plt.xticks(tick_pos, hist_names, fontsize=12, rotation=90)
+    bin_labels = [
+        f"{v:.2f}".rstrip("0").rstrip(".") if isinstance(v, (float, int)) else v
+        for v in bars_pos.keys()
+    ]
+    plt.yticks(list(range(n_vals)), bin_labels, fontsize=12)
+
+    # set common histogram properties
+    plt.xlabel(x_label, fontsize=14)
+    plt.ylabel("Values", fontsize=14)
+    plt.yticks(fontsize=12)
+    plt.grid()
+
+    cbar = fig.colorbar(im, ax=axs)
+    cbar.set_label("Bin probability")
+
+    # Aspect ratio scaling (approximate)
+    w = 0.24 * n_dates + 3.0
+    h = 0.24 * n_vals + 3.5
+    fig.set_size_inches(w, h)
+    fig.tight_layout()
+
+    return plt_to_str()
