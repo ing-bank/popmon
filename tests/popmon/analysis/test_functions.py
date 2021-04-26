@@ -63,13 +63,13 @@ def test_expanding_hist():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=expanding_hist,
-                        shift=1,
-                        suffix="sum",
-                        entire=True,
-                        hist_name="histogram",
-                    )
+                    {
+                        "func": expanding_hist,
+                        "shift": 1,
+                        "suffix": "sum",
+                        "entire": True,
+                        "hist_name": "histogram",
+                    }
                 ],
             ),
         ]
@@ -222,14 +222,14 @@ def test_rolling_hist():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=rolling_hist,
-                        window=5,
-                        shift=1,
-                        suffix="sum",
-                        entire=True,
-                        hist_name="histogram",
-                    )
+                    {
+                        "func": rolling_hist,
+                        "window": 5,
+                        "shift": 1,
+                        "suffix": "sum",
+                        "entire": True,
+                        "hist_name": "histogram",
+                    }
                 ],
             ),
         ]
@@ -333,7 +333,7 @@ def test_normalized_hist_mean_cov():
             ApplyFunc(
                 apply_to_key="output_hist",
                 assign_to_key="output_hist",
-                apply_funcs=[dict(func=normalized_hist_mean_cov, suffix="")],
+                apply_funcs=[{"func": normalized_hist_mean_cov, "suffix": ""}],
             ),
         ]
     )
@@ -394,14 +394,14 @@ def test_roll_norm_hist_mean_cov():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=roll_norm_hist_mean_cov,
-                        hist_name="histogram",
-                        window=5,
-                        shift=1,
-                        suffix="",
-                        entire=True,
-                    )
+                    {
+                        "func": roll_norm_hist_mean_cov,
+                        "hist_name": "histogram",
+                        "window": 5,
+                        "shift": 1,
+                        "suffix": "",
+                        "entire": True,
+                    }
                 ],
             ),
         ]
@@ -514,13 +514,13 @@ def test_expand_norm_hist_mean_cov():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=expand_norm_hist_mean_cov,
-                        hist_name="histogram",
-                        shift=1,
-                        suffix="",
-                        entire=True,
-                    )
+                    {
+                        "func": expand_norm_hist_mean_cov,
+                        "hist_name": "histogram",
+                        "shift": 1,
+                        "suffix": "",
+                        "entire": True,
+                    }
                 ],
             ),
         ]
@@ -636,19 +636,19 @@ def test_chi_squared1():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=roll_norm_hist_mean_cov,
-                        hist_name="histogram",
-                        window=5,
-                        shift=1,
-                        suffix="",
-                        entire=True,
-                    )
+                    {
+                        "func": roll_norm_hist_mean_cov,
+                        "hist_name": "histogram",
+                        "window": 5,
+                        "shift": 1,
+                        "suffix": "",
+                        "entire": True,
+                    }
                 ],
             ),
             ApplyFunc(
                 apply_to_key="output_hist",
-                apply_funcs=[dict(func=relative_chi_squared, suffix="", axis=1)],
+                apply_funcs=[{"func": relative_chi_squared, "suffix": "", "axis": 1}],
             ),
         ]
     )
@@ -698,18 +698,18 @@ def test_chi_squared2():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=expand_norm_hist_mean_cov,
-                        hist_name="histogram",
-                        shift=1,
-                        suffix="",
-                        entire=True,
-                    )
+                    {
+                        "func": expand_norm_hist_mean_cov,
+                        "hist_name": "histogram",
+                        "shift": 1,
+                        "suffix": "",
+                        "entire": True,
+                    }
                 ],
             ),
             ApplyFunc(
                 apply_to_key="output_hist",
-                apply_funcs=[dict(func=relative_chi_squared, suffix="", axis=1)],
+                apply_funcs=[{"func": relative_chi_squared, "suffix": "", "axis": 1}],
             ),
         ]
     )
