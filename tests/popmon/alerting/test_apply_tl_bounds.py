@@ -193,7 +193,7 @@ def test_apply_static_traffic_light_bounds():
 
 
 def test_rolling_window_funcs():
-    datastore = dict(to_profile={"asc_numbers": get_test_data()})
+    datastore = {"to_profile": {"asc_numbers": get_test_data()}}
 
     m = ApplyFunc(
         apply_to_key="to_profile", features=["asc_numbers"], metrics=["a", "b"]
