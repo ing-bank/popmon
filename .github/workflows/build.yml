@@ -36,6 +36,7 @@ jobs:
         SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
         SPARK_LOCAL_IP: "localhost"
       run: |
+        sudo apt-get update
         sudo apt-get -y install openjdk-8-jdk
         curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
         tar -xvzf ${BUILD_DIR}/spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
