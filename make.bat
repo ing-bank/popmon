@@ -12,5 +12,10 @@ IF "%1%" == "install" (
 	GOTO end
 )
 
+if "%1%" == "changelog" (
+    npm run release
+    GOTO end
+)
+
 ECHO "No command matched"
 :end

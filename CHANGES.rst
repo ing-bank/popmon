@@ -2,6 +2,8 @@
 Release notes
 =============
 
+The release notes for more recent versions have move to `CHANGELOG.md <CHANGELOG.md>`_
+
 Version 0.4.0 (16-04-2021)
 --------------------------
 Documentation:

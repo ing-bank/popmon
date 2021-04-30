@@ -1,0 +1,16 @@
+{
+    "header": "Release notes",
+    "types": [
+      {"type": "feat", "section": "\uD83C\uDF89 Features"},
+      {"type": "fix", "section": "\uD83D\uDC1B Bug fixes"},
+      {"type": "perf", "section": "⚡ Performance improvements"},
+      {"type": "docs", "section": "\uD83D\uDCD6 Documentation"},
+      {"type": "style", "section": "\uD83D\uDC77\u200D♂️ Internal improvements"},
+      {"type": "refactor", "section": "\uD83D\uDC77\u200D♂️ Internal improvements"},
+      {"type": "build", "section": "⬆️ Dependencies"},
+      {"type": "chore", "hidden": true},
+      {"type": "test", "hidden": true}
+    ],
+    "commitUrlFormat": "https://github.com/ing-bank/popmon/commits/{{hash}}",
+    "compareUrlFormat": "https://github.com/ing-bank/popmon/compare/{{previousTag}}...{{currentTag}}"
+}
