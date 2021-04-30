@@ -3,3 +3,6 @@ lint:
 
 install:
 	pip install -e .
+
+changelog:
+	npm run release
