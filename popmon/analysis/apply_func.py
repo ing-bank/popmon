@@ -106,7 +106,7 @@ class ApplyFunc(Module):
         :param kwargs: (dict, optional) kwargs for 'func'
         """
         # check inputs
-        if not isinstance(func, collections.Callable):
+        if not callable(func):
             raise TypeError("functions in ApplyFunc must be callable objects")
         if suffix is not None and not isinstance(suffix, str):
             raise TypeError("prefix, and suffix in ApplyFunc must be strings or None.")
