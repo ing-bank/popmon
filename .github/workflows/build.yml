@@ -72,7 +72,9 @@ jobs:
 
   examples:
     runs-on: ubuntu-latest
-    needs: build
+    needs: 
+    - test
+    - test_spark
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.6
