@@ -1,21 +1,21 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 21.6b0
     hooks:
     - id: black
 -   repo: https://github.com/pycqa/isort
-    rev: 5.8.0
+    rev: 5.9.1
     hooks:
       - id: isort
         files: '.*'
         args: [ --profile=black, --project=popmon, --thirdparty histogrammar, --thirdparty pybase64 ]
--   repo: https://gitlab.com/pycqa/flake8
-    rev: "3.9.0"
+-   repo: https://github.com/PyCQA/flake8
+    rev: "3.9.2"
     hooks:
     -   id: flake8
         args: [ "--select=E9,F63,F7,F82"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.12.0
+    rev: v2.19.4
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
