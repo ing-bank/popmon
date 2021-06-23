@@ -4,7 +4,7 @@ NAME = "popmon"
 
 MAJOR = 0
 REVISION = 4
-PATCH = 0
+PATCH = 1
 DEV = False
 # NOTE: also update version at: README.rst
 
