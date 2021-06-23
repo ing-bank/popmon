@@ -209,11 +209,9 @@ def _plot_metric(
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
     dbounds = tuple(
-        [
-            _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-            for n in names
-            if n in fdbounds.columns
-        ]
+        _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
+        for n in names
+        if n in fdbounds.columns
     )
     # choose dynamic bounds if present
     bounds = dbounds if len(dbounds) > 0 else sbounds

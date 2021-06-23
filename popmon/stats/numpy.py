@@ -206,7 +206,7 @@ def quantile(a, q, weights=None, axis=None, keepdims: bool = False):
         if keepdims:
             shape = (
                 *y.shape[:-1],
-                *[1 if i in axis else x for i, x in enumerate(a.shape)],
+                *(1 if i in axis else x for i, x in enumerate(a.shape)),
             )
         else:
             shape = *y.shape[:-1], *a_moved.shape[: -len(destination)]
