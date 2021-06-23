@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -58,7 +58,7 @@ class ApplyFunc(Module):
         :param list apply_funcs: functions to apply (list of dicts):
 
           - 'func': function to apply
-          - 'suffix' (string, optional): suffix added to each metric. default is fuction name.
+          - 'suffix' (string, optional): suffix added to each metric. default is function name.
           - 'prefix' (string, optional): prefix added to each metric.
           - 'features' (list, optional): features the function is applied to. Overwrites features above
           - 'metrics' (list, optional): metrics the function is applied to. Overwrites metrics above
@@ -106,7 +106,7 @@ class ApplyFunc(Module):
         :param kwargs: (dict, optional) kwargs for 'func'
         """
         # check inputs
-        if not isinstance(func, collections.Callable):
+        if not callable(func):
             raise TypeError("functions in ApplyFunc must be callable objects")
         if suffix is not None and not isinstance(suffix, str):
             raise TypeError("prefix, and suffix in ApplyFunc must be strings or None.")

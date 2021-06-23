@@ -4,7 +4,7 @@ NAME = "popmon"
 
 MAJOR = 0
 REVISION = 4
-PATCH = 0
+PATCH = 1
 DEV = False
 # NOTE: also update version at: README.rst
 
@@ -80,8 +80,8 @@ def setup_package() -> None:
         ],
         # files to be shipped with the installation, under: popmon/popmon/
         # after installation, these can be found with the functions in resources.py
-        package_data=dict(
-            popmon=[
+        package_data={
+            "popmon": [
                 "visualization/templates/*.html",
                 "visualization/templates/assets/css/*.css",
                 "visualization/templates/assets/js/*.js",
@@ -89,7 +89,7 @@ def setup_package() -> None:
                 "test_data/*.json*",
                 "notebooks/popmon*tutorial*.ipynb",
             ]
-        ),
+        },
         entry_points={
             "console_scripts": ["popmon_run = popmon.pipeline.amazing_pipeline:run"]
         },

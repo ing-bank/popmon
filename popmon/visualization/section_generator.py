@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -28,6 +28,7 @@ from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
+from ..utils import filter_metrics, short_date
 from ..visualization.utils import _prune, plot_bars_b64
 
 
@@ -112,9 +113,6 @@ class SectionGenerator(Module):
             f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
         )
 
-        def short_date(date):
-            return date if len(date) <= 22 else date[:22]
-
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
             fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
@@ -129,18 +127,10 @@ class SectionGenerator(Module):
             )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
-            metrics = [
-                m
-                for m in df.columns
-                if not any([m.endswith(s) for s in self.ignore_stat_endswith])
-            ]
-            if self.show_stats is not None:
-                metrics = [
-                    m
-                    for m in metrics
-                    if any(fnmatch.fnmatch(m, pattern) for pattern in self.show_stats)
-                ]
+            metrics = filter_metrics(
+                df.columns, self.ignore_stat_endswith, self.show_stats
+            )
+
             plots = Parallel(n_jobs=num_cores)(
                 delayed(_plot_metric)(
                     feature,
@@ -162,7 +152,7 @@ class SectionGenerator(Module):
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
         params = {
@@ -200,11 +190,9 @@ def _plot_metric(
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
     dbounds = tuple(
-        [
-            _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-            for n in names
-            if n in fdbounds.columns
-        ]
+        _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
+        for n in names
+        if n in fdbounds.columns
     )
     # choose dynamic bounds if present
     bounds = dbounds if len(dbounds) > 0 else sbounds
@@ -221,4 +209,4 @@ def _plot_metric(
         skip_empty=skip_empty,
     )
 
-    return dict(name=metric, description=get_stat_description(metric), plot=plot)
+    return {"name": metric, "description": get_stat_description(metric), "plot": plot}

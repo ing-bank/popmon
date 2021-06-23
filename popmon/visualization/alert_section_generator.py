@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,7 +18,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import fnmatch
 import multiprocessing
 
 import numpy as np
@@ -28,6 +27,7 @@ from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
+from ..utils import filter_metrics, short_date
 from ..visualization.utils import _prune, plot_bars_b64
 from .traffic_light_section_generator import _plot_metrics
 
@@ -94,7 +94,7 @@ class AlertSectionGenerator(Module):
         self.description = description
         self.show_stats = show_stats
         self.plot_overview = True
-        self.plot_metrics = True
+        self.plot_metrics = False
 
     def transform(self, datastore):
         data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
@@ -115,9 +115,6 @@ class AlertSectionGenerator(Module):
             f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
         )
 
-        def short_date(date):
-            return date if len(date) <= 22 else date[:22]
-
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
             fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
@@ -132,23 +129,15 @@ class AlertSectionGenerator(Module):
             )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
-            metrics = [
-                m
-                for m in df.columns
-                if not any([m.endswith(s) for s in self.ignore_stat_endswith])
-            ]
-            if self.show_stats is not None:
-                metrics = [
-                    m
-                    for m in metrics
-                    if any(fnmatch.fnmatch(m, pattern) for pattern in self.show_stats)
-                ]
+            metrics = filter_metrics(
+                df.columns, self.ignore_stat_endswith, self.show_stats
+            )
 
             plots = []
             if self.plot_overview:
                 plots.append(
                     _plot_metrics(
+                        feature,
                         [m for m in metrics if not m.endswith("worst")],
                         dates,
                         df,
@@ -182,7 +171,7 @@ class AlertSectionGenerator(Module):
                 plots = [e for e in plots if len(e["plot"])]
 
             features_w_metrics.append(
-                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
         params = {
@@ -220,11 +209,9 @@ def _plot_metric(
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
     dbounds = tuple(
-        [
-            _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-            for n in names
-            if n in fdbounds.columns
-        ]
+        _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
+        for n in names
+        if n in fdbounds.columns
     )
     # choose dynamic bounds if present
     bounds = dbounds if len(dbounds) > 0 else sbounds
@@ -241,4 +228,4 @@ def _plot_metric(
         skip_empty=skip_empty,
     )
 
-    return dict(name=metric, description=get_stat_description(metric), plot=plot)
+    return {"name": metric, "description": get_stat_description(metric), "plot": plot}

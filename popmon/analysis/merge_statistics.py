@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -41,7 +41,7 @@ class MergeStatistics(Module):
             self.get_datastore_object(datastore, read_key, dtype=dict)
             for read_key in self.read_keys
         ]
-        merged_stats = dict()
+        merged_stats = {}
         for dict_ in dicts:
             for feature in dict_.keys():
                 # we add statistics dataframe to the final output for specific feature however

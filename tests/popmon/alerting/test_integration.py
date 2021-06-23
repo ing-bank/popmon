@@ -79,7 +79,7 @@ def test_traffic_light_summary():
 
     tls = ApplyFunc(
         apply_to_key="output_data",
-        apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+        apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
         assign_to_key="alerts",
     )
 
@@ -124,7 +124,7 @@ def test_traffic_light_summary_combination():
 
     tls = ApplyFunc(
         apply_to_key="output_data",
-        apply_funcs=[dict(func=traffic_light_summary, axis=1, suffix="")],
+        apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
         assign_to_key="alerts",
     )
 

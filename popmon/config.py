@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
 from fnmatch import fnmatch
 
 profiles = {
-    "count": "Number of entries",
+    "count": "Number of entries (non-NaN and NaN)",
     "distinct": "Number of distinct entries",
     "filled": "Number of non-missing entries (non-NaN)",
     "nan": "Number of missing entries (NaN)",
@@ -74,8 +74,7 @@ section_descriptions = {
                    is represented by one bin). The yellow and red lines represent the corresponding
                    traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data).""",
     "comparisons": "Statistical comparisons of each time period (one bin) to the reference data.",
-    "traffic_lights": """Traffic light calculation for different statistics (based on the calculated
-                         normalized residual, a.k.a. pull) for each time period.""",
+    "traffic_lights": "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default.",
     "alerts": "Alerts aggregated by all traffic lights for each feature.",
     "histograms": "Histograms of the last few time slots (default: 2).",
 }
@@ -95,19 +94,18 @@ config = {
         "min*",
         "fraction_true*",
         "phik*",
-        "*unknown_labels",
-        "*chi2_norm",
-        "*ks",
-        "*max_prob_diff",
-        "*zscore",
-        "*pull",
+        "*unknown_labels*",
+        "*chi2_norm*",
+        "*ks*",
+        "*max_prob_diff*",
+        "*zscore*",
         "n_*",
         "worst",
     ],
 }
 
 
-def get_stat_description(name):
+def get_stat_description(name: str):
     """Gets the description of a statistic.
 
     :param str name: the name of the statistic.

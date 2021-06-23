@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -42,11 +42,9 @@ def traffic_light_summary(row, cols=None, prefix=""):
     :param list cols: list of cols to calculate traffic light summary of (optional)
     :param str prefix: prefix of traffic light columns, in case cols is empty. default is ``"tl_"``
     """
-    x = pd.Series()
-    x["worst"] = np.nan
-    x["n_red"] = np.nan
-    x["n_yellow"] = np.nan
-    x["n_green"] = np.nan
+    x = pd.Series(
+        {"worst": np.nan, "n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
+    )
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find traffic light columns for which summary is made.
@@ -276,7 +274,7 @@ def pull_bounds(
     ).sum() == 0, "Traffic lights not sorted!"
 
     if cols is None or len(cols) == 0:
-        # if no columns are given, find colums for which pulls can be calculated.
+        # if no columns are given, find columns for which pulls can be calculated.
         # e.g. to calculate x_pull, need to have [x, x_mean, x_std] present. If so, put x in cols.
         cols = []
         for m in row.index.to_list():

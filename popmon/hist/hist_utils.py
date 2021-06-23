@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -56,10 +56,10 @@ def sum_entries(hist, default=True):
     # double check number of entries, sometimes not well set
     if hasattr(hist, "bins"):
         # loop over all counters and integrate over y (=j)
-        return sum([sum_entries(bi) for bi in hist.bins.values()])
+        return sum(sum_entries(bi) for bi in hist.bins.values())
     elif hasattr(hist, "values"):
         # loop over all counters and integrate over y (=j)
-        return sum([sum_entries(bi) for bi in hist.values])
+        return sum(sum_entries(bi) for bi in hist.values)
     elif hasattr(hist, "entries"):
         # only count histogrammar.Count() objects
         return hist.entries

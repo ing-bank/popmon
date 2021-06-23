@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -42,7 +42,7 @@ _NOTEBOOK = {
 }
 
 # Resource types
-_RESOURCES = dict(data=_DATA, notebook=_NOTEBOOK)
+_RESOURCES = {"data": _DATA, "notebook": _NOTEBOOK}
 
 # Environment for visualization templates' directory
 _TEMPLATES_ENV = Environment(
@@ -50,6 +50,7 @@ _TEMPLATES_ENV = Environment(
         resource_filename(popmon.__name__, "visualization/templates")
     )
 )
+_TEMPLATES_ENV.filters["fmt_metric"] = lambda x: x.replace("_", " ")
 
 
 def _resource(resource_type, name: str) -> str:
@@ -101,7 +102,7 @@ def templates_env(filename=None, **kwargs):
 
     :param str filename: the name of the template to get retrieved.
     :param kwargs: residual keyword arguments which would be used for rendering
-    :returns: template if a filename is provided (rendered given that keyword arguemnts are provided)
+    :returns: template if a filename is provided (rendered given that keyword arguments are provided)
               otherwise: environment of the templates directory
     """
     if filename:

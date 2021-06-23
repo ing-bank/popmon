@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -177,14 +177,14 @@ class HistComparer(Pipeline):
             apply_to_key=assign_to_key,
             assign_to_key=store_key,
             apply_funcs=[
-                dict(
-                    func=hist_compare,
-                    hist_name1=hist_col,
-                    hist_name2=hist_col + "_" + suffix,
-                    prefix=suffix,
-                    axis=1,
-                    max_res_bound=max_res_bound,
-                )
+                {
+                    "func": hist_compare,
+                    "hist_name1": hist_col,
+                    "hist_name2": hist_col + "_" + suffix,
+                    "prefix": suffix,
+                    "axis": 1,
+                    "max_res_bound": max_res_bound,
+                }
             ],
         )
         self.modules = [hist_collector, hist_comparer]
@@ -214,7 +214,6 @@ class RollingHistComparer(HistComparer):
         :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
                                     Default is 7.0.
         """
-        kws = {"window": window, "shift": shift, "hist_name": hist_col}
         super().__init__(
             rolling_hist,
             read_key,
@@ -223,7 +222,9 @@ class RollingHistComparer(HistComparer):
             hist_col,
             suffix,
             max_res_bound,
-            **kws,
+            window=window,
+            shift=shift,
+            hist_name=hist_col,
         )
         self.read_key = read_key
         self.window = window
@@ -255,7 +256,15 @@ class PreviousHistComparer(RollingHistComparer):
         :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
                                     Default is 7.0.
         """
-        super().__init__(read_key, store_key, 1, 1, hist_col, suffix, max_res_bound)
+        super().__init__(
+            read_key,
+            store_key,
+            window=1,
+            shift=1,
+            hist_col=hist_col,
+            suffix=suffix,
+            max_res_bound=max_res_bound,
+        )
 
 
 class ExpandingHistComparer(HistComparer):
@@ -280,7 +289,6 @@ class ExpandingHistComparer(HistComparer):
         :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
                                     Default is 7.0.
         """
-        kws = {"shift": shift, "hist_name": hist_col}
         super().__init__(
             expanding_hist,
             read_key,
@@ -289,7 +297,8 @@ class ExpandingHistComparer(HistComparer):
             hist_col,
             suffix,
             max_res_bound,
-            **kws,
+            shift=shift,
+            hist_name=hist_col,
         )
         self.read_key = read_key
 
@@ -322,7 +331,6 @@ class ReferenceHistComparer(HistComparer):
         :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
                                     Default is 7.0.
         """
-        kws = {"metrics": [hist_col]}
         super().__init__(
             hist_sum,
             reference_key,
@@ -331,7 +339,7 @@ class ReferenceHistComparer(HistComparer):
             hist_col,
             suffix,
             max_res_bound,
-            **kws,
+            metrics=[hist_col],
         )
         self.reference_key = reference_key
         self.assign_to_key = assign_to_key
@@ -382,7 +390,12 @@ class NormHistComparer(Pipeline):
             apply_to_key=assign_to_key,
             assign_to_key=store_key,
             apply_funcs=[
-                dict(func=relative_chi_squared, hist_name=hist_col, suffix="", axis=1)
+                {
+                    "func": relative_chi_squared,
+                    "hist_name": hist_col,
+                    "suffix": "",
+                    "axis": 1,
+                }
             ],
         )
 
@@ -403,9 +416,15 @@ class RollingNormHistComparer(NormHistComparer):
         """
         if window < 2:
             raise ValueError("Need window size of 2 or greater.")
-        kws = {"window": window, "shift": shift, "entire": True}
         super().__init__(
-            roll_norm_hist_mean_cov, read_key, store_key, read_key, hist_col, **kws
+            roll_norm_hist_mean_cov,
+            read_key,
+            store_key,
+            read_key,
+            hist_col,
+            window=window,
+            shift=shift,
+            entire=True,
         )
         self.read_key = read_key
         self.window = window
@@ -428,9 +447,14 @@ class ExpandingNormHistComparer(NormHistComparer):
         :param int shift: shift of rolling window. default is 1.
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         """
-        kws = {"shift": shift, "entire": True}
         super().__init__(
-            expand_norm_hist_mean_cov, read_key, store_key, read_key, hist_col, **kws
+            expand_norm_hist_mean_cov,
+            read_key,
+            store_key,
+            read_key,
+            hist_col,
+            shift=shift,
+            entire=True,
         )
         self.read_key = read_key
 

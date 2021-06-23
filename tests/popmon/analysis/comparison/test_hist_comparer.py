@@ -39,26 +39,26 @@ def test_hist_compare():
             ApplyFunc(
                 apply_to_key="output_hist",
                 apply_funcs=[
-                    dict(
-                        func=expanding_hist,
-                        shift=1,
-                        suffix="sum",
-                        entire=True,
-                        hist_name="histogram",
-                    )
+                    {
+                        "func": expanding_hist,
+                        "shift": 1,
+                        "suffix": "sum",
+                        "entire": True,
+                        "hist_name": "histogram",
+                    }
                 ],
             ),
             ApplyFunc(
                 apply_to_key="output_hist",
                 assign_to_key="comparison",
                 apply_funcs=[
-                    dict(
-                        func=hist_compare,
-                        hist_name1="histogram",
-                        hist_name2="histogram_sum",
-                        suffix="",
-                        axis=1,
-                    )
+                    {
+                        "func": hist_compare,
+                        "hist_name1": "histogram",
+                        "hist_name2": "histogram_sum",
+                        "suffix": "",
+                        "axis": 1,
+                    }
                 ],
             ),
         ]

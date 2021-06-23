@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -206,7 +206,7 @@ def quantile(a, q, weights=None, axis=None, keepdims: bool = False):
         if keepdims:
             shape = (
                 *y.shape[:-1],
-                *[1 if i in axis else x for i, x in enumerate(a.shape)],
+                *(1 if i in axis else x for i, x in enumerate(a.shape)),
             )
         else:
             shape = *y.shape[:-1], *a_moved.shape[: -len(destination)]

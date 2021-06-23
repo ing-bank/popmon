@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -51,8 +51,11 @@ class ReportGenerator(Module):
             )
 
         # get HTML template for the final report, insert placeholder data and compress the code
-        args = dict(sections=sections_html)
         datastore[self.store_key] = htmlmin.minify(
-            templates_env(filename="core.html", generator=f"{name} {version}", **args)
+            templates_env(
+                filename="core.html",
+                generator=f"{name} {version}",
+                sections=sections_html,
+            )
         )
         return datastore

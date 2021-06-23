@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -32,6 +32,7 @@ from ..analysis.hist_numpy import (
 )
 from ..base import Module
 from ..config import get_stat_description
+from ..utils import short_date
 from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 
@@ -83,9 +84,6 @@ class HistogramSection(Module):
 
         self.logger.info(f'Generating section "{self.section_name}".')
 
-        def short_date(date):
-            return date if len(date) <= 22 else date[:22]
-
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
 
@@ -115,7 +113,7 @@ class HistogramSection(Module):
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                dict(name=feature, plots=sorted(plots, key=lambda plot: plot["name"]))
+                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
         params = {
@@ -191,4 +189,4 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     else:
         plot = ""
 
-    return dict(name=date, description=get_stat_description(date), plot=plot)
+    return {"name": date, "description": get_stat_description(date), "plot": plot}

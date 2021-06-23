@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2021 ING Wholesale Banking Advanced Analytics
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -176,7 +176,7 @@ class HistStitcher(Module):
                     f'Inserting basis histograms in axis "{time_axis}" at bin index 0.'
                 )
                 time_bin_idx = [0]
-            hists_basis_new = dict()
+            hists_basis_new = {}
             for k, hist in hists_basis.items():
                 feature = f"{time_axis}:{k}"
                 self.logger.debug(f'Now creating histogram "{feature}"')
@@ -200,7 +200,7 @@ class HistStitcher(Module):
             )
             return hists_basis
 
-        stitched = dict()
+        stitched = {}
 
         # 2. if delta(s) do not start with "time_axis:", assume that this is a set of batches without time_axis
         features_delta = self.get_features(
@@ -290,7 +290,7 @@ class HistStitcher(Module):
         max_time_bin_idx = None
         if all_sparse or all_cat:
             max_time_bin_idx = max(
-                [max(h.bins.keys()) for h in hist_list if len(h.bins) > 0]
+                max(h.bins.keys()) for h in hist_list if len(h.bins) > 0
             )
         return max_time_bin_idx
 
@@ -426,7 +426,7 @@ class HistStitcher(Module):
             # update bins consecutively for each time-delta.
             for hist in hist_list:
                 hsum.bins.update(hist.bins)
-            hsum.entries = sum([b.entries for b in hsum.bins.values()])
+            hsum.entries = sum(b.entries for b in hsum.bins.values())
         else:
             for hist in hist_list:
                 hsum += hist
