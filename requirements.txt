@@ -9,4 +9,4 @@ matplotlib>=2.2.3
 joblib>=0.14.0
 pybase64>=1.0.1
 htmlmin
-ing_theme_matplotlib @ git+https://gitlab.com/ing_rpaa/ing_theme_matplotlib.git
+ing_theme_matplotlib>=0.1.8
