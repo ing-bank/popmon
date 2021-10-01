@@ -1,10 +1,10 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.9b0
     hooks:
     - id: black
 -   repo: https://github.com/pycqa/isort
-    rev: 5.9.1
+    rev: 5.9.3
     hooks:
       - id: isort
         files: '.*'
@@ -17,7 +17,7 @@ repos:
             - flake8-comprehensions
         args: [ "--select=E9,F63,F7,F82,C4"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.4
+    rev: v2.29.0
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
