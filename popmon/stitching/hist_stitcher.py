@@ -218,7 +218,7 @@ class HistStitcher(Module):
                 )
                 if time_bin_idx is None:
                     raise ValueError(
-                        "Request to insert delta hists but time_bin_idx not set. Please do."
+                        "Request to insert delta hists but time_bin_idx not set or deductable. Please set manually."
                     )
                 self.logger.info(
                     f'Inserting delta histograms in axis "{time_axis}" at bin indices {time_bin_idx}.'
@@ -310,7 +310,7 @@ class HistStitcher(Module):
         if max_time_bin_idx is not None:
             self.logger.info(f"Maximum time bin index found: {max_time_bin_idx}")
         time_bin_idx = None
-        if isinstance(max_time_bin_idx, (int, np.int64)):
+        if isinstance(max_time_bin_idx, (int, np.integer)):
             start = max_time_bin_idx + 1
             stop = start + n
             time_bin_idx = np.arange(start, stop)
@@ -351,7 +351,7 @@ class HistStitcher(Module):
         if isinstance(time_bin_idx[0], str):
             if not isinstance(hbasis, hg.Categorize):
                 raise TypeError("hbasis does not accept string time-values.")
-        elif isinstance(time_bin_idx[0], (int, np.int64)):
+        elif isinstance(time_bin_idx[0], (int, np.integer)):
             if not isinstance(hbasis, hg.SparselyBin):
                 raise TypeError("hbasis does not accept integer time-values.")
 
