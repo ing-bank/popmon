@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version",
+    "bump": "python bump.py"
   },
   "standard-version": {
     "skip": {
