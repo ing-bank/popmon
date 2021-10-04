@@ -22,7 +22,7 @@ import htmlmin
 
 from ..base import Module
 from ..resources import templates_env
-from ..version import name, version
+from ..version import version
 
 
 class ReportGenerator(Module):
@@ -54,7 +54,7 @@ class ReportGenerator(Module):
         datastore[self.store_key] = htmlmin.minify(
             templates_env(
                 filename="core.html",
-                generator=f"{name} {version}",
+                generator=f"popmon {version}",
                 sections=sections_html,
             )
         )

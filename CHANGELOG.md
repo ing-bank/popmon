@@ -1,4 +1,12 @@
 # Release notes
+
+## [v0.4.3](https://github.com/ing-bank/popmon/compare/v0.4.2...v0.4.3) (2021-10-04)
+
+
+### 🐛 Bug fixes
+
+* fix too restrictive numpy integer check in hist_stitcher ([c162f11](https://github.com/ing-bank/popmon/commits/c162f11a68a6d8aaf82cb9fd8365f018cbc2feb6))
+
 ## [Version 0.4.2](https://github.com/ing-bank/popmon/compare/v0.4.1...v0.4.2) (2021-08-25)
 
 ### ⬆️ Dependencies
