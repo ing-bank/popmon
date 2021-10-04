@@ -21,6 +21,3 @@ repos:
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
-        
-ci:
-    autoupdate_commit_msg: 'ci: pre-commit-config update'
