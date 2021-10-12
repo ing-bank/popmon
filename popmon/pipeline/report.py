@@ -126,13 +126,11 @@ def stability_report(
     # perform basic input checks
     reference_types = list(_report_pipeline.keys())
     if reference_type not in reference_types:
-        raise TypeError(f"reference_type should be one of {str(reference_types)}.")
-
+        raise ValueError(f"reference_type should be one of {str(reference_types)}.")
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
     if reference_type == "external" and not isinstance(reference, dict):
         raise TypeError("reference should be a dict of histogrammar histograms.")
-
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
             "*_pull": [7, 4, -4, -7],
@@ -167,8 +165,8 @@ def stability_report(
         "plot_hist_n": plot_hist_n,
         "report_filepath": report_filepath,
         "show_stats": show_stats,
+        **kwargs
     }
-    cfg.update(kwargs)
 
     datastore = {"hists": hists}
     if reference_type == "external":

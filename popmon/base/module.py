@@ -56,7 +56,7 @@ class Module:
             else:
                 raise ValueError(f"`{feature}` not found in the datastore!")
         if not isinstance(obj, dtype):
-            raise ValueError(f"obj `{feature}` is not an instance of `{dtype}`!")
+            raise TypeError(f"obj `{feature}` is not an instance of `{dtype}`!")
         return obj
 
     def get_features(self, all_features):
