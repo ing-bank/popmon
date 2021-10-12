@@ -183,7 +183,7 @@ def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List
         colors[metric] = {}
         row_max = np.max(data[c1])
         for c2, label in enumerate(labels):
-            a = data[c1][c2] / row_max
+            a = data[c1][c2] / row_max if row_max and row_max != 0 else 0
             if metric.endswith("green"):
                 rgba = (0, 128, 0, a)
             elif metric.endswith("yellow"):
