@@ -165,7 +165,7 @@ def stability_report(
         "plot_hist_n": plot_hist_n,
         "report_filepath": report_filepath,
         "show_stats": show_stats,
-        **kwargs
+        **kwargs,
     }
 
     datastore = {"hists": hists}
