@@ -162,13 +162,14 @@ class HistComparer(Pipeline):
         :param args: (tuple, optional): residual args passed on to func_mean and func_std
         :param kwargs: (dict, optional): residual kwargs passed on to func_mean and func_std
         """
-        super().__init__(modules=[])
-
         if assign_to_key is None:
             assign_to_key = read_key
 
         # make reference histogram(s)
-        hist_collector = ApplyFunc(apply_to_key=read_key, assign_to_key=assign_to_key)
+        hist_collector = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=assign_to_key,
+        )
         hist_collector.add_apply_func(
             func=func_hist_collector, entire=True, suffix=suffix, *args, **kwargs
         )
@@ -187,7 +188,8 @@ class HistComparer(Pipeline):
                 }
             ],
         )
-        self.modules = [hist_collector, hist_comparer]
+
+        super().__init__(modules=[hist_collector, hist_comparer])
 
 
 class RollingHistComparer(HistComparer):
@@ -374,15 +376,20 @@ class NormHistComparer(Pipeline):
         :param args: (tuple, optional): residual args passed on to func_hist_collector
         :param kwargs: (dict, optional): residual kwargs passed on to func_hist_collector
         """
-        super().__init__(modules=[])
-
         if assign_to_key is None:
             assign_to_key = read_key
 
         # make reference histogram(s)
-        hist_collector = ApplyFunc(apply_to_key=read_key, assign_to_key=assign_to_key)
+        hist_collector = ApplyFunc(
+            apply_to_key=read_key, 
+            assign_to_key=assign_to_key
+        )
         hist_collector.add_apply_func(
-            func=func_hist_collector, hist_name=hist_col, suffix="", *args, **kwargs
+            func=func_hist_collector, 
+            hist_name=hist_col, 
+            suffix="", 
+            *args, 
+            **kwargs
         )
 
         # do histogram comparison
@@ -399,7 +406,7 @@ class NormHistComparer(Pipeline):
             ],
         )
 
-        self.modules = [hist_collector, hist_comparer]
+        super().__init__(modules=[hist_collector, hist_comparer])
 
 
 class RollingNormHistComparer(NormHistComparer):

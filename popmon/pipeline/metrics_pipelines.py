@@ -382,7 +382,13 @@ def metrics_rolling_reference(
         ),
         ApplyFunc(
             apply_to_key="traffic_lights",
-            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
+            apply_funcs=[
+                {
+                    "func": traffic_light_summary,
+                    "axis": 1,
+                    "suffix": ""
+                }
+            ],
             assign_to_key="alerts",
             msg="Generating traffic light alerts summary.",
         ),

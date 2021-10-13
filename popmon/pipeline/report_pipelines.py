@@ -90,6 +90,8 @@ def self_reference(
     ]
 
     pipeline = Pipeline(modules)
+    # pipeline.to_json("pipeline_self_reference_versioned.json", versioned=True)
+    # pipeline.to_json("pipeline_self_reference_unversioned.json", versioned=False)
     return pipeline
 
 

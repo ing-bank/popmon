@@ -18,6 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from typing import List
+
 import pandas as pd
 
 from ..base import Module
@@ -25,22 +27,20 @@ from ..base import Module
 
 class MergeStatistics(Module):
     """Merging dictionaries of features containing dataframes with statistics as its values."""
+    _input_keys = ("read_keys", )
+    _output_keys = ("store_key", )
 
-    def __init__(self, read_keys, store_key):
+    def __init__(self, read_keys: List[str], store_key: str):
         """Initialize an instance of MergeStatistics.
 
-        :param str read_keys: list of keys of input data to read from the datastore
+        :param list read_keys: list of keys of input data to read from the datastore
         :param str store_key: key of output data to store in the datastore
         """
         super().__init__()
         self.read_keys = read_keys
         self.store_key = store_key
 
-    def transform(self, datastore):
-        dicts = [
-            self.get_datastore_object(datastore, read_key, dtype=dict)
-            for read_key in self.read_keys
-        ]
+    def transform(self, dicts: list):
         merged_stats = {}
         for dict_ in dicts:
             for feature in dict_.keys():
@@ -53,5 +53,4 @@ class MergeStatistics(Module):
                         )
                     else:
                         merged_stats[feature] = dict_[feature]
-        datastore[self.store_key] = merged_stats
-        return datastore
+        return merged_stats

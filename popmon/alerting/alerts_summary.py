@@ -19,6 +19,7 @@
 
 
 import fnmatch
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -31,6 +32,8 @@ class AlertsSummary(Module):
 
     It combines the alerts-summaries of all individual features into an artificial feature "_AGGREGATE_".
     """
+    _input_keys = ("read_key", )
+    _output_keys = ("store_key", )
 
     def __init__(
         self,
@@ -50,21 +53,16 @@ class AlertsSummary(Module):
         """
         super().__init__()
         self.read_key = read_key
-        self.store_key = store_key
-        if not self.store_key:
-            self.store_key = self.read_key
+        self.store_key = store_key or self.read_key
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.combined_variable = combined_variable
 
-    def transform(self, datastore):
-        # fetch and check input data
-        data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
-
+    def transform(self, data: dict) -> Optional[dict]:
         # determine all possible features, used for the comparison below
-        features = self.get_features(data.keys())
+        features = self.get_features(list(data.keys()))
         if len(features) == 0:
-            return datastore
+            return None
 
         self.logger.info(
             f'Combining alerts into artificial variable "{self.combined_variable}"'
@@ -88,7 +86,7 @@ class AlertsSummary(Module):
                     self.logger.warning(
                         "indices of features are different. no alerts summary generated."
                     )
-                    return datastore
+                    return None
 
         # STEP 2: Concatenate the dataframes, there was one for each original feature.
         tlv = pd.concat(df_list, axis=1)
@@ -104,6 +102,4 @@ class AlertsSummary(Module):
 
         # store combination of traffic alerts
         data[self.combined_variable] = dfc
-        datastore[self.store_key] = data
-
-        return datastore
+        return data

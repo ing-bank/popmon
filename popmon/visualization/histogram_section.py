@@ -18,6 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from typing import Optional
+
 import pandas as pd
 from histogrammar.util import get_hist_props
 from tqdm import tqdm
@@ -35,6 +37,8 @@ from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 class HistogramSection(Module):
     """This module plots histograms of all selected features for the last 'n' periods."""
+    _input_keys = ("read_key", "store_key")
+    _output_keys = ("store_key", )
 
     def __init__(
         self,
@@ -63,6 +67,7 @@ class HistogramSection(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
@@ -71,10 +76,14 @@ class HistogramSection(Module):
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
 
-    def transform(self, datastore):
-        data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
+    def get_description(self):
+        return self.section_name
 
-        features = self.get_features(data_obj.keys())
+    def transform(self, data_obj: dict, sections: Optional[list] = None):
+        if sections is None:
+            sections = []
+
+        features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
 
         self.logger.info(f'Generating section "{self.section_name}".')
@@ -110,18 +119,14 @@ class HistogramSection(Module):
                 {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
-        params = {
-            "section_title": self.section_name,
-            "section_description": self.description,
-            "features": features_w_metrics,
-        }
-
-        if self.store_key in datastore:
-            datastore[self.store_key].append(params)
-        else:
-            datastore[self.store_key] = [params]
-
-        return datastore
+        sections.append(
+            {
+                "section_title": self.section_name,
+                "section_description": self.description,
+                "features": features_w_metrics,
+            }
+        )
+        return sections
 
 
 def _plot_histograms(feature, date, hc_list, hist_names):

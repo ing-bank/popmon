@@ -28,6 +28,8 @@ from ..base import Module
 
 class FileWriter(Module):
     """Module transforms specific datastore content and writes it to a file."""
+    _input_keys = ("read_key", )
+    _output_keys = ("store_key", )
 
     def __init__(
         self,
@@ -48,18 +50,20 @@ class FileWriter(Module):
         super().__init__()
         if file_path is not None and not isinstance(file_path, (str, Path)):
             raise TypeError("file_path should be of type `str` or `pathlib.Path`")
-        if apply_func is not None and not isinstance(
-            apply_func, collections.abc.Callable
-        ):
+        if apply_func is not None and not callable(apply_func):
             raise TypeError("transformation function must be a callable object")
         self.read_key = read_key
-        self.store_key = store_key
+        self.store_key = store_key or read_key
+
         self.file_path = file_path
         self.apply_func = apply_func
         self.kwargs = kwargs
 
-    def transform(self, datastore):
-        data = copy.deepcopy(datastore[self.read_key])
+    def get_description(self):
+        return self.file_path
+
+    def transform(self, data):
+        data = copy.deepcopy(data)
 
         # if a transformation function is provided, transform the data
         if self.apply_func is not None:
@@ -67,14 +71,11 @@ class FileWriter(Module):
 
         # if file path is provided, write data to a file. Otherwise, write data into the datastore
         if self.file_path is None:
-            datastore[
-                self.read_key if self.store_key is None else self.store_key
-            ] = data
+            return data
         else:
             with open(self.file_path, "w+") as file:
                 file.write(data)
             self.logger.info(
                 f'Object "{self.read_key}" written to file "{self.file_path}".'
             )
-
-        return datastore
+            return None

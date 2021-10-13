@@ -28,6 +28,9 @@ from ..base import Module
 class HistStitcher(Module):
     """Module stitches histograms by date"""
 
+    _input_keys = ("read_key", "delta_key")
+    _output_keys = ("store_key", )
+
     def __init__(
         self,
         mode="add",
@@ -51,28 +54,25 @@ class HistStitcher(Module):
             (only required when calling transform(datastore) as module)
         """
         super().__init__()
-        self.mode = mode
-        self.time_axis = time_axis
-        self.time_bin_idx = time_bin_idx
         self.read_key = read_key
         self.delta_key = delta_key
         self.store_key = store_key
+        self.mode = mode
+        self.time_axis = time_axis
+        self.time_bin_idx = time_bin_idx
         self.allowed_modes = ["add", "replace"]
-        assert self.mode in self.allowed_modes
+        if self.mode not in self.allowed_modes:
+            raise ValueError("mode should be either 'add' or 'replace'")
 
-    def transform(self, datastore):
-        # --- get input dict lists
+    def get_description(self):
+        return f"{self.mode}"
+
+    def transform(self, hists_basis: dict, hists_delta: dict) -> dict:
         self.logger.info(
             f'Stitching histograms "{self.read_key}" and "{self.delta_key}" as "{self.store_key}"'
         )
-
-        hists_basis = self.get_datastore_object(datastore, self.read_key, dtype=dict)
-        hists_delta = self.get_datastore_object(datastore, self.delta_key, dtype=dict)
-
         stitched = self.stitch_histograms(self.mode, hists_basis, hists_delta)
-
-        datastore[self.store_key] = stitched
-        return datastore
+        return stitched
 
     def stitch_histograms(
         self,

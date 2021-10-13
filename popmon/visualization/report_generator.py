@@ -29,6 +29,8 @@ class ReportGenerator(Module):
     """This module takes already prepared section data, renders HTML section template with the data and
     glues sections together into one compressed report which is created based on the provided template.
     """
+    _input_keys = ("read_key", )
+    _output_keys = ("store_key", )
 
     def __init__(self, read_key, store_key):
         """Initialize an instance of ReportGenerator.
@@ -40,9 +42,10 @@ class ReportGenerator(Module):
         self.read_key = read_key
         self.store_key = store_key
 
-    def transform(self, datastore):
-        sections = self.get_datastore_object(datastore, self.read_key, dtype=list)
+    def get_description(self):
+        return "HTML Report"
 
+    def transform(self, sections: list) -> str:
         # concatenate HTML sections' code
         sections_html = ""
         for i, section_info in enumerate(sections):
@@ -51,11 +54,10 @@ class ReportGenerator(Module):
             )
 
         # get HTML template for the final report, insert placeholder data and compress the code
-        datastore[self.store_key] = htmlmin.minify(
+        return htmlmin.minify(
             templates_env(
                 filename="core.html",
                 generator=f"popmon {version}",
                 sections=sections_html,
             )
         )
-        return datastore

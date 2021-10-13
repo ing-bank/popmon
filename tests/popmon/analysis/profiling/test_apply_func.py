@@ -60,7 +60,7 @@ def test_apply_func_module():
     module.add_apply_func(np.mean, entire=True)
     module.add_apply_func(func)
 
-    datastore = module.transform(datastore)
+    datastore = module._transform(datastore)
 
     p = datastore["profiled"]["asc_numbers"]
 
