@@ -2,8 +2,8 @@ import re
 from pathlib import Path
 
 MAJOR = 0
-REVISION = 4
-PATCH = 4
+REVISION = 5
+PATCH = 0
 VERSION = f"{MAJOR}.{REVISION}.{PATCH}"
 
 
