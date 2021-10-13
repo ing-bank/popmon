@@ -131,8 +131,11 @@ class RollingPullCalculator(PullCalculator):
         :param args: (tuple, optional): residual args passed on to mean and std functions
         :param kwargs: (dict, optional): residual kwargs passed on to mean and std functions
         """
-        kws = {"window": window, "shift": shift}
-        kws.update(kwargs)
+        kws = {
+            "window": window,
+            "shift": shift,
+            **kwargs
+        }
         super().__init__(
             rolling_mean,
             rolling_std,
@@ -183,8 +186,10 @@ class ExpandingPullCalculator(PullCalculator):
         :param args: (tuple, optional): residual args passed on to mean and std functions
         :param kwargs: (dict, optional): residual kwargs passed on to mean and std functions
         """
-        kws = {"shift": shift}
-        kws.update(kwargs)
+        kws = {
+            "shift": shift,
+            **kwargs
+        }
         super().__init__(
             expanding_mean,
             expanding_std,

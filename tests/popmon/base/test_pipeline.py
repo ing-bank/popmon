@@ -6,66 +6,63 @@ from popmon.base import Module, Pipeline
 
 
 class LogTransformer(Module):
+    _input_keys = ("input_key", )
+    _output_keys = ("output_key", )
+
     def __init__(self, input_key, output_key):
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
 
-    def transform(self, datastore):
-        input_array = self.get_datastore_object(
-            datastore, self.input_key, dtype=np.ndarray
-        )
-        datastore[self.output_key] = np.log(input_array)
+    def transform(self, input_array: np.ndarray):
+        output = np.log(input_array)
         self.logger.info(f"{self.__class__.__name__} is calculated.")
-        return datastore
+        return output
 
 
 class PowerTransformer(Module):
+    _input_keys = ("input_key",)
+    _output_keys = ("output_key",)
+
     def __init__(self, input_key, output_key, power):
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
         self.power = power
 
-    def transform(self, datastore):
-        input_array = self.get_datastore_object(
-            datastore, self.input_key, dtype=np.ndarray
-        )
-        datastore[self.output_key] = np.power(input_array, self.power)
-        return datastore
+    def transform(self, input_array: np.ndarray):
+        result = np.power(input_array, self.power)
+        return result
 
 
 class SumNormalizer(Module):
+    _input_keys = ("input_key",)
+    _output_keys = ("output_key",)
+
     def __init__(self, input_key, output_key):
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
 
-    def transform(self, datastore):
-        input_array = self.get_datastore_object(
-            datastore, self.input_key, dtype=np.ndarray
-        )
-        datastore[self.output_key] = input_array / input_array.sum()
-        return datastore
+    def transform(self, input_array: np.ndarray):
+        result = input_array / input_array.sum()
+        return result
 
 
 class WeightedSum(Module):
+    _input_keys = ("input_key", "weight_key")
+    _output_keys = ("output_key",)
+
     def __init__(self, input_key, weight_key, output_key):
         super().__init__()
         self.input_key = input_key
         self.weight_key = weight_key
         self.output_key = output_key
 
-    def transform(self, datastore):
-        input_array = self.get_datastore_object(
-            datastore, self.input_key, dtype=np.ndarray
-        )
-        weights = self.get_datastore_object(
-            datastore, self.weight_key, dtype=np.ndarray
-        )
-        datastore[self.output_key] = np.sum(input_array * weights)
+    def transform(self, input_array: np.ndarray, weights: np.ndarray):
+        result = np.sum(input_array * weights)
         self.logger.info(f"{self.__class__.__name__} is calculated.")
-        return datastore
+        return result
 
 
 def test_popmon_pipeline():

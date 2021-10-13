@@ -37,6 +37,9 @@ class HistSplitter(Module):
     where time is the index and each row is a x:y histogram.
     """
 
+    _input_keys = ("read_key", )
+    _output_keys = ("store_key", )
+
     def __init__(
         self,
         read_key,
@@ -70,6 +73,7 @@ class HistSplitter(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.feature_begins_with = feature_begins_with
@@ -86,6 +90,9 @@ class HistSplitter(Module):
                 "flatten_output requires short_keys attribute to be False."
             )
 
+    def get_description(self):
+        return ""
+
     def update_divided(self, divided, split, yname):
         if self.flatten_output:
             divided.update(split)
@@ -95,18 +102,16 @@ class HistSplitter(Module):
             ]
         return divided
 
-    def transform(self, datastore):
-        divided = {}
-
+    def transform(self, data: dict) -> dict:
         self.logger.info(
             f'Splitting histograms "{self.read_key}" as "{self.store_key}"'
         )
-        data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
 
         # determine all possible features, used for comparison below
-        features = self.get_features(data.keys())
+        features = self.get_features(list(data.keys()))
 
         # if so requested split selected histograms along first axis, and then divide
+        divided = {}
         for feature in features[:]:
             self.logger.debug(f'Now splitting histogram "{feature}"')
             hist = get_histogram(data[feature])
@@ -147,9 +152,8 @@ class HistSplitter(Module):
             self.update_divided(divided=divided, split=split, yname=yname)
 
         # turn divided dicts into dataframes with index
-        keys = list(divided.keys())
-        for k in keys:
-            divided[k] = pd.DataFrame(divided.pop(k)).set_index(self.index_col)
-
-        datastore[self.store_key] = divided
-        return datastore
+        divided = {
+            k: pd.DataFrame(v).set_index(self.index_col)
+            for k, v in divided.items()
+        }
+        return divided

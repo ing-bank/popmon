@@ -35,14 +35,13 @@ def test_compute_traffic_light_bounds():
         monitoring_rules=conf["monitoring_rules"],
     )
 
-    output = module.transform(datastore)["output_data"]
+    output = module._transform(datastore)["output_data"]
     assert "dummy_feature:mae" not in output.keys()
     assert output["the_feature:mae"] == [8, 4, 2, 2]
     assert output["the_feature:mse"] == [0.2, 0.11, 0.09, 0]
 
 
 def test_compute_traffic_light_funcs():
-
     datastore = {"test_data": pytest.test_comparer_df}
 
     conf = {
@@ -61,7 +60,7 @@ def test_compute_traffic_light_funcs():
         monitoring_rules=conf["monitoring_rules"],
     )
 
-    output = module.transform(datastore)["output_data"]
+    output = module._transform(datastore)["output_data"]
     assert len(output) == 3
 
     assert output[0]["features"] == ["dummy_feature"]

@@ -10,7 +10,7 @@ def test_file_reader_json():
         store_key="example",
         apply_func=json.loads,
     )
-    datastore = fr.transform(datastore={})
+    datastore = fr._transform(datastore={})
 
     assert datastore["example"]["boolean"]
     assert len(datastore["example"]["array"]) == 3

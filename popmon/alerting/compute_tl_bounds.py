@@ -18,11 +18,10 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import collections
 import copy
 import fnmatch
-import uuid
 from collections import defaultdict
+from typing import Tuple, Any
 
 import numpy as np
 import pandas as pd
@@ -117,6 +116,8 @@ class ComputeTLBounds(Module):
     meant to be generic. Then bounds can be stored as either raw
     values or as directly calculated values on the statistics of the data.
     """
+    _input_keys = ("read_key", )
+    _output_keys = ("store_key", "apply_funcs_key")
 
     def __init__(
         self,
@@ -133,7 +134,7 @@ class ComputeTLBounds(Module):
         entire=False,
         **kwargs,
     ):
-        """Initialize an instance of TafficLightBounds module.
+        """Initialize an instance of TrafficLightBounds module.
 
         :param str read_key: key of input data to read from datastore
         :param str store_key: key of output data to store in datastore (optional)
@@ -152,12 +153,13 @@ class ComputeTLBounds(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.apply_funcs_key = apply_funcs_key
+
         self.monitoring_rules = monitoring_rules or {}
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.traffic_lights = {}
         self.traffic_light_funcs = []
-        self.apply_funcs_key = apply_funcs_key
         self.traffic_light_func = func if func is not None else traffic_light
         self.metrics_wide = metrics_wide
         self.prefix = prefix
@@ -165,9 +167,11 @@ class ComputeTLBounds(Module):
         self.entire = entire
         self.kwargs = copy.copy(kwargs)
 
-        # check inputs
-        if not isinstance(self.traffic_light_func, collections.Callable):
+        if not callable(self.traffic_light_func):
             raise TypeError("supplied function must be callable object")
+
+    def get_description(self):
+        return self.traffic_light_func.__name__
 
     def _set_traffic_lights(self, feature, cols, pattern, rule_name):
         process_cols = fnmatch.filter(cols, pattern)
@@ -195,12 +199,9 @@ class ComputeTLBounds(Module):
                     }
                 )
 
-    def transform(self, datastore):
-        # fetch and check input data
-        test_data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
-
+    def transform(self, test_data: dict) -> Tuple[Any, Any]:
         # determine all possible features, used for the comparison below
-        features = self.get_features(test_data.keys())
+        features = self.get_features(list(test_data.keys()))
 
         pkeys, nkeys = collect_traffic_light_bounds(self.monitoring_rules)
 
@@ -212,7 +213,9 @@ class ComputeTLBounds(Module):
             # --- 1. tl bounds explicitly defined for a particular feature
             if feature in pkeys:
                 explicit_cols = [
-                    pcol for pcol in pkeys[feature] if pcol in test_df.columns
+                    pcol
+                    for pcol in pkeys[feature]
+                    if pcol in test_df.columns
                 ]
                 implicit_cols = set(pkeys[feature]) - set(explicit_cols)
 
@@ -237,13 +240,7 @@ class ComputeTLBounds(Module):
                     feature, test_df.columns, pattern, rule_name="pattern"
                 )
 
-        # storage
-        if self.store_key:
-            datastore[self.store_key] = self.traffic_lights
-        if self.apply_funcs_key:
-            datastore[self.apply_funcs_key] = self.traffic_light_funcs
-
-        return datastore
+        return self.traffic_lights, self.traffic_light_funcs
 
 
 def pull_bounds(
@@ -338,7 +335,12 @@ class DynamicBounds(Pipeline):
     """Calculate dynamic traffic light bounds based on pull thresholds and dynamic mean and std.deviation."""
 
     def __init__(
-        self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"
+        self,
+        read_key,
+        rules,
+        store_key="",
+        suffix_mean="_mean",
+        suffix_std="_std",
     ):
         """Initialize an instance of DynamicTrafficLightBounds.
 
@@ -348,10 +350,8 @@ class DynamicBounds(Pipeline):
         :param str suffix_mean: suffix of mean. mean column = metric + suffix_mean
         :param str suffix_std: suffix of std. std column = metric + suffix_std
         """
-        super().__init__(modules=[])
         self.read_key = read_key
-
-        apply_funcs_key = str(uuid.uuid4())
+        apply_funcs_key = f"{read_key}__{store_key}"
 
         expand_bounds = ComputeTLBounds(
             read_key=read_key,
@@ -368,8 +368,7 @@ class DynamicBounds(Pipeline):
             assign_to_key=store_key,
             apply_funcs_key=apply_funcs_key,
         )
-
-        self.modules = [expand_bounds, calc_bounds]
+        super().__init__(modules=[expand_bounds, calc_bounds])
 
     def transform(self, datastore):
         self.logger.info(f'Calculating dynamic bounds for "{self.read_key}"')
@@ -380,7 +379,12 @@ class StaticBounds(Pipeline):
     """Calculate static traffic light bounds based on pull thresholds and static mean and std.deviation."""
 
     def __init__(
-        self, read_key, rules, store_key="", suffix_mean="_mean", suffix_std="_std"
+        self,
+        read_key,
+        rules,
+        store_key="",
+        suffix_mean="_mean",
+        suffix_std="_std",
     ):
         """Initialize an instance of StaticBounds.
 
@@ -390,10 +394,8 @@ class StaticBounds(Pipeline):
         :param str suffix_mean: suffix of mean. mean column = metric + suffix_mean
         :param str suffix_std: suffix of std. std column = metric + suffix_std
         """
-        super().__init__(modules=[])
         self.read_key = read_key
-
-        apply_funcs_key = str(uuid.uuid4())
+        apply_funcs_key = f"{read_key}__{store_key}"
 
         expand_bounds = ComputeTLBounds(
             read_key=read_key,
@@ -411,7 +413,7 @@ class StaticBounds(Pipeline):
             apply_funcs_key=apply_funcs_key,
         )
 
-        self.modules = [expand_bounds, calc_bounds]
+        super().__init__(modules=[expand_bounds, calc_bounds])
 
     def transform(self, datastore):
         self.logger.info(f'Calculating static bounds for "{self.read_key}"')
@@ -437,10 +439,8 @@ class TrafficLightAlerts(Pipeline):
         :param str expanded_rules_key: store key of expanded monitoring rules to store in data store,
                                                   eg. these can be used for plotting. (optional)
         """
-        super().__init__(modules=[])
         self.read_key = read_key
-
-        apply_funcs_key = str(uuid.uuid4())
+        apply_funcs_key = f"{read_key}__{store_key}"
 
         # generate static traffic light bounds by expanding the wildcarded monitoring rules
         expand_bounds = ComputeTLBounds(
@@ -457,7 +457,7 @@ class TrafficLightAlerts(Pipeline):
             apply_funcs_key=apply_funcs_key,
         )
 
-        self.modules = [expand_bounds, apply_bounds]
+        super().__init__(modules=[expand_bounds, apply_bounds])
 
     def transform(self, datastore):
         self.logger.info(f'Calculating traffic light alerts for "{self.read_key}"')

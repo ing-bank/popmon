@@ -36,5 +36,5 @@ class JsonReader(FileReader):
         """
         super().__init__(store_key, file_path, apply_func=json.loads)
 
-    def transform(self, datastore):
-        return super().transform(datastore)
+    def transform(self, *args):
+        return super().transform(*args)

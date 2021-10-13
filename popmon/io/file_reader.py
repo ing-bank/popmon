@@ -28,6 +28,9 @@ from ..base import Module
 class FileReader(Module):
     """Module to read contents from a file, transform the contents with a function and write them to the datastore."""
 
+    _input_keys = tuple()
+    _output_keys = ("store_key", )
+
     def __init__(
         self,
         store_key: str,
@@ -45,9 +48,7 @@ class FileReader(Module):
         super().__init__()
         if not isinstance(file_path, (str, Path)):
             raise TypeError("file_path should be of type `str` or `pathlib.Path`")
-        if apply_func is not None and not isinstance(
-            apply_func, collections.abc.Callable
-        ):
+        if apply_func is not None and not callable(apply_func):
             raise TypeError("transformation function must be a callable object")
 
         self.store_key = store_key
@@ -55,7 +56,10 @@ class FileReader(Module):
         self.apply_func = apply_func
         self.kwargs = kwargs
 
-    def transform(self, datastore):
+    def get_description(self):
+        return self.file_path
+
+    def transform(self):
         with open(self.file_path) as file:
             data = file.read()
 
@@ -68,5 +72,4 @@ class FileReader(Module):
         )
 
         # store the transformed/original contents
-        datastore[self.store_key] = data
-        return datastore
+        return data

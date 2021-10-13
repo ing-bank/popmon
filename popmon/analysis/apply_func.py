@@ -18,9 +18,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import collections
 import multiprocessing
 import warnings
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -34,6 +34,8 @@ class ApplyFunc(Module):
 
     Extra parameters (kwargs) can be passed to the apply function.
     """
+    _input_keys = ("apply_to_key", "assign_to_key", "apply_funcs_key")
+    _output_keys = ("store_key", )
 
     def __init__(
         self,
@@ -69,9 +71,10 @@ class ApplyFunc(Module):
         """
         super().__init__()
         self.apply_to_key = apply_to_key
-        self.assign_to_key = self.apply_to_key if not assign_to_key else assign_to_key
-        self.store_key = self.assign_to_key if not store_key else store_key
+        self.assign_to_key = assign_to_key or apply_to_key
         self.apply_funcs_key = apply_funcs_key
+        self.store_key = store_key or self.assign_to_key
+
         self.features = features or []
         self.metrics = metrics or []
         self.msg = msg
@@ -80,6 +83,14 @@ class ApplyFunc(Module):
         apply_funcs = apply_funcs or []
         for af in apply_funcs:
             self.add_apply_func(**af)
+
+    def get_description(self):
+        if len(self.apply_funcs) > 0:
+            return " and ".join([x['func'].__name__ for x in self.apply_funcs])
+        elif self.apply_funcs_key:
+            return f"functions from arg '{self.apply_funcs_key}'"
+        else:
+            raise NotImplementedError
 
     def add_apply_func(
         self,
@@ -129,7 +140,7 @@ class ApplyFunc(Module):
             }
         )
 
-    def transform(self, datastore):
+    def transform(self, apply_to_data: dict, assign_to_data: Optional[dict] = None, apply_funcs: Optional[list] = None):
         """
         Apply functions to specified feature and metrics
 
@@ -139,23 +150,17 @@ class ApplyFunc(Module):
         :return: updated datastore
         :rtype: dict
         """
+        assert isinstance(apply_to_data, dict)
+        if assign_to_data is None:
+            assign_to_data = {}
+
+        if apply_funcs is not None:
+            self.apply_funcs += apply_funcs
+
         if self.msg:
             self.logger.info(self.msg)
 
-        apply_to_data = self.get_datastore_object(
-            datastore, self.apply_to_key, dtype=dict
-        )
-        assign_to_data = self.get_datastore_object(
-            datastore, self.assign_to_key, dtype=dict, default={}
-        )
-
-        if self.apply_funcs_key:
-            apply_funcs = self.get_datastore_object(
-                datastore, self.apply_funcs_key, dtype=list
-            )
-            self.apply_funcs += apply_funcs
-
-        features = self.get_features(apply_to_data.keys())
+        features = self.get_features(list(apply_to_data.keys()))
 
         num_cores = multiprocessing.cpu_count()
         same_key = self.assign_to_key == self.apply_to_key
@@ -177,11 +182,8 @@ class ApplyFunc(Module):
             )
             for feature in features
         )
-        new_metrics = {r[0]: r[1] for r in res}
-
-        # storage
-        datastore[self.store_key] = new_metrics
-        return datastore
+        new_metrics = dict(res)
+        return new_metrics
 
 
 def apply_func_array(
@@ -189,7 +191,7 @@ def apply_func_array(
 ):
     """Apply list of functions to dataframe
 
-    Split off for parallellization reasons
+    Split off for parallelization reasons
 
     :param str feature: feature currently looping over
     :param list metrics: list of selected metrics to apply functions to
@@ -197,7 +199,7 @@ def apply_func_array(
     :param assign_to_df: pandas data frame the output of function is assigned to
     :param apply_funcs: list of functions to apply to
     :param same_key: if True, merge apply_to_df and assign_to_df before returning assign_to_df
-    :return: untion of feature and assign_to_df
+    :return: union of feature and assign_to_df
     """
     if not isinstance(apply_to_df, pd.DataFrame):
         raise TypeError(
