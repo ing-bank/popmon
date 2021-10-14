@@ -57,8 +57,9 @@ class HistProfiler(Module):
     :param str index_col: key for index in split dictionary
     :param dict stats_functions: function_name, function(bin_labels, bin_counts) dictionary
     """
-    _input_keys = ("read_key", )
-    _output_keys = ("store_key", )
+
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
 
     def __init__(
         self,

@@ -41,8 +41,8 @@ def test_file_writer_not_a_func():
 
 def test_file_writer_df():
     datastore = get_ready_ds()
-    FileWriter("my_data", store_key="transformed_data", apply_func=to_pandas)._transform(
-        datastore
-    )
+    FileWriter(
+        "my_data", store_key="transformed_data", apply_func=to_pandas
+    )._transform(datastore)
     assert datastore["my_data"] == DATA
     assert datastore["transformed_data"].to_dict() == to_pandas(DATA).to_dict()

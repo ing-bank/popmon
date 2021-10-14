@@ -6,8 +6,8 @@ from popmon.base import Module, Pipeline
 
 
 class LogTransformer(Module):
-    _input_keys = ("input_key", )
-    _output_keys = ("output_key", )
+    _input_keys = ("input_key",)
+    _output_keys = ("output_key",)
 
     def __init__(self, input_key, output_key):
         super().__init__()

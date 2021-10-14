@@ -28,8 +28,8 @@ from ..base import Module
 class FileReader(Module):
     """Module to read contents from a file, transform the contents with a function and write them to the datastore."""
 
-    _input_keys = tuple()
-    _output_keys = ("store_key", )
+    _input_keys = ()
+    _output_keys = ("store_key",)
 
     def __init__(
         self,

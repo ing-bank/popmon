@@ -21,7 +21,7 @@
 import copy
 import fnmatch
 from collections import defaultdict
-from typing import Tuple, Any
+from typing import Any, Tuple
 
 import numpy as np
 import pandas as pd
@@ -116,7 +116,8 @@ class ComputeTLBounds(Module):
     meant to be generic. Then bounds can be stored as either raw
     values or as directly calculated values on the statistics of the data.
     """
-    _input_keys = ("read_key", )
+
+    _input_keys = ("read_key",)
     _output_keys = ("store_key", "apply_funcs_key")
 
     def __init__(
@@ -213,9 +214,7 @@ class ComputeTLBounds(Module):
             # --- 1. tl bounds explicitly defined for a particular feature
             if feature in pkeys:
                 explicit_cols = [
-                    pcol
-                    for pcol in pkeys[feature]
-                    if pcol in test_df.columns
+                    pcol for pcol in pkeys[feature] if pcol in test_df.columns
                 ]
                 implicit_cols = set(pkeys[feature]) - set(explicit_cols)
 

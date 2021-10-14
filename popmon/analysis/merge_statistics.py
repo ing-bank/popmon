@@ -27,8 +27,9 @@ from ..base import Module
 
 class MergeStatistics(Module):
     """Merging dictionaries of features containing dataframes with statistics as its values."""
-    _input_keys = ("read_keys", )
-    _output_keys = ("store_key", )
+
+    _input_keys = ("read_keys",)
+    _output_keys = ("store_key",)
 
     def __init__(self, read_keys: List[str], store_key: str):
         """Initialize an instance of MergeStatistics.
