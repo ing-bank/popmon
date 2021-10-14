@@ -380,16 +380,9 @@ class NormHistComparer(Pipeline):
             assign_to_key = read_key
 
         # make reference histogram(s)
-        hist_collector = ApplyFunc(
-            apply_to_key=read_key, 
-            assign_to_key=assign_to_key
-        )
+        hist_collector = ApplyFunc(apply_to_key=read_key, assign_to_key=assign_to_key)
         hist_collector.add_apply_func(
-            func=func_hist_collector, 
-            hist_name=hist_col, 
-            suffix="", 
-            *args, 
-            **kwargs
+            func=func_hist_collector, hist_name=hist_col, suffix="", *args, **kwargs
         )
 
         # do histogram comparison

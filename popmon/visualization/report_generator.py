@@ -29,8 +29,9 @@ class ReportGenerator(Module):
     """This module takes already prepared section data, renders HTML section template with the data and
     glues sections together into one compressed report which is created based on the provided template.
     """
-    _input_keys = ("read_key", )
-    _output_keys = ("store_key", )
+
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
 
     def __init__(self, read_key, store_key):
         """Initialize an instance of ReportGenerator.

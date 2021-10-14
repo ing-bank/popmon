@@ -32,8 +32,9 @@ class AlertsSummary(Module):
 
     It combines the alerts-summaries of all individual features into an artificial feature "_AGGREGATE_".
     """
-    _input_keys = ("read_key", )
-    _output_keys = ("store_key", )
+
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
 
     def __init__(
         self,

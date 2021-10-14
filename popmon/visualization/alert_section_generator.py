@@ -36,8 +36,9 @@ class AlertSectionGenerator(Module):
     combines all the plots into a list which is stored together with the section name in a dictionary
     which later will be used for the report generation.
     """
+
     _input_keys = ("read_key", "static_bounds", "dynamic_bounds", "store_key")
-    _output_keys = ("store_key", )
+    _output_keys = ("store_key",)
 
     def __init__(
         self,
@@ -106,7 +107,7 @@ class AlertSectionGenerator(Module):
         data_obj: dict,
         static_bounds: Optional[dict] = None,
         dynamic_bounds: Optional[dict] = None,
-        sections: Optional[list] = None
+        sections: Optional[list] = None,
     ):
         assert isinstance(data_obj, dict)
         if static_bounds is None:

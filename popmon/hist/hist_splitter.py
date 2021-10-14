@@ -37,8 +37,8 @@ class HistSplitter(Module):
     where time is the index and each row is a x:y histogram.
     """
 
-    _input_keys = ("read_key", )
-    _output_keys = ("store_key", )
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
 
     def __init__(
         self,
@@ -153,7 +153,6 @@ class HistSplitter(Module):
 
         # turn divided dicts into dataframes with index
         divided = {
-            k: pd.DataFrame(v).set_index(self.index_col)
-            for k, v in divided.items()
+            k: pd.DataFrame(v).set_index(self.index_col) for k, v in divided.items()
         }
         return divided

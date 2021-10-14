@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 
 class Module(ABC):
     """Base class used for modules in a pipeline."""
+
     _input_keys = None
     _output_keys = None
 
@@ -101,18 +102,12 @@ class Module(ABC):
             features = [k for k in features if k not in self.ignore_features]
 
         features_not_in_input = [
-            feature
-            for feature in features
-            if feature not in all_features
+            feature for feature in features if feature not in all_features
         ]
         for feature in features_not_in_input:
             self.logger.warning(f'Feature "{feature}" not in input data; skipping.')
 
-        features = [
-            feature
-            for feature in features
-            if feature in all_features
-        ]
+        features = [feature for feature in features if feature in all_features]
         return features
 
     def _transform(self, datastore):
@@ -130,7 +125,9 @@ class Module(ABC):
             else:
                 inputs[key] = None
 
-            self.logger.debug(f"load(key={key}, key_value={key_value}, value={str(inputs[key]):.100s})")
+            self.logger.debug(
+                f"load(key={key}, key_value={key_value}, value={str(inputs[key]):.100s})"
+            )
 
         # cache datastore
         self._datastore = datastore
@@ -145,8 +142,10 @@ class Module(ABC):
 
             for k, v in zip(self._output_keys, outputs):
                 key_value = self.__dict__[k]
-                self.logger.debug(f"store(key={k}, key_value={key_value}, value={str(v):.100s})")
-                if key_value and len(key_value) > 0: # and v is not None:
+                self.logger.debug(
+                    f"store(key={k}, key_value={key_value}, value={str(v):.100s})"
+                )
+                if key_value and len(key_value) > 0:  # and v is not None:
                     datastore[key_value] = v
 
         return datastore

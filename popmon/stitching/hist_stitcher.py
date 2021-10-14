@@ -29,7 +29,7 @@ class HistStitcher(Module):
     """Module stitches histograms by date"""
 
     _input_keys = ("read_key", "delta_key")
-    _output_keys = ("store_key", )
+    _output_keys = ("store_key",)
 
     def __init__(
         self,

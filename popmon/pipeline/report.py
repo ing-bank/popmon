@@ -425,8 +425,9 @@ class StabilityReport(Module):
     after running the pipeline and generating the report. Report can be represented
     as a HTML string, HTML file or Jupyter notebook's cell output.
     """
-    _input_keys = ("read_key", )
-    _output_keys = tuple()
+
+    _input_keys = ("read_key",)
+    _output_keys = ()
 
     def __init__(self, read_key="html_report"):
         """Initialize an instance of StabilityReport.

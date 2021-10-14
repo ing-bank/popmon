@@ -28,8 +28,9 @@ from ..base import Module
 
 class FileWriter(Module):
     """Module transforms specific datastore content and writes it to a file."""
-    _input_keys = ("read_key", )
-    _output_keys = ("store_key", )
+
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
 
     def __init__(
         self,

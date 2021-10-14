@@ -33,8 +33,9 @@ class ApplyFunc(Module):
 
     Extra parameters (kwargs) can be passed to the apply function.
     """
+
     _input_keys = ("apply_to_key", "assign_to_key", "apply_funcs_key")
-    _output_keys = ("store_key", )
+    _output_keys = ("store_key",)
 
     def __init__(
         self,
@@ -85,7 +86,7 @@ class ApplyFunc(Module):
 
     def get_description(self):
         if len(self.apply_funcs) > 0:
-            return " and ".join([x['func'].__name__ for x in self.apply_funcs])
+            return " and ".join([x["func"].__name__ for x in self.apply_funcs])
         elif self.apply_funcs_key:
             return f"functions from arg '{self.apply_funcs_key}'"
         else:
@@ -139,7 +140,12 @@ class ApplyFunc(Module):
             }
         )
 
-    def transform(self, apply_to_data: dict, assign_to_data: Optional[dict] = None, apply_funcs: Optional[list] = None):
+    def transform(
+        self,
+        apply_to_data: dict,
+        assign_to_data: Optional[dict] = None,
+        apply_funcs: Optional[list] = None,
+    ):
         """
         Apply functions to specified feature and metrics
 

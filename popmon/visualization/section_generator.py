@@ -35,8 +35,9 @@ class SectionGenerator(Module):
     combines all the plots into a list which is stored together with the section name in a dictionary
     which later will be used for the report generation.
     """
+
     _input_keys = ("read_key", "static_bounds", "dynamic_bounds", "store_key")
-    _output_keys = ("store_key", )
+    _output_keys = ("store_key",)
 
     def __init__(
         self,
@@ -98,7 +99,13 @@ class SectionGenerator(Module):
     def get_description(self):
         return self.section_name
 
-    def transform(self, data_obj: dict, static_bounds: Optional[dict] = None, dynamic_bounds: Optional[dict] = None, sections: Optional[list] = None):
+    def transform(
+        self,
+        data_obj: dict,
+        static_bounds: Optional[dict] = None,
+        dynamic_bounds: Optional[dict] = None,
+        sections: Optional[list] = None,
+    ):
         if static_bounds is None:
             static_bounds = {}
         if dynamic_bounds is None:

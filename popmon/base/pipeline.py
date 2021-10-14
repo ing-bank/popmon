@@ -85,9 +85,7 @@ class Pipeline:
         for module in self.modules:
             name = module.__class__.__name__
             if isinstance(module, Pipeline):
-                modules.append(
-                    module.visualize(versioned, funcs, dsets)
-                )
+                modules.append(module.visualize(versioned, funcs, dsets))
             else:
                 in_keys = module.get_inputs()
 
@@ -122,19 +120,15 @@ class Pipeline:
 
                 modules.append(
                     {
-                        'type': 'module',
-                        'name': f'{name}',
-                        'i': f'{funcs[name][id(module)]}',
-                        'desc': module.get_description(),
-                        'in': in_keys,
-                        'out': out_keys
+                        "type": "module",
+                        "name": f"{name}",
+                        "i": f"{funcs[name][id(module)]}",
+                        "desc": module.get_description(),
+                        "in": in_keys,
+                        "out": out_keys,
                     }
                 )
-        data = {
-            'type': 'subgraph',
-            'name': self.__class__.__name__,
-            'modules': modules
-        }
+        data = {"type": "subgraph", "name": self.__class__.__name__, "modules": modules}
         return data
 
     def to_json(self, file_name, versioned=True):
