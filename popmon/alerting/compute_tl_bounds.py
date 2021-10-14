@@ -440,6 +440,8 @@ class TrafficLightAlerts(Pipeline):
         """
         self.read_key = read_key
         apply_funcs_key = f"{read_key}__{store_key}"
+        if len(expanded_rules_key) > 0:
+            apply_funcs_key += f"__{expanded_rules_key}"
 
         # generate static traffic light bounds by expanding the wildcarded monitoring rules
         expand_bounds = ComputeTLBounds(
