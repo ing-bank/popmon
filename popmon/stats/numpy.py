@@ -248,7 +248,7 @@ def uu_chi2(n, m, verbose=False):
             warnings.warn(
                 "Input histogram(s) is empty and cannot be renormalized. Chi2 is undefined."
             )
-        return np.nan, np.nan, np.nan, [0] * len(n)
+        return np.nan, np.nan, np.nan, np.nan, [0] * len(n)
 
     # remove all zero entries in the sum, to present division by zero for individual bins
     z = n + m
