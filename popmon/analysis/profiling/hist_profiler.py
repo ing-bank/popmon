@@ -148,7 +148,7 @@ class HistProfiler(Module):
                         for f_name, result in zip(name, results)
                     ]
 
-                profile.update({k: v for k, v in zip(names, results)})
+                profile.update(dict(zip(names, results)))
         elif not is_num:
             profile["fraction_true"] = pm_np.fraction_of_true(bin_labels, bin_counts)
 
@@ -190,7 +190,6 @@ class HistProfiler(Module):
         is_num = is_numeric(hist0)
 
         # these are the profiled quantities we will monitor
-        fields = []
         if dimension == 1:
             fields = list(self.general_stats_1d)
             fields += (
@@ -200,6 +199,8 @@ class HistProfiler(Module):
             )
         elif dimension == 2:
             fields = list(self.general_stats_2d)
+        else:
+            fields = []
 
         # now loop over split-axis, e.g. time index, and profile each sub-hist x:y
         profile_list = []

@@ -147,8 +147,8 @@ def stability_metrics(
         "monitoring_rules": monitoring_rules,
         "pull_rules": pull_rules,
         "features": features,
+        **kwargs,
     }
-    cfg.update(kwargs)
 
     datastore = {"hists": hists}
     if reference_type == "external":
