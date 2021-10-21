@@ -116,7 +116,7 @@ class HistProfiler(Module):
             "filled": bin_counts.sum(),
             "overflow": hist.overflow.entries if hasattr(hist, "overflow") else 0,
             "underflow": (hist.underflow.entries if hasattr(hist, "underflow") else 0),
-            "distinct": len(np.unique(bin_labels)),
+            "distinct": len(np.unique(bin_labels[bin_counts > 0])),
         }
 
         if hasattr(hist, "nanflow"):
