@@ -21,8 +21,6 @@ import json
 import logging
 from pathlib import Path
 
-from ..base import Module
-
 
 class Pipeline:
     """Base class used for to run modules in a pipeline."""
