@@ -3,7 +3,7 @@ from pathlib import Path
 
 MAJOR = 0
 REVISION = 4
-PATCH = 3
+PATCH = 4
 VERSION = f"{MAJOR}.{REVISION}.{PATCH}"
 
 
