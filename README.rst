@@ -60,6 +60,8 @@ Notebooks
      - |notebook_advanced_colab|
    * - `Incremental datasets (online analysis) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_
      - |notebook_incremental_data_colab|
+   * - `Report interpretation (step-by-step guide) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_reports.ipynb>`_
+     - |notebook_reports_colab|
 
 Check it out
 ============
@@ -221,6 +223,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |notebook_incremental_data_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
     :alt: Open in Colab
     :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb
+.. |notebook_reports_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
+    :alt: Open in Colab
+    :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_reports.ipynb
 .. |downloads| image:: https://pepy.tech/badge/popmon
     :alt: PyPi downloads
     :target: https://pepy.tech/project/popmon

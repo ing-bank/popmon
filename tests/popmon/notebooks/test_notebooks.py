@@ -28,3 +28,7 @@ def test_notebook_advanced(nb_tester):
 
 def test_notebook_incremental_data(nb_tester):
     nb_tester.check(notebook("popmon_tutorial_incremental_data.ipynb"))
+
+
+def test_notebook_reports(nb_tester):
+    nb_tester.check(notebook("popmon_tutorial_reports.ipynb"))
