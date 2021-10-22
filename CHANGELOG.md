@@ -1,5 +1,20 @@
 # Release notes
 
+## [v0.4.4](https://github.com/ing-bank/popmon/compare/v0.4.3...v0.4.4) (2021-10-22)
+
+
+### 📖 Documentation
+
+* notebook on report interpretation ([dd3be73](https://github.com/ing-bank/popmon/commits/dd3be73b8bf8b602722104d61663ccbd2f5ac64e))
+
+
+### 🐛 Bug fixes
+
+* distinct incorrect result (constant) ([3c47cde](https://github.com/ing-bank/popmon/commits/3c47cdef37b3abeb96d75dcc343f5c3ea8d87695))
+* prevent division by zero ([bacf8dd](https://github.com/ing-bank/popmon/commits/bacf8dd4581150abffb603aab201ebf85971de6a))
+* uu-chi2 incorrect return ([e259d3e](https://github.com/ing-bank/popmon/commits/e259d3e7601881ca5ee8e4b36ee489b3b9d1fe32))
+
+
 ## [v0.4.3](https://github.com/ing-bank/popmon/compare/v0.4.2...v0.4.3) (2021-10-04)
 
 
