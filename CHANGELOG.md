@@ -22,13 +22,13 @@
 
 * fix too restrictive numpy integer check in hist_stitcher ([c162f11](https://github.com/ing-bank/popmon/commits/c162f11a68a6d8aaf82cb9fd8365f018cbc2feb6))
 
-## [Version 0.4.2](https://github.com/ing-bank/popmon/compare/v0.4.1...v0.4.2) (2021-08-25)
+## [v0.4.2](https://github.com/ing-bank/popmon/compare/v0.4.1...v0.4.2) (2021-08-25)
 
 ### ⬆️ Dependencies
 
 * Pin ing-matplotlib-theme dependency to >=0.1.8 (closes #131) ([1bca302b20f2434a8ea0dea195e974d3b2ed3da3](https://github.com/ing-bank/popmon/commit/1bca302b20f2434a8ea0dea195e974d3b2ed3da3))
 
-## [Version 0.4.1](https://github.com/ing-bank/popmon/compare/v0.4.0...v0.4.1) (2021-06-23)
+## [v0.4.1](https://github.com/ing-bank/popmon/compare/v0.4.0...v0.4.1) (2021-06-23)
 
 
 ### 🎉 Features
