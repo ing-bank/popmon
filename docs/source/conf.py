@@ -51,7 +51,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Population Shift Monitoring"
-copyright = "2020, ING Bank N.V."
+copyright = "2021, ING Bank N.V."
 author = "ING Wholesale Banking Advanced Analytics"
 version = popmon.version.full_version
 
