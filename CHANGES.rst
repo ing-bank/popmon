@@ -2,7 +2,7 @@
 Release notes
 =============
 
-The release notes for more recent versions have move to `CHANGELOG.md <CHANGELOG.md>`_
+The release notes for more recent versions have moved to `CHANGELOG.md <https://github.com/ing-bank/popmon/blob/master/CHANGELOG.md>`_
 
 Version 0.4.0 (16-04-2021)
 --------------------------

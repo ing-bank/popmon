@@ -62,3 +62,8 @@
 * pre-commit updates ([6f55155](https://github.com/ing-bank/popmon/commits/6f55155a920de83e33c6129ddd85ecaf682eff47)), ([8fc5518](https://github.com/ing-bank/popmon/commits/8fc5518c5963f6a9dfdcf5e7f8025faa69b0f983)), ([e02adf1](https://github.com/ing-bank/popmon/commits/e02adf1dab9e30815fec4150eedbb01e15a81509))
 * **histogrammar:** popmon working with hgr v1.0.23 ([#101](https://github.com/ing-bank/popmon/issues/101)) ([d4a986e](https://github.com/ing-bank/popmon/commits/d4a986ed0add983721d2a60fbefc385fe2ed7ed3))
 * Pin ing-matplotlib-theme dependency to master (closes #131) ([1e20f30](https://github.com/ing-bank/popmon/commit/f1ed364045d4286ab3e144034fd8cf2c1e3aef89))
+
+
+## v0.4.0 and before
+
+The release notes for preceding versions are available `here <https://github.com/ing-bank/popmon/blob/master/CHANGES.rst>`_
