@@ -1,0 +1,23 @@
+# Creates a draft release when a new tag is pushed
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "popmon ${{ steps.get_version.outputs.VERSION }}"
+          body: "Release notes are available [here](https://github.com/ing-bank/popmon/blob/master/CHANGELOG.md)."
+          draft: true
