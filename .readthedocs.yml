@@ -7,4 +7,5 @@ build:
 python:
   version: 3.8
   setup_py_install: true
-
+  install:
+    - requirements: docs/requirements.txt
