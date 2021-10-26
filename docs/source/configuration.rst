@@ -55,7 +55,9 @@ To specify the time-axis binning alone, do:
 
 .. code-block:: python
 
-  report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
+  report = df.pm_stability_report(
+      time_axis="date", time_width="1w", time_offset="2020-1-6"
+  )
 
 The ``time_axis`` argument should be the name of a column that is of type **numeric (e.g. batch id, time in ns) or date(time)**.
 The default time width is 30 days ('30d'), with time offset 2010-1-4 (a Monday).
@@ -72,11 +74,15 @@ An example bin_specs dictionary is:
 
 .. code-block:: python
 
-    bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
-                 'y': {'num': 10, 'low': 0.0, 'high': 2.0},
-                 'x:y': [{}, {'num': 5, 'low': 0.0, 'high': 1.0}],
-                 'date': {'bin_width': pd.Timedelta('4w').value,
-                          'bin_offset': pd.Timestamp('2015-1-1').value}}
+    bin_specs = {
+        "x": {"bin_width": 1, "bin_offset": 0},
+        "y": {"num": 10, "low": 0.0, "high": 2.0},
+        "x:y": [{}, {"num": 5, "low": 0.0, "high": 1.0}],
+        "date": {
+            "bin_width": pd.Timedelta("4w").value,
+            "bin_offset": pd.Timestamp("2015-1-1").value,
+        },
+    }
 
 In the bin specs for 'x:y', 'x' is not provided (here) and reverts to the 1-dim setting.
 Any time-axis, when specified here ('date'), needs to be specified in nanoseconds. This takes precedence over
@@ -112,9 +118,11 @@ When not provided, the default setting is:
 
 .. code-block:: python
 
-    monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                        "*_zscore": [7, 4, -4, -7],
-                        "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+    monitoring_rules = {
+        "*_pull": [7, 4, -4, -7],
+        "*_zscore": [7, 4, -4, -7],
+        "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+    }
 
 Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
 For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull". Same for ``"*_zscore"``.
@@ -132,11 +140,13 @@ feature name in front. This also works for a combinations of two features. E.g.
 
 .. code-block:: python
 
-    monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                        "featureA:featureB:*_pull": [6, 3, -3, -6],
-                        "featureA:nan": [4, 1, 0, 0],
-                        "*_pull": [7, 4, -4, -7],
-                        "nan": [8, 1, 0, 0]}
+    monitoring_rules = {
+        "featureA:*_pull": [5, 3, -3, -5],
+        "featureA:featureB:*_pull": [6, 3, -3, -6],
+        "featureA:nan": [4, 1, 0, 0],
+        "*_pull": [7, 4, -4, -7],
+        "nan": [8, 1, 0, 0],
+    }
 
 In the case where multiple rules could apply for a feature's statistic, the most specific one gets applied.
 So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
@@ -204,13 +214,16 @@ Spark usage
     from pyspark.sql import SparkSession
 
     # downloads histogrammar jar files if not already installed, used for histogramming of spark dataframe
-    spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20").getOrCreate()
+    spark = SparkSession.builder.config(
+        "spark.jars.packages",
+        "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20",
+    ).getOrCreate()
 
     # load a dataframe
-    spark_df = spark.read.format('csv').options(header='true').load('file.csv')
+    spark_df = spark.read.format("csv").options(header="true").load("file.csv")
 
     # generate the report
-    report = spark_df.pm_stability_report(time_axis='timestamp')
+    report = spark_df.pm_stability_report(time_axis="timestamp")
 
 
 Spark example on Google Colab
@@ -231,16 +244,23 @@ Now that spark is installed, restart the runtime.
 .. code-block:: python
 
     import os
+
     os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
     os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
 
     import findspark
+
     findspark.init()
 
     from pyspark.sql import SparkSession
 
-    spark = SparkSession.builder.master("local[*]") \
-      .config("spark.jars", "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar") \
-      .config("spark.sql.execution.arrow.enabled", "false") \
-      .config("spark.sql.session.timeZone", "GMT") \
-      .getOrCreate()
+    spark = (
+        SparkSession.builder.master("local[*]")
+        .config(
+            "spark.jars",
+            "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar",
+        )
+        .config("spark.sql.execution.arrow.enabled", "false")
+        .config("spark.sql.session.timeZone", "GMT")
+        .getOrCreate()
+    )

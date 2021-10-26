@@ -73,9 +73,11 @@ def stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -84,10 +86,12 @@ def stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
@@ -182,7 +186,7 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            features = ['x', 'date', 'date:x', 'date:y', 'date:x:y']
+            features = ["x", "date", "date:x", "date:y", "date:x:y"]
 
     :param str binning: default binning to revert to in case bin_specs not supplied. options are:
         "unit" or "auto", default is "auto". When using "auto", semi-clever binning is automatically done.
@@ -191,9 +195,11 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
-                         'y': {'num': 10, 'low': 0.0, 'high': 2.0},
-                         'x:y': [{}, {'num': 5, 'low': 0.0, 'high': 1.0}]}
+            bin_specs = {
+                "x": {"bin_width": 1, "bin_offset": 0},
+                "y": {"num": 10, "low": 0.0, "high": 2.0},
+                "x:y": [{}, {"num": 5, "low": 0.0, "high": 1.0}],
+            }
 
         In the bin specs for x:y, x is not provided (here) and reverts to the 1-dim setting.
         The 'bin_width', 'bin_offset' notation makes an open-ended histogram (for that feature) with given bin width
@@ -224,9 +230,11 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -235,10 +243,12 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule

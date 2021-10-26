@@ -29,7 +29,10 @@ With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogram
 
 .. code-block:: python
 
-  spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20").getOrCreate()
+  spark = SparkSession.builder.config(
+      "spark.jars.packages",
+      "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20",
+  ).getOrCreate()
 
 For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
 
@@ -101,12 +104,12 @@ As a quick example, you can do:
   from popmon import resources
 
   # open synthetic data
-  df = pd.read_csv(resources.data('test.csv.gz'), parse_dates=['date'])
+  df = pd.read_csv(resources.data("test.csv.gz"), parse_dates=["date"])
   df.head()
 
   # generate stability report using automatic binning of all encountered features
   # (importing popmon automatically adds this functionality to a dataframe)
-  report = df.pm_stability_report(time_axis='date', features=['date:age', 'date:gender'])
+  report = df.pm_stability_report(time_axis="date", features=["date:age", "date:gender"])
 
   # to show the output of the report in a Jupyter notebook you can simply run:
   report
@@ -119,23 +122,32 @@ To specify your own binning specifications and features you want to report on, y
 .. code-block:: python
 
   # time-axis specifications alone; all other features are auto-binned.
-  report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
+  report = df.pm_stability_report(
+      time_axis="date", time_width="1w", time_offset="2020-1-6"
+  )
 
   # histogram selections. Here 'date' is the first axis of each histogram.
-  features=[
-      'date:isActive', 'date:age', 'date:eyeColor', 'date:gender',
-      'date:latitude', 'date:longitude', 'date:isActive:age'
+  features = [
+      "date:isActive",
+      "date:age",
+      "date:eyeColor",
+      "date:gender",
+      "date:latitude",
+      "date:longitude",
+      "date:isActive:age",
   ]
 
   # Specify your own binning specifications for individual features or combinations thereof.
   # This bin specification uses open-ended ("sparse") histograms; unspecified features get
   # auto-binned. The time-axis binning, when specified here, needs to be in nanoseconds.
-  bin_specs={
-      'longitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-      'latitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-      'age': {'bin_width': 10.0, 'bin_offset': 0.0},
-      'date': {'bin_width': pd.Timedelta('4w').value,
-               'bin_offset': pd.Timestamp('2015-1-1').value}
+  bin_specs = {
+      "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
+      "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
+      "age": {"bin_width": 10.0, "bin_offset": 0.0},
+      "date": {
+          "bin_width": pd.Timedelta("4w").value,
+          "bin_offset": pd.Timestamp("2015-1-1").value,
+      },
   }
 
   # generate stability report
