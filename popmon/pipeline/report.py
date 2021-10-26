@@ -29,26 +29,13 @@ from histogrammar.dfinterface.make_histograms import (
 
 from ..base import Module, Pipeline
 from ..config import config
-from ..pipeline.report_pipelines import (
-    ReportPipe,
-    expanding_reference,
-    external_reference,
-    rolling_reference,
-    self_reference,
-)
+from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
 )
 logger = logging.getLogger()
-
-_report_pipeline = {
-    "self": self_reference,
-    "external": external_reference,
-    "rolling": rolling_reference,
-    "expanding": expanding_reference,
-}
 
 
 def stability_report(
@@ -128,13 +115,8 @@ def stability_report(
     :return: dict with results of reporting pipeline
     """
     # perform basic input checks
-    reference_types = list(_report_pipeline.keys())
-    if reference_type not in reference_types:
-        raise ValueError(f"reference_type should be one of {str(reference_types)}.")
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
-    if reference_type == "external" and not isinstance(reference, dict):
-        raise TypeError("reference should be a dict of histogrammar histograms.")
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
             "*_pull": [7, 4, -4, -7],
@@ -177,7 +159,7 @@ def stability_report(
         datastore["ref_hists"] = reference
 
     # execute reporting pipeline
-    pipeline = _report_pipeline[reference_type](**cfg)
+    pipeline = get_report_pipeline_class(reference_type, reference)(**cfg)
     stability_report = StabilityReport()
     stability_report.transform(pipeline.transform(datastore))
     return stability_report
@@ -522,7 +504,7 @@ class StabilityReport(Module):
         """
         # basic checks
         if not self.datastore:
-            self.logger.warning("Empty datastore, cannot regenerate report.")
+            self.logger.warning("Empty datastore, could not regenerate report.")
             return None
 
         # start from clean slate

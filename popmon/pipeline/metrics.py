@@ -27,24 +27,12 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..pipeline.metrics_pipelines import (
-    metrics_expanding_reference,
-    metrics_external_reference,
-    metrics_rolling_reference,
-    metrics_self_reference,
-)
+from ..pipeline.metrics_pipelines import create_metrics_pipeline
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
 )
 logger = logging.getLogger()
-
-_metrics_pipeline = {
-    "self": metrics_self_reference,
-    "external": metrics_external_reference,
-    "rolling": metrics_rolling_reference,
-    "expanding": metrics_expanding_reference,
-}
 
 
 def stability_metrics(
@@ -111,15 +99,9 @@ def stability_metrics(
     :param kwargs: residual keyword arguments passed on to report pipeline.
     :return: dict with results of metrics pipeline
     """
-    # perform basic input checks
-    reference_types = list(_metrics_pipeline.keys())
-    if reference_type not in reference_types:
-        raise TypeError(f"reference_type should be one of {str(reference_types)}.")
 
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
-    if reference_type == "external" and not isinstance(reference, dict):
-        raise TypeError("reference should be a dict of histogrammar histograms.")
 
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
@@ -137,25 +119,24 @@ def stability_metrics(
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
-    # configuration and datastore for report pipeline
-    cfg = {
-        "hists_key": "hists",
-        "ref_hists_key": "ref_hists",
-        "time_axis": time_axis,
-        "window": window,
-        "shift": shift,
-        "monitoring_rules": monitoring_rules,
-        "pull_rules": pull_rules,
-        "features": features,
+    pipeline = create_metrics_pipeline(
+        reference_type=reference_type,
+        reference=reference,
+        hists_key="hists",
+        ref_hists_key="ref_hists",
+        time_axis=time_axis,
+        window=window,
+        shift=shift,
+        monitoring_rules=monitoring_rules,
+        pull_rules=pull_rules,
+        features=features,
         **kwargs,
-    }
+    )
 
     datastore = {"hists": hists}
     if reference_type == "external":
         datastore["ref_hists"] = reference
 
-    # execute reporting pipeline
-    pipeline = _metrics_pipeline[reference_type](**cfg)
     return pipeline.transform(datastore)
 
 

@@ -19,11 +19,12 @@
 
 import json
 import logging
+from abc import ABC
 from pathlib import Path
 
 
-class Pipeline:
-    """Base class used for to run modules in a pipeline."""
+class Pipeline(ABC):
+    """Abstract base class used for to run modules in a pipeline."""
 
     def __init__(self, modules, logger=None):
         """Initialization of the pipeline
