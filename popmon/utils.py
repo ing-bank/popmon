@@ -21,6 +21,10 @@ import fnmatch
 from textwrap import shorten
 from typing import Iterable, Optional
 
+from joblib import Parallel, delayed
+
+from popmon.config import num_jobs
+
 
 def short_date(date: str):
     return shorten(date, width=22, placeholder="")
@@ -37,3 +41,20 @@ def filter_metrics(metrics, ignore_stat_endswith, show_stats: Optional[Iterable]
             if any(fnmatch.fnmatch(m, pattern) for pattern in show_stats)
         ]
     return metrics
+
+
+def parallel(func, args_list, mode="args"):
+    """
+    Routine for parallel processing
+    """
+
+    if num_jobs == 1:
+        results = [
+            func(*args) if mode == "args" else func(**args) for args in args_list
+        ]
+    else:
+        results = Parallel(n_jobs=num_jobs)(
+            delayed(func)(*args) if mode == "args" else delayed(func)(**args)
+            for args in args_list
+        )
+    return results

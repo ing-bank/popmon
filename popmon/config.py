@@ -17,7 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import multiprocessing
 from fnmatch import fnmatch
 
 profiles = {
@@ -130,3 +130,6 @@ def get_stat_description(name: str):
         return f"{int(name[1:])}% percentile"
 
     return ""
+
+
+num_jobs = multiprocessing.cpu_count()

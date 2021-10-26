@@ -18,11 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import multiprocessing
-
 import pandas as pd
 from histogrammar.util import get_hist_props
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from ..analysis.hist_numpy import (
@@ -32,7 +29,7 @@ from ..analysis.hist_numpy import (
 )
 from ..base import Module
 from ..config import get_stat_description
-from ..utils import short_date
+from ..utils import parallel, short_date
 from ..visualization.utils import plot_overlay_1d_histogram_b64
 
 
@@ -80,8 +77,6 @@ class HistogramSection(Module):
         features = self.get_features(data_obj.keys())
         features_w_metrics = []
 
-        num_cores = multiprocessing.cpu_count()
-
         self.logger.info(f'Generating section "{self.section_name}".')
 
         for feature in tqdm(features, ncols=100):
@@ -106,10 +101,9 @@ class HistogramSection(Module):
                 df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
             ]
 
-            plots = Parallel(n_jobs=num_cores)(
-                delayed(_plot_histograms)(feature, dates[i], hists[i], hist_names)
-                for i in range(last_n)
-            )
+            args = [(feature, dates[i], hists[i], hist_names) for i in range(last_n)]
+            plots = parallel(_plot_histograms, args)
+
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
