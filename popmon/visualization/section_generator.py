@@ -18,16 +18,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import multiprocessing
-
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
-from ..utils import filter_metrics, short_date
+from ..utils import filter_metrics, parallel, short_date
 from ..visualization.utils import _prune, plot_bars_b64
 
 
@@ -106,8 +103,6 @@ class SectionGenerator(Module):
         features = self.get_features(data_obj.keys())
         features_w_metrics = []
 
-        num_cores = multiprocessing.cpu_count()
-
         self.logger.info(
             f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
         )
@@ -130,8 +125,8 @@ class SectionGenerator(Module):
                 df.columns, self.ignore_stat_endswith, self.show_stats
             )
 
-            plots = Parallel(n_jobs=num_cores)(
-                delayed(_plot_metric)(
+            args = [
+                (
                     feature,
                     metric,
                     dates,
@@ -146,7 +141,9 @@ class SectionGenerator(Module):
                     self.skip_empty_plots,
                 )
                 for metric in metrics
-            )
+            ]
+            plots = parallel(_plot_metric, args)
+
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]

@@ -18,15 +18,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import collections
-import multiprocessing
 import warnings
 
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 
 from ..base import Module
+from ..utils import parallel
 
 
 class ApplyFunc(Module):
@@ -157,27 +155,32 @@ class ApplyFunc(Module):
 
         features = self.get_features(apply_to_data.keys())
 
-        num_cores = multiprocessing.cpu_count()
         same_key = self.assign_to_key == self.apply_to_key
 
-        res = Parallel(n_jobs=num_cores)(
-            delayed(apply_func_array)(
-                feature=feature,
-                metrics=self.metrics,
-                apply_to_df=self.get_datastore_object(
+        args = [
+            {
+                "feature": feature,
+                "metrics": self.metrics,
+                "apply_to_df": self.get_datastore_object(
                     apply_to_data, feature, dtype=pd.DataFrame
                 ),
-                assign_to_df=None
-                if same_key
-                else self.get_datastore_object(
-                    assign_to_data, feature, dtype=pd.DataFrame, default=pd.DataFrame()
+                "assign_to_df": (
+                    None
+                    if same_key
+                    else self.get_datastore_object(
+                        assign_to_data,
+                        feature,
+                        dtype=pd.DataFrame,
+                        default=pd.DataFrame(),
+                    )
                 ),
-                apply_funcs=self.apply_funcs,
-                same_key=same_key,
-            )
+                "apply_funcs": self.apply_funcs,
+                "same_key": same_key,
+            }
             for feature in features
-        )
-        new_metrics = {r[0]: r[1] for r in res}
+        ]
+        result = parallel(apply_func_array, args, mode="kwargs")
+        new_metrics = dict(result)
 
         # storage
         datastore[self.store_key] = new_metrics
@@ -189,7 +192,7 @@ def apply_func_array(
 ):
     """Apply list of functions to dataframe
 
-    Split off for parallellization reasons
+    Split off for parallelization reasons
 
     :param str feature: feature currently looping over
     :param list metrics: list of selected metrics to apply functions to
@@ -197,7 +200,7 @@ def apply_func_array(
     :param assign_to_df: pandas data frame the output of function is assigned to
     :param apply_funcs: list of functions to apply to
     :param same_key: if True, merge apply_to_df and assign_to_df before returning assign_to_df
-    :return: untion of feature and assign_to_df
+    :return: union of feature and assign_to_df
     """
     if not isinstance(apply_to_df, pd.DataFrame):
         raise TypeError(
