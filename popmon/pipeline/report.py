@@ -418,12 +418,14 @@ class StabilityReport(Module):
         """
         super().__init__()
         self.read_key = read_key
-        self.html_report = ""
         self.datastore = {}
+
+    @property
+    def html_report(self):
+        return self.get_datastore_object(self.datastore, self.read_key, str)
 
     def transform(self, datastore):
         self.datastore = datastore
-        self.html_report = self.get_datastore_object(datastore, self.read_key, str)
 
     def _repr_html_(self):
         """HTML representation of the class (report) embedded in an iframe.
@@ -444,9 +446,12 @@ class StabilityReport(Module):
         :param bool escape: escape characters which could conflict with other HTML code. default: False
         :return str: HTML code of the report
         """
-        import html
 
-        return html.escape(self.html_report) if escape else self.html_report
+        if escape:
+            import html
+
+            return html.escape(self.html_report)
+        return self.html_report
 
     def to_file(self, filename):
         """Store HTML report in the local file system.

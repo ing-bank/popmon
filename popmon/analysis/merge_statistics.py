@@ -44,14 +44,14 @@ class MergeStatistics(Module):
     def transform(self, dicts: list):
         merged_stats = {}
         for dict_ in dicts:
-            for feature in dict_.keys():
-                # we add statistics dataframe to the final output for specific feature however
-                # if the feature already exists - we concatenate its dataframe with the existing one
-                if isinstance(dict_[feature], pd.DataFrame):
+            for feature, values in dict_.items():
+                if isinstance(values, pd.DataFrame):
+                    # we add statistics dataframe to the final output for specific feature however
+                    # if the feature already exists - we concatenate its dataframe with the existing one
                     if feature in merged_stats:
                         merged_stats[feature] = merged_stats[feature].combine_first(
-                            dict_[feature]
+                            values
                         )
                     else:
-                        merged_stats[feature] = dict_[feature]
+                        merged_stats[feature] = values
         return merged_stats

@@ -72,10 +72,10 @@ class FileWriter(Module):
         # if file path is provided, write data to a file. Otherwise, write data into the datastore
         if self.file_path is None:
             return data
-        else:
-            with open(self.file_path, "w+") as file:
-                file.write(data)
-            self.logger.info(
-                f'Object "{self.read_key}" written to file "{self.file_path}".'
-            )
-            return None
+
+        with open(self.file_path, "w+") as file:
+            file.write(data)
+        self.logger.info(
+            f'Object "{self.read_key}" written to file "{self.file_path}".'
+        )
+        return None
