@@ -19,11 +19,11 @@
 
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Module(ABC):
-    """Base class used for modules in a pipeline."""
+    """Abstract base class used for modules in a pipeline."""
 
     _input_keys = None
     _output_keys = None

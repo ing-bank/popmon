@@ -27,7 +27,7 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..base import Module, Pipeline
+from ..base import Module
 from ..config import config
 from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
