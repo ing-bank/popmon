@@ -288,7 +288,6 @@ def apply_func(feature, selected_metrics, df, arr):
             else selected_metrics
         )
         metrics = [m for m in metrics if m in df.columns]
-        # assert all(m in df.columns for m in metrics)
         if len(metrics) == 0:
             return {}
         df = df[metrics] if len(metrics) >= 2 else df[metrics[0]]

@@ -184,7 +184,6 @@ def _plot_histograms(feature, date, hc_list, hist_names):
             hists, feature, hist_names, y_label, is_num, is_ts
         )
     elif hc_list[0].n_dim == 2:
-        # grid2d_list, xkeys, ykeys = get_consistent_numpy_2dgrids(hc_list, get_bin_labels=True)
         plot = ""
     else:
         plot = ""

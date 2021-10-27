@@ -171,7 +171,6 @@ class HistProfiler(Module):
         # calculate phik correlation
         try:
             phi_k = phik.phik_from_hist2d(observed=grid)
-            # p, Z = significance.significance_from_hist2d(values=grid, significance_method='asymptotic')
         except ValueError:
             self.logger.debug(
                 f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
