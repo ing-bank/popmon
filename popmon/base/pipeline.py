@@ -66,8 +66,5 @@ class Pipeline(ABC):
 
         for module in self.modules:
             self.logger.debug(f"transform {module.__class__.__name__}")
-            if isinstance(module, Pipeline):
-                datastore = module.transform(datastore)
-            else:
-                datastore = module._transform(datastore)
+            datastore = module.transform(datastore)
         return datastore

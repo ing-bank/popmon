@@ -19,10 +19,73 @@
 
 
 import logging
-from abc import ABC
+from abc import ABCMeta
+from functools import wraps
 
 
-class Module(ABC):
+def datastore_helper(func):
+    """Decorator for passing and storing only the relevant keys in the datastore to
+    the transform() method."""
+
+    @wraps(func)
+    def _transform(self, datastore):
+        """Transformation helper function"""
+        inputs = {}
+        self.logger.debug(f"load from: {type(self)}")
+        for key in self._input_keys:
+            key_value = self.__dict__[key]
+            if key_value and len(key_value) > 0:
+                if isinstance(key_value, list):
+                    inputs[key] = [datastore.get(k) for k in key_value]
+                else:
+                    inputs[key] = datastore.get(key_value)
+            else:
+                inputs[key] = None
+
+            self.logger.debug(
+                f"load(key={key}, key_value={key_value}, value={str(inputs[key]):.100s})"
+            )
+
+        # transformation
+        outputs = func(self, *list(inputs.values()))
+
+        # transform returns None if no update needs to be made
+        if outputs is not None:
+            if len(self._output_keys) == 1:
+                outputs = (outputs,)
+
+            for k, v in zip(self._output_keys, outputs):
+                key_value = self.__dict__[k]
+                self.logger.debug(
+                    f"store(key={k}, key_value={key_value}, value={str(v):.100s})"
+                )
+                if key_value and len(key_value) > 0:
+                    datastore[key_value] = v
+
+        return datastore
+
+    return _transform
+
+
+class ModuleMetaClass(type):
+    """Metaclass that wraps all transform() methods using the datastore_helper
+    This obviates the need to decorate all methods in subclasses"""
+
+    def __new__(cls, name, bases, local):
+        if "transform" in local:
+            value = local["transform"]
+            if callable(value):
+                local["transform"] = datastore_helper(value)
+        return type.__new__(cls, name, bases, local)
+
+
+def combine_classes(*args):
+    """Combine multiple metaclasses"""
+    name = "".join(a.__name__ for a in args)
+    return type(name, args, {})
+
+
+class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
     """Abstract base class used for modules in a pipeline."""
 
     _input_keys = None
@@ -35,23 +98,21 @@ class Module(ABC):
         self.feature_begins_with = []
         self.ignore_features = []
 
+    def _get_values(self, keys):
+        """Get the class attribute values for certain keys."""
+        values = {}
+        for x in keys:
+            value = self.__dict__[x]
+            if value != "" and value is not None and value not in values:
+                values[x] = value
+        return values
+
     def get_inputs(self):
-        in_keys = {}
-        for x in self._input_keys:
-            in_key = self.__dict__[x]
-            if in_key != "" and in_key is not None and in_key not in in_keys:
-                in_keys[x] = in_key
-        return in_keys
+        return self._get_values(self._input_keys)
 
     def get_outputs(self):
-        out_keys = {}
-        for x in self._output_keys:
-            out_key = self.__dict__[x]
-            if out_key != "" and out_key is not None and out_key not in out_keys:
-                out_keys[x] = out_key
-        return out_keys
+        return self._get_values(self._output_keys)
 
-    # @abstractmethod
     def get_description(self):
         return ""
 
@@ -109,46 +170,6 @@ class Module(ABC):
 
         features = [feature for feature in features if feature in all_features]
         return features
-
-    def _transform(self, datastore):
-        """Transformation helper function"""
-
-        inputs = {}
-        self.logger.debug(f"load from: {type(self)}")
-        for key in self._input_keys:
-            key_value = self.__dict__[key]
-            if key_value and len(key_value) > 0:
-                if isinstance(key_value, list):
-                    inputs[key] = [datastore.get(k) for k in key_value]
-                else:
-                    inputs[key] = datastore.get(key_value)
-            else:
-                inputs[key] = None
-
-            self.logger.debug(
-                f"load(key={key}, key_value={key_value}, value={str(inputs[key]):.100s})"
-            )
-
-        # cache datastore
-        self._datastore = datastore
-
-        # transformation
-        outputs = self.transform(*list(inputs.values()))
-
-        # transform returns None if no update needs to be made
-        if outputs is not None:
-            if len(self._output_keys) == 1:
-                outputs = (outputs,)
-
-            for k, v in zip(self._output_keys, outputs):
-                key_value = self.__dict__[k]
-                self.logger.debug(
-                    f"store(key={k}, key_value={key_value}, value={str(v):.100s})"
-                )
-                if key_value and len(key_value) > 0:  # and v is not None:
-                    datastore[key_value] = v
-
-        return datastore
 
     def transform(self, *args):
         """Central function of the module.

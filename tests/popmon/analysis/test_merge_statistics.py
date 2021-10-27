@@ -40,7 +40,7 @@ def test_merge_statistics():
     }
     datastore = MergeStatistics(
         read_keys=["first_df", "second_df"], store_key="output_df"
-    )._transform(datastore)
+    ).transform(datastore)
 
     pd.testing.assert_frame_equal(df1.combine_first(df2), out)
     pd.testing.assert_frame_equal(datastore["output_df"]["feature_1"], out)

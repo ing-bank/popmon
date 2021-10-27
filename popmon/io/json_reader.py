@@ -37,4 +37,4 @@ class JsonReader(FileReader):
         super().__init__(store_key, file_path, apply_func=json.loads)
 
     def transform(self, *args):
-        return super().transform(*args)
+        return super().transform.__wrapped__(self, *args)
