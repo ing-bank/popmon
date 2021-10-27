@@ -70,13 +70,11 @@ def create_metrics_pipeline(
     reference_type="self",
     reference=None,
     hists_key="hists",
-    # ref_hists_key="ref_hists",
     time_axis="",
     window=10,
     monitoring_rules={},
     pull_rules={},
     features=None,
-    # shift=1,
     **kwargs,
 ):
     # configuration and datastore for report pipeline
@@ -87,8 +85,6 @@ def create_metrics_pipeline(
         "monitoring_rules": monitoring_rules,
         "pull_rules": pull_rules,
         "features": features,
-        # "ref_hists_key": ref_hists_key,
-        # "shift": shift,
         **kwargs,
     }
 
