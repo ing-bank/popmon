@@ -27,7 +27,6 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..base import Module
 from ..config import config
 from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
@@ -160,8 +159,9 @@ def stability_report(
 
     # execute reporting pipeline
     pipeline = get_report_pipeline_class(reference_type, reference)(**cfg)
-    stability_report = StabilityReport()
-    stability_report.transform(pipeline.transform(datastore))
+    result = pipeline.transform(datastore)
+
+    stability_report = StabilityReport(datastore=result)
     return stability_report
 
 
@@ -400,7 +400,7 @@ def df_stability_report(
     )
 
 
-class StabilityReport(Module):
+class StabilityReport:
     """Representation layer of the report.
 
     Stability report module wraps the representation functionality of the report
@@ -408,24 +408,18 @@ class StabilityReport(Module):
     as a HTML string, HTML file or Jupyter notebook's cell output.
     """
 
-    _input_keys = ("read_key",)
-    _output_keys = ()
-
-    def __init__(self, read_key="html_report"):
+    def __init__(self, datastore, read_key="html_report"):
         """Initialize an instance of StabilityReport.
 
         :param str read_key: key of HTML report data to read from data store. default is html_report.
         """
-        super().__init__()
         self.read_key = read_key
-        self.datastore = {}
+        self.datastore = datastore
+        self.logger = logging.getLogger()
 
     @property
     def html_report(self):
-        return self.get_datastore_object(self.datastore, self.read_key, str)
-
-    def transform(self, datastore):
-        self.datastore = datastore
+        return self.datastore[self.read_key]
 
     def _repr_html_(self):
         """HTML representation of the class (report) embedded in an iframe.
@@ -531,6 +525,7 @@ class StabilityReport(Module):
             report_filepath=report_filepath,
             show_stats=show_stats,
         )
-        stability_report = StabilityReport()
-        stability_report.transform(pipeline.transform(self.datastore))
+        result = pipeline.transform(self.datastore)
+
+        stability_report = StabilityReport(datastore=result)
         return stability_report
