@@ -17,7 +17,7 @@ repos:
             - flake8-comprehensions
         args: [ "--select=E9,F63,F7,F82,C4"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.0
+    rev: v2.29.1
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
