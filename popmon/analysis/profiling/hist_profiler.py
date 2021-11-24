@@ -162,8 +162,8 @@ class HistProfiler(Module):
             return []
         try:
             grid = get_2dgrid(hist)
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
 
         # calc some basic 2d-histogram statistics
         sume = int(sum_entries(hist))

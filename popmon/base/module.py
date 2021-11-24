@@ -140,8 +140,8 @@ class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
         else:
             try:
                 obj = datastore[feature]
-            except KeyError:
-                raise ValueError(f"`{feature}` not found in the datastore!")
+            except KeyError as e:
+                raise ValueError(f"`{feature}` not found in the datastore!") from e
 
         if not isinstance(obj, dtype):
             raise TypeError(f"obj `{feature}` is not an instance of `{dtype}`!")
