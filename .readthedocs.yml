@@ -1,11 +1,10 @@
-# See: https://docs.readthedocs.io/en/latest/yaml-config.html
-# .readthedocs.yml
+# See: https://docs.readthedocs.io/en/latest/config-file/v2.html
+version: 2
 
 build:
   image: latest
 
 python:
-  version: 3.8
-  setup_py_install: true
+  version: '3.8'
   install:
     - requirements: docs/requirements.txt
