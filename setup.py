@@ -1,5 +1,7 @@
 from setuptools import find_packages, setup
 
+__version__ = "0.4.4"
+
 with open("requirements.txt") as f:
     REQUIREMENTS = f.read().splitlines()
 
@@ -15,7 +17,7 @@ def setup_package() -> None:
     """
     setup(
         name="popmon",
-        version="0.4.4",
+        version=__version__,
         url="https://github.com/ing-bank/popmon",
         license="MIT",
         author="ING Wholesale Banking Advanced Analytics",

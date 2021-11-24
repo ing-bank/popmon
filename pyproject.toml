@@ -8,3 +8,9 @@ markers = ["spark"]
 "master" = "local[*]"
 "spark.driver.host" = "192.168.1.78"
 "spark.sql.catalogImplementation" = "in-memory"
+
+[tool.semantic_release]
+version_variable = [
+    "setup.py:__version__",
+    "popmon/version.py:version",
+]
