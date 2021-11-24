@@ -458,8 +458,4 @@ def mad(a, c=0.6745, axis=0):
     center = a.median(axis=axis)
     rel_abs_diff = (a - center).abs() / c
     mad = rel_abs_diff.median(axis=axis)
-
-    # mad = np.median((np.abs(a-center)) / c, axis=axis)
-    # if isinstance(a, pd.DataFrame):
-    #     mad = pd.Series(data=mad, index=a.columns)
     return mad

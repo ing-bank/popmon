@@ -57,20 +57,20 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         Default is 7.0.
     :return: pandas Series with popular comparison metrics.
     """
-    x = pd.Series()
-    x["ks"] = np.nan
-    x["ks_zscore"] = np.nan
-    x["ks_pvalue"] = np.nan
-    x["pearson"] = np.nan
-    x["chi2"] = np.nan
-    x["chi2_norm"] = np.nan
-    x["chi2_zscore"] = np.nan
-    x["chi2_pvalue"] = np.nan
-    x["chi2_max_residual"] = np.nan
-    x["chi2_spike_count"] = np.nan
-    x["max_prob_diff"] = np.nan
-    unknown_labels = np.nan
-    x["unknown_labels"] = unknown_labels
+    x = {
+        "ks": np.nan,
+        "ks_zscore": np.nan,
+        "ks_pvalue": np.nan,
+        "pearson": np.nan,
+        "chi2": np.nan,
+        "chi2_norm": np.nan,
+        "chi2_zscore": np.nan,
+        "chi2_pvalue": np.nan,
+        "chi2_max_residual": np.nan,
+        "chi2_spike_count": np.nan,
+        "max_prob_diff": np.nan,
+        "unknown_labels": np.nan,
+    }
 
     # basic name checks
     cols = row.index.to_list()
@@ -83,15 +83,14 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     # basic histogram checks
     hist1 = row[hist_name1]
     hist2 = row[hist_name2]
-    if not all([isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]]):
-        return x
-    if not check_similar_hists([hist1, hist2]):
-        return x
+    if not all(
+        [isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]]
+    ) or not check_similar_hists([hist1, hist2]):
+        return pd.Series(x)
 
     # compare
-    is_num = is_numeric(hist1)
     if hist1.n_dim == 1:
-        if is_num:
+        if is_numeric(hist1):
             numpy_1dhists = get_consistent_numpy_1dhists([hist1, hist2])
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             # KS-test only properly defined for (ordered) 1D interval variables
@@ -106,10 +105,14 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
             labels1 = hist1.bin_labels()
             labels2 = hist2.bin_labels()
             subset = set(labels1) <= set(labels2)
-            unknown_labels = int(not subset)
+            x["unknown_labels"] = int(not subset)
     elif hist1.n_dim == 2:
         numpy_2dgrids = get_consistent_numpy_2dgrids([hist1, hist2])
         entries_list = [entry.flatten() for entry in numpy_2dgrids]
+    else:
+        raise NotImplementedError(
+            f"histogram with dimension {hist1.n_dim} is not supported"
+        )
 
     # calculate pearson coefficient
     pearson, pvalue = (np.nan, np.nan)
@@ -130,8 +133,7 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     x["chi2_max_residual"] = max(list(map(abs, res)))
     x["chi2_spike_count"] = sum(abs(r) > max_res_bound for r in res)
     x["max_prob_diff"] = googl_test(*entries_list)
-    x["unknown_labels"] = unknown_labels
-    return x
+    return pd.Series(x)
 
 
 class HistComparer(Pipeline):
@@ -162,13 +164,14 @@ class HistComparer(Pipeline):
         :param args: (tuple, optional): residual args passed on to func_mean and func_std
         :param kwargs: (dict, optional): residual kwargs passed on to func_mean and func_std
         """
-        super().__init__(modules=[])
-
         if assign_to_key is None:
             assign_to_key = read_key
 
         # make reference histogram(s)
-        hist_collector = ApplyFunc(apply_to_key=read_key, assign_to_key=assign_to_key)
+        hist_collector = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=assign_to_key,
+        )
         hist_collector.add_apply_func(
             func=func_hist_collector, entire=True, suffix=suffix, *args, **kwargs
         )
@@ -187,7 +190,8 @@ class HistComparer(Pipeline):
                 }
             ],
         )
-        self.modules = [hist_collector, hist_comparer]
+
+        super().__init__(modules=[hist_collector, hist_comparer])
 
 
 class RollingHistComparer(HistComparer):
@@ -374,8 +378,6 @@ class NormHistComparer(Pipeline):
         :param args: (tuple, optional): residual args passed on to func_hist_collector
         :param kwargs: (dict, optional): residual kwargs passed on to func_hist_collector
         """
-        super().__init__(modules=[])
-
         if assign_to_key is None:
             assign_to_key = read_key
 
@@ -399,7 +401,7 @@ class NormHistComparer(Pipeline):
             ],
         )
 
-        self.modules = [hist_collector, hist_comparer]
+        super().__init__(modules=[hist_collector, hist_comparer])
 
 
 class RollingNormHistComparer(NormHistComparer):

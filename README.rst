@@ -157,6 +157,17 @@ These examples also work with spark dataframes.
 You can see the output of such example notebook code `here <https://crclz.com/popmon/reports/test_data_report.html>`_.
 For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
 
+Pipelines for monitoring dataset shift
+======================================
+Advanced users can leverage popmon's modular data pipeline to customize their workflow.
+Visualization of the pipeline can be useful when debugging, or for didactic purposes.
+There is a `script <https://github.com/ing-bank/popmon/tree/master/tools/>`_ included with the package that you can use.
+The plotting is configurable, and depending on the options you will obtain a result that can be used for understanding the data flow, the high-level components and the (re)use of datasets.
+
+|pipeline|
+
+*Example pipeline visualization (click to enlarge)*
+
 Resources
 =========
 
@@ -214,6 +225,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :target: https://github.com/ing-bank/popmon
 .. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/traffic_light_overview.png
     :alt: Traffic Light Overview
+.. |pipeline| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/pipeline.png
+    :alt: Pipeline Visualization
+    :target: https://github.com/ing-bank/popmon/files/7417124/pipeline_amazingpipeline_subgraphs_unversioned.pdf
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest

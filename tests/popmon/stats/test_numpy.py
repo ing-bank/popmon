@@ -255,7 +255,6 @@ def test_probability_distribution_mean_covariance():
     n_histos = 5000
     max_hist_entries = 10000
     rel_error = 0.1
-    # basic = np.random.uniform(0, 1, size=n_bins)
     bin_entries = []
     for k in range(n_histos):
         bin_probs = np.random.normal(1.0, rel_error, size=n_bins)  # + basic
