@@ -2,6 +2,20 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2021-11-24)
+### Feature
+* Improve pipeline visualization ([`bb09d73`](https://github.com/ing-bank/popmon/commit/bb09d730d275e4a97d0d7174d8a325e8c98bea44))
+
+### Fix
+* Ensure uniqueness of apply_funcs_key ([`ba98c97`](https://github.com/ing-bank/popmon/commit/ba98c973c8e27fe69ce1c3a82c4fa14abba3d818))
+
+### Documentation
+* **rtd:** Migrate config to v2 ([`a8d9f76`](https://github.com/ing-bank/popmon/commit/a8d9f76b5f999615e623dc1a5b37287a42bad841))
+* Refresh notebooks ([#151](https://github.com/ing-bank/popmon/issues/151)) ([`0bccc7e`](https://github.com/ing-bank/popmon/commit/0bccc7e4e7725fee00d37b1279fb8988dacccbec))
+* Pipeline visualizations in docs and notebooks ([`913bfb0`](https://github.com/ing-bank/popmon/commit/913bfb0aec607ea68567ecc71e65cfae7c86ff75))
+* Changelog md syntax ([`b187d36`](https://github.com/ing-bank/popmon/commit/b187d360bc303b347826c77eb356d2d4dcc5ad38))
+* Specify requirements ([`e3f6b0a`](https://github.com/ing-bank/popmon/commit/e3f6b0aa431d886c92d3324080dc7460950dabb7))
+
 ## [v0.4.4](https://github.com/ing-bank/popmon/compare/v0.4.3...v0.4.4) (2021-10-22)
 
 
