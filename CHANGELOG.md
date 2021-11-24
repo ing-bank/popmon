@@ -1,5 +1,7 @@
 # Release notes
 
+<!--next-version-placeholder-->
+
 ## [v0.4.4](https://github.com/ing-bank/popmon/compare/v0.4.3...v0.4.4) (2021-10-22)
 
 
