@@ -147,7 +147,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             if y_max > y_min:
                 ax.set_ylim(y_min, y_max)
     except Exception:
-        pass
+        logger.debug("unable to plot boundaries")
 
     ax.grid(True, linestyle=":")
 
@@ -368,8 +368,10 @@ def plot_overlay_1d_histogram_b64(
         try:
             hist_values = hist[0]
             hist_bins = hist[1]
-        except BaseException:
-            raise ValueError("Cannot extract binning and values from input histogram")
+        except BaseException as e:
+            raise ValueError(
+                "Cannot extract binning and values from input histogram"
+            ) from e
 
         assert hist_values is not None and len(
             hist_values

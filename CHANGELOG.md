@@ -66,4 +66,4 @@
 
 ## v0.4.0 and before
 
-The release notes for preceding versions are available `here <https://github.com/ing-bank/popmon/blob/master/CHANGES.rst>`_
+The release notes for preceding versions are available [here](https://github.com/ing-bank/popmon/blob/master/CHANGES.rst>).

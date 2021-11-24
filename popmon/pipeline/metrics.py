@@ -27,24 +27,12 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..pipeline.metrics_pipelines import (
-    metrics_expanding_reference,
-    metrics_external_reference,
-    metrics_rolling_reference,
-    metrics_self_reference,
-)
+from ..pipeline.metrics_pipelines import create_metrics_pipeline
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
 )
 logger = logging.getLogger()
-
-_metrics_pipeline = {
-    "self": metrics_self_reference,
-    "external": metrics_external_reference,
-    "rolling": metrics_rolling_reference,
-    "expanding": metrics_expanding_reference,
-}
 
 
 def stability_metrics(
@@ -73,9 +61,11 @@ def stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -84,10 +74,12 @@ def stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
@@ -107,15 +99,9 @@ def stability_metrics(
     :param kwargs: residual keyword arguments passed on to report pipeline.
     :return: dict with results of metrics pipeline
     """
-    # perform basic input checks
-    reference_types = list(_metrics_pipeline.keys())
-    if reference_type not in reference_types:
-        raise TypeError(f"reference_type should be one of {str(reference_types)}.")
 
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
-    if reference_type == "external" and not isinstance(reference, dict):
-        raise TypeError("reference should be a dict of histogrammar histograms.")
 
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
@@ -133,25 +119,24 @@ def stability_metrics(
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
-    # configuration and datastore for report pipeline
-    cfg = {
-        "hists_key": "hists",
-        "ref_hists_key": "ref_hists",
-        "time_axis": time_axis,
-        "window": window,
-        "shift": shift,
-        "monitoring_rules": monitoring_rules,
-        "pull_rules": pull_rules,
-        "features": features,
-    }
-    cfg.update(kwargs)
+    pipeline = create_metrics_pipeline(
+        reference_type=reference_type,
+        reference=reference,
+        hists_key="hists",
+        ref_hists_key="ref_hists",
+        time_axis=time_axis,
+        window=window,
+        shift=shift,
+        monitoring_rules=monitoring_rules,
+        pull_rules=pull_rules,
+        features=features,
+        **kwargs,
+    )
 
     datastore = {"hists": hists}
     if reference_type == "external":
         datastore["ref_hists"] = reference
 
-    # execute reporting pipeline
-    pipeline = _metrics_pipeline[reference_type](**cfg)
     return pipeline.transform(datastore)
 
 
@@ -182,7 +167,7 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            features = ['x', 'date', 'date:x', 'date:y', 'date:x:y']
+            features = ["x", "date", "date:x", "date:y", "date:x:y"]
 
     :param str binning: default binning to revert to in case bin_specs not supplied. options are:
         "unit" or "auto", default is "auto". When using "auto", semi-clever binning is automatically done.
@@ -191,9 +176,11 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
-                         'y': {'num': 10, 'low': 0.0, 'high': 2.0},
-                         'x:y': [{}, {'num': 5, 'low': 0.0, 'high': 1.0}]}
+            bin_specs = {
+                "x": {"bin_width": 1, "bin_offset": 0},
+                "y": {"num": 10, "low": 0.0, "high": 2.0},
+                "x:y": [{}, {"num": 5, "low": 0.0, "high": 1.0}],
+            }
 
         In the bin specs for x:y, x is not provided (here) and reverts to the 1-dim setting.
         The 'bin_width', 'bin_offset' notation makes an open-ended histogram (for that feature) with given bin width
@@ -224,9 +211,11 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -235,10 +224,12 @@ def df_stability_metrics(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule

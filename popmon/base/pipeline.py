@@ -17,14 +17,12 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 import logging
+from abc import ABC
 
-from ..base import Module
 
-
-class Pipeline(Module):
-    """Base class used for to run modules in a pipeline."""
+class Pipeline(ABC):
+    """Abstract base class used for to run modules in a pipeline."""
 
     def __init__(self, modules, logger=None):
         """Initialization of the pipeline
@@ -32,7 +30,6 @@ class Pipeline(Module):
         :param list modules: modules of the pipeline.
         :param logger: logger to be used by each module.
         """
-        super().__init__()
         self.modules = modules
         self.set_logger(logger)
 
@@ -68,5 +65,6 @@ class Pipeline(Module):
         """
 
         for module in self.modules:
+            self.logger.debug(f"transform {module.__class__.__name__}")
             datastore = module.transform(datastore)
         return datastore

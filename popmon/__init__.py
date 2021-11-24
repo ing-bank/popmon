@@ -32,3 +32,16 @@ from .pipeline.metrics import df_stability_metrics, stability_metrics
 from .pipeline.report import df_stability_report, stability_report
 from .stitching import stitch_histograms
 from .version import version as __version__
+
+__all__ = [
+    "get_bin_specs",
+    "get_time_axes",
+    "make_histograms",
+    "decorators",
+    "df_stability_metrics",
+    "stability_metrics",
+    "df_stability_report",
+    "stability_report",
+    "stitch_histograms",
+    "__version__",
+]

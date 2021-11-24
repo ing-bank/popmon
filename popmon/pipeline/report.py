@@ -27,28 +27,14 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..base import Module
 from ..config import config
-from ..pipeline.report_pipelines import (
-    ReportPipe,
-    expanding_reference,
-    external_reference,
-    rolling_reference,
-    self_reference,
-)
+from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
 )
 logger = logging.getLogger()
-
-_report_pipeline = {
-    "self": self_reference,
-    "external": external_reference,
-    "rolling": rolling_reference,
-    "expanding": expanding_reference,
-}
 
 
 def stability_report(
@@ -83,9 +69,11 @@ def stability_report(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -94,10 +82,12 @@ def stability_report(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
@@ -124,13 +114,8 @@ def stability_report(
     :return: dict with results of reporting pipeline
     """
     # perform basic input checks
-    reference_types = list(_report_pipeline.keys())
-    if reference_type not in reference_types:
-        raise ValueError(f"reference_type should be one of {str(reference_types)}.")
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
-    if reference_type == "external" and not isinstance(reference, dict):
-        raise TypeError("reference should be a dict of histogrammar histograms.")
     if not isinstance(monitoring_rules, dict):
         monitoring_rules = {
             "*_pull": [7, 4, -4, -7],
@@ -173,9 +158,10 @@ def stability_report(
         datastore["ref_hists"] = reference
 
     # execute reporting pipeline
-    pipeline = _report_pipeline[reference_type](**cfg)
-    stability_report = StabilityReport()
-    stability_report.transform(pipeline.transform(datastore))
+    pipeline = get_report_pipeline_class(reference_type, reference)(**cfg)
+    result = pipeline.transform(datastore)
+
+    stability_report = StabilityReport(datastore=result)
     return stability_report
 
 
@@ -212,7 +198,7 @@ def df_stability_report(
 
         .. code-block:: python
 
-            features = ['x', 'date', 'date:x', 'date:y', 'date:x:y']
+            features = ["x", "date", "date:x", "date:y", "date:x:y"]
 
     :param str binning: default binning to revert to in case bin_specs not supplied. options are:
         "unit" or "auto", default is "auto". When using "auto", semi-clever binning is automatically done.
@@ -221,9 +207,11 @@ def df_stability_report(
 
         .. code-block:: python
 
-            bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
-                         'y': {'num': 10, 'low': 0.0, 'high': 2.0},
-                         'x:y': [{}, {'num': 5, 'low': 0.0, 'high': 1.0}]}
+            bin_specs = {
+                "x": {"bin_width": 1, "bin_offset": 0},
+                "y": {"num": 10, "low": 0.0, "high": 2.0},
+                "x:y": [{}, {"num": 5, "low": 0.0, "high": 1.0}],
+            }
 
         In the bin specs for x:y, x is not provided (here) and reverts to the 1-dim setting.
         The 'bin_width', 'bin_offset' notation makes an open-ended histogram (for that feature) with given bin width
@@ -254,9 +242,11 @@ def df_stability_report(
 
         .. code-block:: python
 
-            monitoring_rules = {"*_pull": [7, 4, -4, -7],
-                                "*_zscore": [7, 4, -4, -7],
-                                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0]}
+            monitoring_rules = {
+                "*_pull": [7, 4, -4, -7],
+                "*_zscore": [7, 4, -4, -7],
+                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+            }
 
         Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
         For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
@@ -265,10 +255,12 @@ def df_stability_report(
 
         .. code-block:: python
 
-            monitoring_rules = {"featureA:*_pull": [5, 3, -3, -5],
-                                "featureA:nan": [4, 1, 0, 0],
-                                "*_pull": [7, 4, -4, -7],
-                                "nan": [8, 1, 0, 0]}
+            monitoring_rules = {
+                "featureA:*_pull": [5, 3, -3, -5],
+                "featureA:nan": [4, 1, 0, 0],
+                "*_pull": [7, 4, -4, -7],
+                "nan": [8, 1, 0, 0],
+            }
 
         In case of multiple rules could apply for a feature's statistic, the most specific one applies.
         So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
@@ -408,7 +400,7 @@ def df_stability_report(
     )
 
 
-class StabilityReport(Module):
+class StabilityReport:
     """Representation layer of the report.
 
     Stability report module wraps the representation functionality of the report
@@ -416,19 +408,18 @@ class StabilityReport(Module):
     as a HTML string, HTML file or Jupyter notebook's cell output.
     """
 
-    def __init__(self, read_key="html_report"):
+    def __init__(self, datastore, read_key="html_report"):
         """Initialize an instance of StabilityReport.
 
         :param str read_key: key of HTML report data to read from data store. default is html_report.
         """
-        super().__init__()
         self.read_key = read_key
-        self.html_report = ""
-        self.datastore = {}
-
-    def transform(self, datastore):
         self.datastore = datastore
-        self.html_report = self.get_datastore_object(datastore, self.read_key, str)
+        self.logger = logging.getLogger()
+
+    @property
+    def html_report(self):
+        return self.datastore[self.read_key]
 
     def _repr_html_(self):
         """HTML representation of the class (report) embedded in an iframe.
@@ -449,9 +440,12 @@ class StabilityReport(Module):
         :param bool escape: escape characters which could conflict with other HTML code. default: False
         :return str: HTML code of the report
         """
-        import html
 
-        return html.escape(self.html_report) if escape else self.html_report
+        if escape:
+            import html
+
+            return html.escape(self.html_report)
+        return self.html_report
 
     def to_file(self, filename):
         """Store HTML report in the local file system.
@@ -509,7 +503,7 @@ class StabilityReport(Module):
         """
         # basic checks
         if not self.datastore:
-            self.logger.warning("Empty datastore, cannot regenerate report.")
+            self.logger.warning("Empty datastore, could not regenerate report.")
             return None
 
         # start from clean slate
@@ -531,6 +525,7 @@ class StabilityReport(Module):
             report_filepath=report_filepath,
             show_stats=show_stats,
         )
-        stability_report = StabilityReport()
-        stability_report.transform(pipeline.transform(self.datastore))
+        result = pipeline.transform(self.datastore)
+
+        stability_report = StabilityReport(datastore=result)
         return stability_report

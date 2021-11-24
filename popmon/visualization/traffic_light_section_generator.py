@@ -18,16 +18,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import multiprocessing
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from ..base import Module
 from ..config import get_stat_description
-from ..utils import filter_metrics, short_date
+from ..utils import filter_metrics, parallel, short_date
 from ..visualization.utils import (
     _prune,
     plot_traffic_lights_alerts_b64,
@@ -41,6 +40,9 @@ class TrafficLightSectionGenerator(Module):
     combines all the plots into a list which is stored together with the section name in a dictionary
     which later will be used for the report generation.
     """
+
+    _input_keys = ("read_key", "dynamic_bounds", "store_key")
+    _output_keys = ("store_key",)
 
     def __init__(
         self,
@@ -87,14 +89,15 @@ class TrafficLightSectionGenerator(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.dynamic_bounds = dynamic_bounds
+        self.static_bounds = static_bounds
+
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
         self.last_n = last_n
         self.skip_first_n = skip_first_n
         self.skip_last_n = skip_last_n
-        self.dynamic_bounds = dynamic_bounds
-        self.static_bounds = static_bounds
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
@@ -104,17 +107,25 @@ class TrafficLightSectionGenerator(Module):
         self.plot_overview = plot_overview
         self.plot_metrics = plot_metrics
 
-    def transform(self, datastore):
-        data_obj = self.get_datastore_object(datastore, self.read_key, dtype=dict)
+    def get_description(self):
+        return self.section_name
 
-        dynamic_bounds = self.get_datastore_object(
-            datastore, self.dynamic_bounds, dtype=dict, default={}
-        )
+    def transform(
+        self,
+        data_obj: dict,
+        dynamic_bounds: Optional[dict] = None,
+        sections: Optional[list] = None,
+    ):
+        assert isinstance(data_obj, dict)
+        if dynamic_bounds is None:
+            dynamic_bounds = {}
+        assert isinstance(dynamic_bounds, dict)
+        if sections is None:
+            sections = []
+        assert isinstance(sections, list)
 
-        features = self.get_features(data_obj.keys())
+        features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
-
-        num_cores = multiprocessing.cpu_count()
 
         self.logger.info(
             f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
@@ -154,8 +165,8 @@ class TrafficLightSectionGenerator(Module):
                 )
 
             if self.plot_metrics:
-                plots += Parallel(n_jobs=num_cores)(
-                    delayed(_plot_metric)(
+                args = [
+                    (
                         metric,
                         dates,
                         df[metric],
@@ -165,7 +176,8 @@ class TrafficLightSectionGenerator(Module):
                         self.skip_empty_plots,
                     )
                     for metric in metrics
-                )
+                ]
+                plots += parallel(_plot_metric, args)
 
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
@@ -174,18 +186,14 @@ class TrafficLightSectionGenerator(Module):
                 {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
 
-        params = {
-            "section_title": self.section_name,
-            "section_description": self.description,
-            "features": features_w_metrics,
-        }
-
-        if self.store_key in datastore:
-            datastore[self.store_key].append(params)
-        else:
-            datastore[self.store_key] = [params]
-
-        return datastore
+        sections.append(
+            {
+                "section_title": self.section_name,
+                "section_description": self.description,
+                "features": features_w_metrics,
+            }
+        )
+        return sections
 
 
 def _plot_metric(metric, dates, values, last_n, skip_first_n, skip_last_n, skip_empty):
