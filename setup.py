@@ -15,7 +15,7 @@ def setup_package() -> None:
     """
     setup(
         name="popmon",
-        version="0.4.3",
+        version="0.4.4",
         url="https://github.com/ing-bank/popmon",
         license="MIT",
         author="ING Wholesale Banking Advanced Analytics",

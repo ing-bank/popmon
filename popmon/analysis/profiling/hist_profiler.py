@@ -58,6 +58,9 @@ class HistProfiler(Module):
     :param dict stats_functions: function_name, function(bin_labels, bin_counts) dictionary
     """
 
+    _input_keys = ("read_key",)
+    _output_keys = ("store_key",)
+
     def __init__(
         self,
         read_key,
@@ -72,12 +75,12 @@ class HistProfiler(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.var_timestamp = var_timestamp or []
         self.hist_col = hist_col
         self.index_col = index_col
-
         self.general_stats_1d = [
             "count",
             "filled",
@@ -89,7 +92,6 @@ class HistProfiler(Module):
         ]
         self.general_stats_2d = ["count", "phik"]
         self.category_stats_1d = ["fraction_true"]
-
         self.stats_functions = stats_functions
         if self.stats_functions is None:
             self.stats_functions = DEFAULT_STATS
@@ -116,7 +118,7 @@ class HistProfiler(Module):
             "filled": bin_counts.sum(),
             "overflow": hist.overflow.entries if hasattr(hist, "overflow") else 0,
             "underflow": (hist.underflow.entries if hasattr(hist, "underflow") else 0),
-            "distinct": len(np.unique(bin_labels)),
+            "distinct": len(np.unique(bin_labels[bin_counts > 0])),
         }
 
         if hasattr(hist, "nanflow"):
@@ -146,7 +148,7 @@ class HistProfiler(Module):
                         for f_name, result in zip(name, results)
                     ]
 
-                profile.update({k: v for k, v in zip(names, results)})
+                profile.update(dict(zip(names, results)))
         elif not is_num:
             profile["fraction_true"] = pm_np.fraction_of_true(bin_labels, bin_counts)
 
@@ -169,7 +171,6 @@ class HistProfiler(Module):
         # calculate phik correlation
         try:
             phi_k = phik.phik_from_hist2d(observed=grid)
-            # p, Z = significance.significance_from_hist2d(values=grid, significance_method='asymptotic')
         except ValueError:
             self.logger.debug(
                 f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
@@ -188,7 +189,6 @@ class HistProfiler(Module):
         is_num = is_numeric(hist0)
 
         # these are the profiled quantities we will monitor
-        fields = []
         if dimension == 1:
             fields = list(self.general_stats_1d)
             fields += (
@@ -198,6 +198,8 @@ class HistProfiler(Module):
             )
         elif dimension == 2:
             fields = list(self.general_stats_2d)
+        else:
+            fields = []
 
         # now loop over split-axis, e.g. time index, and profile each sub-hist x:y
         profile_list = []
@@ -222,15 +224,13 @@ class HistProfiler(Module):
 
         return profile_list
 
-    def transform(self, datastore):
+    def transform(self, data: dict) -> dict:
         self.logger.info(
             f'Profiling histograms "{self.read_key}" as "{self.store_key}"'
         )
-        data = self.get_datastore_object(datastore, self.read_key, dtype=dict)
+        features = self.get_features(list(data.keys()))
+
         profiled = {}
-
-        features = self.get_features(data.keys())
-
         for feature in features[:]:
             df = self.get_datastore_object(data, feature, dtype=pd.DataFrame)
             hist_split_list = df.reset_index().to_dict("records")
@@ -242,5 +242,4 @@ class HistProfiler(Module):
                     [self.index_col]
                 )
 
-        datastore[self.store_key] = profiled
-        return datastore
+        return profiled

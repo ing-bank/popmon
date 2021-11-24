@@ -42,7 +42,6 @@ def test_compute_traffic_light_bounds():
 
 
 def test_compute_traffic_light_funcs():
-
     datastore = {"test_data": pytest.test_comparer_df}
 
     conf = {

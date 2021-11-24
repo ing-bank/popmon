@@ -248,7 +248,7 @@ def uu_chi2(n, m, verbose=False):
             warnings.warn(
                 "Input histogram(s) is empty and cannot be renormalized. Chi2 is undefined."
             )
-        return np.nan, np.nan, np.nan, [0] * len(n)
+        return np.nan, np.nan, np.nan, np.nan, [0] * len(n)
 
     # remove all zero entries in the sum, to present division by zero for individual bins
     z = n + m
@@ -458,8 +458,4 @@ def mad(a, c=0.6745, axis=0):
     center = a.median(axis=axis)
     rel_abs_diff = (a - center).abs() / c
     mad = rel_abs_diff.median(axis=axis)
-
-    # mad = np.median((np.abs(a-center)) / c, axis=axis)
-    # if isinstance(a, pd.DataFrame):
-    #     mad = pd.Series(data=mad, index=a.columns)
     return mad

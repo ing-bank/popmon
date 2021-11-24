@@ -1,5 +1,20 @@
 # Release notes
 
+## [v0.4.4](https://github.com/ing-bank/popmon/compare/v0.4.3...v0.4.4) (2021-10-22)
+
+
+### 📖 Documentation
+
+* notebook on report interpretation ([dd3be73](https://github.com/ing-bank/popmon/commits/dd3be73b8bf8b602722104d61663ccbd2f5ac64e))
+
+
+### 🐛 Bug fixes
+
+* distinct incorrect result (constant) ([3c47cde](https://github.com/ing-bank/popmon/commits/3c47cdef37b3abeb96d75dcc343f5c3ea8d87695))
+* prevent division by zero ([bacf8dd](https://github.com/ing-bank/popmon/commits/bacf8dd4581150abffb603aab201ebf85971de6a))
+* uu-chi2 incorrect return ([e259d3e](https://github.com/ing-bank/popmon/commits/e259d3e7601881ca5ee8e4b36ee489b3b9d1fe32))
+
+
 ## [v0.4.3](https://github.com/ing-bank/popmon/compare/v0.4.2...v0.4.3) (2021-10-04)
 
 
@@ -7,13 +22,13 @@
 
 * fix too restrictive numpy integer check in hist_stitcher ([c162f11](https://github.com/ing-bank/popmon/commits/c162f11a68a6d8aaf82cb9fd8365f018cbc2feb6))
 
-## [Version 0.4.2](https://github.com/ing-bank/popmon/compare/v0.4.1...v0.4.2) (2021-08-25)
+## [v0.4.2](https://github.com/ing-bank/popmon/compare/v0.4.1...v0.4.2) (2021-08-25)
 
 ### ⬆️ Dependencies
 
 * Pin ing-matplotlib-theme dependency to >=0.1.8 (closes #131) ([1bca302b20f2434a8ea0dea195e974d3b2ed3da3](https://github.com/ing-bank/popmon/commit/1bca302b20f2434a8ea0dea195e974d3b2ed3da3))
 
-## [Version 0.4.1](https://github.com/ing-bank/popmon/compare/v0.4.0...v0.4.1) (2021-06-23)
+## [v0.4.1](https://github.com/ing-bank/popmon/compare/v0.4.0...v0.4.1) (2021-06-23)
 
 
 ### 🎉 Features
@@ -47,3 +62,8 @@
 * pre-commit updates ([6f55155](https://github.com/ing-bank/popmon/commits/6f55155a920de83e33c6129ddd85ecaf682eff47)), ([8fc5518](https://github.com/ing-bank/popmon/commits/8fc5518c5963f6a9dfdcf5e7f8025faa69b0f983)), ([e02adf1](https://github.com/ing-bank/popmon/commits/e02adf1dab9e30815fec4150eedbb01e15a81509))
 * **histogrammar:** popmon working with hgr v1.0.23 ([#101](https://github.com/ing-bank/popmon/issues/101)) ([d4a986e](https://github.com/ing-bank/popmon/commits/d4a986ed0add983721d2a60fbefc385fe2ed7ed3))
 * Pin ing-matplotlib-theme dependency to master (closes #131) ([1e20f30](https://github.com/ing-bank/popmon/commit/f1ed364045d4286ab3e144034fd8cf2c1e3aef89))
+
+
+## v0.4.0 and before
+
+The release notes for preceding versions are available [here](https://github.com/ing-bank/popmon/blob/master/CHANGES.rst>).

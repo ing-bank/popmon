@@ -25,7 +25,19 @@ from popmon import resources
 from ..base import Pipeline
 from ..config import config
 from ..io import JsonReader
-from ..pipeline.report_pipelines import self_reference
+from ..pipeline.report_pipelines import SelfReference
+
+
+class AmazingPipeline(Pipeline):
+    def __init__(self, **kwargs):
+        modules = [
+            JsonReader(
+                file_path=kwargs["histograms_path"], store_key=kwargs["hists_key"]
+            ),
+            # Or ExternalReference, RollingReference etc.
+            SelfReference(**kwargs),
+        ]
+        super().__init__(modules)
 
 
 def run():
@@ -51,15 +63,7 @@ def run():
         "show_stats": config["limited_stats"],
     }
 
-    pipeline = Pipeline(
-        modules=[
-            JsonReader(file_path=cfg["histograms_path"], store_key=cfg["hists_key"]),
-            self_reference(**cfg),
-            # fixed_reference(**config),
-            # rolling_reference(**config),
-            # expanding_reference(**config),
-        ]
-    )
+    pipeline = AmazingPipeline(**cfg)
     pipeline.transform(datastore={})
 
 

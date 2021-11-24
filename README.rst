@@ -29,7 +29,10 @@ With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogram
 
 .. code-block:: python
 
-  spark = SparkSession.builder.config("spark.jars.packages", "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20").getOrCreate()
+  spark = SparkSession.builder.config(
+      "spark.jars.packages",
+      "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20",
+  ).getOrCreate()
 
 For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
 
@@ -60,6 +63,8 @@ Notebooks
      - |notebook_advanced_colab|
    * - `Incremental datasets (online analysis) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb>`_
      - |notebook_incremental_data_colab|
+   * - `Report interpretation (step-by-step guide) <https://nbviewer.jupyter.org/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_reports.ipynb>`_
+     - |notebook_reports_colab|
 
 Check it out
 ============
@@ -99,12 +104,12 @@ As a quick example, you can do:
   from popmon import resources
 
   # open synthetic data
-  df = pd.read_csv(resources.data('test.csv.gz'), parse_dates=['date'])
+  df = pd.read_csv(resources.data("test.csv.gz"), parse_dates=["date"])
   df.head()
 
   # generate stability report using automatic binning of all encountered features
   # (importing popmon automatically adds this functionality to a dataframe)
-  report = df.pm_stability_report(time_axis='date', features=['date:age', 'date:gender'])
+  report = df.pm_stability_report(time_axis="date", features=["date:age", "date:gender"])
 
   # to show the output of the report in a Jupyter notebook you can simply run:
   report
@@ -117,23 +122,32 @@ To specify your own binning specifications and features you want to report on, y
 .. code-block:: python
 
   # time-axis specifications alone; all other features are auto-binned.
-  report = df.pm_stability_report(time_axis='date', time_width='1w', time_offset='2020-1-6')
+  report = df.pm_stability_report(
+      time_axis="date", time_width="1w", time_offset="2020-1-6"
+  )
 
   # histogram selections. Here 'date' is the first axis of each histogram.
-  features=[
-      'date:isActive', 'date:age', 'date:eyeColor', 'date:gender',
-      'date:latitude', 'date:longitude', 'date:isActive:age'
+  features = [
+      "date:isActive",
+      "date:age",
+      "date:eyeColor",
+      "date:gender",
+      "date:latitude",
+      "date:longitude",
+      "date:isActive:age",
   ]
 
   # Specify your own binning specifications for individual features or combinations thereof.
   # This bin specification uses open-ended ("sparse") histograms; unspecified features get
   # auto-binned. The time-axis binning, when specified here, needs to be in nanoseconds.
-  bin_specs={
-      'longitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-      'latitude': {'bin_width': 5.0, 'bin_offset': 0.0},
-      'age': {'bin_width': 10.0, 'bin_offset': 0.0},
-      'date': {'bin_width': pd.Timedelta('4w').value,
-               'bin_offset': pd.Timestamp('2015-1-1').value}
+  bin_specs = {
+      "longitude": {"bin_width": 5.0, "bin_offset": 0.0},
+      "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
+      "age": {"bin_width": 10.0, "bin_offset": 0.0},
+      "date": {
+          "bin_width": pd.Timedelta("4w").value,
+          "bin_offset": pd.Timestamp("2015-1-1").value,
+      },
   }
 
   # generate stability report
@@ -142,6 +156,17 @@ To specify your own binning specifications and features you want to report on, y
 These examples also work with spark dataframes.
 You can see the output of such example notebook code `here <https://crclz.com/popmon/reports/test_data_report.html>`_.
 For all available examples, please see the `tutorials <https://popmon.readthedocs.io/en/latest/tutorials.html>`_ at read-the-docs.
+
+Pipelines for monitoring dataset shift
+======================================
+Advanced users can leverage popmon's modular data pipeline to customize their workflow.
+Visualization of the pipeline can be useful when debugging, or for didactic purposes.
+There is a `script <https://github.com/ing-bank/popmon/tree/master/tools/>`_ included with the package that you can use.
+The plotting is configurable, and depending on the options you will obtain a result that can be used for understanding the data flow, the high-level components and the (re)use of datasets.
+
+|pipeline|
+
+*Example pipeline visualization (click to enlarge)*
 
 Resources
 =========
@@ -200,6 +225,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :target: https://github.com/ing-bank/popmon
 .. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/traffic_light_overview.png
     :alt: Traffic Light Overview
+.. |pipeline| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/pipeline.png
+    :alt: Pipeline Visualization
+    :target: https://github.com/ing-bank/popmon/files/7417124/pipeline_amazingpipeline_subgraphs_unversioned.pdf
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
@@ -221,6 +249,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |notebook_incremental_data_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
     :alt: Open in Colab
     :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_incremental_data.ipynb
+.. |notebook_reports_colab| image:: https://colab.research.google.com/assets/colab-badge.svg
+    :alt: Open in Colab
+    :target: https://colab.research.google.com/github/ing-bank/popmon/blob/master/popmon/notebooks/popmon_tutorial_reports.ipynb
 .. |downloads| image:: https://pepy.tech/badge/popmon
     :alt: PyPi downloads
     :target: https://pepy.tech/project/popmon
