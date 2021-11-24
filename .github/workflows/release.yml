@@ -1,23 +1,23 @@
-# Creates a draft release when a new tag is pushed
-name: Release
+name: Semantic Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - master
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    concurrency: release
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: "popmon ${{ steps.get_version.outputs.VERSION }}"
-          body: "Release notes are available [here](https://github.com/ing-bank/popmon/blob/master/CHANGELOG.md)."
-          draft: true
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Python Semantic Release
+      uses: relekang/python-semantic-release@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        repository_username: __token__
+        repository_password: ${{ secrets.PYPI_TOKEN }}
