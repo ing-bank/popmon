@@ -23,8 +23,6 @@ from typing import Iterable, Optional
 
 from joblib import Parallel, delayed
 
-from popmon.config import num_jobs
-
 
 def short_date(date: str):
     return shorten(date, width=22, placeholder="")
@@ -47,6 +45,7 @@ def parallel(func, args_list, mode="args"):
     """
     Routine for parallel processing
     """
+    from popmon.config import num_jobs
 
     if num_jobs == 1:
         results = [

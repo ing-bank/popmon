@@ -57,6 +57,8 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         Default is 7.0.
     :return: pandas Series with popular comparison metrics.
     """
+    from .comparisons import Comparisons
+
     x = {
         "ks": np.nan,
         "ks_zscore": np.nan,
@@ -71,6 +73,9 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         "max_prob_diff": np.nan,
         "unknown_labels": np.nan,
     }
+
+    for key in Comparisons.get_comparisons().keys():
+        x[key] = np.nan
 
     # basic name checks
     cols = row.index.to_list()
@@ -133,6 +138,8 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     x["chi2_max_residual"] = max(list(map(abs, res)))
     x["chi2_spike_count"] = sum(abs(r) > max_res_bound for r in res)
     x["max_prob_diff"] = googl_test(*entries_list)
+    for key, func in Comparisons.get_comparisons().items():
+        x[key] = func(*entries_list)
     return pd.Series(x)
 
 

@@ -20,6 +20,8 @@
 import multiprocessing
 from fnmatch import fnmatch
 
+from popmon.analysis.comparison.comparisons import Comparisons
+
 profiles = {
     "count": "Number of entries (non-NaN and NaN)",
     "distinct": "Number of distinct entries",
@@ -54,6 +56,7 @@ comparisons = {
     + "histograms (one histogram in a time slot and one in {ref})",
     "unknown_labels": "Are categories observed in a given time slot that are not present in {ref}?",
 }
+comparisons.update(Comparisons.get_descriptions())
 
 references = {
     "ref": "the reference data",
@@ -103,6 +106,8 @@ config = {
         "worst",
     ],
 }
+for key in Comparisons.get_comparisons().keys():
+    config["limited_stats"].append(f"*{key}*")
 
 
 def get_stat_description(name: str):

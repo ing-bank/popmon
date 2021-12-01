@@ -24,6 +24,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from popmon.analysis.comparison.comparisons import Comparisons
+
 
 def fraction_of_true(bin_labels, bin_entries):
     """Compute fraction of 'true' labels
