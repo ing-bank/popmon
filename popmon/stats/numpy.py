@@ -365,6 +365,14 @@ def googl_test(bins_1, bins_2):
     return np.max(np.abs(dist(bins_1) - dist(bins_2)))
 
 
+@Comparisons.register(key="psi", description="Population Stability Index")
+def population_stability_index(p, q):
+    epsilon = 10e-5
+    p += epsilon
+    q += epsilon
+    return np.sum((p - q) * np.log(p / q))
+
+
 def probability_distribution_mean_covariance(entries_list):
     """Mean normalized histogram and covariance of list of input histograms
 
