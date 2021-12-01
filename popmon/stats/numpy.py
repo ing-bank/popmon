@@ -353,7 +353,7 @@ def ks_prob(testscore):
 def googl_test(bins_1, bins_2):
     """Google-paper test
 
-    Reference link: https://www.sysml.cc/doc/2019/167.pdf
+    Reference link: https://mlsys.org/Conferences/2019/doc/2019/167.pdf
 
     :param bins_1: first array of bin entries
     :param bins_2: second array of entries
