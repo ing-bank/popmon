@@ -16,44 +16,26 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-import fnmatch
-from textwrap import shorten
-from typing import Iterable, Optional
-
-from joblib import Parallel, delayed
+from typing import Callable
 
 
-def short_date(date: str):
-    return shorten(date, width=22, placeholder="")
+class Comparisons:
+    _comparison_descriptions = {}
+    _comparison_funcs = {}
 
+    @classmethod
+    def register(cls, key: str, description: str):
+        def f(func: Callable):
+            cls._comparison_descriptions[key] = description
+            cls._comparison_funcs[key] = func
+            return func
 
-def filter_metrics(metrics, ignore_stat_endswith, show_stats: Optional[Iterable]):
-    metrics = [
-        m for m in metrics if not any([m.endswith(s) for s in ignore_stat_endswith])
-    ]
-    if show_stats is not None:
-        metrics = [
-            m
-            for m in metrics
-            if any(fnmatch.fnmatch(m, pattern) for pattern in show_stats)
-        ]
-    return metrics
+        return f
 
+    @classmethod
+    def get_comparisons(cls):
+        return cls._comparison_funcs
 
-def parallel(func, args_list, mode="args"):
-    """
-    Routine for parallel processing
-    """
-    from popmon.config import num_jobs
-
-    if num_jobs == 1:
-        results = [
-            func(*args) if mode == "args" else func(**args) for args in args_list
-        ]
-    else:
-        results = Parallel(n_jobs=num_jobs)(
-            delayed(func)(*args) if mode == "args" else delayed(func)(**args)
-            for args in args_list
-        )
-    return results
+    @classmethod
+    def get_descriptions(cls):
+        return cls._comparison_descriptions
