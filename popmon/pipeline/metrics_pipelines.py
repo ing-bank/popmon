@@ -141,7 +141,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
                 suffix_mean="_mean",
                 suffix_std="_std",
                 suffix_pull="_pull",
-                metrics=["ref_max_prob_diff"] + [f"ref_{key}" for key in Comparisons.get_comparisons().keys()],
+                metrics=[f"ref_{key}" for key in Comparisons.get_comparisons().keys()],
             ),
             # 4. profiling of histograms, then pull calculation compared with reference mean and std,
             #        to obtain normalized residuals of profiles

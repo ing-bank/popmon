@@ -52,8 +52,6 @@ comparisons = {
     + "(one histogram in a time slot and one in {ref})",
     "chi2_spike_count": "The number of normalized residuals of all bin pairs (one histogram in a time"
     + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",
-    "max_prob_diff": "The largest absolute difference between all bin pairs of two normalized "
-    + "histograms (one histogram in a time slot and one in {ref})",
     "unknown_labels": "Are categories observed in a given time slot that are not present in {ref}?",
 }
 comparisons.update(Comparisons.get_descriptions())
@@ -100,7 +98,6 @@ config = {
         "*unknown_labels*",
         "*chi2_norm*",
         "*ks*",
-        "*max_prob_diff*",
         "*zscore*",
         "n_*",
         "worst",
