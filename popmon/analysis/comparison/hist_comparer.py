@@ -40,7 +40,7 @@ from ...analysis.hist_numpy import (
 )
 from ...base import Pipeline
 from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
-from ...stats.numpy import googl_test, ks_prob, ks_test, uu_chi2
+from ...stats.numpy import ks_prob, ks_test, uu_chi2
 
 
 def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
@@ -70,7 +70,6 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         "chi2_pvalue": np.nan,
         "chi2_max_residual": np.nan,
         "chi2_spike_count": np.nan,
-        "max_prob_diff": np.nan,
         "unknown_labels": np.nan,
     }
 
@@ -137,7 +136,6 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     x["chi2_pvalue"] = pvalue
     x["chi2_max_residual"] = max(list(map(abs, res)))
     x["chi2_spike_count"] = sum(abs(r) > max_res_bound for r in res)
-    x["max_prob_diff"] = googl_test(*entries_list)
     for key, func in Comparisons.get_comparisons().items():
         x[key] = func(*entries_list)
     return pd.Series(x)

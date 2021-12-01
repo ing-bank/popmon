@@ -346,6 +346,10 @@ def ks_prob(testscore):
     return pvalue
 
 
+@Comparisons.register(
+    key="max_prob_diff",
+    description="The largest absolute difference between all bin pairs of two normalized histograms (one histogram in a time slot and one in {ref})",
+)
 def googl_test(bins_1, bins_2):
     """Google-paper test
 
