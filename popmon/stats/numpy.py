@@ -373,6 +373,19 @@ def population_stability_index(p, q):
     return np.sum((p - q) * np.log(p / q))
 
 
+def kullback_leibler_divergence(p, q):
+    epsilon = 10e-5
+    p += epsilon
+    q += epsilon
+    return np.sum(p * np.log(p / q))
+
+
+@Comparisons.register(key="jsd", description="Jensen-Shannon Divergence")
+def jensen_shannon_divergence(p, q):
+    m = 0.5 * (p + q)
+    return 0.5 * (kullback_leibler_divergence(p, m) + kullback_leibler_divergence(q, m))
+
+
 def probability_distribution_mean_covariance(entries_list):
     """Mean normalized histogram and covariance of list of input histograms
 
