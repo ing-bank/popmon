@@ -12,7 +12,7 @@ To monitor the stability over time, we have developed popmon (**pop**\ ulation s
 For each column, the stability is determined by taking a reference (for example the data on which you have trained your classifier) and contrasting each time slot to this reference. This can be done in various ways:
 
 * Profiles: for example tracking the mean over time and contrasting this to the reference data. Similar analyses can be done with other summary statistics, such as median, min, max or quartiles.
-* Comparisons: statistically comparing each time slot to the reference data (for example using Kolmogorov-Smirnov, chi-squared, or Pearson correlation).
+* :doc:`Comparisons <comparisons>`: statistically comparing each time slot to the reference data (for example using Kolmogorov-Smirnov, chi-squared, or Pearson correlation).
 
 The reference can be defined in four different ways:
 
