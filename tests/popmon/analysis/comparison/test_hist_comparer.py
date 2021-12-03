@@ -16,8 +16,6 @@ from popmon.hist.hist_splitter import HistSplitter
 from popmon.io import JsonReader
 
 
-@pytest.mark.filterwarnings("ignore:An input array is constant")
-@pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_hist_compare():
     hist_list = [
         "date:country",
@@ -69,8 +67,6 @@ def test_hist_compare():
     np.testing.assert_array_equal(df["chi2"].values[-1], 0.7017543859649122)
 
 
-@pytest.mark.filterwarnings("ignore:An input array is constant")
-@pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_reference_hist_comparer():
 
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
@@ -88,6 +84,8 @@ def test_reference_hist_comparer():
         "ref_ks_zscore",
         "ref_ks_pvalue",
         "ref_max_prob_diff",
+        "ref_jsd",
+        "ref_psi",
         "ref_unknown_labels",
     ]
 
@@ -137,8 +135,6 @@ def test_reference_hist_comparer():
     np.testing.assert_almost_equal(df["ref_chi2"].mean(), 4.213429217840983)
 
 
-@pytest.mark.filterwarnings("ignore:An input array is constant")
-@pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_expanding_hist_comparer():
 
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
@@ -156,6 +152,8 @@ def test_expanding_hist_comparer():
         "expanding_ks_zscore",
         "expanding_ks_pvalue",
         "expanding_max_prob_diff",
+        "expanding_jsd",
+        "expanding_psi",
         "expanding_unknown_labels",
     ]
 
@@ -220,6 +218,8 @@ def test_rolling_hist_comparer():
         "roll_ks_zscore",
         "roll_ks_pvalue",
         "roll_max_prob_diff",
+        "roll_psi",
+        "roll_jsd",
         "roll_unknown_labels",
     ]
 

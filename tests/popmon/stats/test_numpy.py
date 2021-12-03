@@ -6,9 +6,12 @@ from scipy import linalg, stats
 
 from popmon.stats.numpy import (
     fraction_of_true,
+    jensen_shannon_divergence,
     ks_prob,
     ks_test,
+    kullback_leibler_divergence,
     mean,
+    population_stability_index,
     probability_distribution_mean_covariance,
     quantile,
     std,
@@ -247,6 +250,68 @@ def test_ks_prob():
     np.testing.assert_equal(ks_prob(0.4), ks_prob(-0.4))
     np.testing.assert_almost_equal(ks_prob(0.8), 0.5441, 4)
     np.testing.assert_almost_equal(ks_prob(3.0), 0.0, 4)
+
+
+def test_kl():
+    np.testing.assert_almost_equal(
+        kullback_leibler_divergence(
+            np.array([0.25, 0.25, 0.25, 0.25]), np.array([0.85, 0.05, 0.05, 0.05])
+        ),
+        0.90105,
+        4,
+    )
+    np.testing.assert_almost_equal(
+        kullback_leibler_divergence(
+            np.array([0.85, 0.05, 0.05, 0.05]), np.array([0.25, 0.25, 0.25, 0.25])
+        ),
+        0.79875,
+        4,
+    )
+    np.testing.assert_equal(
+        kullback_leibler_divergence(
+            np.array([0.25, 0.25, 0.25, 0.25]), np.array([0.25, 0.25, 0.25, 0.25])
+        ),
+        0,
+    )
+    np.testing.assert_equal(
+        kullback_leibler_divergence(
+            np.array([0.85, 0.05, 0.05, 0.05]), np.array([0.85, 0.05, 0.05, 0.05])
+        ),
+        0,
+    )
+    np.testing.assert_almost_equal(
+        kullback_leibler_divergence(
+            np.array([0.0, 0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0, 0.05])
+        ),
+        0,
+        4,
+    )
+
+
+def test_psi():
+    p = np.array([0.85, 0.05, 0.05, 0.05])
+    q = np.array([0.25, 0.25, 0.25, 0.25])
+
+    np.testing.assert_almost_equal(
+        population_stability_index(p, q), 1.699815077214137, 4
+    )
+    np.testing.assert_almost_equal(
+        population_stability_index(p, q), population_stability_index(q, p), 4
+    )
+    np.testing.assert_almost_equal(population_stability_index(q, q), 0.0, 4)
+
+
+def test_jsd():
+    p = np.array([0.85, 0.05, 0.05, 0.05])
+    q = np.array([0.25, 0.25, 0.25, 0.25])
+
+    # JSD is symmetric
+    np.testing.assert_almost_equal(
+        jensen_shannon_divergence(p, q), jensen_shannon_divergence(q, p), 4
+    )
+
+    # JSD = 0 iff P=Q
+    np.testing.assert_almost_equal(jensen_shannon_divergence(q, q), 0, 4)
 
 
 def test_probability_distribution_mean_covariance():
