@@ -14,6 +14,7 @@ Contents
    :maxdepth: 2
 
    introduction
+   comparisons
    tutorials
    configuration
    tree
