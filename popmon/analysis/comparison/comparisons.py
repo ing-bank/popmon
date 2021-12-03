@@ -16,8 +16,6 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
 from typing import Callable
 
 
@@ -30,6 +28,7 @@ class Comparisons:
         def f(func: Callable):
             cls._comparison_descriptions[key] = description
             cls._comparison_funcs[key] = func
+            return func
 
         return f
 
