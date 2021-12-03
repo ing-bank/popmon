@@ -371,14 +371,14 @@ def googl_test(bins_1, bins_2):
 
 @Comparisons.register(key="psi", description="Population Stability Index")
 def population_stability_index(p, q):
-    epsilon = 10e-5
+    epsilon = 10e-6
     p += epsilon
     q += epsilon
     return np.sum((p - q) * np.log(p / q))
 
 
 def kullback_leibler_divergence(p, q):
-    epsilon = 10e-5
+    epsilon = 10e-6
     p += epsilon
     q += epsilon
     return np.sum(p * np.log(p / q))
