@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2021-12-13)
+### Feature
+* **comparisons:** Introduce psi and jsd ([`c6a1ca7`](https://github.com/ing-bank/popmon/commit/c6a1ca74da3a4de1f69b919cce047cc0b6377589))
+* **comparisons:** Introduce comparison registry ([`031c146`](https://github.com/ing-bank/popmon/commit/031c146be6ac04b6e2c1dabc17a28a7aa2b778f9))
+
+### Documentation
+* **comparisons:** Add comparisons page ([`60967c9`](https://github.com/ing-bank/popmon/commit/60967c901f16b8c3acba6d8c8976fccf859f458b))
+* Fix broken link ([`2b38fc6`](https://github.com/ing-bank/popmon/commit/2b38fc6c8464a9d24dbb5bdf3108f51d8b101a3a))
+* **rtd:** Install popmon ([`e9c4610`](https://github.com/ing-bank/popmon/commit/e9c46106c8004b219e6ca5ad0eed4fce7f464a6c))
+
 ## v0.5.0 (2021-11-24)
 ### Feature
 * Improve pipeline visualization ([`bb09d73`](https://github.com/ing-bank/popmon/commit/bb09d730d275e4a97d0d7174d8a325e8c98bea44))
