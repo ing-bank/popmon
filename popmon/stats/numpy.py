@@ -24,6 +24,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from popmon.analysis.comparison.comparisons import Comparisons
+
 
 def fraction_of_true(bin_labels, bin_entries):
     """Compute fraction of 'true' labels
@@ -344,10 +346,14 @@ def ks_prob(testscore):
     return pvalue
 
 
+@Comparisons.register(
+    key="max_prob_diff",
+    description="The largest absolute difference between all bin pairs of two normalized histograms (one histogram in a time slot and one in {ref})",
+)
 def googl_test(bins_1, bins_2):
     """Google-paper test
 
-    Reference link: https://www.sysml.cc/doc/2019/167.pdf
+    Reference link: https://mlsys.org/Conferences/2019/doc/2019/167.pdf
 
     :param bins_1: first array of bin entries
     :param bins_2: second array of entries
@@ -361,6 +367,27 @@ def googl_test(bins_1, bins_2):
         return bins / sum_ if sum_ else bins
 
     return np.max(np.abs(dist(bins_1) - dist(bins_2)))
+
+
+@Comparisons.register(key="psi", description="Population Stability Index")
+def population_stability_index(p, q):
+    epsilon = 10e-6
+    p += epsilon
+    q += epsilon
+    return np.sum((p - q) * np.log(p / q))
+
+
+def kullback_leibler_divergence(p, q):
+    epsilon = 10e-6
+    p += epsilon
+    q += epsilon
+    return np.sum(p * np.log(p / q))
+
+
+@Comparisons.register(key="jsd", description="Jensen-Shannon Divergence")
+def jensen_shannon_divergence(p, q):
+    m = 0.5 * (p + q)
+    return 0.5 * (kullback_leibler_divergence(p, m) + kullback_leibler_divergence(q, m))
 
 
 def probability_distribution_mean_covariance(entries_list):
