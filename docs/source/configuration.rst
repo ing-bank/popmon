@@ -243,29 +243,27 @@ Now that spark is installed, restart the runtime.
 
 .. code-block:: python
 
-    import os
+  import os
 
-    os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
-    os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
+  os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
+  os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
 
-    import findspark
+  import findspark
 
-    findspark.init()
+  findspark.init()
 
-    from pyspark.sql import SparkSession
+  from pyspark.sql import SparkSession
 
-    spark = (
-        SparkSession.builder.master("local[*]")
-        .config(
-            "spark.jars",
-            "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar",
-        )
-        .config("spark.sql.execution.arrow.enabled", "false")
-        .config("spark.sql.session.timeZone", "GMT")
-        .getOrCreate()
-    )
-    
-  
+  spark = (
+      SparkSession.builder.master("local[*]")
+      .config(
+          "spark.jars",
+          "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar",
+      )
+      .config("spark.sql.execution.arrow.enabled", "false")
+      .config("spark.sql.session.timeZone", "GMT")
+      .getOrCreate()
+  )
 Troubleshooting Spark
 ~~~~~~~~~~~~~~~~~~~~~
 
