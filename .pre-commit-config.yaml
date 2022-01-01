@@ -18,7 +18,7 @@ repos:
             - tryceratops
         args: [ "--select=E9,F63,F7,F82,C4,F401,TR004,TC200,TC201,TC202"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.30.1
+    rev: v2.31.0
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
