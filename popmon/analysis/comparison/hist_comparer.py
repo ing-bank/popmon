@@ -360,6 +360,93 @@ class ReferenceHistComparer(HistComparer):
         return super().transform(datastore)
 
 
+class RollingInputFixedReference(Pipeline):
+    """Base pipeline to compare rolling input histograms to fixed (external) histograms"""
+
+    def __init__(
+        self,
+        read_key,
+        reference_key,
+        store_key,
+        assign_to_key=None,
+        window=1,
+        shift=1,
+        hist_col="histogram",
+        suffix1="roll",
+        suffix2="ref",
+        prefix="rollref",
+        max_res_bound=7.0,
+    ):
+        """Initialize an instance of RollingInputFixedReference.
+
+        :param str read_key: key of input data to read from data store
+        :param str reference_key: key of input data to read from data store
+        :param str store_key: key of output data to store in data store
+        :param str assign_to_key: key of the input data to assign function applied-output to. (optional)
+        :param int window: size of rolling window, default is 1.
+        :param int shift: shift of rolling window. default is 1.
+        :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'.
+        :param str suffix1: column/key of rolling histogram. default is 'roll' -> column = 'histogram_roll'
+        :param str suffix2: column/key of external histogram. default is 'ref' -> column = 'histogram_ref'
+        :param str prefix: prefix of comparisons metrics. default is 'rollref'
+        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
+                                    Default is 7.0.
+        """
+        if assign_to_key is None:
+            assign_to_key = read_key
+
+        # make rolling reference histograms
+        hist_collector1 = ApplyFunc(
+            apply_to_key=read_key,
+            assign_to_key=assign_to_key,
+        )
+        hist_collector1.add_apply_func(
+            func=rolling_hist,
+            entire=True,
+            suffix=suffix1,
+            window=window,
+            shift=shift,
+            hist_name=hist_col,
+        )
+
+        # make fixed (external) reference histograms
+        hist_collector2 = ApplyFunc(
+            apply_to_key=reference_key,
+            assign_to_key=assign_to_key,
+        )
+        hist_collector2.add_apply_func(
+            func=hist_sum, entire=True, suffix=suffix2, metrics=[hist_col]
+        )
+
+        # do histogram comparison
+        hist_comparer = ApplyFunc(
+            apply_to_key=assign_to_key,
+            assign_to_key=store_key,
+            apply_funcs=[
+                {
+                    "func": hist_compare,
+                    "hist_name1": hist_col + "_" + suffix1,
+                    "hist_name2": hist_col + "_" + suffix2,
+                    "prefix": prefix,
+                    "axis": 1,
+                    "max_res_bound": max_res_bound,
+                }
+            ],
+        )
+
+        super().__init__(modules=[hist_collector1, hist_collector2, hist_comparer])
+
+        self.read_key = read_key
+        self.reference_key = reference_key
+        self.window = window
+
+    def transform(self, datastore):
+        self.logger.info(
+            f'Comparing "{self.read_key}" with rolling sum of {self.window} slots to {self.reference_key}.'
+        )
+        return super().transform(datastore)
+
+
 class NormHistComparer(Pipeline):
     """Base pipeline to compare histogram to normalized histograms"""
 
