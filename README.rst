@@ -202,6 +202,10 @@ Articles
 | `Popmon Open Source Package — Population Shift Monitoring Made Easy <https://medium.com/wbaa/population-monitoring-open-source-1ce3139d8c3a>`_                                                    | May 20, 2020     | Nicole Mpozika |
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+----------------+
 
+Software
+--------
+
+- `Kedro-popmon <https://github.com/stephanecollot/kedro-popmon>`_ is a plugin to integrate popmon reporting with kedro. This plugin allows you to automate the process of popmon feature and output stability monitoring. Package created by `Marian Dabrowski <https://www.linkedin.com/in/marian-dabrowski/>`_ and `Stephane Collot <https://github.com/stephanecollot/>`_.
 
 Project contributors
 ====================
