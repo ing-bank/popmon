@@ -23,7 +23,7 @@ jobs:
     - name: Install addlicense
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
-        go get -v -u github.com/google/addlicense
+        go install github.com/google/addlicense@latest
     - name: Check license
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
