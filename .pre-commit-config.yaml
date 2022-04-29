@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
     - id: black
 -   repo: https://github.com/pycqa/isort
@@ -18,11 +18,11 @@ repos:
             - tryceratops
         args: [ "--select=E9,F63,F7,F82,C4,F401,TR004,TC200,TC201,TC202"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v2.32.0
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
 -   repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.0
+    rev: v1.12.1
     hooks:
     -   id: blacken-docs

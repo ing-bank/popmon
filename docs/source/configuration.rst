@@ -243,24 +243,34 @@ Now that spark is installed, restart the runtime.
 
 .. code-block:: python
 
-    import os
+  import os
 
-    os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
-    os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
+  os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
+  os.environ["SPARK_HOME"] = "/content/spark-2.4.7-bin-hadoop2.7"
 
-    import findspark
+  import findspark
 
-    findspark.init()
+  findspark.init()
 
-    from pyspark.sql import SparkSession
+  from pyspark.sql import SparkSession
 
-    spark = (
-        SparkSession.builder.master("local[*]")
-        .config(
-            "spark.jars",
-            "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar",
-        )
-        .config("spark.sql.execution.arrow.enabled", "false")
-        .config("spark.sql.session.timeZone", "GMT")
-        .getOrCreate()
-    )
+  spark = (
+      SparkSession.builder.master("local[*]")
+      .config(
+          "spark.jars",
+          "/content/jars/histogrammar_2.12-1.0.20.jar,/content/jars/histogrammar-sparksql_2.12-1.0.20.jar",
+      )
+      .config("spark.sql.execution.arrow.enabled", "false")
+      .config("spark.sql.session.timeZone", "GMT")
+      .getOrCreate()
+  )
+Troubleshooting Spark
+~~~~~~~~~~~~~~~~~~~~~
+
+The following section documents error that you may run into using spark, and how they can be resolved.
+
+    TypeError: 'JavaPackage' object is not callable 
+
+This error occurs when pyspark cannot find the required jars. Ensure that the location of "spark.jars" or "spark.jars.packages" is correct (see examples above). Stop the spark session and restart it with the exact location. You can use the ones hosted on github using the "spark.jars.pacakges" example or place the jars locally and use "spark.jars", depending on whichever is easiest in your setup.
+
+If you are running in a jupyter notebook, then the kernel needs to be restarted.
