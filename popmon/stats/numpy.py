@@ -413,8 +413,7 @@ def probability_distribution_mean_covariance(entries_list):
     # Normalize the histograms along the bin axis, so that histograms with different number of entries
     # are still comparable
     normed_list = entries_list / (
-        np.sum(entries_list, axis=1, dtype=np.float)[:, np.newaxis]
-        + np.finfo(np.float).eps
+        np.sum(entries_list, axis=1, dtype=float)[:, np.newaxis] + np.finfo(float).eps
     )
 
     # Determine the mean histogram (unbiased)
