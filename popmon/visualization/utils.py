@@ -37,7 +37,7 @@ logger = logging.getLogger()
 mpl_style(dark=False)
 
 
-def plt_to_str(format="png"):
+def plt_to_str(fig, format="png"):
     """Outputting plot as a base64 encoded string or as svg image.
 
     :return: base64 encoded plot image or svg image
@@ -47,15 +47,15 @@ def plt_to_str(format="png"):
     if format == "png":
         tmpfile = BytesIO()
 
-        plt.savefig(tmpfile, format="png")
-        plt.close()
+        fig.savefig(tmpfile, format="png")
+        plt.close(fig)
 
         return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
     elif format == "svg":
         tmpfile = StringIO()
 
-        plt.savefig(tmpfile, format="svg")
-        plt.close()
+        fig.savefig(tmpfile, format="svg")
+        plt.close(fig)
 
         return tmpfile.getvalue().encode("utf-8")
     else:
@@ -152,7 +152,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     ax.grid(True, linestyle=":")
 
     fig.tight_layout()
-    return plt_to_str()
+    return plt_to_str(fig)
 
 
 def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
@@ -280,7 +280,7 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
 
     fig.tight_layout()
 
-    return plt_to_str()
+    return plt_to_str(fig)
 
 
 def grouped_bar_chart_b64(data, labels, legend):
@@ -320,7 +320,7 @@ def grouped_bar_chart_b64(data, labels, legend):
 
     fig.tight_layout()
 
-    return plt_to_str()
+    return plt_to_str(fig)
 
 
 def plot_overlay_1d_histogram_b64(
@@ -361,7 +361,7 @@ def plot_overlay_1d_histogram_b64(
         if len(hists) != len(hist_names):
             raise ValueError("length of hist and hist_names are different")
 
-    plt.figure(figsize=(9, 7))
+    fig, ax = plt.subplots(figsize=(9, 7))
 
     alpha = 1.0 / len(hists)
     for i, hist in enumerate(hists):
@@ -407,7 +407,7 @@ def plot_overlay_1d_histogram_b64(
                 width = np.diff(bin_edges)
 
             # plot histogram
-            plt.bar(
+            ax.bar(
                 bin_edges[:-1],
                 bin_values,
                 width=width,
@@ -417,10 +417,10 @@ def plot_overlay_1d_histogram_b64(
 
             # set x-axis properties
             if xlim:
-                plt.xlim(xlim)
+                ax.set_xlim(xlim)
             else:
-                plt.xlim(min(bin_edges), max(bin_edges))
-            plt.xticks(fontsize=12, rotation=90 if is_ts else 0)
+                ax.set_xlim(min(bin_edges), max(bin_edges))
+            ax.tick_params(axis="x", labelsize=12, labelrotation=90 if is_ts else 0)
 
         # plot categories
         else:
@@ -434,7 +434,7 @@ def plot_overlay_1d_histogram_b64(
 
             # plot histogram
             tick_pos = np.arange(len(labels)) + 0.5
-            plt.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
+            ax.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
 
             # set x-axis properties
             def xtick(lab):
@@ -444,19 +444,18 @@ def plot_overlay_1d_histogram_b64(
                     lab = lab[:17] + "..."
                 return lab
 
-            plt.xlim((0.0, float(len(labels))))
-            plt.xticks(
-                tick_pos, [xtick(lab) for lab in labels], fontsize=12, rotation=90
-            )
+            ax.set_xlim((0.0, float(len(labels))))
+            ax.set_xticks(tick_pos)
+            ax.set_xticklabels([xtick(lab) for lab in labels], fontsize=12, rotation=90)
 
     # set common histogram properties
-    plt.xlabel(x_label, fontsize=14)
-    plt.ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
-    plt.yticks(fontsize=12)
-    plt.grid()
-    plt.legend()
+    ax.set_xlabel(x_label, fontsize=14)
+    ax.set_ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.grid()
+    ax.legend()
 
-    return plt_to_str()
+    return plt_to_str(fig)
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
