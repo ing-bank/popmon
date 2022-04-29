@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2022-04-29)
+### Documentation
+* Include link to kedro-popmon ([`aff68b7`](https://github.com/ing-bank/popmon/commit/aff68b72fb7cdf2872ac84d020044086263b0f76))
+
 ## v0.6.0 (2021-12-13)
 ### Feature
 * **comparisons:** Introduce psi and jsd ([`c6a1ca7`](https://github.com/ing-bank/popmon/commit/c6a1ca74da3a4de1f69b919cce047cc0b6377589))
