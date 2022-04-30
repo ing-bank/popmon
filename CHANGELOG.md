@@ -2,10 +2,10 @@
 
 <!--next-version-placeholder-->
 
-## v0.7.1 (2022-04-29)
+## v0.6.1 (2022-04-29)
+### Fix
+* **plot:** Fixing memory leak in matplotlib multithreading ([`cc6c4e1`](https://github.com/ing-bank/popmon/commit/cc6c4e16a38267c3d5e80d12b986c458854ba781))
 
-
-## v0.7.0 (2022-04-29)
 ### Documentation
 * Include link to kedro-popmon ([`aff68b7`](https://github.com/ing-bank/popmon/commit/aff68b72fb7cdf2872ac84d020044086263b0f76))
 
