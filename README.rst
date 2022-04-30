@@ -168,6 +168,39 @@ The plotting is configurable, and depending on the options you will obtain a res
 
 *Example pipeline visualization (click to enlarge)*
 
+Reports and integrations
+========================
+The data shift computations that popmon performs, are by default displayed in a self-contained HTML report.
+This format is favourable in many real-world environments, where access may be restricted.
+Moreover, reports can be easily shared with others.
+
+Access to the datastore means that its possible to integrate popmon in almost any workflow.
+To give an example, one could store the histogram data in a PostgreSQL database and load that from Grafana and benefit from their visualisation and alert handling features (e.g. send an email or slack message upon alert).
+This may be interesting to teams that are already invested in particular choice of dashboarding tool.
+
+Possible integrations are:
+
++----------------+---------------+
+| |grafana_logo| | |kibana_logo| |
++----------------+---------------+
+| Grafana        | Kibana        |
++----------------+---------------+
+
+Resources on how to integrate popmon are available in the `examples directory <https://github.com/ing-bank/popmon/tree/master/examples/integrations>`_.
+Contributions of additional or improved integrations are welcome!
+
+.. |grafana_logo| image:: https://upload.wikimedia.org/wikipedia/en/a/a1/Grafana_logo.svg
+    :alt: Grafana logo
+    :height: 120
+    :target: https://github.com/grafana/grafana
+
+.. |kibana_logo| image:: https://miro.medium.com/max/1400/1*HW_x9ZvIbUkyaqHstsB1ig.png
+    :alt: Kibana logo
+    :height: 120
+    :target: https://github.com/elastic/kibana
+
+
+
 Resources
 =========
 
