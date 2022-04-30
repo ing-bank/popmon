@@ -1,12 +1,11 @@
-from pathlib import Path
 import pickle
+from pathlib import Path
 
-from elastic_connector import ElasticConnector
 import pandas as pd
+from elastic_connector import ElasticConnector
 
 import popmon  # noqa
 from popmon import resources
-
 
 if __name__ == "__main__":
     # Start the Elasticsearch connector
