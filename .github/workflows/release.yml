@@ -3,7 +3,7 @@ name: Semantic Release
 on:
   push:
     branches:
-      - master-tmp-disabled
+      - master
 
 jobs:
   release:
