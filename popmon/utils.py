@@ -45,14 +45,14 @@ def parallel(func, args_list, mode="args"):
     """
     Routine for parallel processing
     """
-    from popmon.config import num_jobs
+    from popmon.config import parallel_args
 
-    if num_jobs == 1:
+    if parallel_args["n_jobs"] == 1:
         results = [
             func(*args) if mode == "args" else func(**args) for args in args_list
         ]
     else:
-        results = Parallel(n_jobs=num_jobs)(
+        results = Parallel(**parallel_args)(
             delayed(func)(*args) if mode == "args" else delayed(func)(**args)
             for args in args_list
         )
