@@ -134,4 +134,7 @@ def get_stat_description(name: str):
     return ""
 
 
-num_jobs = multiprocessing.cpu_count()
+# Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
+# the backend from default (loki) to 'multiprocessing' or 'threading'.
+# (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
+parallel_args = {"n_jobs": multiprocessing.cpu_count()}
