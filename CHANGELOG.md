@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2022-05-09)
+### Feature
+* Global configuration of joblib Parallel backend ([`3431cad`](https://github.com/ing-bank/popmon/commit/3431cad4dc2ec3e00755d08c7870f6464a65393e))
+
+### Fix
+* Prevent numpy warnings ([`9ec3b66`](https://github.com/ing-bank/popmon/commit/9ec3b66b3679435cc4a55ac8a7afb6b45e295964))
+
+### Documentation
+* **config:** Document global configuration ([`e546994`](https://github.com/ing-bank/popmon/commit/e546994eb11d020adbb4a056b7d01978926b2f4f))
+* **readme:** Extend articles section ([`0ec0273`](https://github.com/ing-bank/popmon/commit/0ec0273cb920a3585b25acfc98c3d6cbcfbf7456))
+
 ## v0.6.1 (2022-04-29)
 ### Fix
 * **plot:** Fixing memory leak in matplotlib multithreading ([`cc6c4e1`](https://github.com/ing-bank/popmon/commit/cc6c4e16a38267c3d5e80d12b986c458854ba781))
