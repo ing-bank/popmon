@@ -274,3 +274,23 @@ The following section documents error that you may run into using spark, and how
 This error occurs when pyspark cannot find the required jars. Ensure that the location of "spark.jars" or "spark.jars.packages" is correct (see examples above). Stop the spark session and restart it with the exact location. You can use the ones hosted on github using the "spark.jars.pacakges" example or place the jars locally and use "spark.jars", depending on whichever is easiest in your setup.
 
 If you are running in a jupyter notebook, then the kernel needs to be restarted.
+
+Global configuration
+--------------------
+
+A number of settings is configured globally.
+These can be found in the ``popmon.config`` module.
+At the moment of writing these primarily cover parallel processing and descriptions of plots.
+
+The following snippet modifies the number of jobs and the backend used by ``joblib.Parallel``:
+
+.. code-block:: python
+
+    import popmon
+    import popmon.config
+
+    popmon.config.parallel_args["n_jobs"] = 4
+    popmon.config.parallel_args["backend"] = "threading"
+
+    # Create report as usual
+    report = df.pm_stability_report(reference_type="self")
