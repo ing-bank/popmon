@@ -15,7 +15,7 @@ if __name__ == "__main__":
     es_obj.create_index("popmon-integration")
 
     # Path to cache the popmon report
-    cache_file = Path("example-report.pkl")
+    cache_file = Path("example-metrics.pkl")
 
     # Compute if not cached
     if not cache_file.exists():
@@ -24,25 +24,24 @@ if __name__ == "__main__":
             resources.data("flight_delays.csv.gz"), index_col=0, parse_dates=["DATE"]
         )
 
-        # generate stability report using automatic binning of all encountered features
+        # generate stability metrics using automatic binning of all encountered features
         # (importing popmon automatically adds this functionality to a dataframe)
-        report = df.pm_stability_report(
+        metrics = df.pm_stability_metrics(
             time_axis="DATE",
             time_width="1w",
             time_offset="2015-07-02",
-            extended_report=False,
             pull_rules={"*_pull": [10, 7, -7, -10]},
         )
 
         with cache_file.open("wb") as f:
-            pickle.dump(report, f)
+            pickle.dump(metrics, f)
 
     # Load report from cache
     with cache_file.open("rb") as f:
-        report = pickle.load(f)
+        metrics = pickle.load(f)
 
     # Push individual histograms to ES per feature
-    for feature, data in report.datastore["split_hists"].items():
+    for feature, data in metrics["split_hists"].items():
         messages = []
         row = data.iloc[0]
         for histogram_idx, (idx, row) in enumerate(data.iterrows()):
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     # depending on the feature.
     # (see also https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html)
     for doc_type in ["profiles", "comparisons", "traffic_lights", "alerts"]:
-        for feature, data in report.datastore[doc_type].items():
+        for feature, data in metrics[doc_type].items():
             columns = data.columns
             messages = [
                 {
