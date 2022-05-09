@@ -138,3 +138,6 @@ def get_stat_description(name: str):
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
 parallel_args = {"n_jobs": multiprocessing.cpu_count()}
+
+# Usage the `ing_matplotlib_theme`
+themed = True
