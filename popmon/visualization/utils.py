@@ -26,15 +26,18 @@ from typing import List
 import numpy as np
 import pandas as pd
 import pybase64
-from ing_theme_matplotlib import mpl_style
 from matplotlib import pyplot as plt
 
+import popmon.config
 from popmon.resources import templates_env
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
-mpl_style(dark=False)
+if popmon.config.themed:
+    from ing_theme_matplotlib import mpl_style
+
+    mpl_style(dark=False)
 
 
 def plt_to_str(fig, format="png"):
