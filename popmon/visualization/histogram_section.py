@@ -24,6 +24,8 @@ import numpy as np
 import pandas as pd
 from histogrammar.util import get_hist_props
 from tqdm import tqdm
+import numpy as np
+import matplotlib.pyplot as plt
 
 from ..analysis.hist_numpy import (
     assert_similar_hists,
@@ -116,10 +118,10 @@ class HistogramSection(Module):
             hists = [
                 df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
             ]
-
+            
             args = [(feature, dates[i], hists[i], hist_names) for i in range(last_n)]
             plots = parallel(_plot_histograms, args)
-
+            
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
 
@@ -245,7 +247,6 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap):
     if len(hc_list) == 0:
         return date, ""
     assert_similar_hists(hc_list)
-
     if hc_list[0].n_dim == 1:
         props = get_hist_props(hc_list[0])
         is_num = props["is_num"]
