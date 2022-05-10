@@ -65,9 +65,11 @@ class SelfReference(Pipeline):
         features=None,
         skip_empty_plots=True,
         last_n=0,
+        top_n=0,
         plot_hist_n=6,
         report_filepath=None,
         show_stats=None,
+        disable_heatmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (full test set)
@@ -80,9 +82,11 @@ class SelfReference(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param int last_n: plot statistic data for last 'n' periods (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
         :param str report_filepath: the file path where to output the report (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param list disable_heatmap: list of heatmap types to disable in the report. 'normal' to disable normal heatmap, 'row' to row normalized, 'column' to disable column normalized. If None, show all (optional)
         :param kwargs: residual keyword arguments
         :return: assembled self reference pipeline
         """
@@ -101,9 +105,11 @@ class SelfReference(Pipeline):
                 store_key="html_report",
                 skip_empty_plots=skip_empty_plots,
                 last_n=last_n,
+                top_n=top_n,
                 plot_hist_n=plot_hist_n,
                 report_filepath=report_filepath,
                 show_stats=show_stats,
+                disable_heatmap=disable_heatmap,
             ),
         ]
 
@@ -122,9 +128,11 @@ class ExternalReference(Pipeline):
         features=None,
         skip_empty_plots=True,
         last_n=0,
+        top_n=0,
         plot_hist_n=2,
         report_filepath=None,
         show_stats=None,
+        disable_heatmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
@@ -138,9 +146,11 @@ class ExternalReference(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
         :param int last_n: plot statistic data for last 'n' periods (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
         :param str report_filepath: the file path where to output the report (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param list disable_heatmap: list of heatmap types to disable in the report. 'normal' to disable normal heatmap, 'row' to row normalized, 'column' to disable column normalized. If None, show all (optional)
         :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
@@ -160,9 +170,11 @@ class ExternalReference(Pipeline):
                 store_key="html_report",
                 skip_empty_plots=skip_empty_plots,
                 last_n=last_n,
+                top_n=top_n,
                 plot_hist_n=plot_hist_n,
                 report_filepath=report_filepath,
                 show_stats=show_stats,
+                disable_heatmap=disable_heatmap,
             ),
         ]
 
@@ -181,9 +193,11 @@ class RollingReference(Pipeline):
         features=None,
         skip_empty_plots=True,
         last_n=0,
+        top_n=0,
         plot_hist_n=6,
         report_filepath=None,
         show_stats=None,
+        disable_heatmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
@@ -197,9 +211,11 @@ class RollingReference(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
         :param int last_n: plot statistic data for last 'n' periods (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
         :param str report_filepath: the file path where to output the report (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param list disable_heatmap: list of heatmap types to disable in the report. 'normal' to disable normal heatmap, 'row' to row normalized, 'column' to disable column normalized. If None, show all (optional)
         :param kwargs: residual keyword arguments
         :return: assembled rolling reference pipeline
         """
@@ -219,9 +235,11 @@ class RollingReference(Pipeline):
                 store_key="html_report",
                 skip_empty_plots=skip_empty_plots,
                 last_n=last_n,
+                top_n=top_n,
                 plot_hist_n=plot_hist_n,
                 report_filepath=report_filepath,
                 show_stats=show_stats,
+                disable_heatmap=disable_heatmap,
             ),
         ]
 
@@ -240,9 +258,11 @@ class ExpandingReference(Pipeline):
         features=None,
         skip_empty_plots=True,
         last_n=0,
+        top_n=0,
         plot_hist_n=6,
         report_filepath=None,
         show_stats=None,
+        disable_heatmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)
@@ -256,9 +276,11 @@ class ExpandingReference(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
         :param int last_n: plot statistic data for last 'n' periods (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
         :param str report_filepath: the file path where to output the report (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param list disable_heatmap: list of heatmap types to disable in the report. 'normal' to disable normal heatmap, 'row' to row normalized, 'column' to disable column normalized. If None, show all (optional)
         :param kwargs: residual keyword arguments
         :return: assembled expanding reference pipeline
         """
@@ -278,9 +300,11 @@ class ExpandingReference(Pipeline):
                 store_key="html_report",
                 skip_empty_plots=skip_empty_plots,
                 last_n=last_n,
+                top_n=top_n,
                 plot_hist_n=plot_hist_n,
                 report_filepath=report_filepath,
                 show_stats=show_stats,
+                disable_heatmap=disable_heatmap,
             ),
         ]
 
@@ -303,9 +327,11 @@ class ReportPipe(Pipeline):
         show_stats=None,
         skip_empty_plots=True,
         last_n=0,
+        top_n=0,
         skip_first_n=0,
         skip_last_n=0,
         plot_hist_n=6,
+        disable_heatmap=None,
     ):
         """Initialize an instance of Report.
 
@@ -319,10 +345,12 @@ class ReportPipe(Pipeline):
         :param str report_filepath: the file path where to output the report (optional)
         :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param int last_n: plot statistic data for last 'n' periods (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
         :param int skip_last_n: when plotting data skip last 'n' periods. last_n takes precedence (optional)
         :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
         :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param list disable_heatmap: list of heatmap types to disable in the report. 'normal' to disable normal heatmap, 'row' to row normalized, 'column' to disable column normalized. If None, show all (optional)
         """
         self.store_key = store_key
 
@@ -347,7 +375,9 @@ class ReportPipe(Pipeline):
                 section_name=histograms_section,
                 hist_name_starts_with="histogram",
                 last_n=plot_hist_n,
+                top_n=top_n,
                 description=descs.get("histograms", ""),
+                disable_heatmap=disable_heatmap,
             ),
             # section showing all traffic light alerts of monitored statistics
             TrafficLightSectionGenerator(

@@ -20,6 +20,7 @@
 
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 from histogrammar.util import get_hist_props
 from tqdm import tqdm
@@ -32,7 +33,7 @@ from ..analysis.hist_numpy import (
 from ..base import Module
 from ..config import get_stat_description
 from ..utils import parallel, short_date
-from ..visualization.utils import plot_overlay_1d_histogram_b64
+from ..visualization.utils import plot_heatmap_b64, plot_overlay_1d_histogram_b64
 
 
 class HistogramSection(Module):
@@ -49,9 +50,11 @@ class HistogramSection(Module):
         features=None,
         ignore_features=None,
         last_n=1,
+        top_n=20,
         hist_names=None,
         hist_name_starts_with="histogram",
         description="",
+        disable_heatmap=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -61,6 +64,7 @@ class HistogramSection(Module):
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
         :param int last_n: plot histogram for last 'n' periods. default is 1 (optional)
+        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param list hist_names: list of histogram names to plot
         :param str hist_name_starts_with: find histograms in case hist_names is empty. default is histogram.
         :param str description: description of the section. default is empty (optional)
@@ -73,9 +77,11 @@ class HistogramSection(Module):
         self.ignore_features = ignore_features or []
         self.section_name = section_name
         self.last_n = last_n if last_n >= 1 else 1
+        self.top_n = top_n if top_n >= 1 and top_n <= 20 else 20
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
+        self.disable_heatmap = disable_heatmap or []
 
     def get_description(self):
         return self.section_name
@@ -116,10 +122,27 @@ class HistogramSection(Module):
 
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
+
+            # base64 heatmap plot for each metric
+            dates = [short_date(str(date)) for date in df.index[:]]
+            hists = [
+                df[hist_names].iloc[-i].values
+                for i in reversed(range(1, len(dates) + 1))
+            ]
+
+            heatmaps = _plot_heatmap(
+                feature, dates, [h[0] for h in hists], self.top_n, self.disable_heatmap
+            )
+
+            # filter out potential empty plots
+            for h in heatmaps:
+                if isinstance(h, dict):
+                    if len(h["plot"]):
+                        plots.append(h)
+
             features_w_metrics.append(
                 {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
             )
-
         sections.append(
             {
                 "section_title": self.section_name,
@@ -189,3 +212,132 @@ def _plot_histograms(feature, date, hc_list, hist_names):
         plot = ""
 
     return {"name": date, "description": get_stat_description(date), "plot": plot}
+
+
+def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap):
+
+    hist_names = [
+        " Heatmap ",
+        " Column Normalized Heatmap ",
+        " Row Normalized Heatmap ",
+    ]
+
+    for d in disable_heatmap:
+        if d not in ["normal", "row", "column"]:
+            raise ValueError("invalid argument in disable_heatmap: ", d)
+        if d == "normal":
+            hist_names.remove(" Heatmap ")
+        elif d == "row":
+            hist_names.remove(" Column Normalized Heatmap ")
+        else:
+            hist_names.remove(" Row Normalized Heatmap ")
+
+    # basic checks
+    if len(hist_names) <= 0:
+        # skip numeric heatmap
+        return {"plot": ""}
+
+    # filter out Nones (e.g. can happen with empty rolling hist)
+    none_hists = [i for i, hc in enumerate(hc_list) if hc is None]
+    hc_list = [hc for i, hc in enumerate(hc_list) if i not in none_hists]
+    hist_names = [hn for i, hn in enumerate(hist_names) if i not in none_hists]
+    # more basic checks
+    if len(hc_list) == 0:
+        return date, ""
+    assert_similar_hists(hc_list)
+
+    if hc_list[0].n_dim == 1:
+        props = get_hist_props(hc_list[0])
+        is_num = props["is_num"]
+        is_ts = props["is_ts"]
+        y_label = "Bin count" if len(hc_list) == 1 else "Bin probability"
+
+        if is_num:
+            # skip numeric heatmap
+            return {"plot": ""}
+        else:
+            # categorical, retrieve values and bins
+            entries_list, bins = get_consistent_numpy_entries(
+                hc_list, get_bin_labels=True
+            )  # bins = bin-labels
+
+            entries_list = np.stack(entries_list, axis=1)
+
+            # if cardinality of feature is more than 20
+            if len(bins) > top_n:
+                entries_list, bins = get_top_categories(entries_list, bins, top_n)
+
+            # make 3 copies : 1st normal, 2nd for column normalized heatmap, 3rd for row normalized heatmap
+            hists = []
+            if "normal" not in disable_heatmap:
+                hist_normal = entries_list.copy()
+                hists.append(hist_normal)
+
+            # normalize across column for a plot
+            if "column" not in disable_heatmap:
+                hist_col = entries_list.copy()
+                hist_col = np.stack(hist_col, axis=1)
+                hist_col = hist_col.astype(float)
+                for i in range(hist_col.shape[0]):
+                    if hist_col[i].sum() > 0:
+                        hist_col[i] = hist_col[i] / hist_col[i].sum()
+                hist_col = np.stack(hist_col, axis=1)
+                hists.append(hist_col)
+
+            # normalize across row for a plot
+            if "row" not in disable_heatmap:
+                hist_row = entries_list.copy()
+                hist_row = hist_row.astype(float)
+                for i in range(hist_row.shape[0]):
+                    if hist_row[i].sum() > 0:
+                        hist_row[i] = hist_row[i] / hist_row[i].sum()
+
+                hists.append(hist_row)
+
+        if len(bins) == 0:
+            # skip empty histograms
+            return {"plot": ""}
+
+        args = [
+            (hists[i], bins, date, feature, y_label, is_num, is_ts)
+            for i in range(len(hists))
+        ]
+        plot = parallel(plot_heatmap_b64, args)
+
+        plots = [
+            {
+                "name": feature + hist_names[i],
+                "description": get_stat_description(date[0]),
+                "plot": plot[i],
+                "full_width": True,
+            }
+            for i in range(len(hists))
+        ]
+
+    elif hc_list[0].n_dim == 2:
+        plots = {"plot": ""}
+    else:
+        plots = {"plot": ""}
+
+    return plots
+
+
+def get_top_categories(entries_list, bins, top_n):
+
+    # get the top top_n rows
+    row_sum = np.sum(entries_list, axis=1).ravel().tolist()
+    sorted_index = np.argsort(row_sum).tolist()
+    top_rows = entries_list[sorted_index[-top_n:], :]
+
+    # aggregate all other rows
+    bottom_rows = entries_list[sorted_index[:-top_n], :]
+    bottom_row = np.sum(bottom_rows, axis=0).ravel().tolist()
+    # append alll other aggregated row to top_rows
+    top_rows = np.append(top_rows, [bottom_row], axis=0)
+
+    # select the corresponding bins/labels
+    bins = [bins[i] for i in sorted_index[-top_n:]]
+    # add 'others' label
+    bins.append("Others")
+
+    return top_rows, bins
