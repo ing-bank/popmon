@@ -16,7 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from typing import List, Union
 
 from ..alerting import (
     AlertsSummary,
@@ -40,7 +40,7 @@ from ..analysis.profiling.pull_calculator import (
     RefMedianMadPullCalculator,
     RollingPullCalculator,
 )
-from ..base import Pipeline
+from ..base import Module, Pipeline
 from ..hist.hist_splitter import HistSplitter
 
 
@@ -94,6 +94,124 @@ def create_metrics_pipeline(
     return pipeline
 
 
+def get_splitting_modules(
+    hists_key, features, time_axis
+) -> List[Union[Module, Pipeline]]:
+    """
+    Splitting of test histograms. For each histogram with datetime i, comparison of histogram i with histogram i-1,
+    results in chi2 comparison of histograms
+    """
+    modules: List[Union[Module, Pipeline]] = [
+        HistSplitter(
+            read_key=hists_key,
+            store_key="split_hists",
+            features=features,
+            feature_begins_with=f"{time_axis}:",
+        ),
+        PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        HistProfiler(read_key="split_hists", store_key="profiles"),
+    ]
+    return modules
+
+
+def get_traffic_light_modules(monitoring_rules) -> List[Union[Module, Pipeline]]:
+    """
+    Expand all (wildcard) static traffic light bounds and apply them.
+    Applied to both profiles and comparisons datasets
+    """
+    modules: List[Union[Module, Pipeline]] = [
+        TrafficLightAlerts(
+            read_key="profiles",
+            rules=monitoring_rules,
+            store_key="traffic_lights",
+            expanded_rules_key="static_bounds",
+        ),
+        TrafficLightAlerts(
+            read_key="comparisons",
+            rules=monitoring_rules,
+            store_key="traffic_lights",
+            expanded_rules_key="static_bounds_comparisons",
+        ),
+        ApplyFunc(
+            apply_to_key="traffic_lights",
+            apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
+            assign_to_key="alerts",
+            msg="Generating traffic light alerts summary.",
+        ),
+        AlertsSummary(read_key="alerts"),
+    ]
+    return modules
+
+
+def get_static_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
+    """
+    generate dynamic traffic light boundaries, based on traffic lights for normalized residuals, used for
+    plotting in popmon_profiles report.
+    """
+    modules: List[Union[Module, Pipeline]] = [
+        StaticBounds(
+            read_key="profiles",
+            rules=pull_rules,
+            store_key="dynamic_bounds",
+            suffix_mean="_mean",
+            suffix_std="_std",
+        ),
+        StaticBounds(
+            read_key="comparisons",
+            rules=pull_rules,
+            store_key="dynamic_bounds_comparisons",
+            suffix_mean="_mean",
+            suffix_std="_std",
+        ),
+    ]
+    return modules
+
+
+def get_dynamic_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
+    """
+    Generate dynamic traffic light boundaries, based on traffic lights for normalized residuals, used for
+    plotting in popmon_profiles report.
+    """
+    modules: List[Union[Module, Pipeline]] = [
+        DynamicBounds(
+            read_key="profiles",
+            rules=pull_rules,
+            store_key="dynamic_bounds",
+            suffix_mean="_mean",
+            suffix_std="_std",
+        ),
+        DynamicBounds(
+            read_key="comparisons",
+            rules=pull_rules,
+            store_key="dynamic_bounds_comparisons",
+            suffix_mean="_mean",
+            suffix_std="_std",
+        ),
+    ]
+    return modules
+
+
+def get_trend_modules(window) -> List[Union[Module, Pipeline]]:
+    """Looking for significant rolling linear trends in selected features/metrics"""
+    modules: List[Union[Module, Pipeline]] = [
+        ApplyFunc(
+            apply_to_key="profiles",
+            assign_to_key="comparisons",
+            apply_funcs=[
+                {
+                    "func": rolling_lr_zscore,
+                    "suffix": f"_trend{window}_zscore",
+                    "entire": True,
+                    "window": window,
+                    "metrics": ["mean", "phik", "fraction_true"],
+                }
+            ],
+            msg="Computing significance of (rolling) trend in means of features",
+        ),
+    ]
+    return modules
+
+
 class SelfReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
@@ -118,17 +236,8 @@ class SelfReferenceMetricsPipeline(Pipeline):
         """
         from popmon.analysis.comparison.comparisons import Comparisons
 
-        modules = [
-            # 1. splitting of test histograms
-            HistSplitter(
-                read_key=hists_key,
-                store_key="split_hists",
-                features=features,
-                feature_begins_with=f"{time_axis}:",
-            ),
-            # 2. for each histogram with datetime i, comparison of histogram i with histogram i-1, results in
-            #        chi2 comparison of histograms
-            PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        reference_prefix = "ref"
+        reference_modules: List[Union[Module, Pipeline]] = [
             # 3. Comparison of with profiled test histograms, results in chi2 comparison of histograms
             ReferenceHistComparer(
                 reference_key="split_hists",
@@ -141,11 +250,13 @@ class SelfReferenceMetricsPipeline(Pipeline):
                 suffix_mean="_mean",
                 suffix_std="_std",
                 suffix_pull="_pull",
-                metrics=[f"ref_{key}" for key in Comparisons.get_comparisons().keys()],
+                metrics=[
+                    f"{reference_prefix}_{key}"
+                    for key in Comparisons.get_comparisons().keys()
+                ],
             ),
             # 4. profiling of histograms, then pull calculation compared with reference mean and std,
             #        to obtain normalized residuals of profiles
-            HistProfiler(read_key="split_hists", store_key="profiles"),
             RefMedianMadPullCalculator(
                 reference_key="profiles",
                 assign_to_key="profiles",
@@ -153,59 +264,15 @@ class SelfReferenceMetricsPipeline(Pipeline):
                 suffix_std="_std",
                 suffix_pull="_pull",
             ),
-            # 5. looking for significant rolling linear trends in selected features/metrics
-            ApplyFunc(
-                apply_to_key="profiles",
-                assign_to_key="comparisons",
-                apply_funcs=[
-                    {
-                        "func": rolling_lr_zscore,
-                        "suffix": f"_trend{window}_zscore",
-                        "entire": True,
-                        "window": window,
-                        "metrics": ["mean", "phik", "fraction_true"],
-                    }
-                ],
-                msg="Computing significance of (rolling) trend in means of features",
-            ),
-            # 6. generate dynamic traffic light boundaries, based on traffic lights for normalized residuals,
-            #        used for plotting in popmon_profiles report.
-            StaticBounds(
-                read_key="profiles",
-                rules=pull_rules,
-                store_key="dynamic_bounds",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            StaticBounds(
-                read_key="comparisons",
-                rules=pull_rules,
-                store_key="dynamic_bounds_comparisons",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            # 7. expand all (wildcard) static traffic light bounds and apply them.
-            #        Applied to both profiles and comparisons datasets
-            TrafficLightAlerts(
-                read_key="profiles",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds",
-            ),
-            TrafficLightAlerts(
-                read_key="comparisons",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds_comparisons",
-            ),
-            ApplyFunc(
-                apply_to_key="traffic_lights",
-                apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
-                assign_to_key="alerts",
-                msg="Generating traffic light alerts summary.",
-            ),
-            AlertsSummary(read_key="alerts"),
         ]
+
+        modules = (
+            get_splitting_modules(hists_key, features, time_axis)
+            + reference_modules
+            + get_trend_modules(window)
+            + get_static_bound_modules(pull_rules)
+            + get_traffic_light_modules(monitoring_rules)
+        )
         super().__init__(modules)
 
 
@@ -233,17 +300,10 @@ class ExternalReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
-        modules = [
-            # 1. splitting of test histograms
-            HistSplitter(
-                read_key=hists_key,
-                store_key="split_hists",
-                features=features,
-                feature_begins_with=f"{time_axis}:",
-            ),
-            # 2. for each histogram with datetime i, comparison of histogram i with histogram i-1, results in
-            #        chi2 comparison of histograms
-            PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        from popmon.analysis.comparison.comparisons import Comparisons
+
+        reference_prefix = "ref"
+        reference_modules: List[Union[Module, Pipeline]] = [
             # 3. Profiling of split reference histograms, then chi2 comparison with test histograms
             HistSplitter(
                 read_key=ref_hists_key,
@@ -256,17 +316,19 @@ class ExternalReferenceMetricsPipeline(Pipeline):
                 assign_to_key="split_hists",
                 store_key="comparisons",
             ),
+            HistProfiler(read_key="split_ref_hists", store_key="ref_profiles"),
             RefMedianMadPullCalculator(
                 reference_key="comparisons",
                 assign_to_key="comparisons",
                 suffix_mean="_mean",
                 suffix_std="_std",
                 suffix_pull="_pull",
-                metrics=["ref_max_prob_diff"],
+                metrics=[
+                    f"{reference_prefix}_{key}"
+                    for key in Comparisons.get_comparisons().keys()
+                ],
             ),
             # 4. pull calculation compared with reference mean and std, to obtain normalized residuals of profiles
-            HistProfiler(read_key="split_hists", store_key="profiles"),
-            HistProfiler(read_key="split_ref_hists", store_key="ref_profiles"),
             ReferencePullCalculator(
                 reference_key="ref_profiles",
                 assign_to_key="profiles",
@@ -274,59 +336,14 @@ class ExternalReferenceMetricsPipeline(Pipeline):
                 suffix_std="_std",
                 suffix_pull="_pull",
             ),
-            # 5. looking for significant rolling linear trends in selected features/metrics
-            ApplyFunc(
-                apply_to_key="profiles",
-                assign_to_key="comparisons",
-                apply_funcs=[
-                    {
-                        "func": rolling_lr_zscore,
-                        "suffix": f"_trend{window}_zscore",
-                        "entire": True,
-                        "window": window,
-                        "metrics": ["mean", "phik", "fraction_true"],
-                    }
-                ],
-                msg="Computing significance of (rolling) trend in means of features",
-            ),
-            # 6. generate dynamic traffic light boundaries, based on traffic lights for normalized residuals,
-            #        used for plotting in popmon_profiles report.
-            StaticBounds(
-                read_key="profiles",
-                rules=pull_rules,
-                store_key="dynamic_bounds",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            StaticBounds(
-                read_key="comparisons",
-                rules=pull_rules,
-                store_key="dynamic_bounds_comparisons",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            # 7. expand all (wildcard) static traffic light bounds and apply them.
-            #        Applied to both profiles and comparisons datasets
-            TrafficLightAlerts(
-                read_key="profiles",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds",
-            ),
-            TrafficLightAlerts(
-                read_key="comparisons",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds_comparisons",
-            ),
-            ApplyFunc(
-                apply_to_key="traffic_lights",
-                apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
-                assign_to_key="alerts",
-                msg="Generating traffic light alerts summary.",
-            ),
-            AlertsSummary(read_key="alerts"),
         ]
+        modules = (
+            get_splitting_modules(hists_key, features, time_axis)
+            + reference_modules
+            + get_trend_modules(window)
+            + get_static_bound_modules(pull_rules)
+            + get_traffic_light_modules(monitoring_rules)
+        )
         super().__init__(modules)
 
 
@@ -354,17 +371,10 @@ class RollingReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled rolling reference pipeline
         """
-        modules = [
-            # 1. splitting of test histograms
-            HistSplitter(
-                read_key=hists_key,
-                store_key="split_hists",
-                features=features,
-                feature_begins_with=f"{time_axis}:",
-            ),
-            # 2. for each histogram with datetime i, comparison of histogram i with histogram i-1, results in
-            #        chi2 comparison of histograms
-            PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        from popmon.analysis.comparison.comparisons import Comparisons
+
+        reference_prefix = "roll"
+        reference_modules: List[Union[Module, Pipeline]] = [
             # 3. profiling of reference histograms, then comparison of with profiled test histograms
             #        results in chi2 comparison of histograms
             RollingHistComparer(
@@ -379,11 +389,13 @@ class RollingReferenceMetricsPipeline(Pipeline):
                 suffix_mean="_mean",
                 suffix_std="_std",
                 suffix_pull="_pull",
-                metrics=["roll_max_prob_diff"],
+                metrics=[
+                    f"{reference_prefix}_{key}"
+                    for key in Comparisons.get_comparisons().keys()
+                ],
             ),
             # 4. profiling of histograms, then pull calculation compared with reference mean and std,
             #        to obtain normalized residuals of profiles
-            HistProfiler(read_key="split_hists", store_key="profiles"),
             RollingPullCalculator(
                 read_key="profiles",
                 window=window,
@@ -392,59 +404,15 @@ class RollingReferenceMetricsPipeline(Pipeline):
                 suffix_std="_std",
                 suffix_pull="_pull",
             ),
-            # 5. looking for significant rolling linear trends in selected features/metrics
-            ApplyFunc(
-                apply_to_key="profiles",
-                assign_to_key="comparisons",
-                apply_funcs=[
-                    {
-                        "func": rolling_lr_zscore,
-                        "suffix": f"_trend{window}_zscore",
-                        "entire": True,
-                        "window": window,
-                        "metrics": ["mean", "phik", "fraction_true"],
-                    }
-                ],
-                msg="Computing significance of (rolling) trend in means of features",
-            ),
-            # 6. generate dynamic traffic light boundaries, based on traffic lights for normalized residuals,
-            #        used for plotting in popmon_profiles report.
-            DynamicBounds(
-                read_key="profiles",
-                rules=pull_rules,
-                store_key="dynamic_bounds",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            DynamicBounds(
-                read_key="comparisons",
-                rules=pull_rules,
-                store_key="dynamic_bounds_comparisons",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            # 7. expand all (wildcard) static traffic light bounds and apply them.
-            #        Applied to both profiles and comparisons datasets
-            TrafficLightAlerts(
-                read_key="profiles",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds",
-            ),
-            TrafficLightAlerts(
-                read_key="comparisons",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds_comparisons",
-            ),
-            ApplyFunc(
-                apply_to_key="traffic_lights",
-                apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
-                assign_to_key="alerts",
-                msg="Generating traffic light alerts summary.",
-            ),
-            AlertsSummary(read_key="alerts"),
         ]
+
+        modules = (
+            get_splitting_modules(hists_key, features, time_axis)
+            + reference_modules
+            + get_trend_modules(window)
+            + get_dynamic_bound_modules(pull_rules)
+            + get_traffic_light_modules(monitoring_rules)
+        )
         super().__init__(modules)
 
 
@@ -472,17 +440,10 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled expanding reference pipeline
         """
-        modules = [
-            # 1. splitting of test histograms
-            HistSplitter(
-                read_key=hists_key,
-                store_key="split_hists",
-                features=features,
-                feature_begins_with=f"{time_axis}:",
-            ),
-            # 2. for each histogram with datetime i, comparison of histogram i with histogram i-1, results in
-            #    chi2 comparison of histograms
-            PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        from popmon.analysis.comparison.comparisons import Comparisons
+
+        reference_prefix = "expanding"
+        reference_modules: List[Union[Module, Pipeline]] = [
             # 3. profiling of reference histograms, then comparison of with profiled test histograms
             #    results in chi2 comparison of histograms
             ExpandingHistComparer(
@@ -496,9 +457,11 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
                 suffix_mean="_mean",
                 suffix_std="_std",
                 suffix_pull="_pull",
-                metrics=["expanding_max_prob_diff"],
+                metrics=[
+                    f"{reference_prefix}_{key}"
+                    for key in Comparisons.get_comparisons().keys()
+                ],
             ),
-            HistProfiler(read_key="split_hists", store_key="profiles"),
             ExpandingPullCalculator(
                 read_key="profiles",
                 shift=shift,
@@ -506,57 +469,13 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
                 suffix_std="_std",
                 suffix_pull="_pull",
             ),
-            # 5. looking for significant rolling linear trends in selected features/metrics
-            ApplyFunc(
-                apply_to_key="profiles",
-                assign_to_key="comparisons",
-                apply_funcs=[
-                    {
-                        "func": rolling_lr_zscore,
-                        "suffix": f"_trend{window}_zscore",
-                        "entire": True,
-                        "window": window,
-                        "metrics": ["mean", "phik", "fraction_true"],
-                    }
-                ],
-                msg="Computing significance of (rolling) trend in means of features",
-            ),
-            # 6. generate dynamic traffic light boundaries, based on traffic lights for normalized residuals,
-            #        used for plotting in popmon_profiles report.
-            DynamicBounds(
-                read_key="profiles",
-                rules=pull_rules,
-                store_key="dynamic_bounds",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            DynamicBounds(
-                read_key="comparisons",
-                rules=pull_rules,
-                store_key="dynamic_bounds_comparisons",
-                suffix_mean="_mean",
-                suffix_std="_std",
-            ),
-            # 7. expand all (wildcard) static traffic light bounds and apply them.
-            #        Applied to both profiles and comparisons datasets
-            TrafficLightAlerts(
-                read_key="profiles",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds",
-            ),
-            TrafficLightAlerts(
-                read_key="comparisons",
-                rules=monitoring_rules,
-                store_key="traffic_lights",
-                expanded_rules_key="static_bounds_comparisons",
-            ),
-            ApplyFunc(
-                apply_to_key="traffic_lights",
-                apply_funcs=[{"func": traffic_light_summary, "axis": 1, "suffix": ""}],
-                assign_to_key="alerts",
-                msg="Generating traffic light alerts summary.",
-            ),
-            AlertsSummary(read_key="alerts"),
         ]
+
+        modules = (
+            get_splitting_modules(hists_key, features, time_axis)
+            + reference_modules
+            + get_trend_modules(window)
+            + get_dynamic_bound_modules(pull_rules)
+            + get_traffic_light_modules(monitoring_rules)
+        )
         super().__init__(modules)
