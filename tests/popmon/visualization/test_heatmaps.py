@@ -11,7 +11,7 @@ def test_get_top_categories():
     e0, b0 = get_top_categories(entries_list, bins, top_lim)
 
     e1 = np.array([[3, 3], [4, 3], [2, 5]])
-    b1 = ["cat1", "cat2", "Others"]
+    b1 = ["cat4", "cat2", "Others"]
 
     np.testing.assert_array_equal(e0, e1)
     np.testing.assert_array_equal(b0, b1)
