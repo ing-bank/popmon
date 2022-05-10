@@ -358,10 +358,11 @@ def plot_overlay_1d_histogram_b64(
     :rtype: str
     """
     # basic checks
-
+    if len(hist_names) == 0:
+        hist_names = [f"hist{i}" for i in range(len(hists))]
     if hist_names:
-        if len(hist_names) == 0:
-            raise ValueError("length of heatmap names is zero")
+        if len(hists) != len(hist_names):
+            raise ValueError("length of hist and hist_names are different")
 
     fig, ax = plt.subplots(figsize=(9, 7))
 
@@ -495,8 +496,11 @@ def plot_heatmap_b64(
     :return: base64 encoded plot image
     :rtype: str
     """
+    if hist_names:
+        if len(hist_names) == 0:
+            raise ValueError("length of heatmap names is zero")
 
-    plt.figure(figsize=(40, 20))
+    fig = plt.figure(figsize=(40, 20))
 
     assert hist_values is not None and len(
         hist_values
@@ -555,115 +559,7 @@ def plot_heatmap_b64(
     plt.ylabel(x_label, fontsize=14)
     plt.grid()
 
-    return plt_to_str()
-
-def plot_heatmap_b64(
-    hist_values,
-    hist_bins,
-    date,
-    x_label,
-    hist_names=[],
-    y_label=None,
-    is_num=False,
-    is_ts=False,
-    top=20,
-    width_in=None,
-    xlim=None,
-):
-    """Create and plot heatmap of column values.
-
-    Copyright Eskapade:
-    Kindly taken from Eskapade package and then modified. Reference link:
-    https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
-    License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
-    Modifications copyright ING WBAA.
-
-    :param list hist_values: values of heatmap in a 2d numpy array = 
-    :param list hist_bins: bin labels/edges on y-axis
-    :param list date: dates for x/time axis of heatmap 
-    :param str x_label: Label for heatmap x-axis
-    :param list hist_names: list of histogram names. default is [].
-    :param str y_label: Label for histogram y-axis. default is None.
-    :param bool is_num: True if observable to plot is numeric. default is True.
-    :param bool is_ts: True if observable to plot is a timestamp. default is False.
-    :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
-    :param float width_in: the width of the bars of the histogram in percentage (0-1). default is None.
-    :param tuple xlim: set the x limits of the current axes. default is None.
-    :return: base64 encoded plot image
-    :rtype: str
-    """
-    # basic checks
-    if len(hist_names) == 0:
-        hist_names = [f"hist{i}" for i in range(len(hists))]
-    
-
-    plt.figure(figsize=(40, 20))
-
-    
-    assert hist_values is not None and len(
-        hist_values
-    ), "Heatmap bin values have not been set."
-    assert hist_bins is not None and len(
-        hist_bins
-    ), "Heatmap binning has not been set."
-
-    # basic attribute check: time stamps treated as numeric.
-    if is_ts:
-        is_num = True
-
-    # plot numeric and time stamps
-    if is_num:
-        bin_edges = hist_bins
-        bin_values = hist_values
-        assert (
-            len(bin_edges) == len(bin_values) + 1
-        ), "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
-            len(bin_edges), len(bin_values), x_label
-        )
-        return "" 
-
-    # plot categories
-    else:
-        labels = hist_bins
-        values = hist_values
-        assert len(labels) == len(
-            values
-        ), "labels and values have different array lengths: {:d} vs {:d}. {}".format(
-            len(labels), len(values), x_label
-        )
-
-        # plot histogram
-        tick_pos_x = np.arange(len(date)) 
-        tick_pos_y = np.arange(len(labels)) 
-        plt.imshow( values , cmap = 'autumn_r')
-        
-        # set x-axis properties
-        def xtick(lab):
-            """Get x-tick."""
-            lab = str(lab)
-            if len(lab) > top:
-                lab = lab[:17] + "..."
-            return lab
-
-        #plt.xlim((0.0, float(len(date))))
-        plt.xticks(tick_pos_x,date, fontsize=14, rotation=90)
-        plt.yticks(
-            tick_pos_y, [xtick(lab) for lab in labels], fontsize=14, rotation=90
-        )
-        im_ratio = values.shape[0]/values.shape[1]
- 
-        
-
-    # set common histogram properties
-
-    # Plot vertical colorbar
-    plt.colorbar(fraction=0.047*im_ratio)
-    
-    plt.xlabel("Time Bins", fontsize=14)
-    plt.ylabel(x_label, fontsize=14)
-    plt.grid()
-
-    return plt_to_str()
+    return plt_to_str(fig)
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
