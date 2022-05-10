@@ -289,8 +289,12 @@ The following snippet modifies the number of jobs and the backend used by ``jobl
     import popmon
     import popmon.config
 
+    # Set Parallel to use 4 threads
     popmon.config.parallel_args["n_jobs"] = 4
     popmon.config.parallel_args["backend"] = "threading"
+
+    # Disable `ing_matplotlib_theme`
+    popmon.config.themed = False
 
     # Create report as usual
     report = df.pm_stability_report(reference_type="self")
