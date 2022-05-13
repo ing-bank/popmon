@@ -43,7 +43,7 @@ def datastore_helper(func):
                 inputs[key] = None
 
             self.logger.debug(
-                f"load(key={key}, key_value={key_value}, value={str(inputs[key]):.100s})"
+                "load(key=%s, key_value=%s, value=%.100s})", key, key_value, inputs[key]
             )
 
         # transformation
@@ -57,7 +57,7 @@ def datastore_helper(func):
             for k, v in zip(self._output_keys, outputs):
                 key_value = self.__dict__[k]
                 self.logger.debug(
-                    f"store(key={k}, key_value={key_value}, value={str(v):.100s})"
+                    "store(key=%s, key_value=%s, value=%.100s)", k, key_value, v
                 )
                 if key_value and len(key_value) > 0:
                     datastore[key_value] = v
