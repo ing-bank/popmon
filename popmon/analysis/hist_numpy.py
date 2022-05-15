@@ -281,7 +281,7 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     # union of all labels encountered
     labels = set()
     for hist in hist_list:
-        bin_labels = hist.bin_centers() if all_num else hist.bin_labels()
+        bin_labels = hist.bin_centers() if all_num else hist.keySet
         labels = labels.union(bin_labels)
     labels = sorted(labels)
 

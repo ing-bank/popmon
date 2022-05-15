@@ -106,9 +106,9 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         else:  # categorical
             entries_list = get_consistent_numpy_entries([hist1, hist2])
             # check consistency of bin_labels
-            labels1 = hist1.bin_labels()
-            labels2 = hist2.bin_labels()
-            subset = set(labels1) <= set(labels2)
+            labels1 = hist1.keySet
+            labels2 = hist2.keySet
+            subset = labels1 <= labels2
             x["unknown_labels"] = int(not subset)
     else:
         numpy_ndgrids = get_consistent_numpy_ndgrids([hist1, hist2], dim=hist1.n_dim)
