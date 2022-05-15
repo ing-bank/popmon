@@ -44,27 +44,30 @@ def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
     :param str suffix_mean: suffix of mean. mean column = metric + suffix_mean
     :param str suffix_std: suffix of std. std column = metric + suffix_std
     """
-    x = pd.Series()
+
+    rdict = row.to_dict()
     if cols is None or len(cols) == 0:
         # if no columns are given, find columns for which pulls can be calculated.
         # e.g. to calculate x_pull, need to have [x, x_mean, x_std] present. If so, put x in cols.
-        cols = []
-        for m in row.index.to_list()[:]:
-            if m not in cols:
-                required = [m, m + suffix_mean, m + suffix_std]
-                if all(r in row for r in required):
-                    cols.append(m)
-    for m in cols:
-        x[m] = np.nan
-        required = [m, m + suffix_mean, m + suffix_std]
-        if not all(r in row for r in required):
-            continue
-        if any(pd.isnull(row[required])):
-            continue
-        if row[m + suffix_std] == 0.0:
-            continue
-        x[m] = (row[m] - row[m + suffix_mean]) / row[m + suffix_std]
-    return x
+        indices = list(rdict.keys())
+        cols = [
+            m
+            for m in set(indices)
+            if all(r in indices for r in [m + suffix_mean, m + suffix_std])
+        ]
+
+    x = {
+        m: np.nan
+        if (
+            any(r not in rdict or pd.isnull(rdict[r]) for r in [m, m + suffix_mean, m + suffix_std])
+            or rdict[m + suffix_std] == 0.0
+        )
+        else
+        (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
+        for m in cols
+    }
+
+    return pd.Series(x)
 
 
 def expanding_mean(df, shift=1):
