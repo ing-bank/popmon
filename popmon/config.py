@@ -137,7 +137,7 @@ def get_stat_description(name: str):
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
-parallel_args = {"n_jobs": multiprocessing.cpu_count()}
+parallel_args = {"n_jobs": 1}
 
 # Usage the `ing_matplotlib_theme`
 themed = True
