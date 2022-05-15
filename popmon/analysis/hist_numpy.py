@@ -285,21 +285,22 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
         labels = labels.union(bin_labels)
     labels = sorted(labels)
 
-    # PATCH: deal with boolean labels, which get bin_labels() returns as strings
-    cat_labels = labels
-    props = get_hist_props(hist_list[0])
-    if props["is_bool"]:
-        cat_labels = [lab == "True" for lab in cat_labels]
-
     # collect list of consistent bin_entries
-    entries_list = []
-    for hist in hist_list:
-        entries = (
-            hist.bin_entries(xvalues=labels)
-            if all_num
-            else hist.bin_entries(labels=cat_labels)
-        )
-        entries_list.append(entries)
+    if all_num:
+        kwargs = {'xvalues': labels}
+    else:
+        # PATCH: deal with boolean labels, which get bin_labels() returns as strings
+        cat_labels = labels
+        props = get_hist_props(hist_list[0])
+        if props["is_bool"]:
+            cat_labels = [lab == "True" for lab in cat_labels]
+
+        kwargs = {'labels': cat_labels}
+
+    entries_list = [
+        hist.bin_entries(**kwargs)
+        for hist in hist_list
+    ]
 
     if get_bin_labels:
         return entries_list, labels
