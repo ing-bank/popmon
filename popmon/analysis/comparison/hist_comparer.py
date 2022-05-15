@@ -124,14 +124,17 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
             pearson, pvalue = pearsonr(*entries_list)
 
     chi2, chi2_norm, zscore, pvalue, res = uu_chi2(*entries_list)
+    abs_residual = np.abs(res)
+    chi2_max_residual = np.max(abs_residual)
+    chi2_spike_count = np.sum(abs_residual[abs_residual > max_res_bound])
 
     x["pearson"] = pearson
     x["chi2"] = chi2
     x["chi2_norm"] = chi2_norm
     x["chi2_zscore"] = zscore
     x["chi2_pvalue"] = pvalue
-    x["chi2_max_residual"] = max(list(map(abs, res)))
-    x["chi2_spike_count"] = sum(abs(r) > max_res_bound for r in res)
+    x["chi2_max_residual"] = chi2_max_residual
+    x["chi2_spike_count"] = chi2_spike_count
     for key, func in Comparisons.get_comparisons().items():
         x[key] = func(*entries_list)
     return pd.Series(x)
