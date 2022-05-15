@@ -269,11 +269,10 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     assert_similar_hists(hist_list)
 
     # datatype check
-    is_num_arr = []
-    for hist in hist_list:
-        is_num_arr.append(is_numeric(hist))
-    all_num = all(is_num_arr)
-    all_cat = not any(is_num_arr)
+    v0 = is_numeric(hist_list[0])
+    constant = all(is_numeric(hist) == v0 for hist in hist_list[1:])
+    all_num = constant and v0
+    all_cat = constant and not v0
     if not (all_num or all_cat):
         raise TypeError(
             "Input histograms are mixture of Bin/SparselyBin and Categorize types."
