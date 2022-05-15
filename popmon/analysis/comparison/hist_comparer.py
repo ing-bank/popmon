@@ -81,14 +81,14 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     if len(hist_name1) == 0 or len(hist_name2) == 0 and len(cols) == 2:
         hist_name1 = cols[0]
         hist_name2 = cols[1]
-    if not all([name in cols for name in [hist_name1, hist_name2]]):
+    if not all(name in cols for name in [hist_name1, hist_name2]):
         raise ValueError("Need to provide two histogram column names.")
 
     # basic histogram checks
     hist1 = row[hist_name1]
     hist2 = row[hist_name2]
     if not all(
-        [isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]]
+        isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]
     ) or not check_similar_hists([hist1, hist2]):
         return pd.Series(x)
 

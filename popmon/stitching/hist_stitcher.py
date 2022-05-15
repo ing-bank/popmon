@@ -276,15 +276,13 @@ class HistStitcher(Module):
         # basic checks
         assert isinstance(time_axis, str) and len(time_axis) > 0
         assert len(features_basis) > 0
-        assert all([f.startswith(time_axis) for f in features_basis])
+        assert all(f.startswith(time_axis) for f in features_basis)
 
         hist_list = list(hists_basis.values())
 
-        all_sparse = all([isinstance(h, hg.SparselyBin) for h in hist_list])
+        all_sparse = all(isinstance(h, hg.SparselyBin) for h in hist_list)
         all_cat = (
-            all([isinstance(h, hg.Categorize) for h in hist_list])
-            if not all_sparse
-            else False
+            not all_sparse and all(isinstance(h, hg.Categorize) for h in hist_list)
         )
 
         max_time_bin_idx = None
@@ -420,7 +418,7 @@ class HistStitcher(Module):
 
         if mode == "replace":
             # check consistency of histogram bins attributes
-            is_bins = all([hasattr(hist, "bins") for hist in hist_list])
+            is_bins = all(hasattr(hist, "bins") for hist in hist_list)
             if not is_bins:
                 raise TypeError("Not all input histograms have bins attribute.")
             # update bins consecutively for each time-delta.

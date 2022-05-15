@@ -334,7 +334,7 @@ def hist_sum(x, hist_name=""):
     o[hist_name] = None
 
     # basic checks
-    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    all_hist = all(isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list)
     if not all_hist:
         return o
 
@@ -412,7 +412,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
     o[hist_name + "_binning"] = None
 
     # basic checks
-    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    all_hist = all(isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list)
     if not all_hist:
         return o
     similar = check_similar_hists(hist_list)
@@ -482,7 +482,7 @@ def relative_chi_squared(
     # basic checks
     if not isinstance(hist, COMMON_HIST_TYPES):
         return x
-    if any([ho is None for ho in [norm_mean, cov, binning]]):
+    if any(ho is None for ho in [norm_mean, cov, binning]):
         return x
     if len(cov.shape) != 2 or len(norm_mean.shape) != 1:
         return x
