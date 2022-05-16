@@ -281,8 +281,8 @@ class HistStitcher(Module):
         hist_list = list(hists_basis.values())
 
         all_sparse = all(isinstance(h, hg.SparselyBin) for h in hist_list)
-        all_cat = (
-            not all_sparse and all(isinstance(h, hg.Categorize) for h in hist_list)
+        all_cat = not all_sparse and all(
+            isinstance(h, hg.Categorize) for h in hist_list
         )
 
         max_time_bin_idx = None
