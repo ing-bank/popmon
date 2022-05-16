@@ -554,7 +554,7 @@ def plot_heatmap_b64(
 
     # Plot vertical colorbar
     cbar = plt.colorbar(fraction=0.047 * im_ratio)
-    cbar.ax.tick_params(labelsize=20) 
+    cbar.ax.tick_params(labelsize=20)
 
     plt.xlabel("Time Bins", fontsize=20)
     plt.ylabel(x_label, fontsize=20)

@@ -55,7 +55,7 @@ class HistogramSection(Module):
         hist_name_starts_with="histogram",
         description="",
         disable_heatmap=None,
-        cmap=None, 
+        cmap=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -133,7 +133,12 @@ class HistogramSection(Module):
             ]
 
             heatmaps = _plot_heatmap(
-                feature, dates, [h[0] for h in hists], self.top_n, self.disable_heatmap, self.cmap
+                feature,
+                dates,
+                [h[0] for h in hists],
+                self.top_n,
+                self.disable_heatmap,
+                self.cmap,
             )
 
             # filter out potential empty plots
@@ -190,7 +195,7 @@ def _plot_histograms(feature, date, hc_list, hist_names):
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             bins = numpy_1dhists[0][1]  # bins = bin-edges
         else:
-            #skip histogram. For cateforical features plot heatmap
+            # skip histogram. For cateforical features plot heatmap
             return {"plot": ""}
         if len(bins) == 0:
             # skip empty histograms
