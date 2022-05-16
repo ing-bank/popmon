@@ -466,12 +466,12 @@ def plot_heatmap_b64(
     hist_bins,
     date,
     x_label,
-    hist_names=[],
+    hist_name,
     y_label=None,
     is_num=False,
     is_ts=False,
+    cmap="autumn_r",
     top=20,
-    width_in=None,
     xlim=None,
 ):
     """Create and plot heatmap of column values.
@@ -491,13 +491,13 @@ def plot_heatmap_b64(
     :param bool is_num: True if observable to plot is numeric. default is True.
     :param bool is_ts: True if observable to plot is a timestamp. default is False.
     :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
-    :param float width_in: the width of the bars of the histogram in percentage (0-1). default is None.
+    :param float cmap: the colormap for heeatmap. default is autumn_r.
     :param tuple xlim: set the x limits of the current axes. default is None.
     :return: base64 encoded plot image
     :rtype: str
     """
-    if hist_names:
-        if len(hist_names) == 0:
+    if hist_name:
+        if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
 
     fig = plt.figure(figsize=(40, 20))
@@ -535,7 +535,7 @@ def plot_heatmap_b64(
         # plot histogram
         tick_pos_x = np.arange(len(date))
         tick_pos_y = np.arange(len(labels))
-        plt.imshow(values, cmap="autumn_r")
+        plt.imshow(values, cmap)
 
         # set x-axis properties
         def xtick(lab):
@@ -546,17 +546,18 @@ def plot_heatmap_b64(
             return lab
 
         # plt.xlim((0.0, float(len(date))))
-        plt.xticks(tick_pos_x, date, fontsize=14, rotation=90)
-        plt.yticks(tick_pos_y, [xtick(lab) for lab in labels], fontsize=14, rotation=90)
+        plt.xticks(tick_pos_x, date, fontsize=20, rotation=90)
+        plt.yticks(tick_pos_y, [xtick(lab) for lab in labels], fontsize=20)
         im_ratio = values.shape[0] / values.shape[1]
 
     # set common histogram properties
 
     # Plot vertical colorbar
-    plt.colorbar(fraction=0.047 * im_ratio)
+    cbar = plt.colorbar(fraction=0.047 * im_ratio)
+    cbar.ax.tick_params(labelsize=20) 
 
-    plt.xlabel("Time Bins", fontsize=14)
-    plt.ylabel(x_label, fontsize=14)
+    plt.xlabel("Time Bins", fontsize=20)
+    plt.ylabel(x_label, fontsize=20)
     plt.grid()
 
     return plt_to_str(fig)

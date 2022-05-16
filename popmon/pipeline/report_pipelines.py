@@ -70,6 +70,7 @@ class SelfReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
+        cmap="autumn_r",
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (full test set)
@@ -110,6 +111,7 @@ class SelfReference(Pipeline):
                 report_filepath=report_filepath,
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
+                cmap=cmap,
             ),
         ]
 
@@ -133,6 +135,7 @@ class ExternalReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
+        cmap="autumn_r",
         **kwargs,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
@@ -175,6 +178,7 @@ class ExternalReference(Pipeline):
                 report_filepath=report_filepath,
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
+                cmap=cmap,
             ),
         ]
 
@@ -198,6 +202,7 @@ class RollingReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
+        cmap="autumn_r",
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
@@ -240,6 +245,7 @@ class RollingReference(Pipeline):
                 report_filepath=report_filepath,
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
+                cmap=cmap,
             ),
         ]
 
@@ -263,6 +269,7 @@ class ExpandingReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
+        cmap="autumn_r",
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)
@@ -305,6 +312,7 @@ class ExpandingReference(Pipeline):
                 report_filepath=report_filepath,
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
+                cmap=cmap,
             ),
         ]
 
@@ -332,6 +340,7 @@ class ReportPipe(Pipeline):
         skip_last_n=0,
         plot_hist_n=6,
         disable_heatmap=None,
+        cmap="autumn_r",
     ):
         """Initialize an instance of Report.
 
@@ -378,6 +387,7 @@ class ReportPipe(Pipeline):
                 top_n=top_n,
                 description=descs.get("histograms", ""),
                 disable_heatmap=disable_heatmap,
+                cmap=cmap,
             ),
             # section showing all traffic light alerts of monitored statistics
             TrafficLightSectionGenerator(

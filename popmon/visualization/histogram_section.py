@@ -55,6 +55,7 @@ class HistogramSection(Module):
         hist_name_starts_with="histogram",
         description="",
         disable_heatmap=None,
+        cmap=None, 
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -82,6 +83,7 @@ class HistogramSection(Module):
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
         self.disable_heatmap = disable_heatmap or []
+        self.cmap = cmap
 
     def get_description(self):
         return self.section_name
@@ -131,7 +133,7 @@ class HistogramSection(Module):
             ]
 
             heatmaps = _plot_heatmap(
-                feature, dates, [h[0] for h in hists], self.top_n, self.disable_heatmap
+                feature, dates, [h[0] for h in hists], self.top_n, self.disable_heatmap, self.cmap
             )
 
             # filter out potential empty plots
@@ -188,10 +190,8 @@ def _plot_histograms(feature, date, hc_list, hist_names):
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             bins = numpy_1dhists[0][1]  # bins = bin-edges
         else:
-            # categorical
-            entries_list, bins = get_consistent_numpy_entries(
-                hc_list, get_bin_labels=True
-            )  # bins = bin-labels
+            #skip histogram. For cateforical features plot heatmap
+            return {"plot": ""}
         if len(bins) == 0:
             # skip empty histograms
             return date, ""
@@ -214,7 +214,7 @@ def _plot_histograms(feature, date, hc_list, hist_names):
     return {"name": date, "description": get_stat_description(date), "plot": plot}
 
 
-def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap):
+def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
 
     hist_names = [
         " Heatmap ",
@@ -298,7 +298,7 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap):
             return {"plot": ""}
 
         args = [
-            (hists[i], bins, date, feature, y_label, is_num, is_ts)
+            (hists[i], bins, date, feature, hist_names[i], y_label, is_num, is_ts, cmap)
             for i in range(len(hists))
         ]
         plot = parallel(plot_heatmap_b64, args)
