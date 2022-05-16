@@ -129,7 +129,7 @@ def check_interactive_backend():
     run_display = (
         display is None or not display.startswith(":") or not display[1].isdigit()
     )
-    return True if run_ipynb or not run_display else False
+    return run_ipynb or not run_display
 
 
 def in_ipynb():
@@ -147,6 +147,6 @@ def in_ipynb():
         from IPython.core import getipython as gip
 
         cfg = gip.get_ipython().config
-        return True if "IPKernelApp" in cfg.keys() else False
+        return "IPKernelApp" in cfg.keys()
     except (ModuleNotFoundError, AttributeError):
         return False
