@@ -59,11 +59,13 @@ def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
     x = {
         m: np.nan
         if (
-            any(r not in rdict or pd.isnull(rdict[r]) for r in [m, m + suffix_mean, m + suffix_std])
+            any(
+                r not in rdict or pd.isnull(rdict[r])
+                for r in [m, m + suffix_mean, m + suffix_std]
+            )
             or rdict[m + suffix_std] == 0.0
         )
-        else
-        (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
+        else (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
         for m in cols
     }
 
@@ -408,7 +410,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
     o = {
         hist_name + "_mean": None,
         hist_name + "_cov": None,
-        hist_name + "_binning": None
+        hist_name + "_binning": None,
     }
 
     # basic checks
@@ -463,7 +465,7 @@ def relative_chi_squared(
         "chi2": np.nan,
         "naive_pvalue": np.nan,
         "naive_zscore": np.nan,
-        "max_res": np.nan
+        "max_res": np.nan,
     }
 
     required = [

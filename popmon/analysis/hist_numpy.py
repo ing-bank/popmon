@@ -287,7 +287,7 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
 
     # collect list of consistent bin_entries
     if all_num:
-        kwargs = {'xvalues': labels}
+        kwargs = {"xvalues": labels}
     else:
         # PATCH: deal with boolean labels, which get bin_labels() returns as strings
         cat_labels = labels
@@ -295,12 +295,9 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
         if props["is_bool"]:
             cat_labels = [lab == "True" for lab in cat_labels]
 
-        kwargs = {'labels': cat_labels}
+        kwargs = {"labels": cat_labels}
 
-    entries_list = [
-        hist.bin_entries(**kwargs)
-        for hist in hist_list
-    ]
+    entries_list = [hist.bin_entries(**kwargs) for hist in hist_list]
 
     if get_bin_labels:
         return entries_list, labels

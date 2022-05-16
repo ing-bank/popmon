@@ -22,14 +22,14 @@ import histogrammar
 import histogrammar.specialized
 import numpy as np
 import pandas as pd
-from histogrammar.util import get_hist_props
 from histogrammar.specialized import (
     CategorizeHistogramMethods,
     HistogramMethods,
     SparselyHistogramMethods,
+    SparselyTwoDimensionallyHistogramMethods,
     TwoDimensionallyHistogramMethods,
-    SparselyTwoDimensionallyHistogramMethods
 )
+from histogrammar.util import get_hist_props
 
 COMMON_HIST_TYPES = (
     histogrammar.Categorize,
