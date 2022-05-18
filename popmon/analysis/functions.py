@@ -423,11 +423,11 @@ def normalized_hist_mean_cov(x, hist_name=""):
         )
         entries_list = np.array(entries_list, dtype=np.float)
     else:
-        entries_list, xkeys, ykeys = get_consistent_numpy_2dgrids(
+        entries_list, keys = get_consistent_numpy_2dgrids(
             hist_list, get_bin_labels=True
         )
         entries_list = np.array([h.flatten() for h in entries_list], dtype=np.float)
-        binning = (xkeys, ykeys)
+        binning = tuple(keys)
 
     # calculation of mean normalized histogram and its covariance matrix
     (
@@ -495,7 +495,7 @@ def relative_chi_squared(
         )
     else:
         assert len(binning) == 2
-        entries = set_2dgrid(hist, binning[0], binning[1])
+        entries = set_2dgrid(hist, [binning[0], binning[1]])
         entries = entries.flatten()
 
     # calculation of mean normalized histogram and its covariance matrix of input histogram
