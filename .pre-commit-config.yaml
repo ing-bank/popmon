@@ -16,7 +16,7 @@ repos:
         additional_dependencies:
             - flake8-comprehensions
             - tryceratops
-        args: [ "--select=E9,F63,F7,F82,C4,F401,TR004,TC200,TC201,TC202"]
+        args: [ "--ignore=E501,E203,W503,TC003,TC101,TC300"]
 -   repo: https://github.com/asottile/pyupgrade
     rev: v2.32.1
     hooks:
