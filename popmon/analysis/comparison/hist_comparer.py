@@ -35,8 +35,8 @@ from ...analysis.functions import (
 from ...analysis.hist_numpy import (
     check_similar_hists,
     get_consistent_numpy_1dhists,
-    get_consistent_numpy_2dgrids,
     get_consistent_numpy_entries,
+    get_consistent_numpy_ndgrids,
 )
 from ...base import Pipeline
 from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
@@ -110,13 +110,9 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
             labels2 = hist2.bin_labels()
             subset = set(labels1) <= set(labels2)
             x["unknown_labels"] = int(not subset)
-    elif hist1.n_dim == 2:
-        numpy_2dgrids = get_consistent_numpy_2dgrids([hist1, hist2])
-        entries_list = [entry.flatten() for entry in numpy_2dgrids]
     else:
-        raise NotImplementedError(
-            f"histogram with dimension {hist1.n_dim} is not supported"
-        )
+        numpy_ndgrids = get_consistent_numpy_ndgrids([hist1, hist2], dim=hist1.n_dim)
+        entries_list = [entry.flatten() for entry in numpy_ndgrids]
 
     # calculate pearson coefficient
     pearson, pvalue = (np.nan, np.nan)

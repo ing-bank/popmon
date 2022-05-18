@@ -29,44 +29,102 @@ from ..hist.hist_utils import is_numeric
 used_hist_types = (histogrammar.Bin, histogrammar.SparselyBin, histogrammar.Categorize)
 
 
+def prepare_ndgrid(hist, n_dim):
+    """Get lists of all unique combinations of keys
+
+    Used as input by get_ndgrid(hist).
+
+    :param hist: input histogrammar histogram
+    :return: n sorted lists of keys
+    """
+
+    if hist.n_dim < n_dim:
+        warnings.warn(
+            f"Input histogram only has {hist.n_dim} dimensions (<{n_dim}). Returning empty lists."
+        )
+        return [[] for _ in range(n_dim)]
+
+    def get_hist_keys(h):
+        if hasattr(h, "bins"):
+            return set(h.bins.keys())
+        elif hasattr(h, "values"):
+            return set(range(len(h.values)))
+        else:
+            raise TypeError()
+
+    # SparselyBin or Categorize
+    def keys_recursive(hist, hist_keys, idx):
+        hist_keys[idx] |= get_hist_keys(hist)
+        if (idx + 1) < len(hist_keys):
+            if hasattr(hist, "bins"):
+                for h in hist.bins.values():
+                    hist_keys = keys_recursive(h, hist_keys, idx + 1)
+            elif hasattr(hist, "values"):
+                for h in hist.values:
+                    hist_keys = keys_recursive(h, hist_keys, idx + 1)
+            else:
+                raise TypeError()
+        return hist_keys
+
+    keys = [set() for _ in range(n_dim)]
+    keys = keys_recursive(hist, keys, 0)
+    keys = [sorted(k) for k in keys]
+    return keys
+
+
 def prepare_2dgrid(hist):
     """Get lists of all unique x and y keys
 
     Used as input by get_2dgrid(hist).
 
     :param hist: input histogrammar histogram
-    :return: two comma-separated lists of unique x and y keys
+    :return: two sorted lists of unique x and y keys
     """
-    if hist.n_dim < 2:
+    return prepare_ndgrid(hist, n_dim=2)
+
+
+def set_ndgrid(hist, keys, n_dim):
+    """Set n-d grid of first n dimensions of input histogram
+
+    Used as input by get_ndgrid(hist).
+
+    :param hist: input histogrammar histogram
+    :param list keys: list with unique keys per dim
+    :return: filled nd numpy grid
+    """
+    shape = [len(k) for k in reversed(keys)]
+    grid = np.zeros(shape)
+
+    if hist.n_dim < n_dim:
         warnings.warn(
-            "Input histogram only has {n} dimensions (<2). Returning empty lists.".format(
-                n=hist.n_dim
-            )
+            f"Input histogram only has {hist.n_dim} dimensions (<{n_dim}). Returning empty grid."
         )
-        return [], []
+        return grid
 
-    xkeys = set()
-    ykeys = set()
-    # SparselyBin or Categorize
-    if hasattr(hist, "bins"):
-        xkeys = xkeys.union(hist.bins.keys())
-        for h in hist.bins.values():
-            if hasattr(h, "bins"):
-                ykeys = ykeys.union(h.bins.keys())
-            elif hasattr(h, "values"):
-                ykeys = ykeys.union(range(len(h.values)))
-    # Bin
-    elif hasattr(hist, "values"):
-        xkeys = xkeys.union(range(len(hist.values)))
-        for h in hist.values:
-            if hasattr(h, "bins"):
-                ykeys = ykeys.union(h.bins.keys())
-            elif hasattr(h, "values"):
-                ykeys = ykeys.union(range(len(h.values)))
-    return sorted(xkeys), sorted(ykeys)
+    def flatten(histogram, keys, grid, dim=0, prefix=None):
+        if prefix is None:
+            prefix = []
+
+        if len(keys) == len(prefix):
+            grid[tuple(prefix)] = histogram.entries
+        else:
+            if hasattr(histogram, "bins"):
+                for k, h in histogram.bins.items():
+                    if k not in keys[dim]:
+                        continue
+                    i = keys[dim].index(k)
+                    flatten(h, keys, grid, dim + 1, [i] + prefix)
+            elif hasattr(histogram, "values"):
+                for i, h in enumerate(histogram.values):
+                    flatten(h, keys, grid, dim + 1, [i] + prefix)
+            else:
+                raise TypeError()
+
+    flatten(hist, keys, grid)
+    return grid
 
 
-def set_2dgrid(hist, xkeys, ykeys):
+def set_2dgrid(hist, keys):
     """Set 2d grid of first two dimenstions of input histogram
 
     Used as input by get_2dgrid(hist).
@@ -76,43 +134,27 @@ def set_2dgrid(hist, xkeys, ykeys):
     :param list ykeys: list with unique y keys
     :return: filled 2d numpy grid
     """
-    grid = np.zeros((len(ykeys), len(xkeys)))
+    return set_ndgrid(hist, keys, n_dim=2)
 
-    if hist.n_dim < 2:
+
+def get_ndgrid(hist, get_bin_labels=False, n_dim=2):
+    """Get filled n-d grid of first n dimensions of input histogram
+
+    :param hist: input histogrammar histogram
+    :return: grid of first n dimenstions of input histogram
+    """
+    if hist.n_dim < n_dim:
         warnings.warn(
-            "Input histogram only has {n} dimensions (<2). Returning original grid.".format(
-                n=hist.n_dim
-            )
+            f"Input histogram only has {hist.n_dim} dimensions (<{n_dim}). Returning empty grid."
         )
-        return grid
+        return np.zeros(tuple([0] * n_dim))
 
-    # SparselyBin or Categorize
-    if hasattr(hist, "bins"):
-        for k, h in hist.bins.items():
-            if k not in xkeys:
-                continue
-            i = xkeys.index(k)
-            if hasattr(h, "bins"):
-                for ll, g in h.bins.items():
-                    if ll not in ykeys:
-                        continue
-                    j = ykeys.index(ll)
-                    grid[j, i] = g.entries  # sum_entries(g)
-            elif hasattr(h, "values"):
-                for j, g in enumerate(h.values):
-                    grid[j, i] = g.entries
-    # Bin
-    elif hasattr(hist, "values"):
-        for i, h in enumerate(hist.values):
-            if hasattr(h, "bins"):
-                for ll, g in h.bins.items():
-                    if ll not in ykeys:
-                        continue
-                    j = ykeys.index(ll)
-                    grid[j, i] = g.entries
-            elif hasattr(h, "values"):
-                for j, g in enumerate(h.values):
-                    grid[j, i] = g.entries
+    keys = prepare_ndgrid(hist, n_dim)
+    grid = set_ndgrid(hist, keys, n_dim)
+
+    if get_bin_labels:
+        return grid, keys
+
     return grid
 
 
@@ -122,23 +164,39 @@ def get_2dgrid(hist, get_bin_labels=False):
     :param hist: input histogrammar histogram
     :return: x,y grid of first two dimenstions of input histogram
     """
-    import numpy as np
+    return get_ndgrid(hist, get_bin_labels, n_dim=2)
 
-    if hist.n_dim < 2:
-        warnings.warn(
-            "Input histogram only has {n} dimensions (<2). Returning empty grid.".format(
-                n=hist.n_dim
-            )
+
+def get_consistent_numpy_ndgrids(hist_list=[], get_bin_labels=False, dim=3):
+    """Get list of consistent x,y grids of first n dimensions of (sparse) input histograms
+
+    :param list hist_list: list of input histogrammar histograms
+    :param bool get_bin_labels: if true, return x-keys and y-keys describing binnings of 2d-grid.
+    :param int dim: number of dimension (>= 3)
+    :return: list of consistent x,y grids of first two dimensions of each input histogram in list
+    """
+    # --- basic checks
+    if len(hist_list) == 0:
+        raise ValueError("Input histogram list has zero length.")
+    if hist_list[0].n_dim < dim:
+        raise ValueError(
+            f"Input histogram only has {hist_list[0].n_dim} dimensions (<{dim}). Cannot compute {dim}d-grid."
         )
-        return np.zeros((0, 0))
+    assert_similar_hists(hist_list)
 
-    xkeys, ykeys = prepare_2dgrid(hist)
-    grid = set_2dgrid(hist, xkeys, ykeys)
+    keys = [set() for _ in range(dim)]
+    for hist in hist_list:
+        hist_keys = prepare_ndgrid(hist, n_dim=dim)
+        for i, h_keys in enumerate(hist_keys):
+            keys[i] |= set(h_keys)
+    keys = [sorted(k) for k in keys]
+
+    gridnd_list = [set_ndgrid(hist, keys, n_dim=dim) for hist in hist_list]
 
     if get_bin_labels:
-        return grid, xkeys, ykeys
+        return gridnd_list, keys
 
-    return grid
+    return gridnd_list
 
 
 def get_consistent_numpy_2dgrids(hist_list=[], get_bin_labels=False):
@@ -148,34 +206,7 @@ def get_consistent_numpy_2dgrids(hist_list=[], get_bin_labels=False):
     :param bool get_bin_labels: if true, return x-keys and y-keys describing binnings of 2d-grid.
     :return: list of consistent x,y grids of first two dimensions of each input histogram in list
     """
-    # --- basic checks
-    if len(hist_list) == 0:
-        raise ValueError("Input histogram list has zero length.")
-    assert_similar_hists(hist_list)
-
-    xkeys = set()
-    ykeys = set()
-    for hist in hist_list:
-        if hist.n_dim < 2:
-            raise ValueError(
-                "Input histogram only has {n} dimensions (<2). Cannot compute 2d-grid.".format(
-                    n=hist.n_dim
-                )
-            )
-        x, y = prepare_2dgrid(hist)
-        xkeys = xkeys.union(x)
-        ykeys = ykeys.union(y)
-    xkeys = sorted(xkeys)
-    ykeys = sorted(ykeys)
-
-    grid2d_list = []
-    for hist in hist_list:
-        grid2d_list.append(set_2dgrid(hist, xkeys, ykeys))
-
-    if get_bin_labels:
-        return grid2d_list, xkeys, ykeys
-
-    return grid2d_list
+    return get_consistent_numpy_ndgrids(hist_list, get_bin_labels, dim=2)
 
 
 def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):

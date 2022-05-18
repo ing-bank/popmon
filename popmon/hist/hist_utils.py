@@ -19,6 +19,7 @@
 
 
 import histogrammar
+import histogrammar.specialized
 import numpy as np
 import pandas as pd
 from histogrammar.util import get_hist_props

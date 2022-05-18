@@ -47,6 +47,7 @@ class HistProfiler(Module):
     - 1 dim histograms, numeric: mean, std, min, max, p01, p05, p16, p50, p84, p95, p99.
     - 1 dim histograms, boolean: fraction of true entries.
     - 2 dim histograms: count, phi_k correlation constant, p-value and Z-score of contingency test.
+    - n dim histograms: count (n >= 3)
 
     :param str read_key: key of the input test data to read from the datastore
     :param str store_key: key of the output data to store in the datastore
@@ -91,6 +92,7 @@ class HistProfiler(Module):
             "underflow",
         ]
         self.general_stats_2d = ["count", "phik"]
+        self.general_stats_nd = ["count"]
         self.category_stats_1d = ["fraction_true"]
         self.stats_functions = stats_functions
         if self.stats_functions is None:
@@ -159,7 +161,7 @@ class HistProfiler(Module):
             self.logger.warning(
                 f"Histogram {name} has {hist.n_dim} dimensions (<2); cannot profile. Returning empty."
             )
-            return []
+            return {}
         try:
             grid = get_2dgrid(hist)
         except Exception:
@@ -178,6 +180,17 @@ class HistProfiler(Module):
             phi_k = np.nan
 
         return {"count": sume, "phik": phi_k}
+
+    def _profile_nd_histogram(self, name, hist):
+        if hist.n_dim < 3:
+            self.logger.warning(
+                f"Histogram {name} has {hist.n_dim} dimensions (<3); cannot profile. Returning empty."
+            )
+            return {}
+
+        # calc some basic nd-histogram statistics
+        sume = int(sum_entries(hist))
+        return {"count": sume}
 
     def _profile_hist(self, split, hist_name):
         if len(split) == 0:
@@ -199,7 +212,7 @@ class HistProfiler(Module):
         elif dimension == 2:
             fields = list(self.general_stats_2d)
         else:
-            fields = []
+            fields = list(self.general_stats_nd)
 
         # now loop over split-axis, e.g. time index, and profile each sub-hist x:y
         profile_list = []
@@ -212,6 +225,8 @@ class HistProfiler(Module):
                 profile.update(self._profile_1d_histogram(hist_name, hist))
             elif dimension == 2:
                 profile.update(self._profile_2d_histogram(hist_name, hist))
+            else:
+                profile.update(self._profile_nd_histogram(hist_name, hist))
 
             if sorted(profile.keys()) != sorted(
                 fields + [self.index_col, self.hist_col]
