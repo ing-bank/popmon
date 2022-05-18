@@ -99,9 +99,7 @@ class HistogramSection(Module):
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
-            print(self.last_n)
             last_n = len(df.index) if len(df.index) < self.last_n else self.last_n
-            print(last_n)
             hist_names = [hn for hn in self.hist_names if hn in df.columns]
             if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
                 # if no columns are given, find histogram columns.
