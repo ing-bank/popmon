@@ -560,7 +560,7 @@ def plot_heatmap_b64(
     plt.ylabel(x_label, fontsize=20)
     plt.grid()
 
-    return plt_to_str(fig)
+    return {"name": hist_name, "plot": plt_to_str(fig)}
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):

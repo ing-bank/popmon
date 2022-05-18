@@ -77,7 +77,7 @@ class HistogramSection(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
-        self.last_n = last_n if last_n >= 1 else 1
+        self.last_n = last_n if last_n >= 0 else 0
         self.top_n = top_n if top_n >= 1 and top_n <= 20 else 20
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
@@ -99,8 +99,9 @@ class HistogramSection(Module):
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
-
+            print(self.last_n)
             last_n = len(df.index) if len(df.index) < self.last_n else self.last_n
+            print(last_n)
             hist_names = [hn for hn in self.hist_names if hn in df.columns]
             if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
                 # if no columns are given, find histogram columns.
@@ -113,18 +114,6 @@ class HistogramSection(Module):
                 )
                 continue
 
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
-            dates = [short_date(str(date)) for date in df.index[-last_n:]]
-            hists = [
-                df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
-            ]
-
-            args = [(feature, dates[i], hists[i], hist_names) for i in range(last_n)]
-            plots = parallel(_plot_histograms, args)
-
-            # filter out potential empty plots
-            plots = [e for e in plots if len(e["plot"])]
-
             # base64 heatmap plot for each metric
             dates = [short_date(str(date)) for date in df.index[:]]
             hists = [
@@ -132,6 +121,7 @@ class HistogramSection(Module):
                 for i in reversed(range(1, len(dates) + 1))
             ]
 
+            # compute heatmaps
             heatmaps = _plot_heatmap(
                 feature,
                 dates,
@@ -141,15 +131,30 @@ class HistogramSection(Module):
                 self.cmap,
             )
 
+            # get base64 encoded plot for each metric; do parallel processing to speed up.
+            dates = [short_date(str(date)) for date in df.index[-last_n:]]
+            hists = [
+                df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
+            ]
+
+            args = [
+                (feature, dates[i], hists[i], hist_names, self.top_n)
+                for i in range(last_n)
+            ]
+            plots = parallel(_plot_histograms, args)
+
             # filter out potential empty plots
+            plots = [e for e in plots if len(e["plot"])]
+            plots = sorted(plots, key=lambda plot: plot["name"])
+
+            # filter out potential empty heatmap plots
             for h in heatmaps:
                 if isinstance(h, dict):
                     if len(h["plot"]):
                         plots.append(h)
 
-            features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
-            )
+            features_w_metrics.append({"name": feature, "plots": plots})
+
         sections.append(
             {
                 "section_title": self.section_name,
@@ -160,7 +165,7 @@ class HistogramSection(Module):
         return sections
 
 
-def _plot_histograms(feature, date, hc_list, hist_names):
+def _plot_histograms(feature, date, hc_list, hist_names, top_n):
     """Split off plot histogram generation to allow for parallel processing
 
     :param str feature: feature
@@ -195,8 +200,11 @@ def _plot_histograms(feature, date, hc_list, hist_names):
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             bins = numpy_1dhists[0][1]  # bins = bin-edges
         else:
-            # skip histogram. For cateforical features plot heatmap
-            return {"plot": ""}
+            # categorical
+            entries_list, bins = get_consistent_numpy_entries(
+                hc_list, get_bin_labels=True
+            )  # bins = bin-labels
+
         if len(bins) == 0:
             # skip empty histograms
             return date, ""
@@ -207,6 +215,15 @@ def _plot_histograms(feature, date, hc_list, hist_names):
                 el / hc.entries if hc.entries > 0 else el
                 for el, hc in zip(entries_list, hc_list)
             ]
+        # if categorical
+        if not is_num:
+            # get top_n categories for histogram
+            if len(bins) > top_n:
+                entries_list = np.stack(entries_list, axis=1)
+                entries_list, bins = get_top_categories(entries_list, bins, top_n)
+                entries_list = np.stack(entries_list, axis=1)
+                entries_list = np.reshape(entries_list.ravel(), (-1, len(bins)))
+
         hists = [(el, bins) for el in entries_list]
         plot = plot_overlay_1d_histogram_b64(
             hists, feature, hist_names, y_label, is_num, is_ts
@@ -228,14 +245,14 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
     ]
 
     for d in disable_heatmap:
-        if d not in ["normal", "row", "column"]:
-            raise ValueError("invalid argument in disable_heatmap: ", d)
         if d == "normal":
             hist_names.remove(" Heatmap ")
         elif d == "row":
+            hist_names.remove(" Row Normalized Heatmap ")
+        elif d == "column":
             hist_names.remove(" Column Normalized Heatmap ")
         else:
-            hist_names.remove(" Row Normalized Heatmap ")
+            raise ValueError("invalid argument in disable_heatmap: ", d)
 
     # basic checks
     if len(hist_names) <= 0:
@@ -303,19 +320,24 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
             return {"plot": ""}
 
         args = [
-            (hists[i], bins, date, feature, hist_names[i], y_label, is_num, is_ts, cmap)
-            for i in range(len(hists))
+            (hist, bins, date, feature, hist_name, y_label, is_num, is_ts, cmap)
+            for hist, hist_name in zip(hists, hist_names)
         ]
-        plot = parallel(plot_heatmap_b64, args)
+        heatmaps = parallel(plot_heatmap_b64, args)
+
+        if isinstance(heatmaps, list):
+            plot = [hist_lookup(heatmaps, hist_name) for hist_name in hist_names]
+        elif isinstance(heatmaps, dict):
+            plot = [heatmaps["plot"]]
 
         plots = [
             {
-                "name": feature + hist_names[i],
+                "name": feature + hist_name,
                 "description": get_stat_description(date[0]),
-                "plot": plot[i],
+                "plot": pl,
                 "full_width": True,
             }
-            for i in range(len(hists))
+            for pl, hist_name in zip(plot, hist_names)
         ]
 
     elif hc_list[0].n_dim == 2:
@@ -345,3 +367,9 @@ def get_top_categories(entries_list, bins, top_n):
     bins.append("Others")
 
     return top_rows, bins
+
+
+def hist_lookup(plot, hist_name):
+    for pl in plot:
+        if pl["name"] == hist_name:
+            return pl["plot"]
