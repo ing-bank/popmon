@@ -151,7 +151,8 @@ class HistComparer(Pipeline):
         store_key,
         assign_to_key=None,
         hist_col="histogram",
-        suffix="comp",
+        suffix="prev",
+        prefix="prev",
         max_res_bound=7.0,
         *args,
         **kwargs,
@@ -163,7 +164,8 @@ class HistComparer(Pipeline):
         :param str store_key: key of output data to store in data store
         :param str assign_to_key: key of the input data to assign function applied-output to. (optional)
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
-        :param str suffix: column/key of rolling histogram. default is 'roll' -> column = 'histogram_roll'
+        :param str suffix: column/key of rolling histogram. default is 'ref' -> column = 'histogram_ref'
+        :param str prefix: column/key of comparisons. default is 'comp' -> column = 'comp_pearson'
         :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
                                     Default is 7.0.
         :param args: (tuple, optional): residual args passed on to func_mean and func_std
@@ -189,7 +191,7 @@ class HistComparer(Pipeline):
                     "func": hist_compare,
                     "hist_name1": hist_col,
                     "hist_name2": hist_col + "_" + suffix,
-                    "prefix": suffix,
+                    "prefix": prefix,
                     "axis": 1,
                     "max_res_bound": max_res_bound,
                 }
@@ -210,6 +212,7 @@ class RollingHistComparer(HistComparer):
         shift=1,
         hist_col="histogram",
         suffix="roll",
+        prefix="rolling",
         max_res_bound=7.0,
     ):
         """Initialize an instance of RollingHistComparer.
@@ -230,6 +233,7 @@ class RollingHistComparer(HistComparer):
             read_key,
             hist_col,
             suffix,
+            prefix,
             max_res_bound,
             window=window,
             shift=shift,
@@ -286,6 +290,7 @@ class ExpandingHistComparer(HistComparer):
         shift=1,
         hist_col="histogram",
         suffix="expanding",
+        prefix="expanding",
         max_res_bound=7.0,
     ):
         """Initialize an instance of ExpandingHistComparer.
@@ -305,6 +310,7 @@ class ExpandingHistComparer(HistComparer):
             read_key,
             hist_col,
             suffix,
+            prefix,
             max_res_bound,
             shift=shift,
             hist_name=hist_col,
@@ -328,6 +334,7 @@ class ReferenceHistComparer(HistComparer):
         store_key,
         hist_col="histogram",
         suffix="ref",
+        prefix="reference",
         max_res_bound=7.0,
     ):
         """Initialize an instance of ReferenceHistComparer.
@@ -347,6 +354,7 @@ class ReferenceHistComparer(HistComparer):
             assign_to_key,
             hist_col,
             suffix,
+            prefix,
             max_res_bound,
             metrics=[hist_col],
         )
