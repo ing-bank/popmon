@@ -44,27 +44,32 @@ def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
     :param str suffix_mean: suffix of mean. mean column = metric + suffix_mean
     :param str suffix_std: suffix of std. std column = metric + suffix_std
     """
-    x = pd.Series()
+
+    rdict = row.to_dict()
     if cols is None or len(cols) == 0:
         # if no columns are given, find columns for which pulls can be calculated.
         # e.g. to calculate x_pull, need to have [x, x_mean, x_std] present. If so, put x in cols.
-        cols = []
-        for m in row.index.to_list()[:]:
-            if m not in cols:
-                required = [m, m + suffix_mean, m + suffix_std]
-                if all(r in row for r in required):
-                    cols.append(m)
-    for m in cols:
-        x[m] = np.nan
-        required = [m, m + suffix_mean, m + suffix_std]
-        if not all(r in row for r in required):
-            continue
-        if any(pd.isnull(row[required])):
-            continue
-        if row[m + suffix_std] == 0.0:
-            continue
-        x[m] = (row[m] - row[m + suffix_mean]) / row[m + suffix_std]
-    return x
+        indices = list(rdict.keys())
+        cols = [
+            m
+            for m in set(indices)
+            if all(r in indices for r in [m + suffix_mean, m + suffix_std])
+        ]
+
+    x = {
+        m: np.nan
+        if (
+            any(
+                r not in rdict or pd.isnull(rdict[r])
+                for r in [m, m + suffix_mean, m + suffix_std]
+            )
+            or rdict[m + suffix_std] == 0.0
+        )
+        else (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
+        for m in cols
+    }
+
+    return pd.Series(x)
 
 
 def expanding_mean(df, shift=1):
@@ -327,17 +332,16 @@ def hist_sum(x, hist_name=""):
         raise ValueError("List of input histograms is empty.")
 
     # initialize
-    o = pd.Series()
-    o[hist_name] = None
+    o = {hist_name: None}
 
     # basic checks
-    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    all_hist = all(isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list)
     if not all_hist:
-        return o
+        return pd.Series(o)
 
     similar = check_similar_hists(hist_list)
     if not similar:
-        return o
+        return pd.Series(o)
 
     # MB FIX: h_sum not initialized correctly in a sum by histogrammar for sparselybin (origin); below it is.
     # h_sum = np.sum([hist for hist in hist_list])
@@ -346,7 +350,7 @@ def hist_sum(x, hist_name=""):
     for hist in hist_list:
         h_sum += hist
     o[hist_name] = h_sum
-    return o
+    return pd.Series(o)
 
 
 def roll_norm_hist_mean_cov(df, window, shift=1, *args, **kwargs):
@@ -403,18 +407,19 @@ def normalized_hist_mean_cov(x, hist_name=""):
         raise ValueError("List of input histograms is empty.")
 
     # initialize
-    o = pd.Series()
-    o[hist_name + "_mean"] = None
-    o[hist_name + "_cov"] = None
-    o[hist_name + "_binning"] = None
+    o = {
+        hist_name + "_mean": None,
+        hist_name + "_cov": None,
+        hist_name + "_binning": None,
+    }
 
     # basic checks
-    all_hist = all([isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list])
+    all_hist = all(isinstance(hist, COMMON_HIST_TYPES) for hist in hist_list)
     if not all_hist:
-        return o
+        return pd.Series(o)
     similar = check_similar_hists(hist_list)
     if not similar:
-        return o
+        return pd.Series(o)
 
     # get entries as numpy arrays
     if hist_list[0].n_dim == 1:
@@ -423,11 +428,11 @@ def normalized_hist_mean_cov(x, hist_name=""):
         )
         entries_list = np.array(entries_list, dtype=np.float)
     else:
-        entries_list, xkeys, ykeys = get_consistent_numpy_2dgrids(
+        entries_list, keys = get_consistent_numpy_2dgrids(
             hist_list, get_bin_labels=True
         )
         entries_list = np.array([h.flatten() for h in entries_list], dtype=np.float)
-        binning = (xkeys, ykeys)
+        binning = tuple(keys)
 
     # calculation of mean normalized histogram and its covariance matrix
     (
@@ -438,7 +443,7 @@ def normalized_hist_mean_cov(x, hist_name=""):
     o[hist_name + "_mean"] = normalized_hist_mean
     o[hist_name + "_cov"] = normalized_hist_covariance
     o[hist_name + "_binning"] = binning
-    return o
+    return pd.Series(o)
 
 
 def relative_chi_squared(
@@ -456,11 +461,12 @@ def relative_chi_squared(
     :param str suffix_std: suffix of std. std column = hist_name + suffix_std (optional)
     :param str suffix_binning: suffix of binning. binning column = hist_name + suffix_binning (optional)
     """
-    x = pd.Series()
-    x["chi2"] = np.nan
-    x["naive_pvalue"] = np.nan
-    x["naive_zscore"] = np.nan
-    x["max_res"] = np.nan
+    x = {
+        "chi2": np.nan,
+        "naive_pvalue": np.nan,
+        "naive_zscore": np.nan,
+        "max_res": np.nan,
+    }
 
     required = [
         hist_name,
@@ -469,7 +475,7 @@ def relative_chi_squared(
         hist_name + suffix_binning,
     ]
     if not all(r in row for r in required):
-        return x
+        return pd.Series(x)
 
     hist = row[hist_name]
     norm_mean = row[hist_name + suffix_mean]
@@ -478,11 +484,11 @@ def relative_chi_squared(
 
     # basic checks
     if not isinstance(hist, COMMON_HIST_TYPES):
-        return x
-    if any([ho is None for ho in [norm_mean, cov, binning]]):
-        return x
+        return pd.Series(x)
+    if any(ho is None for ho in [norm_mean, cov, binning]):
+        return pd.Series(x)
     if len(cov.shape) != 2 or len(norm_mean.shape) != 1:
-        return x
+        return pd.Series(x)
 
     variance = np.diagonal(cov)
 
@@ -495,7 +501,7 @@ def relative_chi_squared(
         )
     else:
         assert len(binning) == 2
-        entries = set_2dgrid(hist, binning[0], binning[1])
+        entries = set_2dgrid(hist, [binning[0], binning[1]])
         entries = entries.flatten()
 
     # calculation of mean normalized histogram and its covariance matrix of input histogram
@@ -540,4 +546,4 @@ def relative_chi_squared(
     x["naive_pvalue"] = p_value
     x["naive_zscore"] = z_score
     x["max_res"] = max_resid
-    return x
+    return pd.Series(x)

@@ -30,7 +30,7 @@ def short_date(date: str):
 
 def filter_metrics(metrics, ignore_stat_endswith, show_stats: Optional[Iterable]):
     metrics = [
-        m for m in metrics if not any([m.endswith(s) for s in ignore_stat_endswith])
+        m for m in metrics if not any(m.endswith(s) for s in ignore_stat_endswith)
     ]
     if show_stats is not None:
         metrics = [

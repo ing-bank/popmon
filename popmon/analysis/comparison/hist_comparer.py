@@ -35,8 +35,8 @@ from ...analysis.functions import (
 from ...analysis.hist_numpy import (
     check_similar_hists,
     get_consistent_numpy_1dhists,
-    get_consistent_numpy_2dgrids,
     get_consistent_numpy_entries,
+    get_consistent_numpy_ndgrids,
 )
 from ...base import Pipeline
 from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
@@ -81,14 +81,14 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     if len(hist_name1) == 0 or len(hist_name2) == 0 and len(cols) == 2:
         hist_name1 = cols[0]
         hist_name2 = cols[1]
-    if not all([name in cols for name in [hist_name1, hist_name2]]):
+    if not all(name in cols for name in [hist_name1, hist_name2]):
         raise ValueError("Need to provide two histogram column names.")
 
     # basic histogram checks
     hist1 = row[hist_name1]
     hist2 = row[hist_name2]
     if not all(
-        [isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]]
+        isinstance(hist, COMMON_HIST_TYPES) for hist in [hist1, hist2]
     ) or not check_similar_hists([hist1, hist2]):
         return pd.Series(x)
 
@@ -106,17 +106,13 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
         else:  # categorical
             entries_list = get_consistent_numpy_entries([hist1, hist2])
             # check consistency of bin_labels
-            labels1 = hist1.bin_labels()
-            labels2 = hist2.bin_labels()
-            subset = set(labels1) <= set(labels2)
+            labels1 = hist1.keySet
+            labels2 = hist2.keySet
+            subset = labels1 <= labels2
             x["unknown_labels"] = int(not subset)
-    elif hist1.n_dim == 2:
-        numpy_2dgrids = get_consistent_numpy_2dgrids([hist1, hist2])
-        entries_list = [entry.flatten() for entry in numpy_2dgrids]
     else:
-        raise NotImplementedError(
-            f"histogram with dimension {hist1.n_dim} is not supported"
-        )
+        numpy_ndgrids = get_consistent_numpy_ndgrids([hist1, hist2], dim=hist1.n_dim)
+        entries_list = [entry.flatten() for entry in numpy_ndgrids]
 
     # calculate pearson coefficient
     pearson, pvalue = (np.nan, np.nan)
@@ -128,14 +124,17 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
             pearson, pvalue = pearsonr(*entries_list)
 
     chi2, chi2_norm, zscore, pvalue, res = uu_chi2(*entries_list)
+    abs_residual = np.abs(res)
+    chi2_max_residual = np.max(abs_residual)
+    chi2_spike_count = np.sum(abs_residual[abs_residual > max_res_bound])
 
     x["pearson"] = pearson
     x["chi2"] = chi2
     x["chi2_norm"] = chi2_norm
     x["chi2_zscore"] = zscore
     x["chi2_pvalue"] = pvalue
-    x["chi2_max_residual"] = max(list(map(abs, res)))
-    x["chi2_spike_count"] = sum(abs(r) > max_res_bound for r in res)
+    x["chi2_max_residual"] = chi2_max_residual
+    x["chi2_spike_count"] = chi2_spike_count
     for key, func in Comparisons.get_comparisons().items():
         x[key] = func(*entries_list)
     return pd.Series(x)

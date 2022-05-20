@@ -139,9 +139,9 @@ def test_set_2dgrid():
     xkeys2, ykeys2 = prepare_2dgrid(hist2)
     xkeys3, ykeys3 = prepare_2dgrid(hist3)
 
-    grid1 = set_2dgrid(hist1, xkeys1, ykeys1)
-    grid2 = set_2dgrid(hist2, xkeys2, ykeys2)
-    grid3 = set_2dgrid(hist3, xkeys3, ykeys3)
+    grid1 = set_2dgrid(hist1, [xkeys1, ykeys1])
+    grid2 = set_2dgrid(hist2, [xkeys2, ykeys2])
+    grid3 = set_2dgrid(hist3, [xkeys3, ykeys3])
 
     grid_comp = np.asarray(
         [
@@ -210,11 +210,13 @@ def test_get_consistent_numpy_2dgrids():
     hist1.fill.numpy(df1)
     hist2.fill.numpy(df2)
 
-    args = [""]
-    try:
+    with pytest.raises(ValueError) as e:
         get_consistent_numpy_2dgrids([hist0, hist0])
-    except ValueError as e:
-        args = e.args
+
+    assert (
+        e.value.args[0]
+        == "Input histogram only has 1 dimensions (<2). Cannot compute 2d-grid."
+    )
 
     grid2d_list = get_consistent_numpy_2dgrids([hist1, hist2])
 
@@ -245,11 +247,6 @@ def test_get_consistent_numpy_2dgrids():
         ]
     )
     grid2d_comp = [g1, g2]
-
-    # MB 20190828: not sure if this is the right way to test for exceptions.
-    assert (
-        args[0] == "Input histogram only has 1 dimensions (<2). Cannot compute 2d-grid."
-    )
 
     for i in range(2):
         assert (grid2d_list[i] == grid2d_comp[i]).all()

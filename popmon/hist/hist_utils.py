@@ -19,20 +19,27 @@
 
 
 import histogrammar
+import histogrammar.specialized
 import numpy as np
 import pandas as pd
+from histogrammar.specialized import (
+    CategorizeHistogramMethods,
+    HistogramMethods,
+    SparselyHistogramMethods,
+    SparselyTwoDimensionallyHistogramMethods,
+    TwoDimensionallyHistogramMethods,
+)
 from histogrammar.util import get_hist_props
 
 COMMON_HIST_TYPES = (
     histogrammar.Categorize,
     histogrammar.Bin,
     histogrammar.SparselyBin,
-    histogrammar.specialized.CategorizeHistogramMethods,
-    histogrammar.specialized.HistogramMethods,
-    histogrammar.specialized.SparselyHistogramMethods,
-    histogrammar.specialized.CategorizeHistogramMethods,
-    histogrammar.specialized.TwoDimensionallyHistogramMethods,
-    histogrammar.specialized.SparselyTwoDimensionallyHistogramMethods,
+    CategorizeHistogramMethods,
+    HistogramMethods,
+    SparselyHistogramMethods,
+    TwoDimensionallyHistogramMethods,
+    SparselyTwoDimensionallyHistogramMethods,
 )
 
 HG_FACTORY = histogrammar.Factory()

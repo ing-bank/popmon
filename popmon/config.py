@@ -17,7 +17,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import multiprocessing
 from fnmatch import fnmatch
 
 from popmon.analysis.comparison.comparisons import Comparisons
@@ -80,6 +79,14 @@ section_descriptions = {
     "histograms": "Histograms of the last few time slots (default: 2).",
 }
 
+histograms = {
+    "heatmap": "The heatmap shows the frequency of each value over time. If a variable has a high number of distinct values"
+    "(i.e. has a high cardinality), then the most frequent values are displayed and the remaining are grouped as 'Others'. "
+    "The maximum number of values to should is configurable (default: 20).",
+    "heatmap_column_normalized": "The column-normalized heatmap allows for comparing of time bins when the counts in each bin vary.",
+    "heatmap_row_normalized": "The row-normalized heatmaps allows for monitoring one value over time.",
+}
+
 config = {
     "section_descriptions": section_descriptions,
     "limited_stats": [
@@ -117,6 +124,9 @@ def get_stat_description(name: str):
     if not isinstance(name, str):
         raise TypeError("Statistic's name should be a string.")
 
+    if name in histograms:
+        return histograms[name]
+
     if name in profiles:
         return profiles[name]
     if name in alerts:
@@ -137,4 +147,7 @@ def get_stat_description(name: str):
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
-parallel_args = {"n_jobs": multiprocessing.cpu_count()}
+parallel_args = {"n_jobs": 1}
+
+# Usage the `ing_matplotlib_theme`
+themed = True

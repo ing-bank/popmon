@@ -72,8 +72,8 @@ def fraction_of_true(bin_labels, bin_entries):
         # convert string to boolean
         bin_labels = np.array([replace(bl) for bl in bin_labels])
 
-    sum_true = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl == True])
-    sum_false = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl == False])
+    sum_true = np.sum([be for bl, be in zip(bin_labels, bin_entries) if bl])
+    sum_false = np.sum([be for bl, be in zip(bin_labels, bin_entries) if not bl])
     sum_entries = sum_true + sum_false
     if sum_entries == 0:
         # all nans scenario
