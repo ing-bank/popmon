@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2022-05-20)
+### Feature
+* **report:** Heatmap time-series for categoricals ([#194](https://github.com/ing-bank/popmon/issues/194)) ([`21c4ad1`](https://github.com/ing-bank/popmon/commit/21c4ad1671b9a4b09d6982a3c496a0aeba459120))
+* Nd histogram comparisons and profiles ([`d572f7f`](https://github.com/ing-bank/popmon/commit/d572f7ffa13dd4c22912d908520afb61c5f1db97))
+* Dashboarding integration for Kibana ([`83b8869`](https://github.com/ing-bank/popmon/commit/83b88694daee51ff87fc3b6964e1690d1c0c7327))
+* Dashboarding integration for Kibana ([`4a9284f`](https://github.com/ing-bank/popmon/commit/4a9284fc25f1c9083020d5cd82ea3b805ec4608d))
+* **config:** Global configuration for ing_matplotlib_theme ([`c81e28f`](https://github.com/ing-bank/popmon/commit/c81e28fbd74d3b2497e0a94e4651be3372da58dc))
+
+### Fix
+* Import histogrammar specialized ([`d70ab80`](https://github.com/ing-bank/popmon/commit/d70ab80bfc3ee51ecd121dcc054f76941c888796))
+
+### Documentation
+* **config:** Global configuration for ing_matplotlib_theme ([`6f4f20d`](https://github.com/ing-bank/popmon/commit/6f4f20d8dc2227958500575bdb1febfd15ae3318))
+
+### Performance
+* Directly use bin keys ([`9440897`](https://github.com/ing-bank/popmon/commit/94408977eb414ab3f97b1a9ee17a807ba783b298))
+* Disable parallel processing by default ([`85d4407`](https://github.com/ing-bank/popmon/commit/85d4407513d1cb8356835b638241e67bbe68da37))
+* Chi2 max residual using numpy ([`8596387`](https://github.com/ing-bank/popmon/commit/85963876394561b7a4c5f03db04f5c59731f4b5d))
+* Performant data structure ([`ff72d6e`](https://github.com/ing-bank/popmon/commit/ff72d6e8e8e90d0e90333399dcb2443431f89099))
+* Short circuit any/all ([`63c2704`](https://github.com/ing-bank/popmon/commit/63c2704417089dec543ef585ec0e472b31f86c65))
+* Optimize pull computation ([`ddf2e35`](https://github.com/ing-bank/popmon/commit/ddf2e359f5d9c417e7cd3cfcbc9c6b24cf0a4282))
+* Postpone formatting (expensive for DataFrames) ([`7feaaae`](https://github.com/ing-bank/popmon/commit/7feaaae624f4f0d1f9865009af383085a902d552))
+* Compute metrics without report ([`254564c`](https://github.com/ing-bank/popmon/commit/254564c918f09abd1750e8a357c615aa3c5909ac))
+
 ## v0.7.0 (2022-05-09)
 ### Feature
 * Global configuration of joblib Parallel backend ([`3431cad`](https://github.com/ing-bank/popmon/commit/3431cad4dc2ec3e00755d08c7870f6464a65393e))
