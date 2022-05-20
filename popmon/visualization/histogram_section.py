@@ -78,7 +78,7 @@ class HistogramSection(Module):
         self.ignore_features = ignore_features or []
         self.section_name = section_name
         self.last_n = last_n if last_n >= 0 else 0
-        self.top_n = top_n if top_n >= 1 and top_n <= 20 else 20
+        self.top_n = top_n if top_n >= 1 else 20
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
@@ -145,11 +145,13 @@ class HistogramSection(Module):
             plots = [e for e in plots if len(e["plot"])]
             plots = sorted(plots, key=lambda plot: plot["name"])
 
-            # filter out potential empty heatmap plots
+            # filter out potential empty heatmap plots, then prepend them to the sorted histograms
+            hplots = []
             for h in heatmaps:
                 if isinstance(h, dict):
                     if len(h["plot"]):
-                        plots.append(h)
+                        hplots.append(h)
+            plots = hplots + plots
 
             features_w_metrics.append({"name": feature, "plots": plots})
 
@@ -235,22 +237,26 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n):
 
 
 def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
-
     hist_names = [
-        " Heatmap ",
-        " Column Normalized Heatmap ",
-        " Row Normalized Heatmap ",
+        "heatmap",
+        "heatmap_column_normalized",
+        "heatmap_row_normalized",
     ]
+    hist_names_formatted = {
+        "heatmap": "Heatmap",
+        "heatmap_column_normalized": "Column-Normalized Heatmap",
+        "heatmap_row_normalized": "Row-Normalized Heatmap",
+    }
 
     for d in disable_heatmap:
         if d == "normal":
-            hist_names.remove(" Heatmap ")
+            hist_names.remove("heatmap")
         elif d == "row":
-            hist_names.remove(" Row Normalized Heatmap ")
+            hist_names.remove("heatmap_row_normalized")
         elif d == "column":
-            hist_names.remove(" Column Normalized Heatmap ")
+            hist_names.remove("heatmap_column_normalized")
         else:
-            raise ValueError("invalid argument in disable_heatmap: ", d)
+            raise ValueError("Invalid argument in disable_heatmap: ", d)
 
     # basic checks
     if len(hist_names) <= 0:
@@ -330,8 +336,8 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
 
         plots = [
             {
-                "name": feature + hist_name,
-                "description": get_stat_description(date[0]),
+                "name": hist_names_formatted[hist_name],
+                "description": get_stat_description(hist_name),
                 "plot": pl,
                 "full_width": True,
             }
@@ -347,7 +353,6 @@ def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):
 
 
 def get_top_categories(entries_list, bins, top_n):
-
     # get the top top_n rows
     row_sum = np.sum(entries_list, axis=1).ravel().tolist()
     sorted_index = np.argsort(row_sum).tolist()
