@@ -89,3 +89,21 @@ table.overview tfoot td span{
     font-size: 14px;
     font-weight: 300;
 }
+
+/* overview progress bars */
+.green, .yellow, .red, .white{
+    float:left;
+    padding-top:10px;
+    padding-bottom:10px;
+    color: white;
+    text-align:center;
+}
+.green{
+    background-color: green;
+}
+.yellow{
+    background-color: orange;
+}
+.red{
+    background-color: red;
+}

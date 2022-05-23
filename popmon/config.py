@@ -77,6 +77,7 @@ section_descriptions = {
     "traffic_lights": "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default.",
     "alerts": "Alerts aggregated by all traffic lights for each feature.",
     "histograms": "Histograms of the last few time slots (default: 2).",
+    "overview": "Alerts aggregated per feature",
 }
 
 histograms = {
