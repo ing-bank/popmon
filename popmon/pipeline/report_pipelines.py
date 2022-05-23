@@ -36,6 +36,7 @@ from ..visualization import (
     SectionGenerator,
     TrafficLightSectionGenerator,
 )
+from ..visualization.overview_section import OverviewSectionGenerator
 
 
 def get_report_pipeline_class(reference_type, reference):
@@ -377,6 +378,12 @@ class ReportPipe(Pipeline):
         }
 
         modules = [
+            OverviewSectionGenerator(
+                read_key="traffic_lights",
+                description=descs.get("overview", ""),
+                section_name="Overview",
+                **sg_kws,
+            ),
             # generate section with histogram
             HistogramSection(
                 read_key="split_hists",
