@@ -10,8 +10,8 @@ Population Shift Monitoring
 `popmon` works with both **pandas** and **spark datasets**.
 
 `popmon` creates histograms of features binned in time-slices,
-and compares the stability of the profiles and distributions of
-those histograms using statistical tests, both over time and with respect to a reference.
+and compares the stability of the `profiles <https://popmon.readthedocs.io/en/latest/profiles.html>`_ and distributions of
+those histograms using `statistical tests <https://popmon.readthedocs.io/en/latest/comparisons.html>`_, both over time and with respect to a reference.
 It works with numerical, ordinal, categorical features, and the histograms can be higher-dimensional, e.g. it can also track correlations between any two features.
 `popmon` can **automatically flag** and alert on **changes observed over time**, such
 as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
