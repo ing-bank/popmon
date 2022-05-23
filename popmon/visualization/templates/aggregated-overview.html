@@ -1,0 +1,18 @@
+<table width="95%" style="margin-bottom: 30px;">
+  {% for feature, vals in values.items() %}
+  <tr>
+      <td width="20%" style="text-align:center;"><a class="table-item" href="#" data-feature="{{ feature }}">{{ feature }}</a></td>
+      <td width="80%">
+          {% for i in [2, 1, 0] %}
+              {% if vals[i] > 0 %}
+                  <div style="width: calc(6% + {{ vals[i] }} / {{ vals['total'] }} * {{ 82 + 6 * vals['n_zero'] }}%)" class="{% if i == 2%}red{%elif i == 1%}yellow{%else%}green{%endif%}">
+                      {{ vals[i] }} ({{ "%d" % (vals[i] / (vals["total"] * 0.01))}}%)
+                  </div>
+              {% else %}
+                  <div style="width: 0%" class="white">&nbsp;</div>
+              {% endif %}
+          {% endfor %}
+      </td>
+  </tr>
+  {% endfor %}
+</table>

@@ -15,6 +15,12 @@ $(document).on("click", "button.dropdown-item", function() {
     $("div[data-section-feature='" + obj.attr("data-feature") + "']").show()
     $("button.dropdown-toggle").text("Feature: " + obj.text())
 });
+
+$(document).on("click", "a.table-item", function(){
+    obj = $(this)
+    $("button.dropdown-item[data-feature='" + obj.attr("data-feature") + "']").click()
+});
+
 // making navigation work: after clicking a nav link scrolling to the corresponding section's position
 $(document).on("click", "a.nav-link,a.navbar-brand", function(e) {
     e.preventDefault();
