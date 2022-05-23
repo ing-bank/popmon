@@ -27,7 +27,6 @@ def test_profile_hist1d():
     )
 
     profiles = hp._profile_hist(split, hist_name="feature")
-
     assert len(profiles) == split_len
     assert "p95" in profiles[0]
     assert profiles[1]["max"] == np.max(get_bin_centers(split[1][hist_name])[0])
