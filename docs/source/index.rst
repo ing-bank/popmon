@@ -14,6 +14,7 @@ Contents
    :maxdepth: 2
 
    introduction
+   profiles
    comparisons
    tutorials
    configuration
