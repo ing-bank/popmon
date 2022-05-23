@@ -22,7 +22,7 @@ from typing import Callable, List, Optional, Tuple, Union
 
 class Profiles:
     _profile_descriptions = {}
-    _profile_funcs = {-1: {}, 1: {}, 2: {}}
+    _profile_funcs = {-1: {}}
 
     @classmethod
     def register(
@@ -46,6 +46,9 @@ class Profiles:
                     cls._profile_descriptions[k] = d
             else:
                 cls._profile_descriptions[key] = description
+
+            if dim not in cls._profile_funcs:
+                cls._profile_funcs[dim] = {}
             cls._profile_funcs[dim][(key, htype)] = func
             return func
 
@@ -65,7 +68,7 @@ class Profiles:
         if dim is None:
             v = cls._profile_funcs[-1]
         else:
-            v = merge(cls._profile_funcs[dim], cls._profile_funcs[-1])
+            v = merge(cls._profile_funcs.get(dim, {}), cls._profile_funcs[-1])
 
         return v
 
