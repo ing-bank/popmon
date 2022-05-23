@@ -20,22 +20,138 @@
 
 import numpy as np
 import pandas as pd
-from phik import phik
 
+from popmon.analysis.profiling.profiles import Profiles
 from popmon.stats import numpy as pm_np
 
 from ...analysis.hist_numpy import get_2dgrid
 from ...base import Module
 from ...hist.hist_utils import get_bin_centers, is_numeric, is_timestamp, sum_entries
 
-DEFAULT_STATS = {
-    "mean": pm_np.mean,
-    "std": pm_np.std,
-    "min,max,p01,p05,p16,p50,p84,p95,p99": lambda x, w: pm_np.quantile(
+
+@Profiles.register(
+    key=["min", "max", "p01", "p05", "p16", "p50", "p84", "p95", "p99"],
+    description=[
+        "Minimum value",
+        "Maximum value",
+        "1% percentile",
+        "5% percentile",
+        "16% percentile",
+        "50% percentile (median)",
+        "84% percentile",
+        "95% percentile",
+        "99% percentile",
+    ],
+    dim=1,
+    htype="num",
+)
+def profile_quantiles(x, w):
+    return pm_np.quantile(
         x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
-    ),
-}
-NUM_NS_DAY = 24 * 3600 * int(1e9)
+    )
+
+
+@Profiles.register(key="mean", description="Mean value", dim=1, htype="num")
+def profile_mean(x, w):
+    return pm_np.mean(x, w)
+
+
+@Profiles.register(key="std", description="Standard deviation", dim=1, htype="num")
+def profile_std(x, w):
+    return pm_np.std(x, w)
+
+
+@Profiles.register(key="nan", description="Number of missing entries (NaN)", dim=1)
+def profile_nan(hist):
+    if hasattr(hist, "nanflow"):
+        return hist.nanflow.entries
+    elif hasattr(hist, "bins") and "NaN" in hist.bins:
+        return hist.bins["NaN"].entries
+    return 0
+
+
+@Profiles.register(
+    key="overflow",
+    description="Number of values larger than the maximum bin-edge of the histogram.",
+    dim=1,
+)
+def profile_overflow(hist):
+    if hasattr(hist, "overflow"):
+        return hist.overflow.entries
+    return 0
+
+
+@Profiles.register(
+    key="underflow",
+    description="Number of values smaller than the minimum bin-edge of the histogram.",
+    dim=1,
+)
+def profile_underflow(hist):
+    if hasattr(hist, "underflow"):
+        return hist.underflow.entries
+    return 0
+
+
+@Profiles.register(
+    key="phik",
+    description="phi-k correlation between the two variables of the histogram",
+    dim=2,
+)
+def profile_phik(hist):
+    from phik import phik
+
+    # calculate phik correlation
+    try:
+        grid = get_2dgrid(hist)
+    except Exception:
+        raise
+
+    try:
+        phi_k = phik.phik_from_hist2d(observed=grid)
+    except ValueError:
+        # self.logger.debug(
+        #     f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
+        # )
+        phi_k = np.nan
+    return phi_k
+
+
+@Profiles.register(
+    key="count", description="Number of entries (non-NaN and NaN)", dim=None
+)
+def profile_count(hist):
+    return int(sum_entries(hist))
+
+
+@Profiles.register(
+    key="filled",
+    description="Number of non-missing entries (non-NaN)",
+    dim=1,
+    htype="all",
+)
+def profile_filled(_, bin_counts):
+    return bin_counts.sum()
+
+
+@Profiles.register(
+    key="distinct", description="Number of distinct entries", dim=1, htype="all"
+)
+def profile_distinct(bin_labels, bin_counts):
+    return len(np.unique(bin_labels[bin_counts > 0]))
+
+
+@Profiles.register(
+    key="fraction_of_true", description="", dim=1, htype="cat"
+)  # or type="bool"
+def profile_fraction_of_true(bin_labels, bin_counts):
+    return pm_np.fraction_of_true(bin_labels, bin_counts)
+
+
+@Profiles.register(
+    key="most_probable_value", description="Most probable value", dim=1, htype="all"
+)
+def profile_most_probable_value(bin_labels, bin_counts):
+    return bin_labels[np.argmax(bin_counts)]
 
 
 class HistProfiler(Module):
@@ -82,26 +198,12 @@ class HistProfiler(Module):
         self.var_timestamp = var_timestamp or []
         self.hist_col = hist_col
         self.index_col = index_col
-        self.general_stats_1d = [
-            "count",
-            "filled",
-            "distinct",
-            "nan",
-            "most_probable_value",
-            "overflow",
-            "underflow",
-        ]
-        self.general_stats_2d = ["count", "phik"]
-        self.general_stats_nd = ["count"]
-        self.category_stats_1d = ["fraction_true"]
-        self.stats_functions = stats_functions
-        if self.stats_functions is None:
-            self.stats_functions = DEFAULT_STATS
-            self.logger.debug(
-                f"No stats function dict is provided. {self.stats_functions.keys()} is set as default"
-            )
+
+        if stats_functions is not None:
+            raise NotImplementedError()
 
     def _profile_1d_histogram(self, name, hist):
+        # preprocessing value counts and TS
         is_num = is_numeric(hist)
         is_ts = is_timestamp(hist) or name in self.var_timestamp
 
@@ -116,81 +218,62 @@ class HistProfiler(Module):
             to_timestamp = np.vectorize(lambda x: pd.to_datetime(x).value)
             bin_labels = to_timestamp(bin_labels)
 
-        profile = {
-            "filled": bin_counts.sum(),
-            "overflow": hist.overflow.entries if hasattr(hist, "overflow") else 0,
-            "underflow": (hist.underflow.entries if hasattr(hist, "underflow") else 0),
-            "distinct": len(np.unique(bin_labels[bin_counts > 0])),
-        }
+        otype = "num" if is_num else "cat"
 
-        if hasattr(hist, "nanflow"):
-            profile["nan"] = hist.nanflow.entries
-        elif hasattr(hist, "bins") and "NaN" in hist.bins:
-            profile["nan"] = hist.bins["NaN"].entries
-        else:
-            profile["nan"] = 0
+        # calc 1d-histogram statistics
+        profile = {}
+        for (key, htype), func in Profiles.get_profiles(dim=1).items():
+            if htype is not None and htype != otype and htype != "all":
+                # skipping; type not applicable
+                continue
+
+            if htype is None:
+                args = [hist]
+            else:
+                args = [bin_labels, bin_counts]
+
+            results = func(*args)
+
+            if isinstance(key, (list, tuple)):
+                for k, v in zip(key, results):
+                    profile[k] = v
+            else:
+                profile[key] = results
+
+        # postprocessing TS
+        if is_ts:
+            profile = {
+                k: pd.Timestamp(v) if k != "std" else pd.Timedelta(v)
+                for k, v in profile.items()
+            }
+
+        # postprocessing sum
         profile["count"] = profile["filled"] + profile["nan"]
-        most_probable_value = bin_labels[np.argmax(bin_counts)]
-        profile["most_probable_value"] = (
-            most_probable_value if not is_ts else pd.Timestamp(most_probable_value)
-        )
-
-        if is_num and profile["filled"] > 0:
-            for f_names, func in self.stats_functions.items():
-                names = f_names.split(",")
-                results = func(bin_labels, bin_counts)
-                if len(names) == 1:
-                    results = [results]
-
-                if is_ts:
-                    results = [
-                        pd.Timedelta(result)
-                        if f_name == "std"
-                        else pd.Timestamp(result)
-                        for f_name, result in zip(name, results)
-                    ]
-
-                profile.update(dict(zip(names, results)))
-        elif not is_num:
-            profile["fraction_true"] = pm_np.fraction_of_true(bin_labels, bin_counts)
 
         return profile
 
-    def _profile_2d_histogram(self, name, hist):
-        if hist.n_dim < 2:
+    def _profile_nd_histogram(self, name, hist, dim):
+        if hist.n_dim < dim:
             self.logger.warning(
-                f"Histogram {name} has {hist.n_dim} dimensions (<2); cannot profile. Returning empty."
-            )
-            return {}
-        try:
-            grid = get_2dgrid(hist)
-        except Exception:
-            raise
-
-        # calc some basic 2d-histogram statistics
-        sume = int(sum_entries(hist))
-
-        # calculate phik correlation
-        try:
-            phi_k = phik.phik_from_hist2d(observed=grid)
-        except ValueError:
-            self.logger.debug(
-                f"Not enough values in the 2d `{name}` time-split histogram to apply the phik test."
-            )
-            phi_k = np.nan
-
-        return {"count": sume, "phik": phi_k}
-
-    def _profile_nd_histogram(self, name, hist):
-        if hist.n_dim < 3:
-            self.logger.warning(
-                f"Histogram {name} has {hist.n_dim} dimensions (<3); cannot profile. Returning empty."
+                f"Histogram {name} has {hist.n_dim} dimensions (<{dim}); cannot profile. Returning empty."
             )
             return {}
 
-        # calc some basic nd-histogram statistics
-        sume = int(sum_entries(hist))
-        return {"count": sume}
+        # calc nd-histogram statistics
+        profile = {}
+        for (key, htype), func in Profiles.get_profiles(dim).items():
+            if htype is None:
+                result = func(hist)
+            else:
+                raise NotImplementedError("histogram types for nD not implemented")
+
+            if isinstance(key, (list, tuple)):
+                for k, v in zip(key, result):
+                    profile[k] = v
+            else:
+                profile[key] = result
+
+        return profile
 
     def _profile_hist(self, split, hist_name):
         if len(split) == 0:
@@ -200,19 +283,14 @@ class HistProfiler(Module):
         hist0 = split[0][self.hist_col]
         dimension = hist0.n_dim
         is_num = is_numeric(hist0)
+        htype = "num" if is_num else "cat"
 
         # these are the profiled quantities we will monitor
         if dimension == 1:
-            fields = list(self.general_stats_1d)
-            fields += (
-                [v for key in self.stats_functions.keys() for v in key.split(",")]
-                if is_num
-                else list(self.category_stats_1d)
-            )
-        elif dimension == 2:
-            fields = list(self.general_stats_2d)
+            expected_fields = Profiles.get_profile_keys(dim=1, htype=htype)
         else:
-            fields = list(self.general_stats_nd)
+            expected_fields = Profiles.get_profile_keys(dim=dimension)
+        expected_fields += [self.index_col, self.hist_col]
 
         # now loop over split-axis, e.g. time index, and profile each sub-hist x:y
         profile_list = []
@@ -223,14 +301,12 @@ class HistProfiler(Module):
 
             if dimension == 1:
                 profile.update(self._profile_1d_histogram(hist_name, hist))
-            elif dimension == 2:
-                profile.update(self._profile_2d_histogram(hist_name, hist))
             else:
-                profile.update(self._profile_nd_histogram(hist_name, hist))
+                profile.update(
+                    self._profile_nd_histogram(hist_name, hist, dim=dimension)
+                )
 
-            if sorted(profile.keys()) != sorted(
-                fields + [self.index_col, self.hist_col]
-            ):
+            if sorted(profile.keys()) != sorted(expected_fields):
                 self.logger.error(
                     f'Could not extract full profile for sub-hist "{hist_name} {index}". Skipping.'
                 )
