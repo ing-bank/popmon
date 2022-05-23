@@ -1,5 +1,5 @@
 <div class="col-md-{% if 'full_width' in metric %}12{% else %}6{% endif %} mb-5">
-    <a name="{{ feature.name }}-{{ metric.name }}"></a>
+    <a name="{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"></a>
     <div class="card shadow-sm">
         <div class="card-body" style="text-align: center">
             <h4 class="card-title">{{metric.name | fmt_metric}}</h4>
