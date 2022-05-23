@@ -17,26 +17,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from fnmatch import fnmatch
-
 from popmon.analysis.comparison.comparisons import Comparisons
+from popmon.analysis.profiling.profiles import Profiles
 
-profiles = {
-    "count": "Number of entries (non-NaN and NaN)",
-    "distinct": "Number of distinct entries",
-    "filled": "Number of non-missing entries (non-NaN)",
-    "nan": "Number of missing entries (NaN)",
-    "overflow": "Number of values larger than the maximum bin-edge of the histogram.",
-    "underflow": "Number of values smaller than the minimum bin-edge of the histogram.",
-    "min": "Minimum value",
-    "max": "Maximum value",
-    "mean": "Mean value",
-    "most_probable_value": "Most probable value",
-    "std": "Standard deviation",
-    "phik": "phi-k correlation between the two variables of the histogram",
-    "phik_pvalue": "p-value of the contingency test of the 2d histogram",
-    "phik_zscore": "Z-score of the contingency test of the 2d histogram",
-}
+profiles = Profiles.get_descriptions()
+
 
 comparisons = {
     "ks": "Kolmogorov-Smirnov test statistic comparing each time slot to {ref}",
@@ -127,7 +112,6 @@ def get_stat_description(name: str):
 
     if name in histograms:
         return histograms[name]
-
     if name in profiles:
         return profiles[name]
     if name in alerts:
@@ -138,9 +122,6 @@ def get_stat_description(name: str):
 
     if tail in comparisons and head in references:
         return comparisons[tail].format(ref=references[head])
-
-    if fnmatch(name, "p[0-9][0-9]"):
-        return f"{int(name[1:])}% percentile"
 
     return ""
 
