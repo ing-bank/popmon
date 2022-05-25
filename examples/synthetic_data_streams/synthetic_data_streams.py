@@ -4,8 +4,8 @@ from scipy.io.arff import loadarff
 import popmon
 
 
-def load_artff(name) -> pd.DataFrame:
-    """Load Artff file and decode string values"""
+def load_arff(name) -> pd.DataFrame:
+    """Load Arff file and decode string values"""
     raw_data = loadarff(name)
     df = pd.DataFrame(raw_data[0])
     object_idx = df.select_dtypes([object]).columns
@@ -14,7 +14,7 @@ def load_artff(name) -> pd.DataFrame:
 
 
 def dataset_summary(df):
-    print(df.shape)
+    print(f"shape={df.shape}, columns={df.columns.values}")
     print("Sample of the data")
     print(df.head(10))
 
