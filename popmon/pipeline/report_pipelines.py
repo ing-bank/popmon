@@ -71,7 +71,7 @@ class SelfReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (full test set)
@@ -136,7 +136,7 @@ class ExternalReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
@@ -203,7 +203,7 @@ class RollingReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
@@ -341,7 +341,7 @@ class ReportPipe(Pipeline):
         skip_last_n=0,
         plot_hist_n=6,
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
     ):
         """Initialize an instance of Report.
 
