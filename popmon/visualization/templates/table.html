@@ -20,6 +20,10 @@
             {% with rgba, value = data[metric][label] %}
             <td class="cell" style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
             {% endwith %}
+        {% elif data[metric][label] | length == 3 %}
+            {% with text_color, rgba, value = data[metric][label] %}
+            <td class="cell" style="color: {{ text_color }}; background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+            {% endwith %}
         {% endif %}
     {% endfor %}
 </tr>

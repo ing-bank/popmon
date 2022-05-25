@@ -70,7 +70,7 @@ table.overview td.cell-green{
     background: green;
 }
 table.overview td.cell-yellow{
-    background: yellow;
+    background: rgba(255, 200, 0, 1.0);
 }
 table.overview td.cell-red{
     background: red;
@@ -102,7 +102,7 @@ table.overview tfoot td span{
     background-color: green;
 }
 .yellow{
-    background-color: orange;
+    background-color: rgba(255, 200, 0, 1.0);
 }
 .red{
     background-color: red;
