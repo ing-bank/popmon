@@ -73,7 +73,7 @@ table.overview td.cell-yellow{
     background: rgba(255, 200, 0, 1.0);
 }
 table.overview td.cell-red{
-    background: red;
+    background: rgba(255, 0, 0, 1.0);
 }
 table.overview tfoot td {
     padding-top: 5px;
@@ -105,5 +105,5 @@ table.overview tfoot td span{
     background-color: rgba(255, 200, 0, 1.0);
 }
 .red{
-    background-color: red;
+    background-color: rgba(255, 0, 0, 1.0);
 }
