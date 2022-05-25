@@ -125,18 +125,20 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             y_max += spread
             y_min -= spread
 
+            yellow = (1.0, 200 / 222, 0.0)
+
             if not isinstance(max_r, (list, tuple)):
                 ax.axhline(y=max_r, xmin=0, xmax=1, color="r")
             else:
                 ax.plot(index, max_r, color="r")
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_y, xmin=0, xmax=1, color="y")
+                ax.axhline(y=max_y, xmin=0, xmax=1, color=yellow)
             else:
-                ax.plot(index, max_y, color="y")
+                ax.plot(index, max_y, color=yellow)
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_y, xmin=0, xmax=1, color="y")
+                ax.axhline(y=min_y, xmin=0, xmax=1, color=yellow)
             else:
-                ax.plot(index, min_y, color="y")
+                ax.plot(index, min_y, color=yellow)
             if not isinstance(max_r, (list, tuple)):
                 ax.axhline(y=min_r, xmin=0, xmax=1, color="r")
             else:
@@ -188,13 +190,14 @@ def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List
         for c2, label in enumerate(labels):
             a = data[c1][c2] / row_max if row_max and row_max != 0 else 0
             if metric.endswith("green"):
-                rgba = (0, 128, 0, a)
+                background_rgba = (0, 128, 0, a)
             elif metric.endswith("yellow"):
-                rgba = (255, 255, 0, a)
+                background_rgba = (255, 200, 0, a)
             else:
-                rgba = (255, 0, 0, a)
-            rgba = (str(v) for v in rgba)
-            colors[metric][label] = (rgba, data[c1][c2])
+                background_rgba = (255, 0, 0, a)
+            background_rgba = (str(v) for v in background_rgba)
+            text_color = "white" if a > 0.5 else "black"
+            colors[metric][label] = (text_color, background_rgba, data[c1][c2])
 
     return templates_env(
         "table.html",
