@@ -125,12 +125,13 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             y_max += spread
             y_min -= spread
 
-            yellow = (1.0, 200 / 222, 0.0)
+            yellow = (1.0, 200 / 255, 0.0)
+            red = (1.0, 0.0, 0.0)
 
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_r, xmin=0, xmax=1, color="r")
+                ax.axhline(y=max_r, xmin=0, xmax=1, color=red)
             else:
-                ax.plot(index, max_r, color="r")
+                ax.plot(index, max_r, color=red)
             if not isinstance(max_r, (list, tuple)):
                 ax.axhline(y=max_y, xmin=0, xmax=1, color=yellow)
             else:
@@ -140,9 +141,9 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             else:
                 ax.plot(index, min_y, color=yellow)
             if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_r, xmin=0, xmax=1, color="r")
+                ax.axhline(y=min_r, xmin=0, xmax=1, color=red)
             else:
-                ax.plot(index, min_r, color="r")
+                ax.plot(index, min_r, color=red)
             if y_max > y_min:
                 ax.set_ylim(y_min, y_max)
         elif ylim:
