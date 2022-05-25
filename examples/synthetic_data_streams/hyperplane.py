@@ -3,7 +3,7 @@ Example configuration for the hyperplane dataset
 """
 from synthetic_data_streams import (
     dataset_summary,
-    load_artff,
+    load_arff,
     synthetic_data_stream_report,
 )
 
@@ -16,7 +16,7 @@ features = [f"index:attr{i}:output" for i in range(10)]
 dataset_file = f"data/{dataset_name}{v}.arff"
 report_file = f"reports/{dataset_name}_{v}.html"
 
-df = load_artff(dataset_file)
+df = load_arff(dataset_file)
 
 dataset_summary(df)
 

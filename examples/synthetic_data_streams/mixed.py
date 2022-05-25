@@ -3,7 +3,7 @@ Example configuration for the mixed dataset
 """
 from synthetic_data_streams import (
     dataset_summary,
-    load_artff,
+    load_arff,
     synthetic_data_stream_report,
 )
 
@@ -21,7 +21,7 @@ features = ["index:v:class", "index:w:class", "index:x:class", "index:y:class"]
 dataset_file = f"data/{dataset_name}/{dataset_name}_{v}.arff"
 report_file = f"reports/{dataset_name}_{v}.html"
 
-df = load_artff(dataset_file)
+df = load_arff(dataset_file)
 
 dataset_summary(df)
 
