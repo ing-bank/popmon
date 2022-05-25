@@ -55,7 +55,7 @@ class HistogramSection(Module):
         hist_name_starts_with="histogram",
         description="",
         disable_heatmap=None,
-        cmap=None,
+        cmap="autumn_r",
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -83,6 +83,8 @@ class HistogramSection(Module):
         self.hist_name_starts_with = hist_name_starts_with
         self.description = description
         self.disable_heatmap = disable_heatmap or []
+        if cmap is None:
+            cmap = "autumn_r"
         self.cmap = cmap
 
     def get_description(self):
