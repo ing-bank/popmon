@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2022-05-27)
+### Feature
+* **report:** Enable the overview section by default ([`22b9cb6`](https://github.com/ing-bank/popmon/commit/22b9cb6c5a7a58a47e1366b39ec9ad3e7722a631))
+* **report:** Overview section for quickly navigating reports ([`f5736d4`](https://github.com/ing-bank/popmon/commit/f5736d47c1ce71442e403df1f2bc85d356489e03))
+* **report:** Allow section without feature toggle ([`2484569`](https://github.com/ing-bank/popmon/commit/24845693f8ac317bd1b7f3d6f8d9d654f472a066))
+
+### Fix
+* **report:** Consistent use of color red ([`453f3fe`](https://github.com/ing-bank/popmon/commit/453f3fe7aed8b96a24f03f2e957b95e5fba51e04))
+* **report:** Text contrast and consistent yellow traffic light ([`5d5c43c`](https://github.com/ing-bank/popmon/commit/5d5c43ccf5931d495100f96d3d97a750529e076b))
+
+### Documentation
+* **readme:** Replace report image ([`8d363d5`](https://github.com/ing-bank/popmon/commit/8d363d5b975c4143b04ac4074bf8a550ff7857b1))
+* **synthetic:** Add dataset overview table ([`8654347`](https://github.com/ing-bank/popmon/commit/86543470396fe55a904d5ce98cede9961b8fc8ea))
+* **datasets:** Reference implementations for widely-used publicly available synthetic data streams ([`9988a13`](https://github.com/ing-bank/popmon/commit/9988a13773b1092b76dc317027b4666e35f175f8))
+
 ## v0.8.0 (2022-05-20)
 ### Feature
 * **report:** Heatmap time-series for categoricals ([#194](https://github.com/ing-bank/popmon/issues/194)) ([`21c4ad1`](https://github.com/ing-bank/popmon/commit/21c4ad1671b9a4b09d6982a3c496a0aeba459120))
