@@ -25,7 +25,7 @@ _Characteristics of datasets used, see the survey [Learning under Concept Drift:
 For the sudden-drift datasets, the drifting point is centred at every 5th of the instances for Sine1, Sine2 and Mixed and at each 3rd for Stagger, for a transition over 50 samples. 
 For the remaining gradually shifting datasets, Circles and LED, the drifting point is centred around every 4th, and takes place over 500 instances. 
 A noise level of 10\% is added to each dataset. 
- where the drifting points occur at each 4th. 
+For the SEA dataset, the drifting points occur at each 4th of the dataset. 
 The shift in The Hyperplane dataset that was used, consists of 10.000 samples, and the drift is incremental and gradual.
 
 (adding other datasets will be simple based on the available reference configuration)
