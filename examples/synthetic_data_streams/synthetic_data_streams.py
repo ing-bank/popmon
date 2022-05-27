@@ -19,11 +19,28 @@ def dataset_summary(df):
     print(df.head(10))
 
 
-def synthetic_data_stream_report(df, features, report_file, time_width=1000):
-    df["index"] = df.index.values
+def synthetic_data_stream_report(
+    data, features, report_file, time_width=1000, reference="full", **kwargs
+):
+    data["index"] = data.index.values
+
+    if reference == "full":
+        ref_df = data
+        df = data
+    elif reference == "start":
+        # split at this point, by default time_width
+        split = kwargs.get("split", time_width)
+        ref_df = data[:split]
+        df = data[split:]
+    else:
+        raise ValueError("reference type should be 'full' or 'start'.")
 
     hists_ref = popmon.make_histograms(
-        df, time_axis="index", time_width=time_width, features=features, time_offset=0
+        ref_df,
+        time_axis="index",
+        time_width=time_width,
+        features=features,
+        time_offset=0,
     )
     ref_bin_specs = popmon.get_bin_specs(hists_ref)
     features = list(ref_bin_specs.keys())
@@ -51,7 +68,11 @@ def synthetic_data_stream_report(df, features, report_file, time_width=1000):
         "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
     }
     report = popmon.stability_report(
-        hists, pull_rules=pull_rules, monitoring_rules=monitoring_rules
+        hists,
+        pull_rules=pull_rules,
+        monitoring_rules=monitoring_rules,
+        reference_type="external",
+        reference=hists_ref,
     )
 
     # or save the report to file
