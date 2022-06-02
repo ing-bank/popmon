@@ -287,7 +287,7 @@ def pull_bounds(
             required = [m + suffix_mean, m + suffix_std]
             assert all(r in row for r in required)
 
-    x = pd.Series()
+    x = {}
     for m in cols:
         x[m + "_red_high"] = np.nan
         x[m + "_yellow_high"] = np.nan
@@ -300,7 +300,7 @@ def pull_bounds(
         x[m + "_yellow_high"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_high
         x[m + "_yellow_low"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_low
         x[m + "_red_low"] = row[m + suffix_mean] + row[m + suffix_std] * red_low
-    return x
+    return pd.Series(x)
 
 
 def df_single_op_pull_bounds(

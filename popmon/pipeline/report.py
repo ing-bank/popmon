@@ -161,8 +161,25 @@ def stability_report(
     pipeline = get_report_pipeline_class(reference_type, reference)(**cfg)
     result = pipeline.transform(datastore)
 
-    stability_report = StabilityReport(datastore=result)
-    return stability_report
+    stability_report_result = StabilityReport(datastore=result)
+    return stability_report_result
+
+
+def set_time_axis(df):
+    time_axes = get_time_axes(df)
+    num = len(time_axes)
+    if num == 1:
+        time_axis = time_axes[0]
+        logger.info(f'Time-axis automatically set to "{time_axis}"')
+    elif num == 0:
+        raise ValueError(
+            "No obvious time-axes found. Cannot generate stability report."
+        )
+    else:
+        raise ValueError(
+            f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
+        )
+    return time_axis
 
 
 def df_stability_report(
@@ -298,19 +315,8 @@ def df_stability_report(
                 f'time_axis  "{time_axis}" not found in columns of reference dataframe.'
             )
     if isinstance(time_axis, bool):
-        time_axes = get_time_axes(df)
-        num = len(time_axes)
-        if num == 1:
-            time_axis = time_axes[0]
-            logger.info(f'Time-axis automatically set to "{time_axis}"')
-        elif num == 0:
-            raise ValueError(
-                "No obvious time-axes found. Cannot generate stability report."
-            )
-        else:
-            raise ValueError(
-                f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
-            )
+        time_axis = set_time_axis(df)
+
     if features is not None:
         # by now time_axis is defined. ensure that all histograms start with it.
         if not isinstance(features, list):

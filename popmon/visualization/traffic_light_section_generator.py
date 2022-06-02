@@ -205,7 +205,6 @@ def _plot_metrics(
     if len(values) > 0:
         values = np.stack(values)
 
-        # make plot. note: slow!
         if style == "heatmap":
             plot = plot_traffic_lights_overview(
                 feature, values, metrics=nonempty_metrics, labels=dates

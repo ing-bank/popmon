@@ -190,7 +190,7 @@ def _plot_metric(
 ):
     """Split off plot histogram generation to allow for parallel processing"""
     # pick up static traffic light boundaries
-    name = feature + ":" + metric
+    name = f"{feature}:{metric}"
     sbounds = static_bounds.get(name, ())
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
