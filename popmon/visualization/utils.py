@@ -482,7 +482,7 @@ def plot_heatmap_b64(
             """Get x-tick."""
             lab = str(lab)
             if len(lab) > top:
-                lab = lab[:17] + "..."
+                lab = lab[: top - 3] + "..."
             return lab
 
         plt.xticks(tick_pos_x, date, fontsize=20, rotation=90)
