@@ -174,13 +174,14 @@ class ComputeTLBounds(Module):
     def get_description(self):
         return self.traffic_light_func.__name__
 
-    def _set_traffic_lights(self, feature, cols, pattern, rule_name):
+    def _set_traffic_lights(self, feature, cols, pattern, rule):
         process_cols = fnmatch.filter(cols, pattern)
 
         for pcol in process_cols:
             name = feature + ":" + pcol
             if name not in self.traffic_lights:
-                bounds = self.monitoring_rules[eval(rule_name)]
+                key = rule(name, feature, pattern)
+                bounds = self.monitoring_rules[key]
                 self.traffic_lights[name] = bounds
                 metrics = (
                     [pcol]
@@ -220,7 +221,10 @@ class ComputeTLBounds(Module):
 
                 # --- A1. tl bounds explicitly defined for a particular feature/profile combo
                 self._set_traffic_lights(
-                    feature, explicit_cols, pattern="*", rule_name="name"
+                    feature,
+                    explicit_cols,
+                    pattern="*",
+                    rule=lambda name, _, __: name,
                 )
 
                 # --- B1. tl bounds implicitly defined for particular feature
@@ -230,13 +234,16 @@ class ComputeTLBounds(Module):
                         feature,
                         test_df.columns,
                         pattern,
-                        rule_name="feature + ':' + pattern",
+                        rule=lambda _, feat, pat: f"{feat}:{pat}",
                     )
             # --- 2. tl bounds not explicitly defined for a particular feature,
             #        see if a wildcard match can be found.
             for pattern in nkeys:
                 self._set_traffic_lights(
-                    feature, test_df.columns, pattern, rule_name="pattern"
+                    feature,
+                    test_df.columns,
+                    pattern,
+                    rule=lambda _, __, pat: pat,
                 )
 
         return self.traffic_lights, self.traffic_light_funcs
