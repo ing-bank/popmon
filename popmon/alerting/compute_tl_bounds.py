@@ -33,7 +33,7 @@ from ..base import Module, Pipeline
 def traffic_light_summary(row, cols=None, prefix=""):
     """Make a summary of traffic light alerts present in the dataframe
 
-    Count number of green, yellow, red traffic lights and worst value.
+    Count number of green, yellow and red traffic lights.
 
     Evaluate with df.apply(traffic_light_summary, axis=1)
 
@@ -41,9 +41,7 @@ def traffic_light_summary(row, cols=None, prefix=""):
     :param list cols: list of cols to calculate traffic light summary of (optional)
     :param str prefix: prefix of traffic light columns, in case cols is empty. default is ``"tl_"``
     """
-    x = pd.Series(
-        {"worst": np.nan, "n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
-    )
+    x = {"n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find traffic light columns for which summary is made.
@@ -53,14 +51,13 @@ def traffic_light_summary(row, cols=None, prefix=""):
             else row.index.to_list()
         )
     if len(cols) == 0:
-        return x
+        return pd.Series(x)
 
     traffic_lights = np.array([row[c] for c in cols])
-    x["worst"] = np.max(traffic_lights)
     x["n_red"] = (traffic_lights == 2).sum()
     x["n_yellow"] = (traffic_lights == 1).sum()
     x["n_green"] = (traffic_lights == 0).sum()
-    return x
+    return pd.Series(x)
 
 
 def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
