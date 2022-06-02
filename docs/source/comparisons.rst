@@ -35,3 +35,19 @@ The code below demonstrates how this could be achieved:
         return np.sum(np.abs(p - q))
 
 If you developed a custom comparison that could be generically used, then please considering contributing it to the package.
+
+Comparison settings
+-------------------
+
+Whenever a comparison has parameters, it is possible to alter them globally:
+
+.. code-block:: python
+
+    from functools import partial
+
+    from popmon.analysis.comparison.comparison_registry import Comparisons
+
+    # Set the max_res_bound to 5 (default 7) for the chi2 comparison function
+    Comparisons.update_func(
+        "chi2", partial(Comparisons.get_func("chi2"), max_res_bound=5.0)
+    )
