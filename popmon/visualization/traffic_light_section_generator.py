@@ -149,35 +149,18 @@ class TrafficLightSectionGenerator(Module):
                 df.columns, self.ignore_stat_endswith, self.show_stats
             )
 
-            plots = []
-            if self.plot_overview:
-                plots.append(
-                    _plot_metrics(
-                        feature,
-                        metrics,
-                        dates,
-                        df,
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
+            plots = [
+                _plot_metrics(
+                    feature,
+                    metrics,
+                    dates,
+                    df,
+                    self.last_n,
+                    self.skip_first_n,
+                    self.skip_last_n,
+                    self.skip_empty_plots,
                 )
-
-            if self.plot_metrics:
-                args = [
-                    (
-                        metric,
-                        dates,
-                        df[metric],
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
-                    for metric in metrics
-                ]
-                plots += parallel(_plot_metric, args)
+            ]
 
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
@@ -194,21 +177,6 @@ class TrafficLightSectionGenerator(Module):
             }
         )
         return sections
-
-
-def _plot_metric(metric, dates, values, last_n, skip_first_n, skip_last_n, skip_empty):
-    """Split off plot histogram generation to allow for parallel processing"""
-
-    # prune dates and values
-    dates = _prune(dates, last_n, skip_first_n, skip_last_n)
-    values = _prune(values, last_n, skip_first_n, skip_last_n)
-
-    # make plot. note: slow!
-    plot = plot_traffic_lights_b64(
-        data=np.array(values), labels=dates, skip_empty=skip_empty
-    )
-
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
 
 
 def _plot_metrics(
