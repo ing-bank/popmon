@@ -485,7 +485,6 @@ def plot_heatmap_b64(
                 lab = lab[:17] + "..."
             return lab
 
-        # plt.xlim((0.0, float(len(date))))
         plt.xticks(tick_pos_x, date, fontsize=20, rotation=90)
         plt.yticks(tick_pos_y, [xtick(lab) for lab in labels], fontsize=20)
         im_ratio = values.shape[0] / values.shape[1]

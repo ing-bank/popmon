@@ -1,6 +1,6 @@
 import pandas as pd
 
-import popmon  # noqa
+import popmon
 from popmon import resources
 
 # open synthetic data
@@ -10,7 +10,9 @@ df = pd.read_csv(
 
 # generate stability report using automatic binning of all encountered features
 # (importing popmon automatically adds this functionality to a dataframe)
-report = df.pm_stability_report(
+report = popmon.df_stability_report(
+    df,
+    reference_type="self",
     time_axis="DATE",
     time_width="1w",
     time_offset="2015-07-02",
