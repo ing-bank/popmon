@@ -145,40 +145,20 @@ class AlertSectionGenerator(Module):
                 df.columns, self.ignore_stat_endswith, self.show_stats
             )
 
-            plots = []
-            if self.plot_overview:
-                plots.append(
-                    _plot_metrics(
-                        feature,
-                        [m for m in metrics if not m.endswith("worst")],
-                        dates,
-                        df,
-                        0,
-                        0,
-                        0,
-                        0,
-                        style="alerts",
-                    )
+            plots = [
+                _plot_metrics(
+                    feature,
+                    metrics,
+                    dates,
+                    df,
+                    0,
+                    0,
+                    0,
+                    0,
+                    style="alerts",
                 )
-            if self.plot_metrics:
-                args = [
-                    (
-                        feature,
-                        metric,
-                        dates,
-                        df[metric],
-                        static_bounds,
-                        fdbounds,
-                        self.prefix,
-                        self.suffices,
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
-                    for metric in metrics
-                ]
-                plots += parallel(_plot_metric, args)
+            ]
+
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
@@ -195,46 +175,3 @@ class AlertSectionGenerator(Module):
             }
         )
         return sections
-
-
-def _plot_metric(
-    feature,
-    metric,
-    dates,
-    values,
-    static_bounds,
-    fdbounds,
-    prefix,
-    suffices,
-    last_n,
-    skip_first_n,
-    skip_last_n,
-    skip_empty,
-):
-    """Split off plot histogram generation to allow for parallel processing"""
-    # pick up static traffic light boundaries
-    name = feature + ":" + metric
-    sbounds = static_bounds.get(name, ())
-    # pick up dynamic traffic light boundaries
-    names = [prefix + metric + suffix for suffix in suffices]
-    dbounds = tuple(
-        _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-        for n in names
-        if n in fdbounds.columns
-    )
-    # choose dynamic bounds if present
-    bounds = dbounds if len(dbounds) > 0 else sbounds
-    # prune dates and values
-    dates = _prune(dates, last_n, skip_first_n, skip_last_n)
-    values = _prune(values, last_n, skip_first_n, skip_last_n)
-
-    # make plot. note: slow!
-    plot = plot_bars_b64(
-        data=np.array(values),
-        labels=dates,
-        ylim=True,
-        bounds=bounds,
-        skip_empty=skip_empty,
-    )
-
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
