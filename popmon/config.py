@@ -16,66 +16,98 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from pathlib import Path
+from typing import Literal, Optional, Union
 
-from popmon.analysis.comparison.comparisons import Comparisons
-from popmon.analysis.profiling.profiles import Profiles
+from pydantic import BaseModel, BaseSettings
+from pydantic.fields import Field
 
-profiles = Profiles.get_descriptions()
+# Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
+# the backend from default (loki) to 'multiprocessing' or 'threading'.
+# (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
+parallel_args = {"n_jobs": 1}
+
+# Usage the `ing_matplotlib_theme`
+themed = True
 
 
-comparisons = {
-    "ks": "Kolmogorov-Smirnov test statistic comparing each time slot to {ref}",
-    "ks_zscore": "Z-score of the Kolmogorov-Smirnov test, comparing each time slot with {ref}",
-    "ks_pvalue": "p-value of the Kolmogorov-Smirnov test, comparing each time slot with {ref}",
-    "pearson": "Pearson correlation between each time slot and {ref}",
-    "chi2": "Chi-squared test statistic, comparing each time slot with {ref}",
-    "chi2_norm": "Normalized chi-squared statistic, comparing each time slot with {ref}",
-    "chi2_pvalue": "p-value of the chi-squared statistic, comparing each time slot with {ref}",
-    "chi2_zscore": "Z-score of the chi-squared statistic, comparing each time slot with {ref}",
-    "chi2_max_residual": "The largest absolute normalized residual (|chi|) observed in all bin pairs "
-    + "(one histogram in a time slot and one in {ref})",
-    "chi2_spike_count": "The number of normalized residuals of all bin pairs (one histogram in a time"
-    + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",
-    "unknown_labels": "Are categories observed in a given time slot that are not present in {ref}?",
-}
-comparisons.update(Comparisons.get_descriptions())
+class ProfilesSection(BaseModel):
+    name = "Profiles"
+    description = """Basic statistics of the data (profiles) calculated for each time period (a period
+                       is represented by one bin). The yellow and red lines represent the corresponding
+                       traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data)."""
 
-references = {
-    "ref": "the reference data",
-    "roll": "a rolling window",
-    "prev1": "the preceding time slot",
-    "expanding": "all preceding time slots",
-}
 
-alerts = {
-    "n_green": "Total number of green traffic lights (observed for all statistics)",
-    "n_yellow": "Total number of  yellow traffic lights (observed for all statistics)",
-    "n_red": "Total number of red traffic lights (observed for all statistics)",
-    "worst": "Worst traffic light (observed for all statistics)",
-}
+class AlertSection(BaseModel):
+    name = "Alerts"
+    description = "Alerts aggregated by all traffic lights for each feature."
 
-section_descriptions = {
-    "profiles": """Basic statistics of the data (profiles) calculated for each time period (a period
-                   is represented by one bin). The yellow and red lines represent the corresponding
-                   traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data).""",
-    "comparisons": "Statistical comparisons of each time period (one bin) to the reference data.",
-    "traffic_lights": "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default.",
-    "alerts": "Alerts aggregated by all traffic lights for each feature.",
-    "histograms": "Histograms of the last few time slots (default: 2).",
-    "overview": "Alerts aggregated per feature",
-}
+    descriptions = {
+        "n_green": "Total number of green traffic lights (observed for all statistics)",
+        "n_yellow": "Total number of  yellow traffic lights (observed for all statistics)",
+        "n_red": "Total number of red traffic lights (observed for all statistics)",
+    }
 
-histograms = {
-    "heatmap": "The heatmap shows the frequency of each value over time. If a variable has a high number of distinct values"
-    "(i.e. has a high cardinality), then the most frequent values are displayed and the remaining are grouped as 'Others'. "
-    "The maximum number of values to should is configurable (default: 20).",
-    "heatmap_column_normalized": "The column-normalized heatmap allows for comparing of time bins when the counts in each bin vary.",
-    "heatmap_row_normalized": "The row-normalized heatmaps allows for monitoring one value over time.",
-}
 
-config = {
-    "section_descriptions": section_descriptions,
-    "limited_stats": [
+class HistogramSectionModel(BaseModel):
+    name = "Histograms"
+    description = "Histograms of the last few time slots (default: 2)."
+
+    hist_names: list[
+        Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"]
+    ] = [
+        "heatmap",
+        "heatmap_column_normalized",
+        "heatmap_row_normalized",
+    ]
+    hist_names_formatted = {
+        "heatmap": "Heatmap",
+        "heatmap_column_normalized": "Column-Normalized Heatmap",
+        "heatmap_row_normalized": "Row-Normalized Heatmap",
+    }
+    descriptions = {
+        "heatmap": "The heatmap shows the frequency of each value over time. If a variable has a high number of distinct values"
+        "(i.e. has a high cardinality), then the most frequent values are displayed and the remaining are grouped as 'Others'. "
+        "The maximum number of values to should is configurable (default: 20).",
+        "heatmap_column_normalized": "The column-normalized heatmap allows for comparing of time bins when the counts in each bin vary.",
+        "heatmap_row_normalized": "The row-normalized heatmaps allows for monitoring one value over time.",
+    }
+    plot_hist_n: int = 2
+    cmap: str = "autumn_r"
+
+
+class TrafficLightsSection(BaseModel):
+    name = "Traffic Lights"
+    description = "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default."
+
+
+class ComparisonsSection(BaseModel):
+    name = "Comparisons"
+    description = (
+        "Statistical comparisons of each time period (one bin) to the reference data."
+    )
+
+
+class OverviewSection(BaseModel):
+    name = "Overview"
+    description = "Alerts aggregated per feature"
+
+
+class Section(BaseModel):
+    profiles: ProfilesSection = ProfilesSection()
+    alerts: AlertSection = AlertSection()
+    histograms: HistogramSectionModel = HistogramSectionModel()
+    overview: OverviewSection = OverviewSection()
+    comparisons: ComparisonsSection = ComparisonsSection()
+    traffic_lights: TrafficLightsSection = TrafficLightsSection()
+
+
+def get_stats():
+    from popmon.analysis.comparison.comparisons import Comparisons
+
+    comparisons = Comparisons.get_descriptions()
+
+    stats = [
         "distinct*",
         "filled*",
         "nan*",
@@ -90,46 +122,70 @@ config = {
         "phik*",
         "*unknown_labels*",
         "*chi2_norm*",
-        "*ks*",
         "*zscore*",
         "n_*",
-        "worst",
-    ],
-}
-for key in Comparisons.get_comparisons().keys():
-    config["limited_stats"].append(f"*{key}*")
+    ]
+
+    for key in comparisons.keys():
+        stats.append(f"*{key}*")
+
+    return stats
 
 
-def get_stat_description(name: str):
-    """Gets the description of a statistic.
+class Report(BaseModel):
+    """Report-specific configuration"""
 
-    :param str name: the name of the statistic.
-
-    :returns str: the description of the statistic. If not found, returns an empty string
-    """
-    if not isinstance(name, str):
-        raise TypeError("Statistic's name should be a string.")
-
-    if name in histograms:
-        return histograms[name]
-    if name in profiles:
-        return profiles[name]
-    if name in alerts:
-        return alerts[name]
-
-    head, *tail = name.split("_")
-    tail = "_".join(tail)
-
-    if tail in comparisons and head in references:
-        return comparisons[tail].format(ref=references[head])
-
-    return ""
+    skip_empty_plots: bool = True
+    last_n: int = 0
+    skip_first_n: int = 0
+    skip_last_n: int = 0
+    report_filepath: Optional[Union[str, Path]] = None
+    # if set to false, then smaller show_stats
+    # if limited report is selected, check if stats list is provided, if not, get a default minimal list
+    # show_stats = show_stats if not extended_report else None
+    extended_report: bool = True
+    show_stats: list[str] = Field(default_factory=get_stats)
+    section: Section = Section()
+    top_n: int = 20
 
 
-# Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
-# the backend from default (loki) to 'multiprocessing' or 'threading'.
-# (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
-parallel_args = {"n_jobs": 1}
+class Comparison(BaseModel):
+    window = 10
+    shift = 1
 
-# Usage the `ing_matplotlib_theme`
-themed = True
+
+class Monitoring(BaseModel):
+    monitoring_rules: dict[str, list[float]] = {
+        "*_pull": [7, 4, -4, -7],
+        "*_zscore": [7, 4, -4, -7],
+        "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+    }
+    pull_rules: dict[str, list[float]] = {"*_pull": [7, 4, -4, -7]}
+
+
+class Settings(BaseSettings):
+    report: Report = Report()
+    comparison: Comparison = Comparison()
+    monitoring: Monitoring = Monitoring()
+
+    @classmethod
+    def get_keys(cls):
+        aliases = {}
+        ambiguous = []
+        for key, value in cls.schema()["properties"].items():
+            if key in aliases:
+                ambiguous.append(key)
+                del aliases[key]
+            elif key in ambiguous:
+                continue
+
+            if "allOf" in value:
+                for skey, svalue in value["default"].items():
+                    if skey in aliases:
+                        ambiguous.append(key)
+                        del aliases[key]
+                    else:
+                        aliases[skey] = (key, skey)
+            else:
+                aliases[key] = key
+        return aliases

@@ -24,10 +24,47 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from popmon.analysis.comparison.comparisons import Comparisons
+from popmon.analysis.profiling.profiles import Profiles
+
 from ..base import Module
-from ..config import get_stat_description
+from ..config import Report
 from ..utils import filter_metrics, parallel, short_date
 from ..visualization.utils import _prune, plot_bars_b64
+
+profiles = Profiles.get_descriptions()
+
+comparisons = Comparisons.get_descriptions()
+
+
+references = {
+    "ref": "the reference data",
+    "roll": "a rolling window",
+    "prev1": "the preceding time slot",
+    "expanding": "all preceding time slots",
+}
+
+
+def get_stat_description(name: str):
+    """Gets the description of a statistic.
+
+    :param str name: the name of the statistic.
+
+    :returns str: the description of the statistic. If not found, returns an empty string
+    """
+    if not isinstance(name, str):
+        raise TypeError("Statistic's name should be a string.")
+
+    if name in profiles:
+        return profiles[name]
+
+    head, *tail = name.split("_")
+    tail = "_".join(tail)
+
+    if tail in comparisons and head in references:
+        return comparisons[tail].format(ref=references[head])
+
+    return ""
 
 
 class SectionGenerator(Module):
@@ -46,17 +83,13 @@ class SectionGenerator(Module):
         section_name,
         features=None,
         ignore_features=None,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
+        settings: Report = None,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
         suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
         ignore_stat_endswith=None,
-        skip_empty_plots=True,
         description="",
-        show_stats=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -65,17 +98,12 @@ class SectionGenerator(Module):
         :param str section_name: key of output data to store in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
         :param str static_bounds: key to static traffic light bounds key in datastore (optional)
         :param str dynamic_bounds: key to dynamic traffic light bounds key in datastore (optional)
         :param str prefix: dynamic traffic light prefix. default is ``'traffic_light_'`` (optional)
         :param str suffices: dynamic traffic light suffices. (optional)
         :param list ignore_stat_endswith: ignore stats ending with any of list of suffices. (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param str description: description of the section. default is empty (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
         """
         super().__init__()
         self.read_key = read_key
@@ -86,15 +114,15 @@ class SectionGenerator(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
-        self.last_n = last_n
-        self.skip_first_n = skip_first_n
-        self.skip_last_n = skip_last_n
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = skip_empty_plots
+        self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
-        self.show_stats = show_stats
+        self.show_stats = settings.show_stats
 
     def get_description(self):
         return self.section_name

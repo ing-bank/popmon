@@ -19,6 +19,7 @@
 
 
 import logging
+from collections import defaultdict
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import (
@@ -27,7 +28,7 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
-from ..config import config
+from ..config import Report, Settings
 from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
 
@@ -42,17 +43,7 @@ def stability_report(
     reference_type="self",
     reference=None,
     time_axis="",
-    window=10,
-    shift=1,
-    monitoring_rules=None,
-    pull_rules=None,
     features=None,
-    skip_empty_plots=True,
-    last_n=0,
-    plot_hist_n=2,
-    report_filepath=None,
-    extended_report=True,
-    show_stats=config["limited_stats"],
     **kwargs,
 ):
     """Create a data stability monitoring html report for given dict of input histograms.
@@ -116,15 +107,6 @@ def stability_report(
     # perform basic input checks
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
-    if not isinstance(monitoring_rules, dict):
-        monitoring_rules = {
-            "*_pull": [7, 4, -4, -7],
-            "*_zscore": [7, 4, -4, -7],
-            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-        }
-    if not isinstance(pull_rules, dict):
-        pull_rules = {"*_pull": [7, 4, -4, -7]}
-
     if (isinstance(time_axis, str) and len(time_axis) == 0) or (
         isinstance(time_axis, bool) and time_axis
     ):
@@ -132,29 +114,31 @@ def stability_report(
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
-    # if limited report is selected, check if stats list is provided, if not, get a default minimal list
-    show_stats = show_stats if not extended_report else None
+    # parse the kwargs
+    keys = Settings.get_keys()
+    data = defaultdict(dict)
+    for k, m in keys.items():
+        if k in kwargs:
+            if isinstance(m, tuple):
+                data[m[0]][m[1]] = kwargs.pop(k)
+            else:
+                data[m] = kwargs.pop(k)
+    if len(kwargs) > 0:
+        raise ValueError(f"kwargs not supported {kwargs}")
+
+    settings = Settings(**data)
 
     # configuration and datastore for report pipeline
     cfg = {
         "hists_key": "hists",
-        "ref_hists_key": "ref_hists",
         "time_axis": time_axis,
-        "window": window,
-        "shift": shift,
-        "monitoring_rules": monitoring_rules,
-        "pull_rules": pull_rules,
         "features": features,
-        "skip_empty_plots": skip_empty_plots,
-        "last_n": last_n,
-        "plot_hist_n": plot_hist_n,
-        "report_filepath": report_filepath,
-        "show_stats": show_stats,
-        **kwargs,
+        "settings": settings,
     }
 
     datastore = {"hists": hists}
     if reference_type == "external":
+        cfg["ref_hists_key"] = "ref_hists"
         datastore["ref_hists"] = reference
 
     # execute reporting pipeline
@@ -193,16 +177,6 @@ def df_stability_report(
     var_dtype=None,
     reference_type="self",
     reference=None,
-    window=10,
-    shift=1,
-    monitoring_rules=None,
-    pull_rules=None,
-    skip_empty_plots=True,
-    last_n=0,
-    plot_hist_n=2,
-    report_filepath=None,
-    extended_report=True,
-    show_stats=config["limited_stats"],
     **kwargs,
 ):
     """Create a data stability monitoring html report for given pandas or spark dataframe.
@@ -391,17 +365,7 @@ def df_stability_report(
         reference_type,
         reference_hists,
         time_axis,
-        window,
-        shift,
-        monitoring_rules,
-        pull_rules,
         features,
-        skip_empty_plots,
-        last_n,
-        plot_hist_n,
-        report_filepath,
-        extended_report,
-        show_stats,
         **kwargs,
     )
 
@@ -482,16 +446,9 @@ class StabilityReport:
 
     def regenerate(
         self,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
-        plot_hist_n=2,
-        skip_empty_plots=True,
-        report_filepath=None,
         store_key="html_report",
         sections_key="report_sections",
-        extended_report=True,
-        show_stats=config["limited_stats"],
+        **kwargs,
     ):
         """Regenerate HTML report with different plot settings
 
@@ -518,18 +475,11 @@ class StabilityReport:
         if store_key in self.datastore:
             del self.datastore[store_key]
 
-        # if limited report is selected, check if stats list is provided, if not, get a default minimal list
-        show_stats = show_stats if not extended_report else None
+        settings = Report(**kwargs)
 
         pipeline = ReportPipe(
             sections_key=sections_key,
-            last_n=last_n,
-            skip_first_n=skip_first_n,
-            skip_last_n=skip_last_n,
-            skip_empty_plots=skip_empty_plots,
-            plot_hist_n=plot_hist_n,
-            report_filepath=report_filepath,
-            show_stats=show_stats,
+            settings=settings,
         )
         result = pipeline.transform(self.datastore)
 

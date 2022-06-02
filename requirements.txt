@@ -10,3 +10,4 @@ joblib>=0.14.0
 pybase64>=1.0.1
 htmlmin
 ing_theme_matplotlib>=0.1.8
+pydantic
