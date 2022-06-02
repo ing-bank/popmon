@@ -25,6 +25,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from ..base import Module
+from ..config import Report
 from ..resources import templates_env
 from ..utils import filter_metrics
 from ..visualization.utils import _prune
@@ -43,20 +44,14 @@ class OverviewSectionGenerator(Module):
         self,
         read_key,
         store_key,
-        section_name,
         features=None,
         ignore_features=None,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
+        settings: Report = None,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
         suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
         ignore_stat_endswith=None,
-        skip_empty_plots=True,
-        description="",
-        show_stats=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -87,16 +82,16 @@ class OverviewSectionGenerator(Module):
 
         self.features = features or []
         self.ignore_features = ignore_features or []
-        self.section_name = section_name
-        self.last_n = last_n
-        self.skip_first_n = skip_first_n
-        self.skip_last_n = skip_last_n
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = skip_empty_plots
-        self.description = description
-        self.show_stats = show_stats
+        self.skip_empty_plots = settings.skip_empty_plots
+        self.show_stats = settings.show_stats
+        self.section_name = settings.section.overview.name
+        self.description = settings.section.overview.description
 
     def get_description(self):
         return self.section_name

@@ -23,7 +23,6 @@ import logging
 from popmon import resources
 
 from ..base import Pipeline
-from ..config import config
 from ..io import JsonReader
 from ..pipeline.report_pipelines import SelfReference
 
@@ -47,7 +46,6 @@ def run():
     )
 
     cfg = {
-        **config,
         "histograms_path": resources.data("synthetic_histograms.json"),
         "hists_key": "hists",
         "ref_hists_key": "hists",
@@ -60,7 +58,6 @@ def run():
             "*_zscore": [7, 4, -4, -7],
         },
         "pull_rules": {"*_pull": [7, 4, -4, -7]},
-        "show_stats": config["limited_stats"],
     }
 
     pipeline = AmazingPipeline(**cfg)
