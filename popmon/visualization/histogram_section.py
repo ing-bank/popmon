@@ -167,13 +167,14 @@ class HistogramSection(Module):
         return sections
 
 
-def _plot_histograms(feature, date, hc_list, hist_names, top_n):
+def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
     """Split off plot histogram generation to allow for parallel processing
 
     :param str feature: feature
     :param str date: date of time slot
     :param list hc_list: histogram list
     :param list hist_names: names of histograms to show as labels
+    :param int max_nbins: maximum number of histogram bins allowed for plot (default 1000)
     :return: dict with plotted histogram
     """
     # basic checks
@@ -187,18 +188,22 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n):
     hist_names = [hn for i, hn in enumerate(hist_names) if i not in none_hists]
     # more basic checks
     if len(hc_list) == 0:
-        return date, ""
+        return {"name": date, "description": get_stat_description(date), "plot": ""}
     assert_similar_hists(hc_list)
 
     # make plot. note: slow!
     if hc_list[0].n_dim == 1:
+        if all(h.size == 0 for h in hc_list):
+            # triviality checks, skip all histograms empty
+            return {"name": date, "description": get_stat_description(date), "plot": ""}
+
         props = get_hist_props(hc_list[0])
         is_num = props["is_num"]
         is_ts = props["is_ts"]
         y_label = "Bin count" if len(hc_list) == 1 else "Bin probability"
 
         if is_num:
-            numpy_1dhists = get_consistent_numpy_1dhists(hc_list)
+            numpy_1dhists = get_consistent_numpy_1dhists(hc_list, crop_range=True)
             entries_list = [nphist[0] for nphist in numpy_1dhists]
             bins = numpy_1dhists[0][1]  # bins = bin-edges
         else:
@@ -207,9 +212,9 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n):
                 hc_list, get_bin_labels=True
             )  # bins = bin-labels
 
-        if len(bins) == 0:
-            # skip empty histograms
-            return date, ""
+        # skip histograms with too many bins to plot (default more than 1000)
+        if len(bins) > max_nbins:
+            return {"name": date, "description": get_stat_description(date), "plot": ""}
 
         # normalize histograms for plotting (comparison!) in case there is more than one.
         if len(hc_list) >= 2:

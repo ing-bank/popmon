@@ -24,7 +24,8 @@ import histogrammar
 import numpy as np
 from histogrammar.util import get_hist_props
 
-from ..hist.hist_utils import is_numeric
+from ..hist.hist_utils import get_bin_centers, is_numeric
+from ..stats.numpy import quantile
 
 used_hist_types = (histogrammar.Bin, histogrammar.SparselyBin, histogrammar.Categorize)
 
@@ -209,12 +210,19 @@ def get_consistent_numpy_2dgrids(hist_list=[], get_bin_labels=False):
     return get_consistent_numpy_ndgrids(hist_list, get_bin_labels, dim=2)
 
 
-def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
-    """Get list of consistent numpy hists for list of sparse input histograms
+def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False, crop_range=False):
+    """Get list of consistent numpy hists for list of sparse (or bin) input histograms
+
+    Works for sparse and bin histograms.
+    Note: for sparse histograms, all potential bins between low and high are picked up (also unfilled).
 
     Note: a numpy histogram is a union of lists of bin_edges and number of entries
+    This gives the full range of bin_centers, including zeros, which is not robust against (extreme) outliers.
+    Ideally, use this for plotting of multiple histograms only.
 
     :param list hist_list: list of input histogram objects
+    :param bool get_bin_labels: return bin labels as well, default is false.
+    :param bool crop_range: return a trimmed version of the histogram, between 5-95% quantiles.
     :return: list of consistent 1d numpy hists for list of sparse input histograms
     """
     # --- basic checks
@@ -229,8 +237,36 @@ def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
     high = max(high_arr) if len(high_arr) > 0 else None
     # low == None and/or high == None can only happen when all input hists are empty.
 
+    if crop_range:
+        # crop_range option crops a histogram to reasonable range, e.g. for plotting, giving nice plots.
+        # in particular this protects against outliers that distort the view on the core part of the distribution
+        # range is quantiles 5-95% + 5% on both sides
+        q05_arr = []
+        q95_arr = []
+        for hist in hist_list:
+            bin_centers, values = get_bin_centers(hist)
+            bin_entries = np.array([v.entries for v in values])
+            qs = quantile(bin_centers, [0.05, 0.95], bin_entries)
+            q05_arr.append(qs[0])
+            q95_arr.append(qs[1])
+        q05 = min(q05_arr) if len(q05_arr) > 0 else np.nan
+        q95 = max(q95_arr) if len(q95_arr) > 0 else np.nan
+        delta = q95 - q05
+        var_min = q05 - (0.06 / 0.9) * delta
+        var_max = q95 + (0.06 / 0.9) * delta
+        if 0.0 < var_min < 0.2 * delta:
+            var_min = 0.0
+        elif -0.2 * delta < var_max < 0.0:
+            var_max = 0.0
+        if not np.isnan(var_min) and low is not None and var_min > low:
+            low = var_min
+        if not np.isnan(var_max) and high is not None and var_max < high:
+            high = var_max
+
     # if one of the input histograms is sparse and empty, copy the bin-edges and bin-centers
     # from a filled histogram, and use empty bin-entries array
+    # MB 20220601: note this gives the full range of bin_centers, which is not robust against (extreme) outliers
+    #              get_consistent_numpy_entries() ignores all empty bins.
     bin_edges = [0.0, 1.0]
     bin_centers = [0.5]
     null_entries = [0.0]
@@ -239,7 +275,7 @@ def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
             if hist.low is not None and hist.high is not None:
                 bin_edges = hist.bin_edges(low, high)
                 bin_centers = hist.bin_centers(low, high)
-                null_entries = [0] * len(bin_centers)
+                null_entries = np.zeros(len(bin_centers))
                 break
 
     nphist_list = []
@@ -259,6 +295,10 @@ def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False):
 
 def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     """Get list of consistent numpy bin_entries for list of 1d input histograms
+
+    Works for categorize, sparse and bin histograms.
+    Note: for sparse histograms, *only* the filled bins are picked up.
+    (this is not the case when calling get_consistent_numpy_1dhists(), which takes all bins b/n low and high.)
 
     :param list hist_list: list of input histogrammar histograms
     :return: list of consistent 1d numpy arrays with bin_entries for list of input histograms
@@ -281,7 +321,7 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
     # union of all labels encountered
     labels = set()
     for hist in hist_list:
-        bin_labels = hist.bin_centers() if all_num else hist.keySet
+        bin_labels = get_bin_centers(hist)[0]
         labels = labels.union(bin_labels)
     labels = sorted(labels)
 
@@ -294,7 +334,6 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
         props = get_hist_props(hist_list[0])
         if props["is_bool"]:
             cat_labels = [lab == "True" for lab in cat_labels]
-
         kwargs = {"labels": cat_labels}
 
     entries_list = [hist.bin_entries(**kwargs) for hist in hist_list]

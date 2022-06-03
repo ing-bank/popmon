@@ -343,12 +343,7 @@ def hist_sum(x, hist_name=""):
     if not similar:
         return pd.Series(o)
 
-    # MB FIX: h_sum not initialized correctly in a sum by histogrammar for sparselybin (origin); below it is.
-    # h_sum = np.sum([hist for hist in hist_list])
-
-    h_sum = hist_list[0].zero()
-    for hist in hist_list:
-        h_sum += hist
+    h_sum = np.sum(hist_list)
     o[hist_name] = h_sum
     return pd.Series(o)
 
