@@ -78,7 +78,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     """
     # basic checks first
     n = data.size  # number of bins
-    if labels and len(labels) != n:
+    if labels is not None and len(labels) != n:
         raise ValueError("shape mismatch: x-axis labels do not match the data shape")
 
     # skip plot generation for empty datasets
@@ -97,7 +97,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
     ax.bar(index, data, width=width, align="center")
 
-    if labels:
+    if labels is not None:
         ax.set_xticks(index)
         ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
         granularity = math.ceil(len(labels) / 50)

@@ -132,7 +132,7 @@ class SectionGenerator(Module):
                 inplace=True,
                 errors="ignore",
             )
-            dates = [short_date(str(date)) for date in df.index.tolist()]
+            dates = np.array([short_date(str(date)) for date in df.index.tolist()])
 
             metrics = filter_metrics(
                 df.columns, self.ignore_stat_endswith, self.show_stats
@@ -143,7 +143,7 @@ class SectionGenerator(Module):
                     feature,
                     metric,
                     dates,
-                    df[metric],
+                    df[metric].values,
                     static_bounds,
                     fdbounds,
                     self.prefix,
@@ -201,13 +201,14 @@ def _plot_metric(
     )
     # choose dynamic bounds if present
     bounds = dbounds if len(dbounds) > 0 else sbounds
+
     # prune dates and values
     dates = _prune(dates, last_n, skip_first_n, skip_last_n)
     values = _prune(values, last_n, skip_first_n, skip_last_n)
 
     # make plot. note: slow!
     plot = plot_bars_b64(
-        data=np.array(values),
+        data=values,
         labels=dates,
         ylim=True,
         bounds=bounds,
