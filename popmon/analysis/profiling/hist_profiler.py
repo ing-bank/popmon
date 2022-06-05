@@ -207,8 +207,8 @@ class HistProfiler(Module):
         is_num = is_numeric(hist)
         is_ts = is_timestamp(hist) or name in self.var_timestamp
 
-        bin_labels = np.array(get_bin_centers(hist)[0])
-        bin_counts = np.array([v.entries for v in get_bin_centers(hist)[1]])
+        bin_labels, values = get_bin_centers(hist)
+        bin_counts = np.array([v.entries for v in values])
 
         if len(bin_counts) == 0:
             self.logger.warning(f'Histogram "{name}" is empty; skipping.')
