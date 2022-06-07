@@ -446,6 +446,16 @@ def plot_overlay_1d_histogram_b64(
     fig.update_layout(barmode="overlay")
     fig.update_yaxes(title=str(y_label) if y_label is not None else "Bin count")
     fig.update_xaxes(title=x_label)
+    fig.update_layout(
+        legend={
+            "orientation": "h",
+            "yanchor": "bottom",
+            "y": 1.02,
+            "xanchor": "right",
+            "x": 1,
+            "font": {"size": 10},
+        }
+    )
 
     return fig.to_json()
 
