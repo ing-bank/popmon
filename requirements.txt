@@ -1,10 +1,11 @@
 numpy>=1.18.0
 pandas>=0.25.1
 scipy>=1.5.2
-histogrammar>=1.0.27
+histogrammar>=1.0.28
 phik
 jinja2
 tqdm
+plotly>=5.8.0
 matplotlib>=2.2.3
 joblib>=0.14.0
 pybase64>=1.0.1

@@ -61,6 +61,8 @@ table.overview{
 }
 table.overview tbody td.metric{
     white-space: nowrap;
+    min-width: max-content;
+    width: 200px;
 }
 table.overview tbody td.cell{
    border: 1px solid #333333;
@@ -91,19 +93,26 @@ table.overview tfoot td span{
 }
 
 /* overview progress bars */
-.green, .yellow, .red, .white{
-    float:left;
+.tl-bar.green{
+    background-color: green;
+}
+.tl-bar.yellow{
+    background-color: rgba(255, 200, 0, 1.0);
+}
+.tl-bar.red{
+    background-color: rgba(255, 0, 0, 1.0);
+}
+
+.tl-bar{
     padding-top:10px;
     padding-bottom:10px;
     color: white;
     text-align:center;
+    padding-left:6px;
+    padding-right: 6px;
+    min-width: max-content;
 }
-.green{
-    background-color: green;
-}
-.yellow{
-    background-color: rgba(255, 200, 0, 1.0);
-}
-.red{
-    background-color: rgba(255, 0, 0, 1.0);
+.tl-container{
+    display: flex;
+    width: 100%;
 }

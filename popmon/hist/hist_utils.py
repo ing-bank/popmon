@@ -220,13 +220,15 @@ def is_numeric(hist):
 
 def sparse_bin_centers_x(hist):
     """Get x-axis bin centers of sparse histogram"""
-    keys = sorted(hist.bins.keys())
+    # note: want sorted keys for plotting
+    keys = np.array(sorted(hist.bins.keys()))
     if hist.minBin is None or hist.maxBin is None:
         # number of bins is set to 1.
         centers = np.array([hist.origin + 0.5 * hist.binWidth])
     else:
-        centers = np.array([hist.origin + (i + 0.5) * hist.binWidth for i in keys])
-
+        # default for filled histogram
+        centers = hist.origin + (keys + 0.5) * hist.binWidth
+    # note: so values is also sorted
     values = [hist.bins[key] for key in keys]
     return centers, values
 

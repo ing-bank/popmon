@@ -21,15 +21,14 @@
 import logging
 import math
 from io import BytesIO, StringIO
-from re import X
 from typing import List
 
 import numpy as np
 import pandas as pd
-import pybase64
-from matplotlib import pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import pybase64
+from matplotlib import pyplot as plt
 
 import popmon.config
 from popmon.resources import templates_env
@@ -81,7 +80,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     """
     # basic checks first
     n = data.size  # number of bins
-    if labels and len(labels) != n:
+    if labels is not None and len(labels) != n:
         raise ValueError("shape mismatch: x-axis labels do not match the data shape")
 
     # skip plot generation for empty datasets
@@ -94,30 +93,13 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             logger.debug("skipping plot with empty data.")
             return ""
 
-    # fig, ax = plt.subplots()
-
-    index = np.arange(n)
-    width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
-    # ax.bar(index, data, width=width, align="center")
-
-
+    # plot bar
     fig = go.Figure([go.Bar(x=labels, y=data)])
 
-    #handle high cardinality ?
-    # if labels:
-    #     granularity = math.ceil(len(labels) / 50)
-    #     for i in range(len(labels)):
-    #         if i % granularity != 0:
-    #             # plotly skips duplicate x-axis labels, so work around to have a x-axis label each time : https://github.com/plotly/plotly.js/issues/1516 417
-    #             labels[i] = " "
-                
-    
     fig.update_layout(xaxis_tickangle=-90)
     fig.update_xaxes(tickvals=labels, ticktext=labels)
     fig.update_yaxes(ticks="outside")
-    
     # plot boundaries
-    
     try:
         all_nan = (np.isnan(data)).all()
         max_value = np.nanmax(data) if not all_nan else np.nan
@@ -147,18 +129,19 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
                 fig.add_hline(y=min_r[0], line_color="red")
 
             if y_max > y_min:
-                fig.update_yaxes(range = [y_min,y_max])
-            
+                fig.update_yaxes(range=[y_min, y_max])
+
         elif ylim:
             spread = (max_value - min_value) / 20
             y_min = min_value - spread
             y_max = max_value + spread
             if y_max > y_min:
-                fig.update_yaxes(range = [y_min,y_max])
+                fig.update_yaxes(range=[y_min, y_max])
     except Exception:
         logger.debug("unable to plot boundaries")
 
     return fig.to_json()
+
 
 def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
     colors = {}
@@ -367,7 +350,8 @@ def plot_overlay_1d_histogram_b64(
         if len(hists) != len(hist_names):
             raise ValueError("length of hist and hist_names are different")
 
-    fig, ax = plt.subplots(figsize=(9, 7))
+    # fig, ax = plt.subplots(figsize=(9, 7))
+    fig = go.Figure()
 
     alpha = 1.0 / len(hists)
     for i, hist in enumerate(hists):
@@ -413,20 +397,21 @@ def plot_overlay_1d_histogram_b64(
                 width = np.diff(bin_edges)
 
             # plot histogram
-            ax.bar(
-                bin_edges[:-1],
-                bin_values,
-                width=width,
-                alpha=alpha,
-                label=hist_names[i],
+            fig.add_trace(
+                go.Bar(
+                    x=bin_edges[1:],
+                    y=bin_values,
+                    showlegend=True,
+                    opacity=alpha,
+                    name=hist_names[i],
+                )
             )
 
             # set x-axis properties
             if xlim:
-                ax.set_xlim(xlim)
+                fig.update_xaxes(range=xlim)
             else:
-                ax.set_xlim(min(bin_edges), max(bin_edges))
-            ax.tick_params(axis="x", labelsize=12, labelrotation=90 if is_ts else 0)
+                fig.update_xaxes(range=[min(bin_edges), max(bin_edges)])
 
         # plot categories
         else:
@@ -438,10 +423,6 @@ def plot_overlay_1d_histogram_b64(
                 len(labels), len(values), x_label
             )
 
-            # plot histogram
-            tick_pos = np.arange(len(labels)) + 0.5
-            ax.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
-
             # set x-axis properties
             def xtick(lab):
                 """Get x-tick."""
@@ -450,18 +431,23 @@ def plot_overlay_1d_histogram_b64(
                     lab = lab[:17] + "..."
                 return lab
 
-            ax.set_xlim((0.0, float(len(labels))))
-            ax.set_xticks(tick_pos)
-            ax.set_xticklabels([xtick(lab) for lab in labels], fontsize=12, rotation=90)
+            # plot histogram
+            fig.add_trace(
+                go.Bar(
+                    x=[xtick(lab) for lab in labels],
+                    y=values,
+                    showlegend=True,
+                    opacity=alpha,
+                    name=hist_names[i],
+                )
+            )
 
     # set common histogram properties
-    ax.set_xlabel(x_label, fontsize=14)
-    ax.set_ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.grid()
-    ax.legend()
+    fig.update_layout(barmode="overlay")
+    fig.update_yaxes(title=str(y_label) if y_label is not None else "Bin count")
+    fig.update_xaxes(title=x_label)
 
-    return plt_to_str(fig)
+    return fig.to_json()
 
 
 def plot_heatmap_b64(
@@ -503,7 +489,7 @@ def plot_heatmap_b64(
         if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
 
-    #fig = plt.figure(figsize=(40, 20))
+    # fig = plt.figure(figsize=(40, 20))
 
     assert hist_values is not None and len(
         hist_values
@@ -544,13 +530,14 @@ def plot_heatmap_b64(
             return lab
 
         # plot histogram
-        tick_pos_x = np.arange(len(date))
-        tick_pos_y = np.arange(len(labels))
-        fig = px.imshow(values, labels=dict(x="Time Bins", y=x_label, color="Productivity"),
-                        x=date,
-                        y=[xtick(lab) for lab in labels],
-                        color_continuous_scale=cmap,
-                        text_auto='.2f')
+        fig = px.imshow(
+            values,
+            labels={"x": "Time Bins", "y": x_label},
+            x=date,
+            y=[xtick(lab) for lab in labels],
+            color_continuous_scale=cmap,
+            text_auto=".2f",
+        )
 
         fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
         fig.update_yaxes(ticks="outside")
