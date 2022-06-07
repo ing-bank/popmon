@@ -9,7 +9,13 @@
 <!-- Bootstrap core JavaScript -->
 <!-- Plugin JavaScript -->
 <!-- Custom JavaScript for this theme -->
+{% if online_report %}
+    <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+{% endif %}
 <script>
+    {% if not online_report %}
+        {% include 'assets/js/plotly.js' %}
+    {% endif %}
     {% include 'assets/js/jquery.min.js' %}
     {% include 'assets/js/bootstrap.bundle.min.js' %}
     {% include 'assets/js/jquery.easing.min.js' %}

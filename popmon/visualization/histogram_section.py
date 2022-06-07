@@ -140,17 +140,33 @@ class HistogramSection(Module):
             ]
             plots = parallel(_plot_histograms, args)
 
+            plot_type_layouts = {}
+
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             plots = sorted(plots, key=lambda plot: plot["name"])
+            if len(plots) > 0:
+                plot_type_layouts["histogram"] = plots[0]["layout"]
 
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
-            hplots = [h for h in heatmaps if isinstance(h, dict) and len(h["plot"])]
+            hplots = []
+            for h in heatmaps:
+                if isinstance(h, dict):
+                    if len(h["plot"]):
+                        hplots.append(h)
+
+            if len(hplots) > 0:
+                plot_type_layouts["heatmap"] = hplots[0]["layout"]
 
             plots = hplots + plots
-
-            features_w_metrics.append({"name": feature, "plots": plots})
-
+            # print(plot_types,layouts)
+            features_w_metrics.append(
+                {
+                    "name": feature,
+                    "plot_type_layouts": plot_type_layouts,
+                    "plots": plots,
+                }
+            )
         sections.append(
             {
                 "section_title": self.section_name,
@@ -230,11 +246,17 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
             hists, feature, hist_names, y_label, is_num, is_ts
         )
     elif hc_list[0].n_dim == 2:
-        plot = ""
+        plot = {}
     else:
-        plot = ""
+        plot = {}
 
-    return {"name": date, "description": "", "plot": plot}
+    return {
+        "name": date,
+        "type": "histogram",
+        "description": "",
+        "plot": plot.get("data", ""),
+        "layout": plot.get("layout", ""),
+    }
 
 
 def _plot_heatmap(
@@ -321,13 +343,15 @@ def _plot_heatmap(
         if isinstance(heatmaps, list):
             plot = [hist_lookup(heatmaps, hist_name) for hist_name in hist_names]
         elif isinstance(heatmaps, dict):
-            plot = [heatmaps["plot"]]
+            plot = [heatmaps]
 
         plots = [
             {
                 "name": hist_names_formatted[hist_name],
-                "description": descriptions[hist_name],
-                "plot": pl,
+                "type": "heatmap",
+                "description": "",
+                "plot": pl["plot"],
+                "layout": pl["layout"],
                 "full_width": True,
             }
             for pl, hist_name in zip(plot, hist_names)
@@ -364,4 +388,4 @@ def get_top_categories(entries_list, bins, top_n):
 def hist_lookup(plot, hist_name):
     for pl in plot:
         if pl["name"] == hist_name:
-            return pl["plot"]
+            return pl

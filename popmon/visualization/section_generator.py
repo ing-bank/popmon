@@ -117,6 +117,7 @@ class SectionGenerator(Module):
         self.last_n = settings.last_n
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
+        self.zline_color = settings.zline_color
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
@@ -180,6 +181,7 @@ class SectionGenerator(Module):
                     self.skip_first_n,
                     self.skip_last_n,
                     self.skip_empty_plots,
+                    self.zline_color,
                 )
                 for metric in metrics
             ]
@@ -188,8 +190,21 @@ class SectionGenerator(Module):
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
+
+            layouts = ""
+            if len(plots) > 0:
+                layouts = plots[0]["layout"]
+                if "shapes" in layouts:
+                    del layouts["shapes"]
+                if "range" in layouts["yaxis"]:
+                    del layouts["yaxis"]["range"]
+
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {
+                    "name": feature,
+                    "plot_type_layouts": {"barplot": layouts},
+                    "plots": sorted(plots, key=lambda plot: plot["name"]),
+                }
             )
 
         sections.append(
@@ -215,6 +230,7 @@ def _plot_metric(
     skip_first_n,
     skip_last_n,
     skip_empty,
+    zline_color,
 ):
     """Split off plot histogram generation to allow for parallel processing"""
     # pick up static traffic light boundaries
@@ -241,6 +257,28 @@ def _plot_metric(
         ylim=True,
         bounds=bounds,
         skip_empty=skip_empty,
+        zline_color=zline_color,
     )
 
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
+    if not isinstance(plot, dict):
+        return {
+            "name": metric,
+            "type": "barplot",
+            "description": get_stat_description(metric),
+            "plot": plot,
+            "layout": plot,
+        }
+
+    return {
+        "name": metric,
+        "type": "barplot",
+        "description": get_stat_description(metric),
+        "plot": plot["data"],
+        "shapes": plot["layout"]["shapes"] if "shapes" in plot["layout"] else "",
+        "yaxis_range": [
+            "null" if r is None else r for r in plot["layout"]["yaxis"]["range"]
+        ]
+        if "range" in plot["layout"]["yaxis"]
+        else "",
+        "layout": plot["layout"],
+    }

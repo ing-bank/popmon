@@ -233,7 +233,9 @@ class ReportPipe(Pipeline):
                 settings=settings,
             ),
             # generate report
-            ReportGenerator(read_key=sections_key, store_key=store_key),
+            ReportGenerator(
+                read_key=sections_key, store_key=store_key, settings=settings
+            ),
         ]
         if (
             isinstance(settings.report_filepath, (str, Path))

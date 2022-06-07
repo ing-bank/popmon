@@ -29,9 +29,6 @@ from typing_extensions import Literal
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
 parallel_args = {"n_jobs": 1}
 
-# Usage the `ing_matplotlib_theme`
-themed = True
-
 
 class SectionModel(BaseModel):
     name: str
@@ -108,7 +105,7 @@ class HistogramSectionModel(SectionModel):
     top_n: int = 20
     """plot heatmap for top 'n' categories. default is 20 (optional)"""
 
-    cmap: str = "autumn_r"
+    cmap: str = "ylorrd"
     """colormap for histogram heatmaps"""
 
 
@@ -171,6 +168,9 @@ class Report(BaseModel):
     """if True, show all the generated statistics in the report (optional)
     if set to False, then smaller show_stats (see below)"""
 
+    online_report: bool = True
+    """Use a CDN to host resources, or embed them into the report."""
+
     show_stats: List[str] = [
         "distinct*",
         "filled*",
@@ -193,6 +193,9 @@ class Report(BaseModel):
         "*max_prob_diff*",
     ]
     """list of statistic name patterns to show in the report. If None, show all (optional)"""
+
+    zline_color: List[str] = ["#FF0000", "#FFC800"]
+    """"Configure line colors in barplots of Comparisons and Profiles section. First and second elements as hex color code in list will replace the default red and yellow respectively"""
 
     section: Section = Section()
     """Configuration for the individual sections"""

@@ -1,4 +1,4 @@
-<section data-section-title="{{ section_title }}" class="{{'bg-light' if section_index % 2 == 0 }}">
+<section data-section-title="{{ section_title }}" class="{{'bg-light' if section_index % 2 == 0 }}" id="plt">
   <div class="container">
 
     <div class="d-flex justify-content-between align-items-center">
@@ -22,8 +22,18 @@
     {% endif %}
     {% if features | length %}
       {% for feature in features %}
+        <script> 
+          {% set curr = loop.index  %}
+          var feature{{ section_index }}{{ curr }}_layout = {}
+        </script>
+        {% for plot_type, layout in feature.plot_type_layouts.items() %}
+          <script> 
+            feature{{ section_index }}{{ curr }}_layout["{{ plot_type }}"] = JSON.parse('{{ layout | tojson }}');
+          </script>
+        {% endfor %}
         <div class="row section_feature" data-section-feature="{{ feature.name }}">
             {% for metric in feature.plots %}
+              {% set plt = loop.index  %}
               {% with metric=metric %}
                 {% include 'card.html' %}
               {% endwith %}

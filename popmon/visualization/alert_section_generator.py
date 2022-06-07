@@ -150,7 +150,11 @@ class AlertSectionGenerator(Module):
                 plots = [e for e in plots if len(e["plot"])]
 
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {
+                    "name": feature,
+                    "plot_type_layouts": {"traffic_lights": ""},
+                    "plots": sorted(plots, key=lambda plot: plot["name"]),
+                }
             )
 
         sections.append(

@@ -177,6 +177,7 @@ def _plot_metrics(
 
     return {
         "name": "Alert frequency per Feature",
+        "type": "alert",
         "description": "",
         "plot": plot,
         "full_width": True,

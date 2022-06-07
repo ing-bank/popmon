@@ -147,7 +147,11 @@ class TrafficLightSectionGenerator(Module):
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {
+                    "name": feature,
+                    "plot_type_layouts": {"traffic_lights": ""},
+                    "plots": sorted(plots, key=lambda plot: plot["name"]),
+                }
             )
 
         sections.append(
@@ -202,4 +206,10 @@ def _plot_metrics(
     else:
         plot = ""
 
-    return {"name": "Overview", "description": "", "plot": plot, "full_width": True}
+    return {
+        "name": "Overview",
+        "type": "traffic_light",
+        "description": "",
+        "plot": plot,
+        "full_width": True,
+    }
