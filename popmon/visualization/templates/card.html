@@ -1,16 +1,50 @@
-<div class="col-md-{% if 'full_width' in metric %}12{% else %}6{% endif %} mb-5">
-    <a name="{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"></a>
+{%- with card_id = feature.name + '-' + metric.name if feature else metric.name -%}
+<div class="col-md-{% if 'full_width' in metric %}12{% else %}6{% endif %} mb-5" >
+    <a name="{{ card_id }}"></a>
     <div class="card shadow-sm">
-        <div class="card-body" style="text-align: center">
+        <div class="card-body" id="{{ card_id }}-card">
             <h4 class="card-title">{{metric.name | fmt_metric}}</h4>
-            {% if metric.description|length %}
-                <p class="card-text">{{metric.description}}</p>
-            {% endif %}
+                {%- if metric.description | length -%}
+                <p class="card-text">
+                    {{metric.description}}
+                </p>
+                {%- endif -%}
         </div>
-        {% if 'table' in metric.plot %}
+        <div id="{{ card_id }}"> </div>
+        {%- if metric.type in ['traffic_light', 'alert'] -%}
             {{ metric.plot }}
-        {% else %}
-        <img class="card-img-top" src="data:image/png;base64,{{metric.plot}}" alt="" />
-        {% endif %}
+        {%- else -%}
+            <div class="skeleton-loader" id="{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}-loading"></div>
+            <script>
+            var feature{{ section_index }}{{ curr }}{{ plt }}_rendered = false ;
+            function render_{{ section_index }}{{ curr }}{{ plt }}(){
+                var layout = deepCopy(feature{{ section_index }}{{ curr }}_layout["{{ metric.type }}"]);
+                {%- if metric.shapes | length -%}
+                    layout["shapes"] = {{ metric.shapes | json_plot}} ;
+                {%- endif -%}
+                {%- if metric.yaxis_range | length -%}
+                    layout["yaxis"]["range"] = {{ metric.yaxis_range | json_plot }} ;
+                {%- endif -%}
+                Plotly.newPlot(document.getElementById("{{ card_id }}"), {{ metric.plot | json_plot }}, layout, plotly_config).then(function() { document.getElementById("{{ card_id }}-loading").remove(); feature{{ section_index }}{{ curr }}{{ plt }}_rendered = true ;});
+            }
+
+            var io = new IntersectionObserver(function(entries) {
+                var entry = entries[0];
+                if(entry.isIntersecting === true && feature{{ section_index }}{{ curr }}{{ plt }}_rendered === false){
+                    if(document.readyState === "complete"){
+                        render_{{ section_index }}{{ curr }}{{ plt }}();
+                        io.unobserve(entry.target);
+                    }else{
+                        document.addEventListener('DOMContentLoaded', function() {
+                            render_{{ section_index }}{{ curr }}{{ plt }}();
+                            io.unobserve(entry.target);
+                        });
+                    }
+                }
+            }, { threshold: [0] });
+            io.observe(document.getElementById("{{ card_id }}-card").parentNode.parentNode);
+            </script>
+        {%- endif -%}
     </div>
 </div>
+{%- endwith -%}

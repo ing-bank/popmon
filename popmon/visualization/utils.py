@@ -18,63 +18,51 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import json
 import logging
 import math
 from collections import defaultdict
-from io import BytesIO, StringIO
-from typing import List
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
-import pybase64
-from matplotlib import pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
-import popmon.config
 from popmon.resources import templates_env
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
-if popmon.config.themed:
-    from ing_theme_matplotlib import mpl_style
-
-    mpl_style(dark=False)
 
 
-def plt_to_str(fig, format="png"):
-    """Outputting plot as a base64 encoded string or as svg image.
-
-    :return: base64 encoded plot image or svg image
-    :rtype:   str
-    """
-
-    if format == "png":
-        tmpfile = BytesIO()
-
-        fig.savefig(tmpfile, format="png")
-        plt.close(fig)
-
-        return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
-    elif format == "svg":
-        tmpfile = StringIO()
-
-        fig.savefig(tmpfile, format="svg")
-        plt.close(fig)
-
-        return tmpfile.getvalue().encode("utf-8")
-    else:
-        raise ValueError("Format should be png or svg.")
+# set x-axis tick length
+def xtick(lab, top):
+    """Get x-tick."""
+    lab = str(lab)
+    if len(lab) > top:
+        lab = lab[: top - 3] + "..."
+    return lab
 
 
-def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
+def plot_bars(
+    data,
+    labels: List[str],
+    bounds: tuple,
+    ylim: bool,
+    skip_empty: bool,
+    primary_color: str,
+    tl_colors: Dict[str, str],
+    metric: str,
+) -> str:
     """Plotting histogram data.
 
     :param numpy.ndarray data: bin values of a histogram
-    :param list labels: common bin labels for all histograms. default is None.
+    :param labels: common bin labels for all histograms. default is None.
     :param bounds: traffic light bounds (y-coordinates). default is None.
-    :param bool ylim: place y-axis limits for zooming into the data. default is False.
-    :param bool skip_empty: if false, also plot empty plots with only nans or only zeroes. default is True.
-    :return: base64 encoded plot image
+    :param ylim: place y-axis limits for zooming into the data. default is False.
+    :param skip_empty: if false, also plot empty plots with only nans or only zeroes. default is True.
+    :return: JSON plot image
     :rtype: str
     """
     # basic checks first
@@ -92,22 +80,46 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             logger.debug("skipping plot with empty data.")
             return ""
 
-    fig, ax = plt.subplots()
-
-    index = np.arange(n)
-    width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
-    ax.bar(index, data, width=width, align="center")
-
-    if labels is not None:
-        ax.set_xticks(index)
-        ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
-        granularity = math.ceil(len(labels) / 50)
+    # plot bar
+    fig = go.Figure(
         [
-            l.set_visible(False)
-            for (i, l) in enumerate(ax.xaxis.get_ticklabels())
-            if i % granularity != 0
+            go.Bar(
+                x=labels,
+                y=data,
+                hovertemplate="%{y:.4f}",
+                name=metric,
+                marker_color=primary_color,
+            )
         ]
+    )
 
+    # set label granularity
+    if len(labels) > 0:
+        granularity = math.ceil(len(labels) / 50)
+        labels = labels[::granularity]
+
+    fig.update_layout(
+        xaxis_tickangle=-90,
+        xaxis={"type": "category"},
+        margin={"l": 40, "r": 10, "t": 30},
+    )
+    fig.update_xaxes(
+        tickvals=labels,
+        ticktext=labels,
+        showgrid=True,
+        ticks="outside",
+        minor_ticks="outside",
+        showline=True,
+        linecolor="black",
+        mirror=True,
+    )
+    fig.update_yaxes(
+        ticks="outside",
+        minor_ticks="outside",
+        showline=True,
+        linecolor="black",
+        mirror=True,
+    )
     # plot boundaries
     try:
         all_nan = (np.isnan(data)).all()
@@ -125,44 +137,34 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             spread = (y_max - y_min) / 20
             y_max += spread
             y_min -= spread
+            if not isinstance(max_r, (list, tuple)):
+                fig.add_hline(y=max_r, line_color=tl_colors["red"])
+                fig.add_hline(y=max_y, line_color=tl_colors["yellow"])
+                fig.add_hline(y=min_y, line_color=tl_colors["yellow"])
+                fig.add_hline(y=min_r, line_color=tl_colors["red"])
+            else:
+                fig.add_hline(y=max_r[0], line_color=tl_colors["red"])
+                fig.add_hline(y=max_y[0], line_color=tl_colors["yellow"])
+                fig.add_hline(y=min_y[0], line_color=tl_colors["yellow"])
+                fig.add_hline(y=min_r[0], line_color=tl_colors["red"])
 
-            yellow = (1.0, 200 / 255, 0.0)
-            red = (1.0, 0.0, 0.0)
-
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_r, xmin=0, xmax=1, color=red)
-            else:
-                ax.plot(index, max_r, color=red)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_y, xmin=0, xmax=1, color=yellow)
-            else:
-                ax.plot(index, max_y, color=yellow)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_y, xmin=0, xmax=1, color=yellow)
-            else:
-                ax.plot(index, min_y, color=yellow)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_r, xmin=0, xmax=1, color=red)
-            else:
-                ax.plot(index, min_r, color=red)
             if y_max > y_min:
-                ax.set_ylim(y_min, y_max)
+                fig.update_yaxes(range=[y_min, y_max])
+
         elif ylim:
             spread = (max_value - min_value) / 20
             y_min = min_value - spread
             y_max = max_value + spread
             if y_max > y_min:
-                ax.set_ylim(y_min, y_max)
+                fig.update_yaxes(range=[y_min, y_max])
     except Exception:
         logger.debug("unable to plot boundaries")
 
-    ax.grid(True, linestyle=":")
-
-    fig.tight_layout()
-    return plt_to_str(fig)
+    plot = json.loads(fig.to_json())
+    return plot
 
 
-def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
+def plot_traffic_lights_overview(feature, data, metrics: List[str], labels: List[str]):
     colors = defaultdict(dict)
     color_map = ["g", "y", "r"]
     for c1, metric in enumerate(metrics):
@@ -179,22 +181,42 @@ def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[
     )
 
 
-def plot_traffic_lights_overview(feature, data, metrics=None, labels=None):
-    return render_traffic_lights_table(feature, data, metrics, labels)
+def hex_to_rgb(h):
+    """Takes a hex rgb string and returns an RGB tuple."""
+    return tuple(int(h[i : i + 2], 16) for i in (1, 3, 5))
 
 
-def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List[str]):
+def plot_traffic_lights_alerts_aggregate(
+    feature, data, metrics: List[str], labels: List[str], tl_colors: Dict[str, str]
+):
+    assert data.shape[0] == 3
+
+    # Reorder metrics if needed
+    pos_green = metrics.index("n_green")
+    pos_yellow = metrics.index("n_yellow")
+    pos_red = metrics.index("n_red")
+
+    if [pos_green, pos_yellow, pos_red] != [0, 1, 2]:
+        data[[0, 1, 2]] = data[[pos_green, pos_yellow, pos_red]]
+
+    metrics = ["# green", "# yellow", "# red"]
+    data = data.astype(int)
+
+    green = hex_to_rgb(tl_colors["green"])
+    yellow = hex_to_rgb(tl_colors["yellow"])
+    red = hex_to_rgb(tl_colors["red"])
+
     colors = defaultdict(dict)
     for c1, metric in enumerate(metrics):
         row_max = np.max(data[c1])
         for c2, label in enumerate(labels):
-            a = data[c1][c2] / row_max if row_max and row_max != 0 else 0
+            a = np.round(data[c1][c2] / row_max, 2) if row_max and row_max != 0 else 0
             if metric.endswith("green"):
-                background_rgba = (0, 128, 0, a)
+                background_rgba = (*green, a)
             elif metric.endswith("yellow"):
-                background_rgba = (255, 200, 0, a)
+                background_rgba = (*yellow, a)
             else:
-                background_rgba = (255, 0, 0, a)
+                background_rgba = (*red, a)
             background_rgba = (str(v) for v in background_rgba)
             text_color = "white" if a > 0.5 else "black"
             colors[metric][label] = (text_color, background_rgba, data[c1][c2])
@@ -209,63 +231,7 @@ def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List
     )
 
 
-def plot_traffic_lights_alerts_b64(feature, data, metrics=None, labels=None):
-    assert data.shape[0] == 3
-
-    # Reorder metrics if needed
-    pos_green = metrics.index("n_green")
-    pos_yellow = metrics.index("n_yellow")
-    pos_red = metrics.index("n_red")
-
-    if [pos_green, pos_yellow, pos_red] != [0, 1, 2]:
-        data[[0, 1, 2]] = data[[pos_green, pos_yellow, pos_red]]
-
-    metrics = ["# green", "# yellow", "# red"]
-
-    return render_alert_aggregate_table(feature, data.astype(int), metrics, labels)
-
-
-def grouped_bar_chart_b64(data, labels, legend):
-    """Plotting grouped histogram data.
-
-    :param numpy.ndarray data: bin values of histograms
-    :param list labels: common bin labels for all histograms
-    :param list legend: corresponding names of histograms we want to represent
-    :return: base64 encoded plot image (grouped bar chart)
-    :rtype: str
-    """
-    n = data.shape[0]  # number of histograms
-    b = data.shape[1]  # number of bins per histogram
-
-    if len(labels) != b:
-        raise ValueError("shape mismatch: x-axis labels do not match the data shape")
-
-    if len(legend) != n:
-        raise ValueError(
-            "shape mismatch: the number of data entry lists does not match the legend shape"
-        )
-
-    x = np.arange(b)
-    max_width = 0.9
-    width = max_width / n
-
-    fig, ax = plt.subplots()
-    offset = (1 - n) * width / 2
-    for label, row in zip(legend, data):
-        ax.bar(x + offset, row, width, label=label)
-        offset += width
-
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
-    ax.legend()
-
-    fig.tight_layout()
-
-    return plt_to_str(fig)
-
-
-def plot_overlay_1d_histogram_b64(
+def plot_histogram_overlay(
     hists,
     x_label,
     hist_names=[],
@@ -273,8 +239,6 @@ def plot_overlay_1d_histogram_b64(
     is_num=True,
     is_ts=False,
     top=20,
-    width_in=None,
-    xlim=None,
 ):
     """Create and plot (overlapping) histogram(s) of column values.
 
@@ -291,9 +255,7 @@ def plot_overlay_1d_histogram_b64(
     :param bool is_num: True if observable to plot is numeric. default is True.
     :param bool is_ts: True if observable to plot is a timestamp. default is False.
     :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
-    :param float width_in: the width of the bars of the histogram in percentage (0-1). default is None.
-    :param tuple xlim: set the x limits of the current axes. default is None.
-    :return: base64 encoded plot image
+    :return: JSON encoded plot image
     :rtype: str
     """
     # basic checks
@@ -303,13 +265,12 @@ def plot_overlay_1d_histogram_b64(
         if len(hists) != len(hist_names):
             raise ValueError("length of hist and hist_names are different")
 
-    fig, ax = plt.subplots(figsize=(9, 7))
+    fig = go.Figure()
 
     alpha = 1.0 / len(hists)
     for i, hist in enumerate(hists):
         try:
-            hist_values = hist[0]
-            hist_bins = hist[1]
+            hist_values, hist_bins = hist
         except BaseException as e:
             raise ValueError(
                 "Cannot extract binning and values from input histogram"
@@ -336,33 +297,20 @@ def plot_overlay_1d_histogram_b64(
                 len(bin_edges), len(bin_values), x_label
             )
 
-            if is_ts:
-                # difference in seconds
-                be_tsv = [pd.Timestamp(ts).value for ts in bin_edges]
-                width = np.diff(be_tsv)
-                # pd.Timestamp(ts).value is in ns
-                # maplotlib dates have base of 1 day
-                width = width / NUM_NS_DAY
-            elif width_in:
-                width = width_in
-            else:
-                width = np.diff(bin_edges)
-
             # plot histogram
-            ax.bar(
-                bin_edges[:-1],
-                bin_values,
-                width=width,
-                alpha=alpha,
-                label=hist_names[i],
+            fig.add_trace(
+                go.Bar(
+                    x=bin_edges[1:],
+                    y=bin_values,
+                    showlegend=True,
+                    opacity=alpha,
+                    name=hist_names[i],
+                )
             )
 
             # set x-axis properties
-            if xlim:
-                ax.set_xlim(xlim)
-            else:
-                ax.set_xlim(min(bin_edges), max(bin_edges))
-            ax.tick_params(axis="x", labelsize=12, labelrotation=90 if is_ts else 0)
+            xlim = [min(bin_edges), max(bin_edges)]
+            fig.update_xaxes(range=xlim)
 
         # plot categories
         else:
@@ -370,48 +318,65 @@ def plot_overlay_1d_histogram_b64(
             values = hist_values
             assert len(labels) == len(
                 values
-            ), "labels and values have different array lengths: {:d} vs {:d}. {}".format(
-                len(labels), len(values), x_label
-            )
+            ), f"labels and values have different array lengths: {len(labels):d} vs {len(values):d}. {x_label}"
 
             # plot histogram
-            tick_pos = np.arange(len(labels)) + 0.5
-            ax.bar(tick_pos, values, width=0.8, alpha=alpha, label=hist_names[i])
+            fig.add_trace(
+                go.Bar(
+                    x=[xtick(lab, top) for lab in labels],
+                    y=values,
+                    showlegend=True,
+                    opacity=alpha,
+                    name=hist_names[i],
+                    hovertemplate="%{y:.4f}",
+                )
+            )
 
-            # set x-axis properties
-            def xtick(lab):
-                """Get x-tick."""
-                lab = str(lab)
-                if len(lab) > top:
-                    lab = lab[:17] + "..."
-                return lab
+    # set common histogram layout properties
+    y_label = str(y_label) if y_label is not None else "Bin count"
+    fig.update_yaxes(
+        title=y_label,
+        minor_ticks="outside",
+        showline=True,
+        linecolor="black",
+        mirror=True,
+    )
+    fig.update_xaxes(
+        title=x_label,
+        minor_ticks="outside",
+        showline=True,
+        linecolor="black",
+        mirror=True,
+    )
+    fig.update_layout(
+        barmode="overlay",
+        legend={
+            "orientation": "h",
+            "yanchor": "bottom",
+            "y": 1.1,
+            "xanchor": "left",
+            "x": 0,
+            "font": {"size": 10},
+        },
+        hovermode="x unified",
+        margin={"l": 40, "r": 10},
+    )
 
-            ax.set_xlim((0.0, float(len(labels))))
-            ax.set_xticks(tick_pos)
-            ax.set_xticklabels([xtick(lab) for lab in labels], fontsize=12, rotation=90)
-
-    # set common histogram properties
-    ax.set_xlabel(x_label, fontsize=14)
-    ax.set_ylabel(str(y_label) if y_label is not None else "Bin count", fontsize=14)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.grid()
-    ax.legend()
-
-    return plt_to_str(fig)
+    plot = json.loads(fig.to_json())
+    return plot
 
 
-def plot_heatmap_b64(
-    hist_values,
-    hist_bins,
-    date,
-    x_label,
+def plot_heatmap(
+    hist_values: list,
+    hist_bins: list,
+    date: list,
+    x_label: str,
     hist_name,
-    y_label=None,
-    is_num=False,
-    is_ts=False,
-    cmap="autumn_r",
-    top=20,
-    xlim=None,
+    y_label: str,
+    is_num: bool = False,
+    is_ts: bool = False,
+    cmap: str = "ylorrd",
+    top: int = 20,
 ):
     """Create and plot heatmap of column values.
 
@@ -430,16 +395,13 @@ def plot_heatmap_b64(
     :param bool is_num: True if observable to plot is numeric. default is True.
     :param bool is_ts: True if observable to plot is a timestamp. default is False.
     :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
-    :param float cmap: the colormap for heeatmap. default is autumn_r.
-    :param tuple xlim: set the x limits of the current axes. default is None.
+    :param cmap: the colormap for heatmap. default is ylorrd.
     :return: base64 encoded plot image
     :rtype: str
     """
     if hist_name:
         if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
-
-    fig = plt.figure(figsize=(40, 20))
 
     assert hist_values is not None and len(
         hist_values
@@ -472,33 +434,33 @@ def plot_heatmap_b64(
         )
 
         # plot histogram
-        tick_pos_x = np.arange(len(date))
-        tick_pos_y = np.arange(len(labels))
-        plt.imshow(values, cmap)
+        fig = px.imshow(
+            values,
+            labels={"x": "Time Bins", "y": x_label, "color": y_label},
+            x=date,
+            y=[xtick(lab, top) for lab in labels],
+            color_continuous_scale=cmap,
+            text_auto=".2f",
+            aspect="equal",
+        )
 
-        # set x-axis properties
-        def xtick(lab):
-            """Get x-tick."""
-            lab = str(lab)
-            if len(lab) > top:
-                lab = lab[: top - 3] + "..."
-            return lab
+        # set label granularity
+        if len(date) > 0:
+            granularity = math.ceil(len(date) / 50)
+            date = date[::granularity]
 
-        plt.xticks(tick_pos_x, date, fontsize=20, rotation=90)
-        plt.yticks(tick_pos_y, [xtick(lab) for lab in labels], fontsize=20)
-        im_ratio = values.shape[0] / values.shape[1]
+        fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
+        fig.update_yaxes(ticks="outside")
+        fig.update_layout(xaxis={"type": "category"}, margin={"l": 40, "r": 10, "t": 0})
+        fig.update_coloraxes(colorbar_len=0.8, colorbar_ticks="outside")
+        plot = json.loads(fig.to_json())
 
-    # set common histogram properties
-
-    # Plot vertical colorbar
-    cbar = plt.colorbar(fraction=0.047 * im_ratio)
-    cbar.ax.tick_params(labelsize=20)
-
-    plt.xlabel("Time Bins", fontsize=20)
-    plt.ylabel(x_label, fontsize=20)
-    plt.grid()
-
-    return {"name": hist_name, "plot": plt_to_str(fig)}
+    return {
+        "name": hist_name,
+        "type": "heatmap",
+        "plot": plot["data"],
+        "layout": plot["layout"],
+    }
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):

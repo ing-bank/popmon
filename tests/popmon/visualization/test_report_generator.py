@@ -40,7 +40,11 @@ def test_report_generator():
                 section_name="Comparisons",
                 settings=settings.report,
             ),
-            ReportGenerator(read_key="all_sections", store_key="final_report"),
+            ReportGenerator(
+                read_key="all_sections",
+                store_key="final_report",
+                settings=settings.report,
+            ),
         ]
     )
     datastore = pipeline.transform(datastore={})

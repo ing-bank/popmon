@@ -10,10 +10,6 @@ section {
   padding: 150px 0;
 }
 
-.card-footer {
-  text-align: center;
-}
-
 section {
   padding: 70px 0
 }
@@ -29,12 +25,18 @@ a.nav-link {
 }
 
 .card-body {
-  padding-bottom: 0 !important
+  padding-bottom: 0 !important;
+  text-align: center;
 }
 
 p.card-text {
   font-size: 11px;
   font-weight: 300;
+  min-height: 33px;
+}
+
+.card-footer {
+  text-align: center;
 }
 
 div.section-description {
@@ -53,6 +55,29 @@ section h2 {
 
 .card-image-top {
   padding-bottom: 7px;
+}
+
+.skeleton-loader {
+  width: 80%;
+  height: 285px;
+  margin: 0 auto;
+  margin-top: 25px;
+  margin-bottom: 140px;
+  background-size: 50px 350px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  border-radius: 3px;
+  animation: skeleton-loading 1s linear infinite alternate;
+  opacity: 0.7
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: hsl(200, 20%, 70%);
+  }
+  100% {
+    background-color: hsl(200, 20%, 95%);
+  }
 }
 
 /* overview tables */

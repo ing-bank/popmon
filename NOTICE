@@ -21,7 +21,7 @@
 # pyyaml: https://github.com/yaml/pyyaml/blob/master/LICENSE
 # jinja2: https://github.com/noirbizarre/jinja2/blob/master/LICENSE
 # tqdm: https://github.com/tqdm/tqdm/blob/master/LICENCE
-# matplotlib: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
+# plotly: https://github.com/plotly/plotly.py/blob/master/LICENSE.txt
 # joblib: https://github.com/joblib/joblib/blob/master/LICENSE.txt
 # pybase64: https://github.com/mayeut/pybase64/blob/master/LICENSE
 # htmlmin: https://github.com/mankyd/htmlmin/blob/master/LICENSE
