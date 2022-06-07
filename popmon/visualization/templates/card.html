@@ -7,10 +7,16 @@
                 <p class="card-text">{{metric.description}}</p>
             {% endif %}
         </div>
-        {% if 'table' in metric.plot %}
-            {{ metric.plot }}
+        <div id= "{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"> </div>
+        {% if ('Alerts' in section_title) or ('Traffic Lights' in section_title) or ('Overview' in section_title) %}
+            {{ metric.plot }} 
         {% else %}
-        <img class="card-img-top" src="data:image/png;base64,{{metric.plot}}" alt="" />
-        {% endif %}
+            <script>
+                var graphs1 = {{ metric.plot }};
+                TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
+                Plotly.newPlot(TESTER, graphs1);
+                console.log("Plotly graph")
+            </script> 
+        {% endif %} 
     </div>
 </div>

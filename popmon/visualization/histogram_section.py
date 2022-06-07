@@ -55,7 +55,7 @@ class HistogramSection(Module):
         hist_name_starts_with="histogram",
         description="",
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -84,7 +84,7 @@ class HistogramSection(Module):
         self.description = description
         self.disable_heatmap = disable_heatmap or []
         if cmap is None:
-            cmap = "autumn_r"
+            cmap = "ylorrd"
         self.cmap = cmap
 
     def get_description(self):
@@ -141,11 +141,11 @@ class HistogramSection(Module):
                 (feature, dates[i], hists[i], hist_names, self.top_n)
                 for i in range(last_n)
             ]
-            plots = parallel(_plot_histograms, args)
+            # plots = parallel(_plot_histograms, args)
 
-            # filter out potential empty plots
-            plots = [e for e in plots if len(e["plot"])]
-            plots = sorted(plots, key=lambda plot: plot["name"])
+            # # filter out potential empty plots
+            # plots = [e for e in plots if len(e["plot"])]
+            # plots = sorted(plots, key=lambda plot: plot["name"])
 
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
             hplots = []
@@ -153,7 +153,7 @@ class HistogramSection(Module):
                 if isinstance(h, dict):
                     if len(h["plot"]):
                         hplots.append(h)
-            plots = hplots + plots
+            plots = hplots #+ plots
 
             features_w_metrics.append({"name": feature, "plots": plots})
 

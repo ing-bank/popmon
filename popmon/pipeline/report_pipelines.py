@@ -270,7 +270,7 @@ class ExpandingReference(Pipeline):
         report_filepath=None,
         show_stats=None,
         disable_heatmap=None,
-        cmap="autumn_r",
+        cmap=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)

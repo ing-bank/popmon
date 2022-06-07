@@ -21,12 +21,15 @@
 import logging
 import math
 from io import BytesIO, StringIO
+from re import X
 from typing import List
 
 import numpy as np
 import pandas as pd
 import pybase64
 from matplotlib import pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
 import popmon.config
 from popmon.resources import templates_env
@@ -91,23 +94,30 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             logger.debug("skipping plot with empty data.")
             return ""
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
     index = np.arange(n)
     width = (index[1] - index[0]) * 0.9 if n >= 2 else 1.0
-    ax.bar(index, data, width=width, align="center")
+    # ax.bar(index, data, width=width, align="center")
 
-    if labels:
-        ax.set_xticks(index)
-        ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
-        granularity = math.ceil(len(labels) / 50)
-        [
-            l.set_visible(False)
-            for (i, l) in enumerate(ax.xaxis.get_ticklabels())
-            if i % granularity != 0
-        ]
 
+    fig = go.Figure([go.Bar(x=labels, y=data)])
+
+    #handle high cardinality ?
+    # if labels:
+    #     granularity = math.ceil(len(labels) / 50)
+    #     for i in range(len(labels)):
+    #         if i % granularity != 0:
+    #             # plotly skips duplicate x-axis labels, so work around to have a x-axis label each time : https://github.com/plotly/plotly.js/issues/1516 417
+    #             labels[i] = " "
+                
+    
+    fig.update_layout(xaxis_tickangle=-90)
+    fig.update_xaxes(tickvals=labels, ticktext=labels)
+    fig.update_yaxes(ticks="outside")
+    
     # plot boundaries
+    
     try:
         all_nan = (np.isnan(data)).all()
         max_value = np.nanmax(data) if not all_nan else np.nan
@@ -125,41 +135,30 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
             y_max += spread
             y_min -= spread
 
-            yellow = (1.0, 200 / 255, 0.0)
-            red = (1.0, 0.0, 0.0)
+            if not isinstance(max_r, (list, tuple)):
+                fig.add_hline(y=max_r, line_color="red")
+                fig.add_hline(y=max_y, line_color="yellow")
+                fig.add_hline(y=min_y, line_color="yellow")
+                fig.add_hline(y=min_r, line_color="red")
+            else:
+                fig.add_hline(y=max_r[0], line_color="red")
+                fig.add_hline(y=max_y[0], line_color="yellow")
+                fig.add_hline(y=min_y[0], line_color="yellow")
+                fig.add_hline(y=min_r[0], line_color="red")
 
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_r, xmin=0, xmax=1, color=red)
-            else:
-                ax.plot(index, max_r, color=red)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=max_y, xmin=0, xmax=1, color=yellow)
-            else:
-                ax.plot(index, max_y, color=yellow)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_y, xmin=0, xmax=1, color=yellow)
-            else:
-                ax.plot(index, min_y, color=yellow)
-            if not isinstance(max_r, (list, tuple)):
-                ax.axhline(y=min_r, xmin=0, xmax=1, color=red)
-            else:
-                ax.plot(index, min_r, color=red)
             if y_max > y_min:
-                ax.set_ylim(y_min, y_max)
+                fig.update_yaxes(range = [y_min,y_max])
+            
         elif ylim:
             spread = (max_value - min_value) / 20
             y_min = min_value - spread
             y_max = max_value + spread
             if y_max > y_min:
-                ax.set_ylim(y_min, y_max)
+                fig.update_yaxes(range = [y_min,y_max])
     except Exception:
         logger.debug("unable to plot boundaries")
 
-    ax.grid(True, linestyle=":")
-
-    fig.tight_layout()
-    return plt_to_str(fig)
-
+    return fig.to_json()
 
 def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
     colors = {}
@@ -474,7 +473,7 @@ def plot_heatmap_b64(
     y_label=None,
     is_num=False,
     is_ts=False,
-    cmap="autumn_r",
+    cmap="ylorrd",
     top=20,
     xlim=None,
 ):
@@ -495,7 +494,7 @@ def plot_heatmap_b64(
     :param bool is_num: True if observable to plot is numeric. default is True.
     :param bool is_ts: True if observable to plot is a timestamp. default is False.
     :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
-    :param float cmap: the colormap for heeatmap. default is autumn_r.
+    :param float cmap: the colormap for heeatmap. default is ylorrd.
     :param tuple xlim: set the x limits of the current axes. default is None.
     :return: base64 encoded plot image
     :rtype: str
@@ -504,7 +503,7 @@ def plot_heatmap_b64(
         if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
 
-    fig = plt.figure(figsize=(40, 20))
+    #fig = plt.figure(figsize=(40, 20))
 
     assert hist_values is not None and len(
         hist_values
@@ -536,11 +535,6 @@ def plot_heatmap_b64(
             len(labels), len(values), x_label
         )
 
-        # plot histogram
-        tick_pos_x = np.arange(len(date))
-        tick_pos_y = np.arange(len(labels))
-        plt.imshow(values, cmap)
-
         # set x-axis properties
         def xtick(lab):
             """Get x-tick."""
@@ -549,22 +543,19 @@ def plot_heatmap_b64(
                 lab = lab[:17] + "..."
             return lab
 
-        # plt.xlim((0.0, float(len(date))))
-        plt.xticks(tick_pos_x, date, fontsize=20, rotation=90)
-        plt.yticks(tick_pos_y, [xtick(lab) for lab in labels], fontsize=20)
-        im_ratio = values.shape[0] / values.shape[1]
+        # plot histogram
+        tick_pos_x = np.arange(len(date))
+        tick_pos_y = np.arange(len(labels))
+        fig = px.imshow(values, labels=dict(x="Time Bins", y=x_label, color="Productivity"),
+                        x=date,
+                        y=[xtick(lab) for lab in labels],
+                        color_continuous_scale=cmap,
+                        text_auto='.2f')
 
-    # set common histogram properties
+        fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
+        fig.update_yaxes(ticks="outside")
 
-    # Plot vertical colorbar
-    cbar = plt.colorbar(fraction=0.047 * im_ratio)
-    cbar.ax.tick_params(labelsize=20)
-
-    plt.xlabel("Time Bins", fontsize=20)
-    plt.ylabel(x_label, fontsize=20)
-    plt.grid()
-
-    return {"name": hist_name, "plot": plt_to_str(fig)}
+    return {"name": hist_name, "plot": fig.to_json()}
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
