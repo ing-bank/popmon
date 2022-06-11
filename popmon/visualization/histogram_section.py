@@ -193,7 +193,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
 
     # make plot. note: slow!
     if hc_list[0].n_dim == 1:
-        if all(bool(h) is False for h in hc_list):
+        if all(h.size == 0 for h in hc_list):
             # triviality checks, skip all histograms empty
             return {"name": date, "description": get_stat_description(date), "plot": ""}
 

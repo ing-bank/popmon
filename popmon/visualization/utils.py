@@ -27,8 +27,6 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pybase64
-from matplotlib import pyplot as plt
 
 import popmon.config
 from popmon.resources import templates_env
@@ -36,36 +34,6 @@ from popmon.resources import templates_env
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
-if popmon.config.themed:
-    from ing_theme_matplotlib import mpl_style
-
-    mpl_style(dark=False)
-
-
-def plt_to_str(fig, format="png"):
-    """Outputting plot as a base64 encoded string or as svg image.
-
-    :return: base64 encoded plot image or svg image
-    :rtype:   str
-    """
-
-    if format == "png":
-        tmpfile = BytesIO()
-
-        fig.savefig(tmpfile, format="png")
-        plt.close(fig)
-
-        return pybase64.b64encode(tmpfile.getvalue()).decode("utf-8")
-    elif format == "svg":
-        tmpfile = StringIO()
-
-        fig.savefig(tmpfile, format="svg")
-        plt.close(fig)
-
-        return tmpfile.getvalue().encode("utf-8")
-    else:
-        raise ValueError("Format should be png or svg.")
-
 
 def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     """Plotting histogram data.
@@ -233,83 +201,25 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
             logger.debug("skipping plot with empty data.")
             return ""
 
-    fig, ax = plt.subplots()
 
-    ax.yaxis.grid(True)
-    ax.xaxis.grid(False)
-
-    colors = ["green", "yellow", "red"]
+    color=np.array(['yellow']*n)
+    color[data==0]='green'
+    color[data==2]='red'
+    
     ones = np.ones(n)
 
-    index = np.arange(n)
+    fig = go.Figure([go.Bar(
+                    x=labels,
+                    y=ones,
+                    marker=dict(color=color.tolist())
+                    )])
 
-    for i, color in enumerate(colors):
-        mask = data == i
-        ax.bar(
-            index[mask],
-            ones[mask],
-            width=1,
-            align="center",
-            color=color,
-            alpha=0.8,
-            edgecolor="black",
-        )
+    # hide yaxis
+    fig.update_yaxes(visible=False)
 
-    ax.set_yticks([])
-
-    if labels:
-        ax.set_xticks(index)
-        ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
-        granularity = math.ceil(len(labels) / 50)
-        [
-            l.set_visible(False)
-            for (i, l) in enumerate(ax.xaxis.get_ticklabels())
-            if i % granularity != 0
-        ]
-
-    fig.tight_layout()
-
-    return plt_to_str(fig)
-
-
-def grouped_bar_chart_b64(data, labels, legend):
-    """Plotting grouped histogram data.
-
-    :param numpy.ndarray data: bin values of histograms
-    :param list labels: common bin labels for all histograms
-    :param list legend: corresponding names of histograms we want to represent
-    :return: base64 encoded plot image (grouped bar chart)
-    :rtype: str
-    """
-    n = data.shape[0]  # number of histograms
-    b = data.shape[1]  # number of bins per histogram
-
-    if len(labels) != b:
-        raise ValueError("shape mismatch: x-axis labels do not match the data shape")
-
-    if len(legend) != n:
-        raise ValueError(
-            "shape mismatch: the number of data entry lists does not match the legend shape"
-        )
-
-    x = np.arange(b)
-    max_width = 0.9
-    width = max_width / n
-
-    fig, ax = plt.subplots()
-    offset = (1 - n) * width / 2
-    for label, row in zip(legend, data):
-        ax.bar(x + offset, row, width, label=label)
-        offset += width
-
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontdict={"rotation": "vertical"})
-    ax.legend()
-
-    fig.tight_layout()
-
-    return plt_to_str(fig)
+    fig.update_layout(xaxis_tickangle=-90)
+    fig.update_xaxes(tickvals=labels, ticktext=labels)
+    return fig.to_json()
 
 
 def plot_overlay_1d_histogram_b64(
@@ -350,7 +260,6 @@ def plot_overlay_1d_histogram_b64(
         if len(hists) != len(hist_names):
             raise ValueError("length of hist and hist_names are different")
 
-    # fig, ax = plt.subplots(figsize=(9, 7))
     fig = go.Figure()
 
     alpha = 1.0 / len(hists)
@@ -499,7 +408,6 @@ def plot_heatmap_b64(
         if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
 
-    # fig = plt.figure(figsize=(40, 20))
 
     assert hist_values is not None and len(
         hist_values
