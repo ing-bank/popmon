@@ -164,6 +164,7 @@ class HistogramSection(Module):
                 "features": features_w_metrics,
             }
         )
+
         return sections
 
 

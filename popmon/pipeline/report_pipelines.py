@@ -72,6 +72,7 @@ class SelfReference(Pipeline):
         show_stats=None,
         disable_heatmap=None,
         cmap=None,
+        online_report=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (full test set)
@@ -113,6 +114,7 @@ class SelfReference(Pipeline):
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
                 cmap=cmap,
+                online_report=online_report,
             ),
         ]
 
@@ -137,6 +139,7 @@ class ExternalReference(Pipeline):
         show_stats=None,
         disable_heatmap=None,
         cmap=None,
+        online_report=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
@@ -180,6 +183,7 @@ class ExternalReference(Pipeline):
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
                 cmap=cmap,
+                online_report=online_report,
             ),
         ]
 
@@ -204,6 +208,7 @@ class RollingReference(Pipeline):
         show_stats=None,
         disable_heatmap=None,
         cmap=None,
+        online_report=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
@@ -247,6 +252,7 @@ class RollingReference(Pipeline):
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
                 cmap=cmap,
+                online_report=online_report,
             ),
         ]
 
@@ -271,6 +277,7 @@ class ExpandingReference(Pipeline):
         show_stats=None,
         disable_heatmap=None,
         cmap=None,
+        online_report=None,
         **kwargs,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)
@@ -314,6 +321,7 @@ class ExpandingReference(Pipeline):
                 show_stats=show_stats,
                 disable_heatmap=disable_heatmap,
                 cmap=cmap,
+                online_report=online_report,
             ),
         ]
 
@@ -342,6 +350,7 @@ class ReportPipe(Pipeline):
         plot_hist_n=6,
         disable_heatmap=None,
         cmap=None,
+        online_report=None,
     ):
         """Initialize an instance of Report.
 
@@ -431,7 +440,9 @@ class ReportPipe(Pipeline):
                 **sg_kws,
             ),
             # generate report
-            ReportGenerator(read_key=sections_key, store_key=store_key),
+            ReportGenerator(
+                read_key=sections_key, store_key=store_key, online_report=online_report
+            ),
         ]
         if isinstance(report_filepath, (str, Path)) and len(report_filepath) > 0:
             modules.append(FileWriter(store_key, file_path=report_filepath))

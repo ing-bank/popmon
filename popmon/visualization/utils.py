@@ -20,7 +20,6 @@
 
 import logging
 import math
-from io import BytesIO, StringIO
 from typing import List
 
 import numpy as np
@@ -28,12 +27,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-import popmon.config
 from popmon.resources import templates_env
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 logger = logging.getLogger()
+
 
 def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     """Plotting histogram data.
@@ -64,8 +63,13 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
     # plot bar
     fig = go.Figure([go.Bar(x=labels, y=data)])
 
-    fig.update_layout(xaxis_tickangle=-90)
-    fig.update_xaxes(tickvals=labels, ticktext=labels)
+    # set label granularity
+    if len(labels) > 0:
+        granularity = math.ceil(len(labels) / 50)
+        labels = labels[::granularity]
+
+    fig.update_layout(xaxis_tickangle=-90, xaxis={"type": "category"})
+    fig.update_xaxes(ticktext=labels)
     fig.update_yaxes(ticks="outside")
     # plot boundaries
     try:
@@ -188,7 +192,7 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
     """
     # basic checks first
     n = data.size  # number of bins
-    if labels and len(labels) != n:
+    if labels is not None and len(labels) != n:
         raise ValueError("shape mismatch: x-axis labels do not match the data shape")
 
     # skip plot generation for empty datasets
@@ -201,24 +205,24 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
             logger.debug("skipping plot with empty data.")
             return ""
 
+    color = np.array(["yellow"] * n)
+    color[data == 0] = "green"
+    color[data == 2] = "red"
 
-    color=np.array(['yellow']*n)
-    color[data==0]='green'
-    color[data==2]='red'
-    
     ones = np.ones(n)
 
-    fig = go.Figure([go.Bar(
-                    x=labels,
-                    y=ones,
-                    marker=dict(color=color.tolist())
-                    )])
+    fig = go.Figure([go.Bar(x=labels, y=ones, marker={"color": color.tolist()})])
+
+    # set label granularity
+    if len(labels) > 0:
+        granularity = math.ceil(len(labels) / 50)
+        labels = labels[::granularity]
 
     # hide yaxis
     fig.update_yaxes(visible=False)
 
     fig.update_layout(xaxis_tickangle=-90)
-    fig.update_xaxes(tickvals=labels, ticktext=labels)
+    fig.update_xaxes(ticktext=labels)
     return fig.to_json()
 
 
@@ -408,7 +412,6 @@ def plot_heatmap_b64(
         if len(hist_name) == 0:
             raise ValueError("length of heatmap names is zero")
 
-
     assert hist_values is not None and len(
         hist_values
     ), "Heatmap bin values have not been set."
@@ -455,6 +458,7 @@ def plot_heatmap_b64(
             y=[xtick(lab) for lab in labels],
             color_continuous_scale=cmap,
             text_auto=".2f",
+            title="heatmap",
         )
 
         fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)

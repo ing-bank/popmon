@@ -28,7 +28,6 @@ from popmon.visualization.traffic_light_section_generator import (
     TrafficLightSectionGenerator,
 )
 
-
 __all__ = [
     "SectionGenerator",
     "HistogramSection",

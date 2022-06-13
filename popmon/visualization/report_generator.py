@@ -33,15 +33,17 @@ class ReportGenerator(Module):
     _input_keys = ("read_key",)
     _output_keys = ("store_key",)
 
-    def __init__(self, read_key, store_key):
+    def __init__(self, read_key, store_key, online_report):
         """Initialize an instance of ReportGenerator.
 
         :param str read_key: key of input sections data to read from the datastore
         :param str store_key: key for storing the html report code in the datastore
+        :para bool online_report: if false (default), the plotly.js code is included in the html report, else the report takes js code from cdn server which requires internet connection
         """
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.online_report = online_report if online_report is not None else False
 
     def get_description(self):
         return "HTML Report"
@@ -60,5 +62,6 @@ class ReportGenerator(Module):
                 filename="core.html",
                 generator=f"popmon {version}",
                 sections=sections_html,
+                online_report=self.online_report,
             )
         )
