@@ -34,7 +34,6 @@ from ...analysis.functions import (
 )
 from ...analysis.hist_numpy import (
     check_similar_hists,
-    get_consistent_numpy_1dhists,
     get_consistent_numpy_entries,
     get_consistent_numpy_ndgrids,
 )
@@ -95,9 +94,8 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     # compare
     if hist1.n_dim == 1:
         if is_numeric(hist1):
-            numpy_1dhists = get_consistent_numpy_1dhists([hist1, hist2])
-            entries_list = [nphist[0] for nphist in numpy_1dhists]
             # KS-test only properly defined for (ordered) 1D interval variables
+            entries_list = get_consistent_numpy_entries([hist1, hist2])
             ks_testscore = ks_test(*entries_list)
             x["ks"] = ks_testscore
             ks_pvalue = ks_prob(ks_testscore)
