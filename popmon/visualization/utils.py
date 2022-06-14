@@ -20,6 +20,7 @@
 
 import logging
 import math
+from collections import defaultdict
 from io import BytesIO, StringIO
 from typing import List
 
@@ -162,10 +163,9 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
 
 
 def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
-    colors = {}
-    color_map = ["green", "yellow", "red"]
+    colors = defaultdict(dict)
+    color_map = ["g", "y", "r"]
     for c1, metric in enumerate(metrics):
-        colors[metric] = {}
         for c2, label in enumerate(labels):
             colors[metric][label] = [color_map[data[c1][c2]]]
 
@@ -184,9 +184,8 @@ def plot_traffic_lights_overview(feature, data, metrics=None, labels=None):
 
 
 def render_alert_aggregate_table(feature, data, metrics: List[str], labels: List[str]):
-    colors = {}
+    colors = defaultdict(dict)
     for c1, metric in enumerate(metrics):
-        colors[metric] = {}
         row_max = np.max(data[c1])
         for c2, label in enumerate(labels):
             a = data[c1][c2] / row_max if row_max and row_max != 0 else 0
