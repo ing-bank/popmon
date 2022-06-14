@@ -14,15 +14,15 @@
     {% for label in labels %}
         {% if data[metric][label] | length  == 1 %}
             {% with class = data[metric][label][0] %}
-            <td class="cell cell-{{ class }}">&nbsp;</td>
+            <td class="{{ class }}">&nbsp;</td>
             {% endwith %}
         {% elif data[metric][label] | length == 2 %}
             {% with rgba, value = data[metric][label] %}
-            <td class="cell" style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+            <td style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
             {% endwith %}
         {% elif data[metric][label] | length == 3 %}
             {% with text_color, rgba, value = data[metric][label] %}
-            <td class="cell" style="color: {{ text_color }}; background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+            <td style="color: {{ text_color }}; background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
             {% endwith %}
         {% endif %}
     {% endfor %}

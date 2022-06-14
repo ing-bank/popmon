@@ -6,11 +6,11 @@
           <div class="tl-container">
           {% for i in [2, 1, 0] %}
               {% if vals[i] > 0 %}
-                  <div style="width: calc({{ vals[i] }} / {{ vals['total'] }} * 100%)" class="tl-bar {% if i == 2%}red{%elif i == 1%}yellow{%else%}green{%endif%}">
+                  <div style="width: calc({{ vals[i] }} / {{ vals['total'] }} * 100%)" class="tl-bar {% if i == 2%}r{%elif i == 1%}y{%else%}g{%endif%}">
                       {{ vals[i] }} ({{ "%d" % (vals[i] / (vals["total"] * 0.01))}}%)
                   </div>
               {% else %}
-                  <div style="width: 0%" class="white">&nbsp;</div>
+                  <div style="width: 0%">&nbsp;</div>
               {% endif %}
           {% endfor %}
           </div>
