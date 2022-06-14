@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.0 (2022-06-14)
+### Feature
+* **profiles:** Custom profiles via registry pattern ([`d0eb98b`](https://github.com/ing-bank/popmon/commit/d0eb98bd715cf2c03db7f581eb44523bd75092f1))
+
+### Fix
+* Protection against outliers in sparse histograms ([#215](https://github.com/ing-bank/popmon/issues/215)) ([`10c3449`](https://github.com/ing-bank/popmon/commit/10c3449a3ab85d1caefc65b52511e11ea49a639e))
+* **report:** Traffic light flexbox on small screens ([`2faa7da`](https://github.com/ing-bank/popmon/commit/2faa7da655bf9f446ed599aac718b18e9e2e5fba))
+
+### Documentation
+* **synthetic:** Update synthetic examples ([#212](https://github.com/ing-bank/popmon/issues/212)) ([`84a9331`](https://github.com/ing-bank/popmon/commit/84a93314e80e05e54f95e3c02b2ab73d233251d4))
+* **readme:** Link profiles and comparisons page ([`17ac6d8`](https://github.com/ing-bank/popmon/commit/17ac6d82a60ca2483eb7e8323dd5a1cfc708833e))
+* **profiles:** List the available profiles ([#173](https://github.com/ing-bank/popmon/issues/173)) ([`15f78ec`](https://github.com/ing-bank/popmon/commit/15f78eceaa8f9b29956bfea49276185e21dcd9ca))
+
 ## v0.9.0 (2022-05-27)
 ### Feature
 * **report:** Enable the overview section by default ([`22b9cb6`](https://github.com/ing-bank/popmon/commit/22b9cb6c5a7a58a47e1366b39ec9ad3e7722a631))
