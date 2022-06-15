@@ -30,15 +30,22 @@ in four different ways:
 
     .. code-block:: python
 
+      settings = Settings()
+      settings.comparison.window = 10
+      settings.comparison.shift = 1
+
       # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="rolling", window=10, shift=1)
+      report = df.pm_stability_report(reference_type="rolling", settings=settings)
 
 4. Using an expanding window on all preceding time slots within the same DataFrame. This is also a dynamic method, with variable window size. All the available previous time slots are used. For example, if we have 2 time slots available and shift=1, window size will be 1 (so the previous slot is the reference), while if we have 10 time slots and shift=1, window size will be 9 (and all previous time slots are reference).
 
     .. code-block:: python
 
+      settings = Settings()
+      settings.comparison.shift = 1
+
       # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="expanding", shift=1)
+      report = df.pm_stability_report(reference_type="expanding", settings=settings)
 
 Note that, by default, popmon also performs a rolling comparison of the histograms in each time period with those in the
 previous time period. The results of these comparisons contain the term "prev1", and are found in the comparisons section
@@ -111,8 +118,11 @@ When generating a report, they can be provided as a dictionary:
 
 .. code-block:: python
 
+  settings = Settings()
+  settings.monitoring.monitoring_rules = your_monitoring_rules
+
   # generate stability report with specific monitoring rules
-  report = df.pm_stability_report(monitoring_rules=your_monitoring_rules)
+  report = df.pm_stability_report(settings=settings)
 
 When not provided, the default setting is:
 
@@ -168,8 +178,11 @@ When generating a report, the ``pull_rules`` can be provided as a dictionary:
 
 .. code-block:: python
 
+  settings = Settings()
+  settings.monitoring.pull_rules = your_pull_rules
+
   # generate stability report with specific monitoring rules
-  report = df.pm_stability_report(pull_rules=your_pull_rules)
+  report = df.pm_stability_report(settings=settings)
 
 The default for `pull_rules` is:
 
