@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.10.1 (2022-06-15)
+### Fix
+* Patched histogrammar num_bins call for Bin histograms ([`b34fe70`](https://github.com/ing-bank/popmon/commit/b34fe70c854e8dd7a5b062137f68bd358132e86a))
+
 ## v0.10.0 (2022-06-14)
 ### Feature
 * **profiles:** Custom profiles via registry pattern ([`d0eb98b`](https://github.com/ing-bank/popmon/commit/d0eb98bd715cf2c03db7f581eb44523bd75092f1))
