@@ -18,7 +18,6 @@ Contents
    comparisons
    tutorials
    configuration
-   tree
    developing
    changelog
 
