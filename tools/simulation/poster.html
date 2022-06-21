@@ -1,0 +1,80 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>popmon configuration simulator</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/prismjs@v1.28.0/themes/prism.css" rel="stylesheet"/>
+</head>
+<body>
+    <nav>
+        <div style="float:left">
+            <h2>popmon simulator</h2>
+            <p>This application simulates incoming data for a selected reference, to better understand the working on
+                popmon.</p>
+
+            Data stream:
+            <select>
+                <option>test data</option>
+            </select>
+            Select reference: <select>
+            <option>Static self full</option>
+            <option>Static self part</option>
+            <option>Static external</option>
+            <option>Rolling</option>
+            <option>Expanding</option>
+        </select>
+        </div>
+        <div style="float:right; width: 600px;">
+            <h2>code snippet</h2>
+
+            Generate a report using this configuration:
+            <pre><code class="language-python">df = popmon.resources("test_data.json")
+popmon.df_stability_report(df, reference="self")</code></pre>
+
+        </div>
+        <br clear="all"/>
+    </nav>
+
+    <div id='layout' style="float:left; width:50%;">
+        <h2>Reference distribution</h2>
+        <button onclick="updateData();" style="padding: 20px; margin: 5px;"> Simulate Next Batch in Reference</button>
+
+        <h3>Value of interest (e.g. mean) over time</h3>
+        <div id='container'>
+            <svg/>
+        </div>
+        <br/>
+        <h3>Z-score</h3>
+        <div id="z_score">
+            <svg/>
+        </div>
+        <br/>
+        <h3>Distribution of Z-scores</h3>
+        <div id="histogram">
+            <svg/>
+        </div>
+    </div>
+    <div id='layout' style="float:left; width:50%;">
+        <h2>Incoming data</h2>
+        <button onclick="updateData();" style="padding: 20px; margin: 5px;"> Simulate Next Batch in Incoming Data</button>
+
+        <h3>Value of interest (e.g. mean) for incoming data + dynamic bounds</h3>
+        <div id="container2">
+            <svg/>
+        </div>
+        <h3>Traffic lights</h3>
+        <div id="heatmap">
+            <svg/>
+        </div>
+    </div>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src="custom-script.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/prismjs@v1.28.0/components/prism-core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/prismjs@v1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+</body>
+</html>
