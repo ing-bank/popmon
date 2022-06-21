@@ -33,7 +33,7 @@ class ReportGenerator(Module):
     _input_keys = ("read_key",)
     _output_keys = ("store_key",)
 
-    def __init__(self, read_key, store_key, online_report):
+    def __init__(self, read_key, store_key, online_report = False):
         """Initialize an instance of ReportGenerator.
 
         :param str read_key: key of input sections data to read from the datastore
@@ -53,7 +53,7 @@ class ReportGenerator(Module):
         sections_html = ""
         for i, section_info in enumerate(sections):
             sections_html += templates_env(
-                filename="section.html", section_index=i, **section_info
+                filename="section.html", section_index=i, zip=zip, **section_info
             )
 
         # get HTML template for the final report, insert placeholder data and compress the code

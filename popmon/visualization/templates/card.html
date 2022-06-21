@@ -1,4 +1,4 @@
-<div class="col-md-{% if 'full_width' in metric %}12{% else %}6{% endif %} mb-5">
+<div class="col-md-{% if 'full_width' in metric %}12{% else %}6{% endif %} mb-5" >
     <a name="{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"></a>
     <div class="card shadow-sm">
         <div class="card-body" style="text-align: center">
@@ -8,24 +8,20 @@
             {% endif %}
         </div>
         <div id= "{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"> </div>
-        {% if ('Alerts' in section_title) or ('Traffic Lights' in section_title) or ('Overview' in section_title) %}
-            {% if '"data"' in metric.plot %} 
-                <script>
-                    var graphs1 = {{ metric.plot }};
-                    TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                    Plotly.newPlot(TESTER, graphs1);
-                    console.log("Plotly graph")
-                </script>
-            {% else %}
-                {{ metric.plot }}
-            {% endif %} 
+        {% if (('Overview' in section_title) or ('traffic_light' in metric.type)) %}
+            {{ metric.plot }}
         {% else %}
+            {% if 'barplot' in metric.type %}
             <script>
-                var graphs1 = {{ metric.plot }};
                 TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                Plotly.newPlot(TESTER, graphs1);
-                console.log("Plotly graph")
-            </script> 
+                Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), JSON.parse('{{ metric.layout | tojson }}'), {scrollZoom: true});  
+            </script>
+            {% else %}
+                <script>
+                    TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
+                    Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), plot_layout["{{ metric.type }}"], {scrollZoom: true});  
+                </script>
+            {% endif %} 
         {% endif %} 
     </div>
 </div>

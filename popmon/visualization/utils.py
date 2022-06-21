@@ -20,6 +20,7 @@
 
 import logging
 import math
+import json
 from typing import List
 
 import numpy as np
@@ -69,7 +70,7 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
         labels = labels[::granularity]
 
     fig.update_layout(xaxis_tickangle=-90, xaxis={"type": "category"})
-    fig.update_xaxes(ticktext=labels)
+    fig.update_xaxes(tickvals=labels, ticktext=labels)
     fig.update_yaxes(ticks="outside")
     # plot boundaries
     try:
@@ -111,8 +112,10 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
                 fig.update_yaxes(range=[y_min, y_max])
     except Exception:
         logger.debug("unable to plot boundaries")
-
-    return fig.to_json()
+    
+    plot = json.loads(fig.to_json())
+    #print(plot)
+    return plot
 
 
 def render_traffic_lights_table(feature, data, metrics: List[str], labels: List[str]):
@@ -221,9 +224,11 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
     # hide yaxis
     fig.update_yaxes(visible=False)
 
-    fig.update_layout(xaxis_tickangle=-90)
-    fig.update_xaxes(ticktext=labels)
-    return fig.to_json()
+    fig.update_layout(xaxis_tickangle=-90, xaxis={"type": "category"})
+    fig.update_xaxes(tickvals=labels, ticktext=labels)
+    
+    plot = json.loads(fig.to_json())
+    return plot
 
 
 def plot_overlay_1d_histogram_b64(
@@ -370,7 +375,9 @@ def plot_overlay_1d_histogram_b64(
         }
     )
 
-    return fig.to_json()
+    plot = json.loads(fig.to_json())
+
+    return plot
 
 
 def plot_heatmap_b64(
@@ -458,13 +465,19 @@ def plot_heatmap_b64(
             y=[xtick(lab) for lab in labels],
             color_continuous_scale=cmap,
             text_auto=".2f",
-            title="heatmap",
         )
 
-        fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
-        fig.update_yaxes(ticks="outside")
+        # set label granularity
+        if len(date) > 0:
+            granularity = math.ceil(len(date) / 50)
+            date = date[::granularity]
 
-    return {"name": hist_name, "plot": fig.to_json()}
+        fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
+        fig.update_layout(xaxis={"type": "category"})
+        fig.update_yaxes(ticks="outside")
+        plot = json.loads(fig.to_json())
+
+    return {"name": hist_name, "type": "heatmap", "plot": plot["data"], "layout": plot["layout"] }
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):

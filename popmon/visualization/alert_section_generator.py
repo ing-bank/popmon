@@ -184,7 +184,7 @@ class AlertSectionGenerator(Module):
                 plots = [e for e in plots if len(e["plot"])]
 
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {"name": feature, "types": ["traffic_lights"], "plots": sorted(plots, key=lambda plot: plot["name"]), "layout": [""]}
             )
 
         sections.append(
@@ -237,4 +237,4 @@ def _plot_metric(
         skip_empty=skip_empty,
     )
 
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
+    return {"name": metric, "type": "barplot", "description": get_stat_description(metric), "plot": plot["data"], "layout": plot["layout"]}
