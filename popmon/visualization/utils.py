@@ -373,7 +373,7 @@ def plot_overlay_1d_histogram_b64(
             "x": 1,
             "font": {"size": 10},
         },
-        hovermode='x unified'
+        hovermode="x unified",
     )
 
     plot = json.loads(fig.to_json())
