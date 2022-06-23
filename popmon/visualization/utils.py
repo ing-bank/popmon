@@ -372,7 +372,8 @@ def plot_overlay_1d_histogram_b64(
             "xanchor": "right",
             "x": 1,
             "font": {"size": 10},
-        }
+        },
+        hovermode='x unified'
     )
 
     plot = json.loads(fig.to_json())
@@ -465,6 +466,7 @@ def plot_heatmap_b64(
             y=[xtick(lab) for lab in labels],
             color_continuous_scale=cmap,
             text_auto=".2f",
+            aspect="auto",
         )
 
         # set label granularity

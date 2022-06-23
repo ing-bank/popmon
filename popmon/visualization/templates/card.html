@@ -17,10 +17,10 @@
                         console.log("plotting graph");
                         {% if 'barplot' in metric.type %}
                             TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), JSON.parse('{{ metric.layout | tojson }}'));
+                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), JSON.parse('{{ metric.layout | tojson }}'),{displaylogo: false, modeBarButtonsToRemove: ['lasso2d']});
                         {% else %}
                             TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), feature{{ section_index }}{{ curr }}_layout["{{ metric.type }}"]);
+                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), feature{{ section_index }}{{ curr }}_layout["{{ metric.type }}"],{displaylogo: false, modeBarButtonsToRemove: ['lasso2d']});
                         {% endif %}
                     }
                 }, { threshold: [0] });
