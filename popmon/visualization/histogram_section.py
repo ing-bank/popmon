@@ -148,7 +148,7 @@ class HistogramSection(Module):
             # filter out potential empty plots
             plots = [e for e in plots if len(e["plot"])]
             plots = sorted(plots, key=lambda plot: plot["name"])
-            if(len(plots)>0):
+            if len(plots) > 0:
                 layouts.append(plots[0]["layout"])
                 plot_types.append("histogram")
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
@@ -157,13 +157,20 @@ class HistogramSection(Module):
                 if isinstance(h, dict):
                     if len(h["plot"]):
                         hplots.append(h)
-            
-            if(len(hplots)>0):
+
+            if len(hplots) > 0:
                 layouts.append(hplots[0]["layout"])
                 plot_types.append("heatmap")
             plots = hplots + plots
             # print(plot_types,layouts)
-            features_w_metrics.append({"name": feature, "types": plot_types, "plots": plots, "layout": layouts})
+            features_w_metrics.append(
+                {
+                    "name": feature,
+                    "types": plot_types,
+                    "plots": plots,
+                    "layout": layouts,
+                }
+            )
 
         sections.append(
             {
@@ -249,7 +256,13 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
     else:
         plot = ""
 
-    return {"name": date, "type": "histogram", "description": get_stat_description(date), "plot": plot["data"], "layout": plot["layout"]}
+    return {
+        "name": date,
+        "type": "histogram",
+        "description": get_stat_description(date),
+        "plot": plot["data"],
+        "layout": plot["layout"],
+    }
 
 
 def _plot_heatmap(feature, date, hc_list, top_n, disable_heatmap, cmap):

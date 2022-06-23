@@ -23,16 +23,17 @@
     {% if features | length %}
       {% for feature in features %}
         <script> 
-          var plot_layout = {} 
+          {% set curr = loop.index  %}
+          var feature{{ section_index }}{{ curr }}_layout = {}
         </script>
         {% for plot_type, layout in zip(feature.types,feature.layout) %}
           <script> 
-            plot_layout["{{ plot_type }}"] = JSON.parse('{{ layout | tojson }}');
-            xoxo= {{ section_title|tojson }} ;
+            feature{{ section_index }}{{ curr }}_layout["{{ plot_type }}"] = JSON.parse('{{ layout | tojson }}');
+            var sec = {{ section_title|tojson }} ;
           </script>
         {% endfor %}
         <script>
-          console.log(xoxo)
+          console.log(sec)
         </script>
         <div class="row section_feature" data-section-feature="{{ feature.name }}">
             {% for metric in feature.plots %}

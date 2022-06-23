@@ -11,17 +11,22 @@
         {% if (('Overview' in section_title) or ('traffic_light' in metric.type)) %}
             {{ metric.plot }}
         {% else %}
-            {% if 'barplot' in metric.type %}
             <script>
-                TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), JSON.parse('{{ metric.layout | tojson }}'), {scrollZoom: true});  
+                var observer = new IntersectionObserver(function(entries) {
+                    if(entries[0].isIntersecting === true){
+                        console.log("plotting graph");
+                        {% if 'barplot' in metric.type %}
+                            TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
+                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), JSON.parse('{{ metric.layout | tojson }}'));
+                        {% else %}
+                            TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
+                            Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), feature{{ section_index }}{{ curr }}_layout["{{ metric.type }}"]);
+                        {% endif %}
+                    }
+                }, { threshold: [0] });
+
+                observer.observe(document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}"));  
             </script>
-            {% else %}
-                <script>
-                    TESTER = document.getElementById("{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}");
-                    Plotly.newPlot(TESTER, JSON.parse('{{ metric.plot | tojson }}'), plot_layout["{{ metric.type }}"], {scrollZoom: true});  
-                </script>
-            {% endif %} 
         {% endif %} 
     </div>
 </div>

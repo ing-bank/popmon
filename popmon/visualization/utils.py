@@ -18,9 +18,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import json
 import logging
 import math
-import json
 from typing import List
 
 import numpy as np
@@ -112,9 +112,9 @@ def plot_bars_b64(data, labels=None, bounds=None, ylim=False, skip_empty=True):
                 fig.update_yaxes(range=[y_min, y_max])
     except Exception:
         logger.debug("unable to plot boundaries")
-    
+
     plot = json.loads(fig.to_json())
-    #print(plot)
+    # print(plot)
     return plot
 
 
@@ -226,7 +226,7 @@ def plot_traffic_lights_b64(data, labels=None, skip_empty=True):
 
     fig.update_layout(xaxis_tickangle=-90, xaxis={"type": "category"})
     fig.update_xaxes(tickvals=labels, ticktext=labels)
-    
+
     plot = json.loads(fig.to_json())
     return plot
 
@@ -477,7 +477,12 @@ def plot_heatmap_b64(
         fig.update_yaxes(ticks="outside")
         plot = json.loads(fig.to_json())
 
-    return {"name": hist_name, "type": "heatmap", "plot": plot["data"], "layout": plot["layout"] }
+    return {
+        "name": hist_name,
+        "type": "heatmap",
+        "plot": plot["data"],
+        "layout": plot["layout"],
+    }
 
 
 def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
