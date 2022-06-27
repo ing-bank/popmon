@@ -4,6 +4,7 @@ import pytest
 from popmon import resources
 from popmon.analysis.comparison.hist_comparer import ReferenceHistComparer
 from popmon.base import Pipeline
+from popmon.config import Settings
 from popmon.hist.hist_splitter import HistSplitter
 from popmon.io import JsonReader
 from popmon.visualization import ReportGenerator, SectionGenerator
@@ -16,6 +17,8 @@ def test_report_generator():
 
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
+
+    settings = Settings()
 
     pipeline = Pipeline(
         modules=[
@@ -35,7 +38,7 @@ def test_report_generator():
                 read_key="comparison",
                 store_key="all_sections",
                 section_name="Comparisons",
-                last_n=2,
+                settings=settings.report,
             ),
             ReportGenerator(read_key="all_sections", store_key="final_report"),
         ]
@@ -49,7 +52,8 @@ def test_report_generator():
     for f in features:
         assert isinstance(datastore["comparison"][f], pd.DataFrame)
 
-    assert pipeline.modules[-2].last_n == 2
+    assert isinstance(pipeline.modules[-2], SectionGenerator)
+    assert pipeline.modules[-2].last_n == 0
     assert "final_report" in datastore
     assert (
         isinstance(datastore["final_report"], str)
