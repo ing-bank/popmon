@@ -20,6 +20,13 @@ popmon.base.pipeline module
    :undoc-members:
    :show-inheritance:
 
+popmon.base.registry module
+---------------------------
+
+.. automodule:: popmon.base.registry
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
