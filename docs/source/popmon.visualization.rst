@@ -12,14 +12,6 @@ popmon.visualization.alert\_section\_generator module
    :undoc-members:
    :show-inheritance:
 
-popmon.visualization.backend module
------------------------------------
-
-.. automodule:: popmon.visualization.backend
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 popmon.visualization.histogram\_section module
 ----------------------------------------------
 
