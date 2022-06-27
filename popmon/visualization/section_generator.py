@@ -24,8 +24,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from popmon.analysis.comparison.comparisons import Comparisons
-from popmon.analysis.profiling.profiles import Profiles
+from popmon.analysis.comparison.comparison_registry import Comparisons
+from popmon.analysis.profiling.profile_registry import Profiles
 
 from ..base import Module
 from ..config import Report
@@ -122,7 +122,7 @@ class SectionGenerator(Module):
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
-        self.show_stats = settings.show_stats
+        self.show_stats = settings.show_stats if not settings.extended_report else None
 
     def get_description(self):
         return self.section_name

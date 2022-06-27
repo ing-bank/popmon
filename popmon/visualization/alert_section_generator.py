@@ -79,7 +79,7 @@ class AlertSectionGenerator(Module):
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
         self.skip_empty_plots = settings.skip_empty_plots
-        self.show_stats = settings.show_stats
+        self.show_stats = settings.show_stats if not settings.extended_report else None
 
         self.section_name = settings.section.alerts.name
         self.description = settings.section.alerts.description

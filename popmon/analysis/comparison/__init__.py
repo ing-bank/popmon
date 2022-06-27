@@ -18,6 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import popmon.analysis.comparison.comparisons  # noqa
+
 from ...analysis.comparison.hist_comparer import (
     ExpandingHistComparer,
     ExpandingNormHistComparer,
