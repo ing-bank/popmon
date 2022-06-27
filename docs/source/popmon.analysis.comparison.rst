@@ -4,6 +4,14 @@ popmon.analysis.comparison package
 Submodules
 ----------
 
+popmon.analysis.comparison.comparisons module
+---------------------------------------------
+
+.. automodule:: popmon.analysis.comparison.comparisons
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 popmon.analysis.comparison.hist\_comparer module
 ------------------------------------------------
 
@@ -11,7 +19,6 @@ popmon.analysis.comparison.hist\_comparer module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

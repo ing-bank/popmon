@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    popmon.analysis.comparison
    popmon.analysis.profiling
@@ -43,7 +44,6 @@ popmon.analysis.merge\_statistics module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

@@ -44,7 +44,6 @@ popmon.pipeline.report\_pipelines module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

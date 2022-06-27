@@ -12,7 +12,6 @@ popmon.stitching.hist\_stitcher module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

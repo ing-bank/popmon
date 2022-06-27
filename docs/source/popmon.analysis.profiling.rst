@@ -12,6 +12,14 @@ popmon.analysis.profiling.hist\_profiler module
    :undoc-members:
    :show-inheritance:
 
+popmon.analysis.profiling.profiles module
+-----------------------------------------
+
+.. automodule:: popmon.analysis.profiling.profiles
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 popmon.analysis.profiling.pull\_calculator module
 -------------------------------------------------
 
@@ -19,7 +27,6 @@ popmon.analysis.profiling.pull\_calculator module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

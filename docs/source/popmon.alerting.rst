@@ -20,7 +20,6 @@ popmon.alerting.compute\_tl\_bounds module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -5,10 +5,12 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    popmon.alerting
    popmon.analysis
    popmon.base
+   popmon.decorators
    popmon.hist
    popmon.io
    popmon.pipeline
@@ -35,6 +37,14 @@ popmon.resources module
    :undoc-members:
    :show-inheritance:
 
+popmon.utils module
+-------------------
+
+.. automodule:: popmon.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 popmon.version module
 ---------------------
 
@@ -42,7 +52,6 @@ popmon.version module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
