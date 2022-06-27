@@ -68,7 +68,6 @@ def test_hist_compare():
 
 
 def test_reference_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 
@@ -116,7 +115,7 @@ def test_reference_hist_comparer():
 
     df = datastore["comparison"]["A_score"]
     assert len(df) == 16
-    np.testing.assert_array_equal(sorted(df.columns), sorted(cols))
+    assert set(df.columns) == set(cols)
     np.testing.assert_almost_equal(df["ref_chi2"].mean(), 2.623206018518519)
 
     df = datastore["comparison"]["country"]
@@ -136,7 +135,6 @@ def test_reference_hist_comparer():
 
 
 def test_expanding_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 

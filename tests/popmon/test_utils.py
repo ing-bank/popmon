@@ -1,8 +1,10 @@
-from popmon.config import config
+from popmon.config import Report
 from popmon.utils import filter_metrics
 
 
 def test_filter_metrics():
+    settings = Report()
+
     metrics = [
         "distinct_pull",
         "filled_pull",
@@ -19,7 +21,6 @@ def test_filter_metrics():
         "fraction_true_trend10_zscore",
         "ref_unknown_labels",
         "prev1_ks_zscore",
-        "worst",
         "ref_max_prob_diff",
     ]
     expected = [
@@ -36,12 +37,9 @@ def test_filter_metrics():
         "fraction_true_trend10_zscore",
         "ref_unknown_labels",
         "prev1_ks_zscore",
-        "worst",
         "ref_max_prob_diff",
     ]
     assert (
-        filter_metrics(
-            metrics, ignore_stat_endswith=[], show_stats=config["limited_stats"]
-        )
+        filter_metrics(metrics, ignore_stat_endswith=[], show_stats=settings.show_stats)
         == expected
     )

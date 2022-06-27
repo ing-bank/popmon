@@ -19,6 +19,7 @@ from popmon.analysis.functions import (
     rolling_mean,
 )
 from popmon.base import Pipeline
+from popmon.config import Settings
 from popmon.visualization.section_generator import SectionGenerator
 
 
@@ -225,16 +226,14 @@ def test_rolling_window_funcs():
 
 def test_report_traffic_light_bounds():
     datastore = {"to_profile": {"asc_numbers": get_test_data()}}
-
-    conf = {
-        "monitoring_rules": {
-            "the_feature:mae": [8, 4, 2, 0.15],
-            "mse": [0.2, 0.11, 0.09, 0],
-            "mae": [1, 0, 0, 0],
-            "*_pull": [7, 4, -4, -7],
-        },
-        "pull_rules": {"*_pull": [7, 4, -4, -7]},
+    settings = Settings()
+    settings.monitoring.monitoring_rules = {
+        "the_feature:mae": [8, 4, 2, 0.15],
+        "mse": [0.2, 0.11, 0.09, 0],
+        "mae": [1, 0, 0, 0],
+        "*_pull": [7, 4, -4, -7],
     }
+    settings.monitoring.pull_rules = {"*_pull": [7, 4, -4, -7]}
 
     m1 = ApplyFunc(
         apply_to_key="to_profile", features=["asc_numbers"], metrics=["a", "b"]
@@ -250,12 +249,12 @@ def test_report_traffic_light_bounds():
     ctlb = ComputeTLBounds(
         read_key="to_profile",
         store_key="static_tlb",
-        monitoring_rules=conf["monitoring_rules"],
+        monitoring_rules=settings.monitoring.monitoring_rules,
     )
 
     m3 = ComputeTLBounds(
         read_key="to_profile",
-        monitoring_rules=conf["pull_rules"],
+        monitoring_rules=settings.monitoring.pull_rules,
         apply_funcs_key="dynamic_tlb",
         func=pull_bounds,
         metrics_wide=True,
@@ -272,6 +271,7 @@ def test_report_traffic_light_bounds():
         section_name="Profiles",
         dynamic_bounds="dtlb",
         static_bounds="static_tlb",
+        settings=settings.report,
     )
 
     pipeline = Pipeline(modules=[m1, m2, ctlb, m3, m4, rg])

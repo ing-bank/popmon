@@ -88,7 +88,6 @@ def test_traffic_light_summary():
 
     output = datastore["alerts"]["the_feature"]
 
-    assert output["worst"].values[-1] == 2
     assert output["n_green"].values[-1] == 1
     assert output["n_yellow"].values[-1] == 0
     assert output["n_red"].values[-1] == 1
@@ -137,7 +136,6 @@ def test_traffic_light_summary_combination():
     assert "_AGGREGATE_" in alerts
     output = datastore["alerts"]["_AGGREGATE_"]
 
-    assert output["worst"].values[-1] == 2
     assert output["n_green"].values[-1] == 1
     assert output["n_yellow"].values[-1] == 0
     assert output["n_red"].values[-1] == 1

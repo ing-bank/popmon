@@ -3,11 +3,15 @@ import pytest
 
 from popmon import resources
 from popmon.base import Pipeline
+from popmon.config import Settings
 from popmon.io import JsonReader
 from popmon.pipeline.metrics import df_stability_metrics, stability_metrics
 
 
 def test_hists_stability_metrics():
+    settings = Settings()
+    settings.comparison.window = 5
+
     # get histograms
     pipeline = Pipeline(
         modules=[
@@ -28,7 +32,7 @@ def test_hists_stability_metrics():
         "date:A_score:num_employees",
     ]
     ds = stability_metrics(
-        hists, reference_type="rolling", window=5, features=hist_list
+        hists, settings=settings, reference_type="rolling", features=hist_list
     )
 
     cols = ["profiles", "comparisons", "traffic_lights", "alerts"]
@@ -37,6 +41,8 @@ def test_hists_stability_metrics():
 
 
 def test_df_stability_metrics():
+    settings = Settings()
+
     # generate metrics directly from dataframe
     features = ["date:isActive", "date:eyeColor", "date:latitude"]
     bin_specs = {
@@ -47,7 +53,8 @@ def test_df_stability_metrics():
         "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
     }
     ds = df_stability_metrics(
-        pytest.test_df,
+        df=pytest.test_df,
+        settings=settings,
         time_axis="date",
         features=features,
         binning="unit",
