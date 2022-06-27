@@ -224,7 +224,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :return: assembled self reference pipeline
         """
-        from popmon.analysis.comparison.comparison_registry import Comparisons
+        from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "ref"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -284,7 +284,7 @@ class ExternalReferenceMetricsPipeline(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :return: assembled external reference pipeline
         """
-        from popmon.analysis.comparison.comparison_registry import Comparisons
+        from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "ref"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -347,7 +347,7 @@ class RollingReferenceMetricsPipeline(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :return: assembled rolling reference pipeline
         """
-        from popmon.analysis.comparison.comparison_registry import Comparisons
+        from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "roll"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -408,7 +408,7 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         :param list features: features of histograms to pick up from input data (optional)
         :return: assembled expanding reference pipeline
         """
-        from popmon.analysis.comparison.comparison_registry import Comparisons
+        from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "expanding"
         reference_modules: List[Union[Module, Pipeline]] = [

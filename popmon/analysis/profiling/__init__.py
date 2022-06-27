@@ -16,18 +16,16 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-import popmon.analysis.profiling.profiles  # noqa
-
 from ...analysis.profiling.hist_profiler import HistProfiler
 from ...analysis.profiling.pull_calculator import (
     ExpandingPullCalculator,
     ReferencePullCalculator,
     RollingPullCalculator,
 )
+from .profiles import Profiles
 
 __all__ = [
+    "Profiles",
     "HistProfiler",
     "RollingPullCalculator",
     "ReferencePullCalculator",

@@ -52,7 +52,7 @@ def hist_compare(row, hist_name1="", hist_name2=""):
     :param str hist_name2: name of histogram two to compare
     :return: pandas Series with popular comparison metrics.
     """
-    from .comparison_registry import Comparisons
+    from popmon.analysis.comparison import Comparisons
 
     x = {key: np.nan for key in Comparisons.get_keys()}
 
@@ -82,36 +82,15 @@ def hist_compare(row, hist_name1="", hist_name2=""):
             htype = "cat"
             args = [hist1, hist2]
 
-        for key, func in Comparisons.get_comparisons(dim=1, htype=htype).items():
-            results = func(*args)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                x[k] = v
-
-        for key, func in Comparisons.get_comparisons(dim=1, htype="all").items():
-            results = func(*entries_list)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                x[k] = v
+        x.update(Comparisons.run(args, dim=1, htype=htype))
+        x.update(Comparisons.run(entries_list, dim=1, htype="all"))
     else:
         numpy_ndgrids = get_consistent_numpy_ndgrids([hist1, hist2], dim=hist1.n_dim)
         entries_list = [entry.flatten() for entry in numpy_ndgrids]
 
-        for key, func in Comparisons.get_comparisons(dim=(2,)).items():
-            results = func(*entries_list)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                x[k] = v
+        x.update(Comparisons.run(entries_list, dim=(2,), htype="all"))
 
-    for key, func in Comparisons.get_comparisons(dim=-1).items():
-        results = func(*entries_list)
-        if len(key) == 1:
-            results = (results,)
-        for k, v in zip(key, results):
-            x[k] = v
+    x.update(Comparisons.run(entries_list, dim=-1, htype="all"))
 
     if len(set(x.keys()) - set(Comparisons.get_keys())) > 0:
         raise ValueError("Could not compute full comparison")

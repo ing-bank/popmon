@@ -21,12 +21,15 @@
 import numpy as np
 from scipy import stats
 
-from popmon.analysis.comparison.comparison_registry import Comparisons
+from popmon.base.registry import Registry
+
+Comparisons = Registry()
 
 
 @Comparisons.register(
     key="max_prob_diff",
     description="The largest absolute difference between all bin pairs of two normalized histograms (one histogram in a time slot and one in {ref})",
+    htype="all",
 )
 def googl_test(bins_1, bins_2):
     """Google-paper test
@@ -47,7 +50,7 @@ def googl_test(bins_1, bins_2):
     return np.max(np.abs(dist(bins_1) - dist(bins_2)))
 
 
-@Comparisons.register(key="psi", description="Population Stability Index")
+@Comparisons.register(key="psi", description="Population Stability Index", htype="all")
 def population_stability_index(po, qo):
     epsilon = 10e-6
     p = po.copy()
@@ -66,7 +69,7 @@ def kullback_leibler_divergence(po, qo):
     return np.sum(p * np.log(p / q))
 
 
-@Comparisons.register(key="jsd", description="Jensen-Shannon Divergence")
+@Comparisons.register(key="jsd", description="Jensen-Shannon Divergence", htype="all")
 def jensen_shannon_divergence(p, q):
     m = 0.5 * (p + q)
     return 0.5 * (kullback_leibler_divergence(p, m) + kullback_leibler_divergence(q, m))
@@ -177,6 +180,7 @@ def unknown_labels(hist1, hist2):
     key="pearson",
     description="Pearson correlation between each time slot and {ref}",
     dim=(2,),
+    htype="all",
 )
 def pearson(p, q, *args):
     # calculate pearson coefficient
@@ -264,6 +268,7 @@ def uu_chi2(n, m):
         "The number of normalized residuals of all bin pairs (one histogram in a time"
         + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",
     ],
+    htype="all",
 )
 def chi2(*args, max_res_bound=7.0):
     chi2r, chi2_norm, zscore, pvalue, res = uu_chi2(*args)
