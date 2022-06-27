@@ -20,10 +20,13 @@
 
 import numpy as np
 
+from popmon.base.registry import Registry
+
 from ...analysis.hist_numpy import get_2dgrid
-from ...analysis.profiling.profile_registry import Profiles
 from ...hist.hist_utils import sum_entries
 from ...stats import numpy as pm_np
+
+Profiles = Registry()
 
 
 @Profiles.register(
@@ -43,8 +46,10 @@ from ...stats import numpy as pm_np
     htype="num",
 )
 def profile_quantiles(x, w):
-    return pm_np.quantile(
-        x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
+    return tuple(
+        pm_np.quantile(
+            x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
+        )
     )
 
 
@@ -58,7 +63,9 @@ def profile_std(x, w):
     return pm_np.std(x, w)
 
 
-@Profiles.register(key="nan", description="Number of missing entries (NaN)", dim=1)
+@Profiles.register(
+    key="nan", description="Number of missing entries (NaN)", dim=1, htype=None
+)
 def profile_nan(hist):
     if hasattr(hist, "nanflow"):
         return hist.nanflow.entries
@@ -71,6 +78,7 @@ def profile_nan(hist):
     key="overflow",
     description="Number of values larger than the maximum bin-edge of the histogram.",
     dim=1,
+    htype=None,
 )
 def profile_overflow(hist):
     if hasattr(hist, "overflow"):
@@ -82,6 +90,7 @@ def profile_overflow(hist):
     key="underflow",
     description="Number of values smaller than the minimum bin-edge of the histogram.",
     dim=1,
+    htype=None,
 )
 def profile_underflow(hist):
     if hasattr(hist, "underflow"):
@@ -93,6 +102,7 @@ def profile_underflow(hist):
     key="phik",
     description="phi-k correlation between the two variables of the histogram",
     dim=2,
+    htype=None,
 )
 def profile_phik(hist):
     from phik import phik
@@ -114,7 +124,7 @@ def profile_phik(hist):
 
 
 @Profiles.register(
-    key="count", description="Number of entries (non-NaN and NaN)", dim=None
+    key="count", description="Number of entries (non-NaN and NaN)", dim=-1, htype=None
 )
 def profile_count(hist):
     return int(sum_entries(hist))
@@ -137,7 +147,8 @@ def profile_distinct(bin_labels, bin_counts):
     return len(np.unique(bin_labels[bin_counts > 0]))
 
 
-def fraction_of_true(bin_labels, bin_entries):
+@Profiles.register(key="fraction_of_true", description="", dim=1, htype="cat")
+def profile_fraction_of_true(bin_labels, bin_counts):
     """Compute fraction of 'true' labels
 
     :param bin_labels: Array containing numbers whose mean is desired. If `a` is not an
@@ -147,7 +158,7 @@ def fraction_of_true(bin_labels, bin_entries):
     :return: fraction of 'true' labels
     """
     bin_labels = np.array(bin_labels)
-    bin_entries = np.array(bin_entries)
+    bin_entries = np.array(bin_counts)
     assert len(bin_labels) == len(bin_entries)
 
     def replace(bl):
@@ -190,11 +201,6 @@ def fraction_of_true(bin_labels, bin_entries):
         return np.nan
     # exclude nans from fraction
     return (1.0 * sum_true) / sum_entries
-
-
-@Profiles.register(key="fraction_of_true", description="", dim=1, htype="cat")
-def profile_fraction_of_true(bin_labels, bin_counts):
-    return fraction_of_true(bin_labels, bin_counts)
 
 
 @Profiles.register(

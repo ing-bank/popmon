@@ -21,8 +21,6 @@
 import numpy as np
 import pandas as pd
 
-from popmon.analysis.profiling.profile_registry import Profiles
-
 from ...base import Module
 from ...hist.hist_utils import get_bin_centers, is_numeric, is_timestamp
 
@@ -76,6 +74,8 @@ class HistProfiler(Module):
             raise NotImplementedError()
 
     def _profile_1d_histogram(self, name, hist):
+        from popmon.analysis import Profiles
+
         # preprocessing value counts and TS
         is_num = is_numeric(hist)
         is_ts = is_timestamp(hist) or name in self.var_timestamp
@@ -95,29 +95,13 @@ class HistProfiler(Module):
 
         # calc 1d-histogram statistics
         profile = {}
-        for key, func in Profiles.get_profiles(dim=1, htype=otype).items():
-            args = [bin_labels, bin_counts]
-            results = func(*args)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                profile[k] = v
+        args = [bin_labels, bin_counts]
 
-        for key, func in Profiles.get_profiles(dim=1, htype="all").items():
-            args = [bin_labels, bin_counts]
-            results = func(*args)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                profile[k] = v
+        profile.update(Profiles.run(args, dim=1, htype=otype))
+        profile.update(Profiles.run(args, dim=1, htype="all"))
 
-        for key, func in Profiles.get_profiles(dim=1, htype=None).items():
-            args = [hist]
-            results = func(*args)
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                profile[k] = v
+        # difference between htype=None and htype="all" are arguments (bin labels vs hist)
+        profile.update(Profiles.run([hist], dim=1, htype=None))
 
         # postprocessing TS
         if is_ts:
@@ -132,6 +116,8 @@ class HistProfiler(Module):
         return profile
 
     def _profile_nd_histogram(self, name, hist, dim):
+        from popmon.analysis import Profiles
+
         if hist.n_dim < dim:
             self.logger.warning(
                 f"Histogram {name} has {hist.n_dim} dimensions (<{dim}); cannot profile. Returning empty."
@@ -139,18 +125,17 @@ class HistProfiler(Module):
             return {}
 
         # calc nd-histogram statistics
-        profile = {}
-        for key, func in Profiles.get_profiles(dim=dim).items():
-            results = func(hist)
+        profile = Profiles.run([hist], dim=dim, htype=None)
+        profile.update(Profiles.run([hist], dim=dim, htype="all"))
+        profile.update(Profiles.run([hist], dim=dim, htype="num"))
+        profile.update(Profiles.run([hist], dim=dim, htype="cat"))
 
-            if len(key) == 1:
-                results = (results,)
-            for k, v in zip(key, results):
-                profile[k] = v
-
+        profile.update(Profiles.run([hist], dim=-1, htype=None))
         return profile
 
     def _profile_hist(self, split, hist_name):
+        from popmon.analysis.profiling import Profiles
+
         if len(split) == 0:
             self.logger.error(f'Split histograms dict "{hist_name}" is empty. Return.')
             return []
@@ -162,18 +147,18 @@ class HistProfiler(Module):
 
         # these are the profiled quantities we will monitor
         expected_fields = (
-            Profiles.get_keys(dim=dimension, htype=htype)
-            + Profiles.get_keys(dim=dimension, htype="all")
-            + Profiles.get_keys(dim=dimension, htype=None)
+            Profiles.get_keys_by_dim_and_htype(dim=dimension, htype=htype)
+            + Profiles.get_keys_by_dim_and_htype(dim=dimension, htype="all")
+            + Profiles.get_keys_by_dim_and_htype(dim=dimension, htype=None)
         )
 
         # profiles regardless of dim and htype (e.g. count)
-        expected_fields += Profiles.get_keys(dim=None, htype=None)
+        expected_fields += Profiles.get_keys_by_dim_and_htype(dim=None, htype=None)
 
         # profiles regardless of dim
-        expected_fields += Profiles.get_keys(dim=-1, htype=htype)
-        expected_fields += Profiles.get_keys(dim=-1, htype="all")
-        expected_fields += Profiles.get_keys(dim=-1, htype=None)
+        expected_fields += Profiles.get_keys_by_dim_and_htype(dim=-1, htype=htype)
+        expected_fields += Profiles.get_keys_by_dim_and_htype(dim=-1, htype="all")
+        expected_fields += Profiles.get_keys_by_dim_and_htype(dim=-1, htype=None)
 
         expected_fields += [self.index_col, self.hist_col]
 
@@ -193,7 +178,8 @@ class HistProfiler(Module):
 
             if sorted(profile.keys()) != sorted(expected_fields):
                 self.logger.error(
-                    f'Could not extract full profile for sub-hist "{hist_name} {index}". Skipping.'
+                    f'Could not extract full profile for sub-hist "{hist_name} {index}".'
+                    f"Differences: {set(profile.keys()).symmetric_difference(set(expected_fields))}. Skipping."
                 )
             else:
                 profile_list.append(profile)

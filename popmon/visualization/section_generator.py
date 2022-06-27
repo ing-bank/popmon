@@ -24,8 +24,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from popmon.analysis.comparison.comparison_registry import Comparisons
-from popmon.analysis.profiling.profile_registry import Profiles
+from popmon.analysis.comparison import Comparisons
+from popmon.analysis.profiling import Profiles
 
 from ..base import Module
 from ..config import Report
