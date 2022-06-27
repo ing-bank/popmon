@@ -30,38 +30,60 @@ parallel_args = {"n_jobs": 1}
 themed = True
 
 
-class ProfilesSection(BaseModel):
+class SectionModel(BaseModel):
+    name: str
+    """Name of the section in the report"""
+
+    description: str
+    """Description of the section in the report"""
+
+
+class ProfilesSection(SectionModel):
     name = "Profiles"
+    """Name of the profiles section in the report"""
+
     description = """Basic statistics of the data (profiles) calculated for each time period (a period
                        is represented by one bin). The yellow and red lines represent the corresponding
                        traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data)."""
+    """Description of the profiles section in the report"""
 
 
-class AlertSection(BaseModel):
+class AlertSection(SectionModel):
     name = "Alerts"
+    """Name of the alerts section in the report"""
+
     description = "Alerts aggregated by all traffic lights for each feature."
+    """Description of the alerts section in the report"""
 
     descriptions = {
         "n_green": "Total number of green traffic lights (observed for all statistics)",
         "n_yellow": "Total number of  yellow traffic lights (observed for all statistics)",
         "n_red": "Total number of red traffic lights (observed for all statistics)",
     }
+    """Descriptions of the individual alerts"""
 
 
-class HistogramSectionModel(BaseModel):
+class HistogramSectionModel(SectionModel):
     name = "Histograms"
+    """Name of the histograms section in the report"""
+
     description = "Histograms of the last few time slots (default: 2)."
+    """Description of the histograms section in the report"""
 
     hist_names: List[str] = [
         "heatmap",
         "heatmap_column_normalized",
         "heatmap_row_normalized",
     ]
+    """Heatmaps of histograms to display in the report"""
+
     hist_names_formatted = {
         "heatmap": "Heatmap",
         "heatmap_column_normalized": "Column-Normalized Heatmap",
         "heatmap_row_normalized": "Row-Normalized Heatmap",
     }
+    """Pretty-print names for the heatmaps"""
+
     descriptions = {
         "heatmap": "The heatmap shows the frequency of each value over time. If a variable has a high number of distinct values"
         "(i.e. has a high cardinality), then the most frequent values are displayed and the remaining are grouped as 'Others'. "
@@ -69,41 +91,47 @@ class HistogramSectionModel(BaseModel):
         "heatmap_column_normalized": "The column-normalized heatmap allows for comparing of time bins when the counts in each bin vary.",
         "heatmap_row_normalized": "The row-normalized heatmaps allows for monitoring one value over time.",
     }
+    """Descriptions of the heatmaps in the report"""
 
-    """
-    plot_hist_n: plot histograms for last 'n' periods. default is 2 (optional)
-    """
     plot_hist_n: int = 2
+    """plot histograms for last 'n' periods. default is 2 (optional)"""
 
-    """
-    top_n: plot heatmap for top 'n' categories. default is 20 (optional)
-    """
     top_n: int = 20
+    """plot heatmap for top 'n' categories. default is 20 (optional)"""
 
-    """
-    cmap: colormap for histogram heatmaps
-    """
     cmap: str = "autumn_r"
+    """colormap for histogram heatmaps"""
 
 
-class TrafficLightsSection(BaseModel):
+class TrafficLightsSection(SectionModel):
     name = "Traffic Lights"
+    """Name of the traffic lights section in the report"""
+
     description = "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default."
+    """Description of the traffic lights section in the report"""
 
 
-class ComparisonsSection(BaseModel):
+class ComparisonsSection(SectionModel):
     name = "Comparisons"
+    """Name of the comparisons section in the report"""
+
     description = (
         "Statistical comparisons of each time period (one bin) to the reference data."
     )
+    """Description of the comparisons section in the report"""
 
 
-class OverviewSection(BaseModel):
+class OverviewSection(SectionModel):
     name = "Overview"
+    """Name of the overview section in the report"""
+
     description = "Alerts aggregated per feature"
+    """Description of the overview section in the report"""
 
 
 class Section(BaseModel):
+    """Configuration for the individual sections"""
+
     profiles: ProfilesSection = ProfilesSection()
     alerts: AlertSection = AlertSection()
     histograms: HistogramSectionModel = HistogramSectionModel()
@@ -115,40 +143,25 @@ class Section(BaseModel):
 class Report(BaseModel):
     """Report-specific configuration"""
 
-    """
-    skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-    """
     skip_empty_plots: bool = True
+    """if false, also show empty plots in report with only nans or zeroes (optional)"""
 
-    """
-    last_n: plot statistic data for last 'n' periods (optional)
-    """
     last_n: int = 0
+    """plot statistic data for last 'n' periods (optional)"""
 
-    """
-    skip_first_n: in plot skip first 'n' periods. last_n takes precedence (optional)
-    """
     skip_first_n: int = 0
+    """in plot skip first 'n' periods. last_n takes precedence (optional)"""
 
-    """
-    skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
-    """
     skip_last_n: int = 0
+    """in plot skip last 'n' periods. last_n takes precedence (optional)"""
 
-    """
-    report_filepath: the file path where to output the report (optional)
-    """
     report_filepath: Optional[Union[str, Path]] = None
+    """the file path where to output the report (optional)"""
 
-    """
-    if True, show all the generated statistics in the report (optional)
-    if set to False, then smaller show_stats (see below)
-    """
     extended_report: bool = True
+    """if True, show all the generated statistics in the report (optional)
+    if set to False, then smaller show_stats (see below)"""
 
-    """
-    show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-    """
     show_stats: List[str] = [
         "distinct*",
         "filled*",
@@ -170,25 +183,32 @@ class Report(BaseModel):
         "*psi*",
         "*max_prob_diff*",
     ]
+    """list of statistic name patterns to show in the report. If None, show all (optional)"""
 
     section: Section = Section()
+    """Configuration for the individual sections"""
 
 
 class Comparison(BaseModel):
-    """
-    window: size of rolling window and/or trend detection. default is 10.
-    """
+    """Parameters related to comparisons"""
 
     window: int = 10
-    """
-    shift: shift of time-bins in rolling/expanding window. default is 1.
-    """
+    """size of rolling window and/or trend detection. default is 10."""
+
     shift: int = 1
+    """shift of time-bins in rolling/expanding window. default is 1."""
 
 
 class Monitoring(BaseModel):
+    """Parameters related to monitoring"""
+
+    monitoring_rules: Dict[str, List[Union[float, int]]] = {
+        "*_pull": [7, 4, -4, -7],
+        "*_zscore": [7, 4, -4, -7],
+        "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
+    }
     """
-    monitoring_rules: monitoring rules to generate traffic light alerts.
+    monitoring rules to generate traffic light alerts.
     The default setting is:
 
     .. code-block:: python
@@ -218,14 +238,9 @@ class Monitoring(BaseModel):
     for all other features.
     """
 
-    monitoring_rules: Dict[str, List[Union[float, int]]] = {
-        "*_pull": [7, 4, -4, -7],
-        "*_zscore": [7, 4, -4, -7],
-        "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-    }
-
+    pull_rules: Dict[str, List[Union[float, int]]] = {"*_pull": [7, 4, -4, -7]}
     """
-    pull_rules: red and yellow (possibly dynamic) boundaries shown in plots in the report.
+    red and yellow (possibly dynamic) boundaries shown in plots in the report.
     Default is:
 
     .. code-block:: python
@@ -237,10 +252,14 @@ class Monitoring(BaseModel):
     Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
     (The same string logic applies as for monitoring_rules.)
     """
-    pull_rules: Dict[str, List[Union[float, int]]] = {"*_pull": [7, 4, -4, -7]}
 
 
 class Settings(BaseSettings):
     report: Report = Report()
+    """Settings regarding the report"""
+
     comparison: Comparison = Comparison()
+    """Settings related to the comparisons"""
+
     monitoring: Monitoring = Monitoring()
+    """Settings related to monitoring"""
