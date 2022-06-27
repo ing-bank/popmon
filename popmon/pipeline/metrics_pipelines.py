@@ -68,12 +68,12 @@ def get_metrics_pipeline_class(reference_type, reference):
 
 
 def create_metrics_pipeline(
+    settings: Settings,
     reference_type="self",
     reference=None,
     hists_key="hists",
     time_axis="",
     features=None,
-    settings: Settings = None,
     **kwargs,
 ):
     # configuration and datastore for report pipeline
@@ -212,20 +212,16 @@ def get_trend_modules(window) -> List[Union[Module, Pipeline]]:
 class SelfReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
-        hists_key="test_hists",
-        time_axis="date",
-        features=None,
-        settings: Settings = None,
+        settings: Settings,
+        hists_key,
+        time_axis,
+        features,
     ):
         """Example metrics pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date'
-        :param int window: window size for trend detection. default is 10
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled self reference pipeline
         """
         from popmon.analysis.comparison.comparison_registry import Comparisons
@@ -274,22 +270,18 @@ class SelfReferenceMetricsPipeline(Pipeline):
 class ExternalReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
+        settings: Settings,
         hists_key="test_hists",
         ref_hists_key="ref_hists",
         time_axis="date",
         features=None,
-        settings: Settings = None,
     ):
         """Example metrics pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
         :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param int window: window size for trend detection. default is 10
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
         from popmon.analysis.comparison.comparison_registry import Comparisons
@@ -343,21 +335,16 @@ class ExternalReferenceMetricsPipeline(Pipeline):
 class RollingReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
+        settings: Settings,
         hists_key="test_hists",
         time_axis="date",
         features=None,
-        settings: Settings = None,
     ):
         """Example metrics pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date'
-        :param int window: size of rolling window and for trend detection. default is 10
-        :param int shift: shift in rolling window. default is 1
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled rolling reference pipeline
         """
         from popmon.analysis.comparison.comparison_registry import Comparisons
@@ -409,21 +396,16 @@ class RollingReferenceMetricsPipeline(Pipeline):
 class ExpandingReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
+        settings: Settings,
         hists_key="test_hists",
         time_axis="date",
         features=None,
-        settings: Settings = None,
     ):
         """Example metrics pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date'
-        :param int window: window size for trend detection. default is 10
-        :param int shift: shift in expanding window. default is 1
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled expanding reference pipeline
         """
         from popmon.analysis.comparison.comparison_registry import Comparisons

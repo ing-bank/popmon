@@ -21,7 +21,7 @@
 from pathlib import Path
 
 from ..base import Pipeline
-from ..config import Report
+from ..config import Report, Settings
 from ..io import FileWriter
 from ..pipeline.metrics_pipelines import (
     ExpandingReferenceMetricsPipeline,
@@ -58,33 +58,24 @@ def get_report_pipeline_class(reference_type, reference):
 class SelfReference(Pipeline):
     def __init__(
         self,
-        hists_key="test_hists",
-        time_axis="date",
-        features=None,
-        settings=None,
+        settings: Settings,
+        features: list,
+        hists_key: str = "test_hists",
+        time_axis: str = "date",
     ):
         """Example pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param int window: window size for trend detection. default is 10
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
-        :param str report_filepath: the file path where to output the report (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled self reference pipeline
         """
         modules = [
             SelfReferenceMetricsPipeline(
-                hists_key,
-                time_axis,
-                features,
-                settings,
+                hists_key=hists_key,
+                time_axis=time_axis,
+                features=features,
+                settings=settings,
             ),
             ReportPipe(
                 sections_key="report_sections",
@@ -99,36 +90,28 @@ class SelfReference(Pipeline):
 class ExternalReference(Pipeline):
     def __init__(
         self,
-        hists_key="test_hists",
-        ref_hists_key="ref_hists",
-        time_axis="date",
+        settings: Settings,
+        hists_key: str = "test_hists",
+        ref_hists_key: str = "ref_hists",
+        time_axis: str = "date",
         features=None,
-        settings=None,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
         :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param int window: window size for trend detection. default is 10
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
-        :param str report_filepath: the file path where to output the report (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
         :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
         modules = [
             ExternalReferenceMetricsPipeline(
-                hists_key,
-                ref_hists_key,
-                time_axis,
-                features,
-                settings,
+                hists_key=hists_key,
+                ref_hists_key=ref_hists_key,
+                time_axis=time_axis,
+                features=features,
+                settings=settings,
             ),
             ReportPipe(
                 sections_key="report_sections",
@@ -143,34 +126,24 @@ class ExternalReference(Pipeline):
 class RollingReference(Pipeline):
     def __init__(
         self,
-        hists_key="test_hists",
-        time_axis="date",
+        settings: Settings,
+        hists_key: str = "test_hists",
+        time_axis: str = "date",
         features=None,
-        settings=None,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param int window: size of rolling window and for trend detection. default is 10
-        :param int shift: shift in rolling window. default is 1
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
-        :param str report_filepath: the file path where to output the report (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled rolling reference pipeline
         """
         modules = [
             RollingReferenceMetricsPipeline(
-                hists_key,
-                time_axis,
-                features,
-                settings,
+                settings=settings,
+                hists_key=hists_key,
+                time_axis=time_axis,
+                features=features,
             ),
             ReportPipe(
                 sections_key="report_sections",
@@ -185,34 +158,24 @@ class RollingReference(Pipeline):
 class ExpandingReference(Pipeline):
     def __init__(
         self,
-        hists_key="test_hists",
-        time_axis="date",
+        settings: Settings,
+        hists_key: str = "test_hists",
+        time_axis: str = "date",
         features=None,
-        settings=None,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param int window: window size for trend detection. default is 10
-        :param int shift: shift in expanding window. default is 1
-        :param dict monitoring_rules: traffic light rules
-        :param dict pull_rules: pull rules to determine dynamic boundaries
         :param list features: features of histograms to pick up from input data (optional)
-        :param bool skip_empty_plots: if false, show empty plots in report with only nans or zeroes (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
-        :param str report_filepath: the file path where to output the report (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled expanding reference pipeline
         """
         modules = [
             ExpandingReferenceMetricsPipeline(
-                hists_key,
-                time_axis,
-                features,
-                settings,
+                hists_key=hists_key,
+                time_axis=time_axis,
+                features=features,
+                settings=settings,
             ),
             ReportPipe(
                 sections_key="report_sections",
@@ -229,26 +192,14 @@ class ReportPipe(Pipeline):
 
     def __init__(
         self,
-        sections_key="report_sections",
-        store_key="html_report",
-        settings: Report = None,
+        settings: Report,
+        sections_key: str = "report_sections",
+        store_key: str = "html_report",
     ):
         """Initialize an instance of Report.
 
         :param str sections_key: key to store sections data in the datastore
         :param str store_key: key to store the HTML report data in the datastore
-        :param str profiles_section: name for the profile data section. default is 'Profiles'
-        :param str comparisons_section: name for the comparison data section. default is 'Comparisons'
-        :param str traffic_lights_section: name for the traffic light section. default is 'Traffic Lights'
-        :param str alerts_section: name for the alerts section. default is 'Alerts'
-        :param str histograms_section: name for the histograms section. default is 'Histograms'
-        :param str report_filepath: the file path where to output the report (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: when plotting data skip last 'n' periods. last_n takes precedence (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 1 (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
         """
         self.store_key = store_key
 
@@ -264,7 +215,6 @@ class ReportPipe(Pipeline):
                 store_key=sections_key,
                 hist_name_starts_with="histogram",
                 settings=settings.section.histograms,
-                top_n=settings.top_n,
             ),
             # section showing all traffic light alerts of monitored statistics
             TrafficLightSectionGenerator(

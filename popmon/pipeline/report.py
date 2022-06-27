@@ -19,7 +19,7 @@
 
 
 import logging
-from collections import defaultdict
+from typing import Optional
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import (
@@ -40,11 +40,11 @@ logger = logging.getLogger()
 
 def stability_report(
     hists,
+    settings: Optional[Settings] = None,
     reference_type="self",
     reference=None,
     time_axis="",
     features=None,
-    **kwargs,
 ):
     """Create a data stability monitoring html report for given dict of input histograms.
 
@@ -53,57 +53,13 @@ def stability_report(
         default is 'self'.
     :param reference: histograms used as reference. default is None
     :param str time_axis: name of datetime feature, used as time axis, eg 'date'. auto-guessed when not provided.
-    :param int window: size of rolling window and/or trend detection. default is 10.
-    :param int shift: shift of time-bins in rolling/expanding window. default is 1.
-    :param dict monitoring_rules: monitoring rules to generate traffic light alerts.
-        The default setting is:
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "*_pull": [7, 4, -4, -7],
-                "*_zscore": [7, 4, -4, -7],
-                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-            }
-
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
-        You can also specify rules for specific features and/or statistics by leaving out wildcard and putting the
-        feature name in front. E.g.
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "featureA:*_pull": [5, 3, -3, -5],
-                "featureA:nan": [4, 1, 0, 0],
-                "*_pull": [7, 4, -4, -7],
-                "nan": [8, 1, 0, 0],
-            }
-
-        In case of multiple rules could apply for a feature's statistic, the most specific one applies.
-        So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
-        for all other features.
-    :param dict pull_rules: red and yellow (possibly dynamic) boundaries shown in plots in the report.
-        Default is:
-
-        .. code-block:: python
-
-            pull_rules = {"*_pull": [7, 4, -4, -7]}
-
-        This means that the shown yellow boundaries are at -4, +4 standard deviations around the (reference) mean,
-        and the shown red boundaries are at -7, +7 standard deviations around the (reference) mean.
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        (The same string logic applies as for monitoring_rules.)
     :param list features: histograms to pick up from the 'hists' dictionary (default is all keys)
-    :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-    :param int last_n: plot statistic data for last 'n' periods (optional)
-    :param int plot_hist_n: plot histograms for last 'n' periods. default is 2 (optional)
-    :param str report_filepath: the file path where to output the report (optional)
-    :param bool extended_report: if True, show all the generated statistics in the report (optional)
-    :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-    :param kwargs: residual keyword arguments passed on to report pipeline.
     :return: dict with results of reporting pipeline
     """
+
+    if settings is None:
+        settings = Settings()
+
     # perform basic input checks
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
@@ -113,20 +69,6 @@ def stability_report(
         # auto guess the time_axis: find the most frequent first column name in the histograms list
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
-
-    # parse the kwargs
-    keys = Settings.get_keys()
-    data = defaultdict(dict)
-    for k, m in keys.items():
-        if k in kwargs:
-            if isinstance(m, tuple):
-                data[m[0]][m[1]] = kwargs.pop(k)
-            else:
-                data[m] = kwargs.pop(k)
-    if len(kwargs) > 0:
-        raise ValueError(f"kwargs not supported {kwargs}")
-
-    settings = Settings(**data)
 
     # configuration and datastore for report pipeline
     cfg = {
@@ -169,6 +111,7 @@ def set_time_axis(df):
 def df_stability_report(
     df,
     time_axis,
+    settings: Settings = None,
     features=None,
     binning="auto",
     bin_specs=None,
@@ -177,7 +120,6 @@ def df_stability_report(
     var_dtype=None,
     reference_type="self",
     reference=None,
-    **kwargs,
 ):
     """Create a data stability monitoring html report for given pandas or spark dataframe.
 
@@ -226,56 +168,12 @@ def df_stability_report(
     :param reference_type: type or reference used for comparisons. Options [self, external, rolling, expanding].
         default is 'self'.
     :param reference: reference dataframe or histograms. default is None
-    :param int window: size of rolling window and/or trend detection. default is 10.
-    :param int shift: shift of time-bins in rolling/expanding window. default is 1.
-    :param dict monitoring_rules: monitoring rules to generate traffic light alerts.
-        The default setting is:
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "*_pull": [7, 4, -4, -7],
-                "*_zscore": [7, 4, -4, -7],
-                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-            }
-
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
-        You can also specify rules for specific features and/or statistics by leaving out wildcard and putting the
-        feature name in front. E.g.
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "featureA:*_pull": [5, 3, -3, -5],
-                "featureA:nan": [4, 1, 0, 0],
-                "*_pull": [7, 4, -4, -7],
-                "nan": [8, 1, 0, 0],
-            }
-
-        In case of multiple rules could apply for a feature's statistic, the most specific one applies.
-        So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
-        for all other features.
-    :param dict pull_rules: red and yellow (possibly dynamic) boundaries shown in plots in the report.
-        Default is:
-
-        .. code-block:: python
-
-            pull_rules = {"*_pull": [7, 4, -4, -7]}
-
-        This means that the shown yellow boundaries are at -4, +4 standard deviations around the (reference) mean,
-        and the shown red boundaries are at -7, +7 standard deviations around the (reference) mean.
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        (The same string logic applies as for monitoring_rules.)
-    :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-    :param int last_n: plot statistic data for last 'n' periods (optional)
-    :param int plot_hist_n: plot histograms for last 'n' periods. default is 2 (optional)
-    :param str report_filepath: the file path where to output the report (optional)
-    :param bool extended_report: if True, show all the generated statistics in the report (optional)
-    :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-    :param kwargs: residual keyword arguments, passed on to stability_report()
     :return: dict with results of reporting pipeline
     """
+
+    if settings is None:
+        settings = Settings()
+
     # basic checks on presence of time_axis
     if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (
         isinstance(time_axis, bool) and time_axis
@@ -361,12 +259,12 @@ def df_stability_report(
 
     # generate data stability report
     return stability_report(
-        hists,
-        reference_type,
-        reference_hists,
-        time_axis,
-        features,
-        **kwargs,
+        hists=hists,
+        settings=settings,
+        reference_type=reference_type,
+        reference=reference_hists,
+        time_axis=time_axis,
+        features=features,
     )
 
 
@@ -446,22 +344,14 @@ class StabilityReport:
 
     def regenerate(
         self,
-        store_key="html_report",
-        sections_key="report_sections",
-        **kwargs,
+        store_key: str = "html_report",
+        sections_key: str = "report_sections",
+        report_settings: Report = None,
     ):
         """Regenerate HTML report with different plot settings
-
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: in plot skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
-        :param int plot_hist_n: plot histograms for last 'n' periods. default is 2 (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param str report_filepath: the file path where to output the report (optional)
         :param str sections_key: key to store sections data in the datastore. default is 'report_sections'.
         :param str store_key: key to store the HTML report data in the datastore. default is 'html_report'
-        :param bool extended_report: if True, show all the generated statistics in the report (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
+        :param Report report_settings: configuration to regenerate the report
         :return HTML: HTML report in an iframe
         """
         # basic checks
@@ -474,12 +364,12 @@ class StabilityReport:
             del self.datastore[sections_key]
         if store_key in self.datastore:
             del self.datastore[store_key]
-
-        settings = Report(**kwargs)
+        if report_settings is None:
+            report_settings = Report()
 
         pipeline = ReportPipe(
             sections_key=sections_key,
-            settings=settings,
+            settings=report_settings,
         )
         result = pipeline.transform(self.datastore)
 
