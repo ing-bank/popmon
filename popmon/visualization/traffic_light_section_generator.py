@@ -83,7 +83,7 @@ class TrafficLightSectionGenerator(Module):
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.skip_empty_plots = settings.skip_empty_plots
-        self.show_stats = settings.show_stats
+        self.show_stats = settings.show_stats if not settings.extended_report else None
 
         self.section_name = settings.section.traffic_lights.name
         self.description = settings.section.traffic_lights.description

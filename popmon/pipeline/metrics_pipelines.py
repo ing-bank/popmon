@@ -228,7 +228,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled self reference pipeline
         """
-        from popmon.analysis.comparison.comparisons import Comparisons
+        from popmon.analysis.comparison.comparison_registry import Comparisons
 
         reference_prefix = "ref"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -292,7 +292,7 @@ class ExternalReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
-        from popmon.analysis.comparison.comparisons import Comparisons
+        from popmon.analysis.comparison.comparison_registry import Comparisons
 
         reference_prefix = "ref"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -360,7 +360,7 @@ class RollingReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled rolling reference pipeline
         """
-        from popmon.analysis.comparison.comparisons import Comparisons
+        from popmon.analysis.comparison.comparison_registry import Comparisons
 
         reference_prefix = "roll"
         reference_modules: List[Union[Module, Pipeline]] = [
@@ -426,7 +426,7 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         :param kwargs: residual keyword arguments
         :return: assembled expanding reference pipeline
         """
-        from popmon.analysis.comparison.comparisons import Comparisons
+        from popmon.analysis.comparison.comparison_registry import Comparisons
 
         reference_prefix = "expanding"
         reference_modules: List[Union[Module, Pipeline]] = [

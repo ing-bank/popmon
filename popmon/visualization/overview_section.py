@@ -89,7 +89,7 @@ class OverviewSectionGenerator(Module):
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.skip_empty_plots = settings.skip_empty_plots
-        self.show_stats = settings.show_stats
+        self.show_stats = settings.show_stats if not settings.extended_report else None
         self.section_name = settings.section.overview.name
         self.description = settings.section.overview.description
 

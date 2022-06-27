@@ -18,6 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import popmon.analysis.profiling.profiles  # noqa
+
 from ...analysis.profiling.hist_profiler import HistProfiler
 from ...analysis.profiling.pull_calculator import (
     ExpandingPullCalculator,

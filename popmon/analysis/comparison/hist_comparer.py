@@ -20,7 +20,6 @@
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm, pearsonr
 
 from ...analysis.apply_func import ApplyFunc
 from ...analysis.functions import (
@@ -39,10 +38,9 @@ from ...analysis.hist_numpy import (
 )
 from ...base import Pipeline
 from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
-from ...stats.numpy import ks_prob, ks_test, uu_chi2
 
 
-def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
+def hist_compare(row, hist_name1="", hist_name2=""):
     """Function to compare two histograms
 
     Apply statistical tests to compare two input histograms, such as:
@@ -52,28 +50,11 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
     :param pd.Series row: row to apply compare function to
     :param str hist_name1: name of histogram one to compare
     :param str hist_name2: name of histogram two to compare
-    :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-        Default is 7.0.
     :return: pandas Series with popular comparison metrics.
     """
-    from .comparisons import Comparisons
+    from .comparison_registry import Comparisons
 
-    x = {
-        "ks": np.nan,
-        "ks_zscore": np.nan,
-        "ks_pvalue": np.nan,
-        "pearson": np.nan,
-        "chi2": np.nan,
-        "chi2_norm": np.nan,
-        "chi2_zscore": np.nan,
-        "chi2_pvalue": np.nan,
-        "chi2_max_residual": np.nan,
-        "chi2_spike_count": np.nan,
-        "unknown_labels": np.nan,
-    }
-
-    for key in Comparisons.get_comparisons().keys():
-        x[key] = np.nan
+    x = {key: np.nan for key in Comparisons.get_keys()}
 
     # basic name checks
     cols = row.index.to_list()
@@ -93,48 +74,48 @@ def hist_compare(row, hist_name1="", hist_name2="", max_res_bound=7.0):
 
     # compare
     if hist1.n_dim == 1:
+        entries_list = get_consistent_numpy_entries([hist1, hist2])
         if is_numeric(hist1):
-            # KS-test only properly defined for (ordered) 1D interval variables
-            entries_list = get_consistent_numpy_entries([hist1, hist2])
-            ks_testscore = ks_test(*entries_list)
-            x["ks"] = ks_testscore
-            ks_pvalue = ks_prob(ks_testscore)
-            x["ks_pvalue"] = ks_pvalue
-            x["ks_zscore"] = -norm.ppf(ks_pvalue)
-        else:  # categorical
-            entries_list = get_consistent_numpy_entries([hist1, hist2])
-            # check consistency of bin_labels
-            labels1 = hist1.keySet
-            labels2 = hist2.keySet
-            subset = labels1 <= labels2
-            x["unknown_labels"] = int(not subset)
+            htype = "num"
+            args = entries_list
+        else:
+            htype = "cat"
+            args = [hist1, hist2]
+
+        for key, func in Comparisons.get_comparisons(dim=1, htype=htype).items():
+            results = func(*args)
+            if len(key) == 1:
+                results = (results,)
+            for k, v in zip(key, results):
+                x[k] = v
+
+        for key, func in Comparisons.get_comparisons(dim=1, htype="all").items():
+            results = func(*entries_list)
+            if len(key) == 1:
+                results = (results,)
+            for k, v in zip(key, results):
+                x[k] = v
     else:
         numpy_ndgrids = get_consistent_numpy_ndgrids([hist1, hist2], dim=hist1.n_dim)
         entries_list = [entry.flatten() for entry in numpy_ndgrids]
 
-    # calculate pearson coefficient
-    pearson, pvalue = (np.nan, np.nan)
-    if len(entries_list[0]) >= 2:
-        same0 = all(entries_list[0] == entries_list[0][0])
-        same1 = all(entries_list[1] == entries_list[1][0])
-        if not same0 and not same1:
-            # this avoids std==0, and thereby avoid runtime warnings
-            pearson, pvalue = pearsonr(*entries_list)
+        for key, func in Comparisons.get_comparisons(dim=(2,)).items():
+            results = func(*entries_list)
+            if len(key) == 1:
+                results = (results,)
+            for k, v in zip(key, results):
+                x[k] = v
 
-    chi2, chi2_norm, zscore, pvalue, res = uu_chi2(*entries_list)
-    abs_residual = np.abs(res)
-    chi2_max_residual = np.max(abs_residual)
-    chi2_spike_count = np.sum(abs_residual[abs_residual > max_res_bound])
+    for key, func in Comparisons.get_comparisons(dim=-1).items():
+        results = func(*entries_list)
+        if len(key) == 1:
+            results = (results,)
+        for k, v in zip(key, results):
+            x[k] = v
 
-    x["pearson"] = pearson
-    x["chi2"] = chi2
-    x["chi2_norm"] = chi2_norm
-    x["chi2_zscore"] = zscore
-    x["chi2_pvalue"] = pvalue
-    x["chi2_max_residual"] = chi2_max_residual
-    x["chi2_spike_count"] = chi2_spike_count
-    for key, func in Comparisons.get_comparisons().items():
-        x[key] = func(*entries_list)
+    if len(set(x.keys()) - set(Comparisons.get_keys())) > 0:
+        raise ValueError("Could not compute full comparison")
+
     return pd.Series(x)
 
 
@@ -149,7 +130,6 @@ class HistComparer(Pipeline):
         assign_to_key=None,
         hist_col="histogram",
         suffix="comp",
-        max_res_bound=7.0,
         *args,
         **kwargs,
     ):
@@ -161,8 +141,6 @@ class HistComparer(Pipeline):
         :param str assign_to_key: key of the input data to assign function applied-output to. (optional)
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         :param str suffix: column/key of rolling histogram. default is 'roll' -> column = 'histogram_roll'
-        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-                                    Default is 7.0.
         :param args: (tuple, optional): residual args passed on to func_mean and func_std
         :param kwargs: (dict, optional): residual kwargs passed on to func_mean and func_std
         """
@@ -188,7 +166,6 @@ class HistComparer(Pipeline):
                     "hist_name2": hist_col + "_" + suffix,
                     "prefix": suffix,
                     "axis": 1,
-                    "max_res_bound": max_res_bound,
                 }
             ],
         )
@@ -207,7 +184,6 @@ class RollingHistComparer(HistComparer):
         shift=1,
         hist_col="histogram",
         suffix="roll",
-        max_res_bound=7.0,
     ):
         """Initialize an instance of RollingHistComparer.
 
@@ -217,8 +193,6 @@ class RollingHistComparer(HistComparer):
         :param int shift: shift of rolling window. default is 1.
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         :param str suffix: column/key of rolling histogram. default is 'roll' -> column = 'histogram_roll'
-        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-                                    Default is 7.0.
         """
         super().__init__(
             rolling_hist,
@@ -227,7 +201,6 @@ class RollingHistComparer(HistComparer):
             read_key,
             hist_col,
             suffix,
-            max_res_bound,
             window=window,
             shift=shift,
             hist_name=hist_col,
@@ -251,7 +224,6 @@ class PreviousHistComparer(RollingHistComparer):
         store_key,
         hist_col="histogram",
         suffix="prev1",
-        max_res_bound=7.0,
     ):
         """Initialize an instance of PreviousHistComparer.
 
@@ -259,8 +231,6 @@ class PreviousHistComparer(RollingHistComparer):
         :param str store_key: key of output data to store in data store
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         :param str suffix: column/key of rolling histogram. default is 'prev' -> column = 'histogram_prev'
-        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-                                    Default is 7.0.
         """
         super().__init__(
             read_key,
@@ -269,7 +239,6 @@ class PreviousHistComparer(RollingHistComparer):
             shift=1,
             hist_col=hist_col,
             suffix=suffix,
-            max_res_bound=max_res_bound,
         )
 
 
@@ -283,7 +252,6 @@ class ExpandingHistComparer(HistComparer):
         shift=1,
         hist_col="histogram",
         suffix="expanding",
-        max_res_bound=7.0,
     ):
         """Initialize an instance of ExpandingHistComparer.
 
@@ -292,8 +260,6 @@ class ExpandingHistComparer(HistComparer):
         :param int shift: shift of rolling window. default is 1.
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         :param str suffix: column/key of rolling histogram. default is 'expanding' -> column = 'histogram_expanding'
-        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-                                    Default is 7.0.
         """
         super().__init__(
             expanding_hist,
@@ -302,7 +268,6 @@ class ExpandingHistComparer(HistComparer):
             read_key,
             hist_col,
             suffix,
-            max_res_bound,
             shift=shift,
             hist_name=hist_col,
         )
@@ -325,7 +290,6 @@ class ReferenceHistComparer(HistComparer):
         store_key,
         hist_col="histogram",
         suffix="ref",
-        max_res_bound=7.0,
     ):
         """Initialize an instance of ReferenceHistComparer.
 
@@ -334,8 +298,6 @@ class ReferenceHistComparer(HistComparer):
         :param str store_key: key of output data to store in data store
         :param str hist_col: column/key in input df/dict that contains the histogram. default is 'histogram'
         :param str suffix: column/key of rolling histogram. default is 'ref' -> column = 'histogram_ref'
-        :param float max_res_bound: count number of normalized residuals with (absolute) value greater than X.
-                                    Default is 7.0.
         """
         super().__init__(
             hist_sum,
@@ -344,7 +306,6 @@ class ReferenceHistComparer(HistComparer):
             assign_to_key,
             hist_col,
             suffix,
-            max_res_bound,
             metrics=[hist_col],
         )
         self.reference_key = reference_key
