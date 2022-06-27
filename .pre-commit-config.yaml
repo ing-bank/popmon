@@ -26,3 +26,9 @@ repos:
     rev: v1.12.1
     hooks:
     -   id: blacken-docs
+-   repo: local
+    hooks:
+    -   id: docautogenerate
+        name: docsautogenerate
+        entry: bash -c 'cd ./docs/ && bash autogenerate.sh'
+        language: system
