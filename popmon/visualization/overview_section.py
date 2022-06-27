@@ -44,9 +44,9 @@ class OverviewSectionGenerator(Module):
         self,
         read_key,
         store_key,
+        settings: Report,
         features=None,
         ignore_features=None,
-        settings: Report = None,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
@@ -57,22 +57,13 @@ class OverviewSectionGenerator(Module):
 
         :param str read_key: key of input data to read from the datastore and use for plotting
         :param str store_key: key for output data to be stored in the datastore
-        :param str section_name: key of output data to store in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
         :param str static_bounds: key to static traffic light bounds key in datastore (optional)
         :param str dynamic_bounds: key to dynamic traffic light bounds key in datastore (optional)
         :param str prefix: dynamic traffic light prefix. default is ``'traffic_light_'`` (optional)
         :param str suffices: dynamic traffic light suffices. (optional)
         :param list ignore_stat_endswith: ignore stats ending with any of list of suffices. (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param str description: description of the section. default is empty (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param bool plot_overview: heatmap overview of traffic lights (features x time)
-        :param bool plot_metrics: individual plot per feature
         """
         super().__init__()
         self.read_key = read_key
@@ -82,12 +73,13 @@ class OverviewSectionGenerator(Module):
 
         self.features = features or []
         self.ignore_features = ignore_features or []
-        self.last_n = settings.last_n
-        self.skip_first_n = settings.skip_first_n
-        self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
+
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
         self.skip_empty_plots = settings.skip_empty_plots
         self.show_stats = settings.show_stats if not settings.extended_report else None
         self.section_name = settings.section.overview.name

@@ -51,7 +51,6 @@ class HistogramSection(Module):
         ignore_features=None,
         hist_names=None,
         hist_name_starts_with="histogram",
-        top_n=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -59,7 +58,6 @@ class HistogramSection(Module):
         :param str store_key: key for output data to be stored in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int top_n: plot heatmap for top 'n' categories. default is 20 (optional)
         :param list hist_names: list of histogram names to plot
         :param str hist_name_starts_with: find histograms in case hist_names is empty. default is histogram.
         """
@@ -72,8 +70,6 @@ class HistogramSection(Module):
         self.hist_names = hist_names or []
         self.hist_name_starts_with = hist_name_starts_with
 
-        self.top_n = top_n
-
         # section specific
         self.section_name = settings.name
         self.descriptions = settings.descriptions
@@ -81,6 +77,7 @@ class HistogramSection(Module):
         self.hist_names = settings.hist_names
         self.hist_names_formatted = settings.hist_names_formatted
         self.plot_hist_n = settings.plot_hist_n
+        self.top_n = settings.top_n
         self.cmap = settings.cmap
 
     def get_description(self):

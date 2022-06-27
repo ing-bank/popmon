@@ -74,6 +74,12 @@ class HistogramSectionModel(BaseModel):
     plot_hist_n: plot histograms for last 'n' periods. default is 2 (optional)
     """
     plot_hist_n: int = 2
+
+    """
+    top_n: plot heatmap for top 'n' categories. default is 20 (optional)
+    """
+    top_n: int = 20
+
     """
     cmap: colormap for histogram heatmaps
     """
@@ -164,11 +170,6 @@ class Report(BaseModel):
         "*psi*",
         "*max_prob_diff*",
     ]
-
-    """
-    top_n: limit of number of categorical items to plot (default: 20)
-    """
-    top_n: int = 20
 
     section: Section = Section()
 

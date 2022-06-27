@@ -27,6 +27,7 @@ from histogrammar.dfinterface.make_histograms import (
     make_histograms,
 )
 
+from ..config import Settings
 from ..pipeline.metrics_pipelines import create_metrics_pipeline
 
 logging.basicConfig(
@@ -37,13 +38,10 @@ logger = logging.getLogger()
 
 def stability_metrics(
     hists,
+    settings: Settings,
     reference_type="self",
     reference=None,
     time_axis="",
-    window=10,
-    shift=1,
-    monitoring_rules=None,
-    pull_rules=None,
     features=None,
     **kwargs,
 ):
@@ -54,47 +52,6 @@ def stability_metrics(
         default is 'self'.
     :param reference: histograms used as reference. default is None
     :param str time_axis: name of datetime feature, used as time axis, eg 'date'. auto-guessed when not provided.
-    :param int window: size of rolling window and/or trend detection. default is 10.
-    :param int shift: shift of time-bins in rolling/expanding window. default is 1.
-    :param dict monitoring_rules: monitoring rules to generate traffic light alerts.
-        The default setting is:
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "*_pull": [7, 4, -4, -7],
-                "*_zscore": [7, 4, -4, -7],
-                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-            }
-
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
-        You can also specify rules for specific features and/or statistics by leaving out wildcard and putting the
-        feature name in front. E.g.
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "featureA:*_pull": [5, 3, -3, -5],
-                "featureA:nan": [4, 1, 0, 0],
-                "*_pull": [7, 4, -4, -7],
-                "nan": [8, 1, 0, 0],
-            }
-
-        In case of multiple rules could apply for a feature's statistic, the most specific one applies.
-        So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
-        for all other features.
-    :param dict pull_rules: red and yellow (possibly dynamic) boundaries shown in plots in the report.
-        Default is:
-
-        .. code-block:: python
-
-            pull_rules = {"*_pull": [7, 4, -4, -7]}
-
-        This means that the shown yellow boundaries are at -4, +4 standard deviations around the (reference) mean,
-        and the shown red boundaries are at -7, +7 standard deviations around the (reference) mean.
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        (The same string logic applies as for monitoring_rules.)
     :param list features: histograms to pick up from the 'hists' dictionary (default is all keys)
     :param kwargs: residual keyword arguments passed on to report pipeline.
     :return: dict with results of metrics pipeline
@@ -103,15 +60,6 @@ def stability_metrics(
     if not isinstance(hists, dict):
         raise TypeError("hists should be a dict of histogrammar histograms.")
 
-    if not isinstance(monitoring_rules, dict):
-        monitoring_rules = {
-            "*_pull": [7, 4, -4, -7],
-            "*_zscore": [7, 4, -4, -7],
-            "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-        }
-    if not isinstance(pull_rules, dict):
-        pull_rules = {"*_pull": [7, 4, -4, -7]}
-
     if (isinstance(time_axis, str) and len(time_axis) == 0) or (
         isinstance(time_axis, bool) and time_axis
     ):
@@ -119,16 +67,15 @@ def stability_metrics(
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         time_axis = max(set(first_cols), key=first_cols.count)
 
+    if reference_type == "external" and "ref_hists_key" not in kwargs:
+        kwargs["ref_hists_key"] = "ref_hists"
+
     pipeline = create_metrics_pipeline(
+        settings=settings,
         reference_type=reference_type,
         reference=reference,
         hists_key="hists",
-        ref_hists_key="ref_hists",
         time_axis=time_axis,
-        window=window,
-        shift=shift,
-        monitoring_rules=monitoring_rules,
-        pull_rules=pull_rules,
         features=features,
         **kwargs,
     )
@@ -143,6 +90,7 @@ def stability_metrics(
 def df_stability_metrics(
     df,
     time_axis,
+    settings: Settings = None,
     features=None,
     binning="auto",
     bin_specs=None,
@@ -151,10 +99,6 @@ def df_stability_metrics(
     var_dtype=None,
     reference_type="self",
     reference=None,
-    window=10,
-    shift=1,
-    monitoring_rules=None,
-    pull_rules=None,
     **kwargs,
 ):
     """Create a data stability monitoring html datastore for given pandas or spark dataframe.
@@ -204,50 +148,12 @@ def df_stability_metrics(
     :param reference_type: type or reference used for comparisons. Options [self, external, rolling, expanding].
         default is 'self'.
     :param reference: reference dataframe or histograms. default is None
-    :param int window: size of rolling window and/or trend detection. default is 10.
-    :param int shift: shift of time-bins in rolling/expanding window. default is 1.
-    :param dict monitoring_rules: monitoring rules to generate traffic light alerts.
-        The default setting is:
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "*_pull": [7, 4, -4, -7],
-                "*_zscore": [7, 4, -4, -7],
-                "[!p]*_unknown_labels": [0.5, 0.5, 0, 0],
-            }
-
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        For example, ``"*_pull"`` applies for all features to all statistics ending on "_pull".
-        You can also specify rules for specific features and/or statistics by leaving out wildcard and putting the
-        feature name in front. E.g.
-
-        .. code-block:: python
-
-            monitoring_rules = {
-                "featureA:*_pull": [5, 3, -3, -5],
-                "featureA:nan": [4, 1, 0, 0],
-                "*_pull": [7, 4, -4, -7],
-                "nan": [8, 1, 0, 0],
-            }
-
-        In case of multiple rules could apply for a feature's statistic, the most specific one applies.
-        So in case of the statistic "nan": "featureA:nan" is used for "featureA", and the other "nan" rule
-        for all other features.
-    :param dict pull_rules: red and yellow (possibly dynamic) boundaries shown in plots in the report.
-        Default is:
-
-        .. code-block:: python
-
-            pull_rules = {"*_pull": [7, 4, -4, -7]}
-
-        This means that the shown yellow boundaries are at -4, +4 standard deviations around the (reference) mean,
-        and the shown red boundaries are at -7, +7 standard deviations around the (reference) mean.
-        Note that the (filename based) wildcards such as * apply to all statistic names matching that pattern.
-        (The same string logic applies as for monitoring_rules.)
     :param kwargs: residual keyword arguments, passed on to stability_report()
     :return: dict with results of metrics pipeline
     """
+    if settings is None:
+        settings = Settings()
+
     # basic checks on presence of time_axis
     if not (isinstance(time_axis, str) and len(time_axis) > 0) and not (
         isinstance(time_axis, bool) and time_axis
@@ -304,7 +210,6 @@ def df_stability_metrics(
         }
         bin_specs[time_axis] = time_specs
 
-    reference_hists = None
     if reference is not None:
         reference_type = "external"
         if isinstance(reference, dict):
@@ -331,6 +236,7 @@ def df_stability_metrics(
                 var_dtype,
                 ret_specs=True,
             )
+        kwargs["reference_hists"] = reference_hists
 
     # use the same features, bin_specs, time_axis, etc as for reference hists
     hists = make_histograms(
@@ -345,13 +251,9 @@ def df_stability_metrics(
     # generate data stability report
     return stability_metrics(
         hists,
-        reference_type,
-        reference_hists,
-        time_axis,
-        window,
-        shift,
-        monitoring_rules,
-        pull_rules,
-        features,
+        settings=settings,
+        reference_type=reference_type,
+        time_axis=time_axis,
+        features=features,
         **kwargs,
     )
