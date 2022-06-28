@@ -126,8 +126,8 @@ class TrafficLightSectionGenerator(Module):
             )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
-            metrics = filter_metrics(
-                df.columns, self.ignore_stat_endswith, self.show_stats
+            metrics = sorted(
+                filter_metrics(df.columns, self.ignore_stat_endswith, self.show_stats)
             )
 
             plots = [
