@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import pytest
 
 from popmon.base import Module, Pipeline
 
@@ -65,15 +66,11 @@ class WeightedSum(Module):
         return result
 
 
-def test_popmon_pipeline():
+@pytest.fixture
+def test_pipeline():
     logger = logging.getLogger()
     logger.addHandler(logging.StreamHandler())
     logger.setLevel(logging.INFO)
-
-    datastore = {"x": np.array([7, 2, 7, 9, 6]), "weights": np.array([1, 1, 2, 1, 2])}
-    expected_result = np.sum(
-        np.power(np.log(datastore["x"]), 2) * datastore["weights"]
-    ) / np.sum(datastore["weights"])
 
     log_pow_pipeline = Pipeline(
         modules=[
@@ -92,5 +89,20 @@ def test_popmon_pipeline():
         ],
         logger=logger,
     )
+    return pipeline
 
-    assert pipeline.transform(datastore)["res"] == expected_result
+
+def test_popmon_pipeline(test_pipeline):
+    datastore = {"x": np.array([7, 2, 7, 9, 6]), "weights": np.array([1, 1, 2, 1, 2])}
+    expected_result = np.sum(
+        np.power(np.log(datastore["x"]), 2) * datastore["weights"]
+    ) / np.sum(datastore["weights"])
+
+    assert test_pipeline.transform(datastore)["res"] == expected_result
+
+
+def test_pipeline_repr(test_pipeline):
+    assert (
+        str(test_pipeline)
+        == """Pipeline: [\n\tPipeline: [\n\t\tLogTransformer(input_key='x', output_key='log_x')\n\t\tPowerTransformer(input_key='log_x', output_key='log_pow_x')\n\t]\n\tSumNormalizer(input_key='weights', output_key='norm_weights')\n\tWeightedSum(input_key='log_pow_x', weight_key='norm_weights', output_key='res')\n]"""
+    )
