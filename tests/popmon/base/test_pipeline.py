@@ -98,7 +98,9 @@ def test_popmon_pipeline(test_pipeline):
         np.power(np.log(datastore["x"]), 2) * datastore["weights"]
     ) / np.sum(datastore["weights"])
 
-    assert test_pipeline.transform(datastore)["res"] == expected_result
+    np.testing.assert_array_almost_equal(
+        test_pipeline.transform(datastore)["res"], expected_result, decimal=12
+    )
 
 
 def test_pipeline_repr(test_pipeline):
