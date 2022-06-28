@@ -182,3 +182,11 @@ class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
         :rtype: dict
         """
         raise NotImplementedError
+
+    def __repr__(self):
+        """String representation for modules when printing a pipeline/list of modules"""
+        name = self.__class__.__name__
+        input_keys = [f"{v}='{getattr(self, v)}'" for v in self._input_keys]
+        output_keys = [f"{v}='{getattr(self, v)}'" for v in self._output_keys]
+        params = ", ".join(input_keys + output_keys)
+        return f"{name}({params})"
