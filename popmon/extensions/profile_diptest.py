@@ -26,12 +26,22 @@ def extension():
         dim=1,
         htype="num",
     )
-    def diptest_profile(bin_centers, bin_values):
+    def diptest_profile(bin_centers, bin_values, bin_width, rng=None):
+        if rng is None:
+            rng = np.random.default_rng()
+
+        counts = bin_values.astype(int)
+        n = counts.sum()
+        hbw = bin_width / 2
+
         # unpack histogram into ordered samples
-        sample = np.repeat(bin_centers, bin_values.astype(int))
+        sample = np.repeat(bin_centers, counts)
+
+        # uniform noise
+        sample_noise = sample + rng.uniform(-hbw, hbw, n)
 
         # compute diptest
-        dip, pval = diptest(sample, sort_x=False)
+        dip, pval = diptest(sample_noise)
         return dip, pval
 
 
