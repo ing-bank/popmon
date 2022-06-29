@@ -20,6 +20,14 @@ popmon.extensions.profile\_diptest module
    :undoc-members:
    :show-inheritance:
 
+popmon.extensions.utils module
+------------------------------
+
+.. automodule:: popmon.extensions.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
