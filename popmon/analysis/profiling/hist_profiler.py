@@ -95,9 +95,15 @@ class HistProfiler(Module):
 
         # calc 1d-histogram statistics
         profile = {}
-        args = [bin_labels, bin_counts]
+        if otype == "cat":
+            args = [bin_labels, bin_counts]
+        else:
+            bin_width = hist.bin_width()
+            args = [bin_labels, bin_counts, bin_width]
 
         profile.update(Profiles.run(args, dim=1, htype=otype))
+
+        args = [bin_labels, bin_counts]
         profile.update(Profiles.run(args, dim=1, htype="all"))
 
         # difference between htype=None and htype="all" are arguments (bin labels vs hist)
