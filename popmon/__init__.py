@@ -29,6 +29,7 @@ from histogrammar.dfinterface.make_histograms import (
 from popmon import decorators
 
 from .config import Settings
+from .extensions import *  # noqa
 from .pipeline.metrics import df_stability_metrics, stability_metrics
 from .pipeline.report import df_stability_report, stability_report
 from .stitching import stitch_histograms

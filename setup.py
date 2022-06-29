@@ -28,6 +28,7 @@ def setup_package() -> None:
         python_requires=">=3.6",
         packages=find_packages(),
         install_requires=REQUIREMENTS,
+        extras_require={"diptest": ["diptest"]},
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: MIT License",

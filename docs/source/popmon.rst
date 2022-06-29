@@ -11,6 +11,7 @@ Subpackages
    popmon.analysis
    popmon.base
    popmon.decorators
+   popmon.extensions
    popmon.hist
    popmon.io
    popmon.pipeline
