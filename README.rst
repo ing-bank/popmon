@@ -10,7 +10,7 @@ Population Shift Monitoring
 `popmon` works with both **pandas** and **spark datasets**.
 
 `popmon` creates histograms of features binned in time-slices,
-and compares the stability of the `profiles <https://popmon.readthedocs.io/en/latest/profiles.html>`_ and distributions of
+and compares the stability of the profiles_ and distributions of
 those histograms using `statistical tests <https://popmon.readthedocs.io/en/latest/comparisons.html>`_, both over time and with respect to a reference.
 It works with numerical, ordinal, categorical features, and the histograms can be higher-dimensional, e.g. it can also track correlations between any two features.
 `popmon` can **automatically flag** and alert on **changes observed over time**, such
@@ -199,7 +199,21 @@ Contributions of additional or improved integrations are welcome!
     :height: 120
     :target: https://github.com/elastic/kibana
 
+Comparison and profile extensions
+---------------------------------
 
+External libraries or custom functionality can be easily added to Profiles_ and Comparisons_.
+If you developed an extension that could be generically used, then please consider contributing it to the package.
+
+Popmon currently integrates:
+
+* `Diptest <https://github.com/RUrlus/diptest>`_
+
+A Python/C++ implementation of Hartigan & Hartigan's dip test for unimodality.
+The dip test tests for multimodality in a sample by taking the maximum difference, over all sample points, between the empirical distribution function, and the unimodal distribution function that minimizes that maximum difference.
+Other than unimodality, it makes no further assumptions about the form of the null distribution.
+
+To enable this extension install diptest using ``pip install diptest`` or ``pip install popmon[diptest]``.
 
 Resources
 =========
@@ -320,3 +334,6 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
 .. |downloads| image:: https://pepy.tech/badge/popmon
     :alt: PyPi downloads
     :target: https://pepy.tech/project/popmon
+
+.. _profiles: https://popmon.readthedocs.io/en/latest/profiles.html
+.. _comparisons: https://popmon.readthedocs.io/en/latest/comparisons.html
