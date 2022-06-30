@@ -8,30 +8,30 @@ Available profiles
 ------------------
 The following metrics are implemented:
 
-Any dimension
+**Any dimension**
 
-- count
+* count
 
-1D histogram, all types:
+**1D histogram, all types:**
 
-- filled
-- underflow, overflow
-- nan
+* filled
+* underflow, overflow
+* nan
 
-1D histogram, numeric:
+**1D histogram, numeric:**
 
-- mean
-- 1%, 5%, 16%, 50% (median), 84%, 95%, 99% percentiles
-- std
-- min, max
+* mean
+* 1%, 5%, 16%, 50% (median), 84%, 95%, 99% percentiles
+* std
+* min, max
 
-1D histogram, categorical
+**1D histogram, categorical**
 
-- fraction of true
+* fraction of true
 
-2D histogram:
+**2D histogram:**
 
-- phik
+* phik
 
 Profile extensions
 ------------------
@@ -79,8 +79,7 @@ Variations:
         result1, result2 = your_logic(hist)
         return result1, result2
 
-- A profile may work on the histogram, or on the value counts/labels (also for efficiency).
-This occurs when the ``htype`` parameter is passed (1D only)
+- A profile may work on the histogram, or on the value counts/labels (also for efficiency). This occurs when the ``htype`` parameter is passed (1D only)
 
 .. code-block:: python
 
