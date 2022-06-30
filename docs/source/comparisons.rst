@@ -26,6 +26,15 @@ A rich set of the most frequently used comparisons is available out-of-the-box:
 | Any        | Any             | Maximum probability difference  |
 +------------+-----------------+---------------------------------+
 
+The comparisons registry can be consulted for available comparisons:
+
+.. code-block:: python
+
+    from popmon.analysis import Comparisons
+
+    print(Comparisons.get_keys())
+
+
 Custom comparisons
 ------------------
 
