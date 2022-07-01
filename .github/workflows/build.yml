@@ -84,11 +84,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
+          pip install scikit-learn
+      - name: Download datasets
+        run: |
+          wget https://www.win.tue.nl/~mpechen/data/DriftSets/hyperplane1.arff -O examples/synthetic_data_streams/data/hyperplane1.arff
       - name: Build examples
         run: |
           cd examples
           python synthetic_data.py
           python flight_delays.py
+          cd synthetic_data_streams
+          python hyperplane.py
       - uses: actions/upload-artifact@v2
         with:
           name: synthetic-report
@@ -98,4 +104,9 @@ jobs:
         with:
           name: flight-delays-report
           path: examples/flight_delays_report.html
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hyperplane-1-report
+          path: examples/synthetic_data_streams/reports/hyperplane_1.html
           if-no-files-found: error
