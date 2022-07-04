@@ -34,10 +34,20 @@ jobs:
   test_spark:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python: [3.7]
+        include:
+          - SPARK_VERSION: "2.4.7"
+            HADOOP_VERSION: "2.7"
+            JAVA_VERSION: "8"
+            python: "3.7"
+            os: ubuntu-latest
+          - SPARK_VERSION: "3.3.0"
+            HADOOP_VERSION: "3"
+            JAVA_VERSION: "11"
+            python: "3.8"
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
-      
+    name: ${{ matrix.os }}, Spark ${{ matrix.SPARK_VERSION}}, Python ${{ matrix.python }}
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python }}
@@ -52,19 +62,24 @@ jobs:
     - name: Install Spark
       env:
         BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
-        JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
-        SPARK_VERSION: "2.4.7"
-        HADOOP_VERSION: "2.7"
+        JAVA_HOME: "/usr/lib/jvm/java-${{ matrix.JAVA_VERSION }}-openjdk-amd64"
+        SPARK_VERSION: "${{ matrix.SPARK_VERSION }}"
+        HADOOP_VERSION: "${{ matrix.HADOOP_VERSION }}"
         SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
         SPARK_LOCAL_IP: "localhost"
       run: |
         sudo apt-get update
-        sudo apt-get -y install openjdk-8-jdk
+        sudo apt-get -y install openjdk-${{ matrix.JAVA_VERSION }}-jdk
         curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
         tar -xvzf ${BUILD_DIR}/spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
-        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==2.4.7
+        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==${SPARK_VERSION}
     - name: Test with pytest (spark-specific)
       env:
+        BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
+        JAVA_HOME: "/usr/lib/jvm/java-${{ matrix.JAVA_VERSION }}-openjdk-amd64"
+        SPARK_VERSION: "${{ matrix.SPARK_VERSION }}"
+        HADOOP_VERSION: "${{ matrix.HADOOP_VERSION }}"
+        SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
         SPARK_LOCAL_IP: "localhost"
       run: |
         pytest -m spark
