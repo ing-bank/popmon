@@ -94,13 +94,13 @@ table.overview tbody td:not(.metric){
    text-align: center;
 }
 .g{
-    background: green;
+    background: {{ green }};
 }
 .y{
-    background: rgba(255, 200, 0, 1.0);
+    background: {{ yellow }};
 }
 .r{
-    background: rgba(255, 0, 0, 1.0);
+    background: {{ red }};
 }
 table.overview tfoot td {
     padding-top: 5px;
@@ -130,4 +130,9 @@ table.overview tfoot td span{
 .tl-container{
     display: flex;
     width: 100%;
+}
+
+#settings-btn{
+    background-color: transparent;
+    border-color: #666;
 }

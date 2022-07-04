@@ -16,7 +16,7 @@ $(document).on("click", "button.dropdown-item", function() {
     var type = window.location.hash.substr(1);
     if (type.length > 0){
         // Find link to that section
-        var o = $("a.nav-link.js-scroll-trigger[href='#" + type +"'");
+        var o = $("a.nav-link.js-scroll-trigger[href='#" + type +"'"    );
 
         // If exists
         if (o.length == 1){
@@ -34,7 +34,6 @@ $(document).on("click", "a.table-item", function(){
 
 // making navigation work: after clicking a nav link scrolling to the corresponding section's position
 $(document).on("click", "a.nav-link,a.navbar-brand", function(e) {
-    /*e.preventDefault();*/
     obj = $(this)
     $([document.documentElement, document.body]).animate({
         scrollTop: $("section[data-section-title='" + obj.attr("data-scroll-to-section") + "']").offset().top

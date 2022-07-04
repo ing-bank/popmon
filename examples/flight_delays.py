@@ -12,6 +12,7 @@ df = pd.read_csv(
 # Configuration of the monitoring rules and report
 settings = Settings(time_axis="DATE", reference_type="self")
 settings.report.extended_report = False
+settings.report.title += " | Flight Delays Dataset"
 settings.monitoring.pull_rules = {"*_pull": [10, 7, -7, -10]}
 
 # generate stability report using automatic binning of all encountered features

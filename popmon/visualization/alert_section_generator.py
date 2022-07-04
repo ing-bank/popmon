@@ -84,6 +84,7 @@ class AlertSectionGenerator(Module):
         self.section_name = settings.section.alerts.name
         self.description = settings.section.alerts.description
         self.descriptions = settings.section.alerts.descriptions
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -141,6 +142,7 @@ class AlertSectionGenerator(Module):
                     0,
                     0,
                     0,
+                    self.tl_colors,
                     style="alerts",
                 )
             ]

@@ -1,40 +1,40 @@
 <table class="overview">
 <tbody>
-{% for metric in metrics %}
-<tr>
-    <td class="metric">
-        {% if links %}
-        <a class="js-scroll-trigger" href="#{{ feature }}-{{ metric.replace('_pull','') }}">
-        {% endif %}
+    {%- for metric in metrics -%}
+    <tr>
+        <td class="metric">
+            {%- if links -%}
+            <a class="js-scroll-trigger" href="#{{ feature }}-{{ metric.replace('_pull','') }}">
+            {%- endif -%}
             {{ metric | fmt_metric }}
-        {% if links %}
-        </a>
-        {% endif %}
-    </td>
-    {% for label in labels %}
-        {% if data[metric][label] | length  == 1 %}
-            {% with class = data[metric][label][0] %}
-            <td class="{{ class }}">&nbsp;</td>
-            {% endwith %}
-        {% elif data[metric][label] | length == 2 %}
-            {% with rgba, value = data[metric][label] %}
-            <td style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
-            {% endwith %}
-        {% elif data[metric][label] | length == 3 %}
-            {% with text_color, rgba, value = data[metric][label] %}
-            <td style="color: {{ text_color }}; background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
-            {% endwith %}
-        {% endif %}
-    {% endfor %}
-</tr>
-{% endfor %}
+            {%- if links -%}
+            </a>
+            {%- endif -%}
+        </td>
+        {%- for label in labels -%}
+            {%- if data[metric][label] | length  == 1 -%}
+                {%- with class = data[metric][label][0] -%}
+                <td class="{{ class }}">&nbsp;</td>
+                {%- endwith -%}
+            {%- elif data[metric][label] | length == 2 -%}
+                {%- with rgba, value = data[metric][label] -%}
+                <td style="background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+                {%- endwith -%}
+            {%- elif data[metric][label] | length == 3 -%}
+                {%- with text_color, rgba, value = data[metric][label] -%}
+                <td style="color: {{ text_color }}; background-color: rgba({{ ', '.join(rgba) }})">{{ value }}</td>
+                {%- endwith -%}
+            {%- endif -%}
+        {%- endfor -%}
+    </tr>
+    {%- endfor -%}
 </tbody>
 <tfoot>
-<tr>
-    <td>&nbsp;</td>
-    {% for label in labels %}
+    <tr>
+        <td>&nbsp;</td>
+        {%- for label in labels -%}
         <td><span>{{ label }}</span></td>
-    {% endfor %}
-</tr>
+        {%- endfor -%}
+    </tr>
 </tfoot>
 </table>

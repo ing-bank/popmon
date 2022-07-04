@@ -29,7 +29,7 @@ from ..config import Report
 from ..utils import filter_metrics, short_date
 from ..visualization.utils import (
     _prune,
-    plot_traffic_lights_alerts_b64,
+    plot_traffic_lights_alerts_aggregate,
     plot_traffic_lights_overview,
 )
 
@@ -87,6 +87,7 @@ class TrafficLightSectionGenerator(Module):
 
         self.section_name = settings.section.traffic_lights.name
         self.description = settings.section.traffic_lights.description
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -140,6 +141,7 @@ class TrafficLightSectionGenerator(Module):
                     self.skip_first_n,
                     self.skip_last_n,
                     self.skip_empty_plots,
+                    tl_colors=self.tl_colors,
                 )
             ]
 
@@ -173,6 +175,7 @@ def _plot_metrics(
     skip_first_n,
     skip_last_n,
     skip_empty,
+    tl_colors,
     style="heatmap",
 ):
     # prune dates and values
@@ -195,11 +198,12 @@ def _plot_metrics(
                 feature, values, metrics=nonempty_metrics, labels=dates
             )
         elif style == "alerts":
-            plot = plot_traffic_lights_alerts_b64(
+            plot = plot_traffic_lights_alerts_aggregate(
                 feature,
                 values,
                 metrics=nonempty_metrics,
                 labels=dates,
+                tl_colors=tl_colors,
             )
         else:
             raise ValueError("style must be either 'heatmap' or 'alerts'")

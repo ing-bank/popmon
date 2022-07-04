@@ -1,20 +1,20 @@
 <table width="95%" style="margin-bottom: 30px;">
-  {% for feature, vals in values.items() %}
+  {%- for feature, vals in values.items() -%}
   <tr>
       <td width="20%" style="text-align:center;"><a class="table-item" href="#" data-feature="{{ feature }}">{{ feature }}</a></td>
       <td width="80%">
           <div class="tl-container">
-          {% for i in [2, 1, 0] %}
-              {% if vals[i] > 0 %}
-                  <div style="width: calc({{ vals[i] }} / {{ vals['total'] }} * 100%)" class="tl-bar {% if i == 2%}r{%elif i == 1%}y{%else%}g{%endif%}">
+          {%- for i in [2, 1, 0] -%}
+              {%- if vals[i] > 0 -%}
+                  <div style="width: calc({{ vals[i] }} / {{ vals['total'] }} * 100%)" class="tl-bar {% if i == 2 %}r{% elif i == 1 %}y{% else %}g{% endif %}">
                       {{ vals[i] }} ({{ "%d" % (vals[i] / (vals["total"] * 0.01))}}%)
                   </div>
-              {% else %}
+              {%- else -%}
                   <div style="width: 0%">&nbsp;</div>
-              {% endif %}
-          {% endfor %}
+              {%- endif -%}
+          {%- endfor -%}
           </div>
       </td>
   </tr>
-  {% endfor %}
+  {%- endfor -%}
 </table>

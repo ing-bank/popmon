@@ -149,6 +149,9 @@ class Section(BaseModel):
 class Report(BaseModel):
     """Report-specific configuration"""
 
+    title = "POPMON Report"
+    """Report title in browser and navbar. May contain HTML."""
+
     skip_empty_plots: bool = True
     """if false, also show empty plots in report with only nans or zeroes (optional)"""
 
@@ -194,8 +197,15 @@ class Report(BaseModel):
     ]
     """list of statistic name patterns to show in the report. If None, show all (optional)"""
 
-    zline_color: List[str] = ["#FF0000", "#FFC800"]
-    """"Configure line colors in barplots of Comparisons and Profiles section. First and second elements as hex color code in list will replace the default red and yellow respectively"""
+    primary_color = "#000080"
+    """Primary color used throughout the report"""
+
+    tl_colors: Dict[str, str] = {
+        "green": "#008000",
+        "yellow": "#FFC800",
+        "red": "#FF0000",
+    }
+    """"Configure line colors in barplots of Comparisons and Profiles section. Need to be hex format (full length)"""
 
     section: Section = Section()
     """Configuration for the individual sections"""

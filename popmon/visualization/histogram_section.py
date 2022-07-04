@@ -33,7 +33,7 @@ from ..analysis.hist_numpy import (
 from ..base import Module
 from ..config import HistogramSectionModel
 from ..utils import parallel, short_date
-from ..visualization.utils import plot_heatmap_b64, plot_overlay_1d_histogram_b64
+from ..visualization.utils import plot_heatmap, plot_histogram_overlay
 
 
 class HistogramSection(Module):
@@ -242,7 +242,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
                 entries_list = np.reshape(entries_list.ravel(), (-1, len(bins)))
 
         hists = [(el, bins) for el in entries_list]
-        plot = plot_overlay_1d_histogram_b64(
+        plot = plot_histogram_overlay(
             hists, feature, hist_names, y_label, is_num, is_ts
         )
     elif hc_list[0].n_dim == 2:
@@ -338,7 +338,7 @@ def _plot_heatmap(
             (hist, bins, date, feature, hist_name, y_label, is_num, is_ts, cmap)
             for hist, hist_name in zip(hists, hist_names)
         ]
-        heatmaps = parallel(plot_heatmap_b64, args)
+        heatmaps = parallel(plot_heatmap, args)
 
         if isinstance(heatmaps, list):
             plot = [hist_lookup(heatmaps, hist_name) for hist_name in hist_names]

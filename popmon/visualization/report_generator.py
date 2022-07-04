@@ -44,7 +44,9 @@ class ReportGenerator(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.title = settings.title
         self.online_report = settings.online_report
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return "HTML Report"
@@ -64,5 +66,7 @@ class ReportGenerator(Module):
                 generator=f"popmon {version}",
                 sections=sections_html,
                 online_report=self.online_report,
+                title=self.title,
+                **self.tl_colors,
             )
         )
