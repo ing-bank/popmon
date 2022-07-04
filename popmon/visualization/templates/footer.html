@@ -1,24 +1,22 @@
-<!-- Footer -->
 <footer class="py-5 bg-dark">
     <div class="container">
         <p class="m-0 text-center text-white">Copyright &copy; ING WBAA 2022</p>
     </div>
-    <!-- /.container -->
 </footer>
 
-<!-- Bootstrap core JavaScript -->
-<!-- Plugin JavaScript -->
-<!-- Custom JavaScript for this theme -->
-{% if online_report %}
+{%- if online_report -%}
     <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
-{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+{%- endif -%}
 <script>
-    {% if not online_report %}
-        {% include 'assets/js/plotly.js' %}
-    {% endif %}
-    {% include 'assets/js/jquery.min.js' %}
-    {% include 'assets/js/bootstrap.bundle.min.js' %}
-    {% include 'assets/js/jquery.easing.min.js' %}
-    {% include 'assets/js/scrolling-nav.js' %}
-    {% include 'assets/js/custom-script.js' %}
+    {%- if not online_report -%}
+        {%- include 'assets/js/plotly.js' -%}
+        {%- include 'assets/js/jquery.min.js' -%}
+        {%- include 'assets/js/bootstrap.bundle.min.js' -%}
+        {%- include 'assets/js/jquery.easing.min.js' -%}
+    {%- endif -%}
+    {%- include 'assets/js/scrolling-nav.js' -%}
+    {%- include 'assets/js/custom-script.js' -%}
 </script>
