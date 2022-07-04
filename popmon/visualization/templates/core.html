@@ -10,20 +10,22 @@
 
   <title>POPMON Report</title>
 
-  <!-- Bootstrap core CSS -->
-  <!-- Custom styles for this template -->
+  {%- if online_report %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+  {%- endif -%}
+
   <style>
-    {% include 'assets/css/bootstrap.min.css' %}
-    {% include 'assets/css/custom-style.css' %}
+    {%- if not online_report -%}
+        {%- include 'assets/css/bootstrap.min.css' -%}
+    {%- endif -%}
+    {%- include 'assets/css/custom-style.css' -%}
   </style>
 
 </head>
 <body id="page-top">
-
-    {% include 'modal-popup.html' %}
-    {% include 'header.html' %}
+    {%- include 'modal-popup.html' -%}
+    {%- include 'header.html' -%}
     {{ sections }}
-    {% include 'footer.html' %}
-
+    {%- include 'footer.html' -%}
 </body>
 </html>
