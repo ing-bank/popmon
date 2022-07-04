@@ -58,6 +58,9 @@ def get_stat_description(name: str):
     if name in profiles:
         return profiles[name]
 
+    if name in "mean_trend10_zscore":
+        return "Significance of (rolling) trend in means of features"
+
     head, *tail = name.split("_")
     tail = "_".join(tail)
 
