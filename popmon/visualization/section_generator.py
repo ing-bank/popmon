@@ -30,7 +30,7 @@ from popmon.analysis.profiling import Profiles
 from ..base import Module
 from ..config import Report
 from ..utils import filter_metrics, parallel, short_date
-from ..visualization.utils import _prune, plot_bars_b64
+from ..visualization.utils import _prune, plot_bars
 
 profiles = Profiles.get_descriptions()
 
@@ -117,13 +117,15 @@ class SectionGenerator(Module):
         self.last_n = settings.last_n
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
-        self.zline_color = settings.zline_color
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
         self.show_stats = settings.show_stats if not settings.extended_report else None
+
+        self.primary_color = settings.primary_color
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -181,7 +183,8 @@ class SectionGenerator(Module):
                     self.skip_first_n,
                     self.skip_last_n,
                     self.skip_empty_plots,
-                    self.zline_color,
+                    self.primary_color,
+                    self.tl_colors,
                 )
                 for metric in metrics
             ]
@@ -230,6 +233,7 @@ def _plot_metric(
     skip_first_n,
     skip_last_n,
     skip_empty,
+    primary_color,
     zline_color,
 ):
     """Split off plot histogram generation to allow for parallel processing"""
@@ -251,13 +255,15 @@ def _plot_metric(
     values = _prune(values, last_n, skip_first_n, skip_last_n)
 
     # make plot. note: slow!
-    plot = plot_bars_b64(
+    plot = plot_bars(
         data=values,
         labels=dates,
         ylim=True,
         bounds=bounds,
         skip_empty=skip_empty,
-        zline_color=zline_color,
+        primary_color=primary_color,
+        tl_colors=zline_color,
+        metric=metric,
     )
 
     if not isinstance(plot, dict):
