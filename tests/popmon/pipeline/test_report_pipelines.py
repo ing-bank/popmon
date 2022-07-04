@@ -18,7 +18,7 @@ def test_self_reference():
             JsonReader(
                 file_path=resources.data("example_histogram.json"), store_key="hists"
             ),
-            SelfReference(hists_key="hists", features=hist_list, settings=Settings()),
+            SelfReference(hists_key="hists", settings=Settings(features=hist_list)),
         ]
     )
     pipeline.transform(datastore={})
@@ -35,8 +35,7 @@ def test_external_reference():
             ExternalReference(
                 hists_key="hists",
                 ref_hists_key="hists",
-                features=hist_list,
-                settings=Settings(),
+                settings=Settings(features=hist_list),
             ),
         ]
     )
@@ -46,7 +45,7 @@ def test_external_reference():
 def test_rolling_reference():
     hist_list = ["date:country", "date:A_score:num_employees"]
 
-    settings = Settings()
+    settings = Settings(features=hist_list)
     settings.comparison.window = 5
 
     pipeline = Pipeline(
@@ -57,7 +56,6 @@ def test_rolling_reference():
             RollingReference(
                 hists_key="hists",
                 settings=settings,
-                features=hist_list,
             ),
         ]
     )
@@ -73,7 +71,7 @@ def test_expanding_reference():
                 file_path=resources.data("example_histogram.json"), store_key="hists"
             ),
             ExpandingReference(
-                hists_key="hists", features=hist_list, settings=Settings()
+                hists_key="hists", settings=Settings(features=hist_list)
             ),
         ]
     )
