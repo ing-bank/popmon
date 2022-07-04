@@ -20,6 +20,8 @@
 
 from pathlib import Path
 
+from typing_extensions import Literal
+
 from ..base import Pipeline
 from ..config import Report, Settings
 from ..io import FileWriter
@@ -39,12 +41,16 @@ from ..visualization import (
 from ..visualization.overview_section import OverviewSectionGenerator
 
 
-def get_report_pipeline_class(reference_type, reference):
+def get_report_pipeline_class(
+    reference_type: Literal["self", "external", "rolling", "expanding", "self_split"],
+    reference,
+):
     _report_pipeline = {
         "self": SelfReference,
         "external": ExternalReference,
         "rolling": RollingReference,
         "expanding": ExpandingReference,
+        "self_split": ExternalReference,
     }
     reference_types = list(_report_pipeline.keys())
     if reference_type not in reference_types:
@@ -59,22 +65,16 @@ class SelfReference(Pipeline):
     def __init__(
         self,
         settings: Settings,
-        features: list,
         hists_key: str = "test_hists",
-        time_axis: str = "date",
     ):
         """Example pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled self reference pipeline
         """
         modules = [
             SelfReferenceMetricsPipeline(
                 hists_key=hists_key,
-                time_axis=time_axis,
-                features=features,
                 settings=settings,
             ),
             ReportPipe(
@@ -93,24 +93,18 @@ class ExternalReference(Pipeline):
         settings: Settings,
         hists_key: str = "test_hists",
         ref_hists_key: str = "ref_hists",
-        time_axis: str = "date",
-        features=None,
     ):
         """Example pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
-        :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param list features: features of histograms to pick up from input data (optional)
-        :param kwargs: residual keyword arguments
         :return: assembled external reference pipeline
         """
+
         modules = [
             ExternalReferenceMetricsPipeline(
                 hists_key=hists_key,
                 ref_hists_key=ref_hists_key,
-                time_axis=time_axis,
-                features=features,
                 settings=settings,
             ),
             ReportPipe(
@@ -128,22 +122,16 @@ class RollingReference(Pipeline):
         self,
         settings: Settings,
         hists_key: str = "test_hists",
-        time_axis: str = "date",
-        features=None,
     ):
         """Example pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled rolling reference pipeline
         """
         modules = [
             RollingReferenceMetricsPipeline(
                 settings=settings,
                 hists_key=hists_key,
-                time_axis=time_axis,
-                features=features,
             ),
             ReportPipe(
                 sections_key="report_sections",
@@ -160,21 +148,15 @@ class ExpandingReference(Pipeline):
         self,
         settings: Settings,
         hists_key: str = "test_hists",
-        time_axis: str = "date",
-        features=None,
     ):
         """Example pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled expanding reference pipeline
         """
         modules = [
             ExpandingReferenceMetricsPipeline(
                 hists_key=hists_key,
-                time_axis=time_axis,
-                features=features,
                 settings=settings,
             ),
             ReportPipe(
