@@ -1,4 +1,5 @@
-from os.path import abspath, dirname, join
+from copy import deepcopy
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -20,19 +21,16 @@ def spark_context():
     if not spark_found:
         return None
 
-    current_path = dirname(abspath(__file__))
+    current_path = Path(__file__).parent
 
     scala = "2.12" if int(pyspark_version[0]) >= 3 else "2.11"
-    hist_spark_jar = join(
-        current_path, f"jars/histogrammar-sparksql_{scala}-1.0.11.jar"
-    )
-    hist_jar = join(current_path, f"jars/histogrammar_{scala}-1.0.11.jar")
+    hist_spark_jar = current_path / f"jars/histogrammar-sparksql_{scala}-1.0.11.jar"
+    hist_jar = current_path / f"jars/histogrammar_{scala}-1.0.11.jar"
 
     spark = (
         SparkSession.builder.master("local")
         .appName("popmon-pytest")
         .config("spark.jars", f"{hist_spark_jar},{hist_jar}")
-        .config("spark.sql.execution.arrow.enabled", "false")
         .config("spark.sql.session.timeZone", "GMT")
         .getOrCreate()
     )
@@ -51,8 +49,8 @@ def test_spark_stability_metrics(spark_context):
     features = ["date:isActive", "date:eyeColor", "date:latitude"]
     bin_specs = {
         "date": {
-            "bin_width": pd.Timedelta("1y").value,
-            "bin_offset": pd.Timestamp("2000-1-1").value,
+            "bin_width": pd.Timedelta(365, "days").value,
+            "bin_offset": pd.Timestamp(year=2000, month=1, day=1).value,
         },
         "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
     }
@@ -75,16 +73,17 @@ def test_spark_stability_metrics(spark_context):
     "ignore:createDataFrame attempted Arrow optimization because"
 )
 def test_spark_make_histograms(spark_context):
-    pytest.age["data"]["name"] = "b'age'"
-    pytest.company["data"]["name"] = "b'company'"
-    pytest.eyesColor["data"]["name"] = "b'eyeColor'"
-    pytest.gender["data"]["name"] = "b'gender'"
-    pytest.isActive["data"]["name"] = "b'isActive'"
-    pytest.latitude["data"]["name"] = "b'latitude'"
-    pytest.longitude["data"]["name"] = "b'longitude'"
-    pytest.transaction["data"]["name"] = "b'transaction'"
+    names = [
+        "age",
+        "company",
+        "eyeColor",
+        "gender",
+        "latitude",
+        "longitude",
+        "transaction",
+    ]
 
-    pytest.latitude_longitude["data"]["name"] = "b'latitude:longitude'"
+    pytest.latitude_longitude["data"]["name"] = "'latitude:longitude'"
     pytest.latitude_longitude["data"]["bins:name"] = "unit_func"
 
     spark_df = spark_context.createDataFrame(pytest.test_df)
@@ -113,10 +112,13 @@ def test_spark_make_histograms(spark_context):
         binning="unit",
     )
 
-    assert current_hists["age"].toJson() == pytest.age
-    assert current_hists["company"].toJson() == pytest.company
-    assert current_hists["eyeColor"].toJson() == pytest.eyesColor
-    assert current_hists["gender"].toJson() == pytest.gender
-    assert current_hists["latitude"].toJson() == pytest.latitude
-    assert current_hists["longitude"].toJson() == pytest.longitude
-    assert current_hists["transaction"].toJson() == pytest.transaction
+    # backwards compatibility
+    for name in names:
+        v1 = deepcopy(getattr(pytest, name))
+        v1["data"]["name"] = f"'{name}'"
+
+        v2 = deepcopy(getattr(pytest, name))
+        v2["data"]["name"] = f"b'{name}'"
+
+        output = current_hists[name].toJson()
+        assert output == v1 or output == v2

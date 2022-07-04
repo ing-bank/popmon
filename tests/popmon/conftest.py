@@ -62,7 +62,7 @@ def pytest_configure():
         pytest.date = load(f)
 
     with open("{}/{}".format(TEMPLATE_PATH, "eyesColor.json")) as f:
-        pytest.eyesColor = load(f)
+        pytest.eyeColor = load(f)
 
     with open("{}/{}".format(TEMPLATE_PATH, "gender.json")) as f:
         pytest.gender = load(f)
