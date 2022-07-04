@@ -10,7 +10,7 @@ df = pd.read_csv(
 
 
 # Configuration of the monitoring rules and report
-settings = Settings()
+settings = Settings(time_axis="DATE", reference_type="self")
 settings.report.extended_report = False
 settings.monitoring.pull_rules = {"*_pull": [10, 7, -7, -10]}
 
@@ -18,8 +18,6 @@ settings.monitoring.pull_rules = {"*_pull": [10, 7, -7, -10]}
 # (importing popmon automatically adds this functionality to a dataframe)
 report = popmon.df_stability_report(
     df,
-    reference_type="self",
-    time_axis="DATE",
     time_width="1w",
     time_offset="2015-07-02",
     settings=settings,

@@ -20,19 +20,16 @@
 
 import logging
 
-from popmon import resources
-
-from ..base import Pipeline
-from ..io import JsonReader
-from ..pipeline.report_pipelines import SelfReference
+from popmon import Settings, resources
+from popmon.base import Pipeline
+from popmon.io import JsonReader
+from popmon.pipeline.report_pipelines import SelfReference
 
 
 class AmazingPipeline(Pipeline):
-    def __init__(self, **kwargs):
+    def __init__(self, histogram_path: str, **kwargs):
         modules = [
-            JsonReader(
-                file_path=kwargs["histograms_path"], store_key=kwargs["hists_key"]
-            ),
+            JsonReader(file_path=histogram_path, store_key=kwargs["hists_key"]),
             # Or ExternalReference, RollingReference etc.
             SelfReference(**kwargs),
         ]
@@ -45,22 +42,18 @@ def run():
         level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
     )
 
-    cfg = {
-        "histograms_path": resources.data("synthetic_histograms.json"),
-        "hists_key": "hists",
-        "ref_hists_key": "hists",
-        "datetime_name": "date",
-        "window": 20,
-        "shift": 1,
-        "monitoring_rules": {
-            "*_pull": [7, 4, -4, -7],
-            # "*_pvalue": [1, 0.999, 0.001, 0.0001],
-            "*_zscore": [7, 4, -4, -7],
-        },
-        "pull_rules": {"*_pull": [7, 4, -4, -7]},
+    settings = Settings(time_axis="date")
+    settings.comparison.window = 20
+    settings.comparison.shift = 1
+    settings.monitoring.monitoring_rules = {
+        "*_pull": [7, 4, -4, -7],
+        # "*_pvalue": [1, 0.999, 0.001, 0.0001],
+        "*_zscore": [7, 4, -4, -7],
     }
+    settings.monitoring.pull_rules = {"*_pull": [7, 4, -4, -7]}
 
-    pipeline = AmazingPipeline(**cfg)
+    histogram_path = resources.data("synthetic_histograms.json")
+    pipeline = AmazingPipeline(histogram_path, hists_key="hists", settings=settings)
     pipeline.transform(datastore={})
 
 
