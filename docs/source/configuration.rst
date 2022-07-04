@@ -6,52 +6,6 @@ Some more details on stability report settings, in particular how to set:
 the reference dataset, binning specifications, monitoring rules, and where to plot boundaries.
 
 
-Reference types
----------------
-
-When generating a report from a DataFrame, the reference type can be set with the option ``reference_type``,
-in four different ways:
-
-1. Using the DataFrame on which the stability report is built as a self-reference. This reference method is static: each time slot is compared to all the slots in the DataFrame (all included in one distribution). This is the default reference setting.
-
-    .. code-block:: python
-
-      # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="self")
-
-2. Using an external reference DataFrame or set of histograms. This is also a static method: each time slot is compared to all the time slots in the reference data.
-
-    .. code-block:: python
-
-      # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="external", reference=reference)
-
-3. Using a rolling window within the same DataFrame as reference. This method is dynamic: we can set the size of the window and the shift from the current time slot. By default the 10 preceding time slots are used as reference (shift=1, window_size=10).
-
-    .. code-block:: python
-
-      settings = Settings()
-      settings.comparison.window = 10
-      settings.comparison.shift = 1
-
-      # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="rolling", settings=settings)
-
-4. Using an expanding window on all preceding time slots within the same DataFrame. This is also a dynamic method, with variable window size. All the available previous time slots are used. For example, if we have 2 time slots available and shift=1, window size will be 1 (so the previous slot is the reference), while if we have 10 time slots and shift=1, window size will be 9 (and all previous time slots are reference).
-
-    .. code-block:: python
-
-      settings = Settings()
-      settings.comparison.shift = 1
-
-      # generate stability report with specific monitoring rules
-      report = df.pm_stability_report(reference_type="expanding", settings=settings)
-
-Note that, by default, popmon also performs a rolling comparison of the histograms in each time period with those in the
-previous time period. The results of these comparisons contain the term "prev1", and are found in the comparisons section
-of a report.
-
-
 Binning specifications
 ----------------------
 
@@ -277,6 +231,7 @@ Now that spark is installed, restart the runtime.
       .config("spark.sql.session.timeZone", "GMT")
       .getOrCreate()
   )
+
 Troubleshooting Spark
 ~~~~~~~~~~~~~~~~~~~~~
 

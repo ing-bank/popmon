@@ -9,7 +9,8 @@ And you probably want to know this, as you might want to retrain your model.
  
 To monitor the stability over time, we have developed popmon (**pop**\ ulation shift **mon**\ itor). Popmon takes as input a DataFrame (either pandas or Spark), of which one of the columns should represent the date, and will then produce a report that indicates how stable all other columns are over time.
  
-For each column, the stability is determined by taking a reference (for example the data on which you have trained your classifier) and contrasting each time slot to this reference. This can be done in various ways:
+For each column, the stability is determined by taking a :doc:`reference <reference_types>` (for example the data on which you have trained your classifier) and contrasting each time slot to this reference.
+This can be done in various ways:
 
 * :doc:`Profiles <profiles>`: for example tracking the mean over time and contrasting this to the reference data. Similar analyses can be done with other summary statistics, such as median, min, max or quartiles.
 * :doc:`Comparisons <comparisons>`: statistically comparing each time slot to the reference data (for example using Kolmogorov-Smirnov, chi-squared, or Pearson correlation).
@@ -52,4 +53,6 @@ Of course, the exact thresholds (four and seven standard deviations) can be conf
    
    Illustration of how traffic light bounds are determined using reference data.
 
-For speed of processing, the data is converted into histograms prior to the comparisons. This greatly simplifies comparisons of large amounts of data with each other, which is especially beneficial for Spark DataFrames. In addition, it enables you to store the histograms together with the report (since the histograms are just a fraction of the size of the original data), making it easy to go back to a previous report and investigate what happened.
+For speed of processing, the data is converted into histograms prior to the comparisons.
+This greatly simplifies comparisons of large amounts of data with each other, which is especially beneficial for Spark DataFrames.
+In addition, it enables you to store the histograms together with the report (since the histograms are just a fraction of the size of the original data), making it easy to go back to a previous report and investigate what happened.
