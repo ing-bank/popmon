@@ -49,6 +49,7 @@ def get_metrics_pipeline_class(reference_type, reference):
     _metrics_pipeline_register = {
         "self": SelfReferenceMetricsPipeline,
         "external": ExternalReferenceMetricsPipeline,
+        "self_split": ExternalReferenceMetricsPipeline,
         "rolling": RollingReferenceMetricsPipeline,
         "expanding": ExpandingReferenceMetricsPipeline,
     }
@@ -58,7 +59,7 @@ def get_metrics_pipeline_class(reference_type, reference):
             f"reference_type should be in {str(_metrics_pipeline_register.keys())}'."
         )
     if (
-        reference_type == "external"
+        reference_type in ["external", "self_split"]
         and not isinstance(reference, dict)
         and reference is not None
     ):
@@ -72,15 +73,11 @@ def create_metrics_pipeline(
     reference_type="self",
     reference=None,
     hists_key="hists",
-    time_axis="",
-    features=None,
     **kwargs,
 ):
     # configuration and datastore for report pipeline
     cfg = {
         "hists_key": hists_key,
-        "time_axis": time_axis,
-        "features": features,
         "settings": settings,
         **kwargs,
     }
@@ -214,14 +211,10 @@ class SelfReferenceMetricsPipeline(Pipeline):
         self,
         settings: Settings,
         hists_key,
-        time_axis,
-        features,
     ):
         """Example metrics pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date'
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled self reference pipeline
         """
         from popmon.analysis.comparison import Comparisons
@@ -258,7 +251,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, features, time_axis)
+            get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_static_bound_modules(settings.monitoring.pull_rules)
@@ -273,15 +266,11 @@ class ExternalReferenceMetricsPipeline(Pipeline):
         settings: Settings,
         hists_key="test_hists",
         ref_hists_key="ref_hists",
-        time_axis="date",
-        features=None,
     ):
         """Example metrics pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
         :param str ref_hists_key: key to reference histograms in datastore. default is 'ref_hists'
-        :param str time_axis: name of datetime feature. default is 'date' (column should be timestamp, date(time) or numeric batch id)
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled external reference pipeline
         """
         from popmon.analysis.comparison import Comparisons
@@ -292,8 +281,8 @@ class ExternalReferenceMetricsPipeline(Pipeline):
             HistSplitter(
                 read_key=ref_hists_key,
                 store_key="split_ref_hists",
-                features=features,
-                feature_begins_with=f"{time_axis}:",
+                features=settings.features,
+                feature_begins_with=f"{settings.time_axis}:",
             ),
             ReferenceHistComparer(
                 reference_key="split_ref_hists",
@@ -323,7 +312,7 @@ class ExternalReferenceMetricsPipeline(Pipeline):
             ),
         ]
         modules = (
-            get_splitting_modules(hists_key, features, time_axis)
+            get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_static_bound_modules(settings.monitoring.pull_rules)
@@ -337,14 +326,10 @@ class RollingReferenceMetricsPipeline(Pipeline):
         self,
         settings: Settings,
         hists_key="test_hists",
-        time_axis="date",
-        features=None,
     ):
         """Example metrics pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date'
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled rolling reference pipeline
         """
         from popmon.analysis.comparison import Comparisons
@@ -384,7 +369,7 @@ class RollingReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, features, time_axis)
+            get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_dynamic_bound_modules(settings.monitoring.pull_rules)
@@ -398,14 +383,10 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         self,
         settings: Settings,
         hists_key="test_hists",
-        time_axis="date",
-        features=None,
     ):
         """Example metrics pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
-        :param str time_axis: name of datetime feature. default is 'date'
-        :param list features: features of histograms to pick up from input data (optional)
         :return: assembled expanding reference pipeline
         """
         from popmon.analysis.comparison import Comparisons
@@ -443,7 +424,7 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, features, time_axis)
+            get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_dynamic_bound_modules(settings.monitoring.pull_rules)

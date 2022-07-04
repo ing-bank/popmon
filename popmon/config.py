@@ -17,9 +17,12 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+import pandas as pd
+from histogrammar.dfinterface.make_histograms import get_time_axes
 from pydantic import BaseModel, BaseSettings
+from typing_extensions import Literal
 
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
@@ -55,7 +58,7 @@ class AlertSection(SectionModel):
     description = "Alerts aggregated by all traffic lights for each feature."
     """Description of the alerts section in the report"""
 
-    descriptions = {
+    descriptions: Dict[Literal["n_green", "n_yellow", "n_red"], str] = {
         "n_green": "Total number of green traffic lights (observed for all statistics)",
         "n_yellow": "Total number of  yellow traffic lights (observed for all statistics)",
         "n_red": "Total number of red traffic lights (observed for all statistics)",
@@ -70,21 +73,27 @@ class HistogramSectionModel(SectionModel):
     description = "Histograms of the last few time slots (default: 2)."
     """Description of the histograms section in the report"""
 
-    hist_names: List[str] = [
+    hist_names: List[
+        Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"]
+    ] = [
         "heatmap",
         "heatmap_column_normalized",
         "heatmap_row_normalized",
     ]
     """Heatmaps of histograms to display in the report"""
 
-    hist_names_formatted = {
+    hist_names_formatted: Dict[
+        Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"], str
+    ] = {
         "heatmap": "Heatmap",
         "heatmap_column_normalized": "Column-Normalized Heatmap",
         "heatmap_row_normalized": "Row-Normalized Heatmap",
     }
     """Pretty-print names for the heatmaps"""
 
-    descriptions = {
+    descriptions: Dict[
+        Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"], str
+    ] = {
         "heatmap": "The heatmap shows the frequency of each value over time. If a variable has a high number of distinct values"
         "(i.e. has a high cardinality), then the most frequent values are displayed and the remaining are grouped as 'Others'. "
         "The maximum number of values to should is configurable (default: 20).",
@@ -263,3 +272,96 @@ class Settings(BaseSettings):
 
     monitoring: Monitoring = Monitoring()
     """Settings related to monitoring"""
+
+    time_axis: str = ""
+    """
+    name of datetime feature, used as time axis, e.g. 'date'. (column should be timestamp, date(time) or numeric batch id)
+    if empty string, will be auto-guessed.
+    """
+
+    reference_type: Literal[
+        "self", "external", "rolling", "expanding", "self_split"
+    ] = "self"
+    """
+    type of reference used for comparisons
+    """
+
+    features: Optional[List[str]] = None
+    """
+    columns to pick up from input data. (default is all features).
+    For multi-dimensional histograms, separate the column names with a ':'. Example features list is:
+
+        .. code-block:: python
+
+            features = ["x", "date", "date:x", "date:y", "date:x:y"]
+
+    If time_axis is set or found, and if no features provided, features becomes: ['date:x', 'date:y', 'date:z'] etc.
+    """
+
+    binning: Literal["auto", "unit"] = "auto"
+    """
+    default binning to revert to in case bin_specs not supplied. When using "auto", semi-clever binning
+    is automatically done.
+    """
+
+    bin_specs: Dict[str, Any] = {}
+    """
+    dictionaries used for rebinning numeric or timestamp features.
+    An example bin_specs dictionary is:
+
+    .. code-block:: python
+
+        bin_specs = {
+            "x": {"bin_width": 1, "bin_offset": 0},
+            "y": {"num": 10, "low": 0.0, "high": 2.0},
+            "x:y": [{}, {"num": 5, "low": 0.0, "high": 1.0}],
+        }
+
+    In the bin specs for x:y, x is not provided (here) and reverts to the 1-dim setting.
+    The 'bin_width', 'bin_offset' notation makes an open-ended histogram (for that feature) with given bin width
+    and offset. The notation 'num', 'low', 'high' gives a fixed range histogram from 'low' to 'high' with 'num'
+    number of bins.
+    """
+
+    # Config utilities
+    def ensure_features_time_axis(self):
+        self.features = [
+            c if c.startswith(self.time_axis) else f"{self.time_axis}:{c}"
+            for c in self.features
+        ]
+
+    def set_time_axis_dataframe(self, df):
+        time_axes = get_time_axes(df)
+        num = len(time_axes)
+        if num == 1:
+            self.time_axis = time_axes[0]
+        elif num == 0:
+            raise ValueError(
+                "No obvious time-axes found. Cannot generate stability report."
+            )
+        else:
+            raise ValueError(
+                f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
+            )
+
+    def set_time_axis_hists(self, hists):
+        # auto guess the time_axis: find the most frequent first column name in the histograms list
+        first_cols = [k.split(":")[0] for k in list(hists.keys())]
+        self.time_axis = max(set(first_cols), key=first_cols.count)
+
+    def set_bin_specs_by_time_width_and_offset(
+        self, time_width: Union[str, int, float], time_offset: Union[str, int, float]
+    ):
+        if self.time_axis in self.bin_specs:
+            raise ValueError(
+                f'time-axis "{self.time_axis}" already found in binning specifications.'
+            )
+        # convert time width and offset to nanoseconds
+        self.bin_specs[self.time_axis] = {
+            "bin_width": float(pd.Timedelta(time_width).value),
+            "bin_offset": float(pd.Timestamp(time_offset).value),
+        }
+
+    class Config:
+        validate_all = True
+        validate_assignment = True
