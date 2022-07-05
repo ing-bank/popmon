@@ -68,25 +68,26 @@ def test_hist_compare():
 
 
 def test_reference_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
+    prefix = "my_pref"
+    suffix = "my_ref"
 
     cols = [
-        "ref_pearson",
-        "ref_chi2",
-        "ref_chi2_zscore",
-        "ref_chi2_norm",
-        "ref_chi2_pvalue",
-        "ref_chi2_max_residual",
-        "ref_chi2_spike_count",
-        "ref_ks",
-        "ref_ks_zscore",
-        "ref_ks_pvalue",
-        "ref_max_prob_diff",
-        "ref_jsd",
-        "ref_psi",
-        "ref_unknown_labels",
+        f"{prefix}_pearson",
+        f"{prefix}_chi2",
+        f"{prefix}_chi2_zscore",
+        f"{prefix}_chi2_norm",
+        f"{prefix}_chi2_pvalue",
+        f"{prefix}_chi2_max_residual",
+        f"{prefix}_chi2_spike_count",
+        f"{prefix}_ks",
+        f"{prefix}_ks_zscore",
+        f"{prefix}_ks_pvalue",
+        f"{prefix}_max_prob_diff",
+        f"{prefix}_jsd",
+        f"{prefix}_psi",
+        f"{prefix}_unknown_labels",
     ]
 
     pipeline = Pipeline(
@@ -102,41 +103,44 @@ def test_reference_hist_comparer():
                 reference_key="output_hist",
                 assign_to_key="output_hist",
                 store_key="comparison",
+                suffix=suffix,
+                prefix=prefix,
             ),
         ]
     )
     datastore = pipeline.transform(datastore={})
+    assert set(datastore.keys()) == {"example_hist", "output_hist", "comparison"}
 
     assert "comparison" in datastore and isinstance(datastore["comparison"], dict)
     assert len(datastore["comparison"].keys()) == len(features)
     for f in features:
         assert f in datastore["comparison"]
-    for f in features:
         assert isinstance(datastore["comparison"][f], pd.DataFrame)
+        assert f in datastore["output_hist"]
+        assert f"histogram_{suffix}" in datastore["output_hist"][f]
 
     df = datastore["comparison"]["A_score"]
     assert len(df) == 16
     np.testing.assert_array_equal(sorted(df.columns), sorted(cols))
-    np.testing.assert_almost_equal(df["ref_chi2"].mean(), 2.623206018518519)
+    np.testing.assert_almost_equal(df[f"{prefix}_chi2"].mean(), 2.623206018518519)
 
     df = datastore["comparison"]["country"]
     assert len(df) == 17
     np.testing.assert_array_equal(sorted(df.columns), sorted(cols))
-    np.testing.assert_almost_equal(df["ref_chi2"].mean(), 0.9804481792717087)
+    np.testing.assert_almost_equal(df[f"{prefix}_chi2"].mean(), 0.9804481792717087)
 
     df = datastore["comparison"]["bankrupt"]
     assert len(df) == 17
     np.testing.assert_array_equal(sorted(df.columns), sorted(cols))
-    np.testing.assert_almost_equal(df["ref_chi2"].mean(), 0.6262951496388027)
+    np.testing.assert_almost_equal(df[f"{prefix}_chi2"].mean(), 0.6262951496388027)
 
     df = datastore["comparison"]["num_employees"]
     assert len(df) == 17
     np.testing.assert_array_equal(sorted(df.columns), sorted(cols))
-    np.testing.assert_almost_equal(df["ref_chi2"].mean(), 4.213429217840983)
+    np.testing.assert_almost_equal(df[f"{prefix}_chi2"].mean(), 4.213429217840983)
 
 
 def test_expanding_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 
@@ -164,7 +168,7 @@ def test_expanding_hist_comparer():
                 store_key="example_hist",
             ),
             HistSplitter(
-                read_key="example_hist", store_key="output_hist", features=hist_list
+                read_key="example_hist", store_key="output_hist", features=hist_list, prefix="expanding"
             ),
             ExpandingHistComparer(read_key="output_hist", store_key="comparison"),
         ]
@@ -202,7 +206,6 @@ def test_expanding_hist_comparer():
 @pytest.mark.filterwarnings("ignore:An input array is constant")
 @pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_rolling_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 
@@ -233,7 +236,7 @@ def test_rolling_hist_comparer():
                 read_key="example_hist", store_key="output_hist", features=hist_list
             ),
             RollingHistComparer(
-                read_key="output_hist", store_key="comparison", window=5
+                read_key="output_hist", store_key="comparison", window=5, prefix="roll"
             ),
         ]
     )
