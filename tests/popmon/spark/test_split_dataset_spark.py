@@ -52,7 +52,10 @@ def test_dataframe_spark(spark_context):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_int(test_dataframe_spark):
     reference, df = split_dataset(test_dataframe_spark, split=3, time_axis="date")
 
@@ -63,7 +66,10 @@ def test_split_dataset_spark_int(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_int_underflow(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         _ = split_dataset(test_dataframe_spark, split=0, time_axis="date")
@@ -72,7 +78,10 @@ def test_split_dataset_spark_int_underflow(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_int_overflow(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         _ = split_dataset(test_dataframe_spark, split=1001, time_axis="date")
@@ -84,7 +93,10 @@ def test_split_dataset_spark_int_overflow(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_float(test_dataframe_spark):
     reference, df = split_dataset(test_dataframe_spark, split=0.45, time_axis="date")
 
@@ -95,7 +107,10 @@ def test_split_dataset_spark_float(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_float_round(test_dataframe_spark):
     reference, df = split_dataset(test_dataframe_spark, split=0.8888, time_axis="date")
 
@@ -106,7 +121,10 @@ def test_split_dataset_spark_float_round(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_float_underflow(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         _ = split_dataset(test_dataframe_spark, split=0.0, time_axis="date")
@@ -120,7 +138,10 @@ def test_split_dataset_spark_float_underflow(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_float_overflow(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         _ = split_dataset(test_dataframe_spark, split=1.0, time_axis="date")
@@ -134,7 +155,10 @@ def test_split_dataset_spark_float_overflow(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_condition(test_dataframe_spark):
     reference, df = split_dataset(
         test_dataframe_spark,
@@ -149,7 +173,10 @@ def test_split_dataset_spark_condition(test_dataframe_spark):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
+)
 def test_split_dataset_spark_condition_false(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         split_dataset(
