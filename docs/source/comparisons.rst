@@ -8,12 +8,23 @@ Available comparisons
 ---------------------
 A rich set of the most frequently used comparisons is available out-of-the-box:
 
-- Kolmogorov-Smirnov test
-- Chi-squared test
-- Pearson correlation
-- Jensen-Shannon Divergence
-- Population Stability Index
-- Maximum probability difference
++------------+-----------------+---------------------------------+
+| Dimension  | Histogram Type  | Comparison                      |
++============+=================+=================================+
+| 1D         | Numeric         | Kolmogorov-Smirnov test         |
++------------+-----------------+---------------------------------+
+| 1D         | Categorical     | Unknown labels present          |
++------------+-----------------+---------------------------------+
+| 2D+        | Any             | Pearson correlation             |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Chi-squared test                |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Jensen-Shannon Divergence       |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Population Stability Index      |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Maximum probability difference  |
++------------+-----------------+---------------------------------+
 
 Custom comparisons
 ------------------
