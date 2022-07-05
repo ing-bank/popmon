@@ -17,35 +17,29 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import json
+from pathlib import Path
 
-# histogram and report functions
-from histogrammar.dfinterface.make_histograms import (
-    get_bin_specs,
-    get_time_axes,
-    make_histograms,
-)
+from popmon.extensions import extensions
 
-# pandas/spark dataframe decorators
-from popmon import decorators
 
-from .config import Settings
-from .extensions import extensions
-from .pipeline.metrics import df_stability_metrics, stability_metrics
-from .pipeline.report import df_stability_report, stability_report
-from .stitching import stitch_histograms
-from .version import version as __version__
+def get_extras():
+    """Obtain extras from extensions"""
+    extras = {}
+    for extension in extensions:
+        extras.update(extension.extras)
 
-__all__ = [
-    "get_bin_specs",
-    "get_time_axes",
-    "make_histograms",
-    "decorators",
-    "df_stability_metrics",
-    "stability_metrics",
-    "df_stability_report",
-    "stability_report",
-    "stitch_histograms",
-    "__version__",
-    "Settings",
-    "extensions",
-]
+    return extras
+
+
+def write_extras():
+    """Write extras to extras.json for setup.py"""
+    extras = get_extras()
+    file_path = Path(__file__).parent.parent.parent / "extras.json"
+
+    with file_path.open("w") as f:
+        json.dump(extras, f)
+
+
+if __name__ == "__main__":
+    write_extras()
