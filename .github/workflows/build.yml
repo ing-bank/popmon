@@ -65,7 +65,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          /home/runner/work/spark/
+          /home/runner/work/spark.tgz
           ~/.cache/pip
         key: ${{ runner.os }}-spark-${{ matrix.SPARK_VERSION }}-hadoop${{ matrix.HADOOP_VERSION }}-java${{ matrix.JAVA_VERSION }}-${{ hashFiles('**/requirements-test.txt') }}
     - name: Install dependencies
