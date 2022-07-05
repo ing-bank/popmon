@@ -35,6 +35,12 @@ The comparisons registry can be consulted for available comparisons:
     print(Comparisons.get_keys())
 
 
+Comparison extensions
+---------------------
+
+There are currently no comparison extensions available, and contributions are welcome.
+Have a look at the :doc:`Profiles <profiles>` page for the available profile extensions.
+
 Custom comparisons
 ------------------
 
