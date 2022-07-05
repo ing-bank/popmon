@@ -38,9 +38,9 @@ def spark_context():
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
-@pytest.mark.filterwarnings(
-    "ignore:createDataFrame attempted Arrow optimization because"
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
 )
 def test_spark_stability_metrics(spark_context):
     spark_df = spark_context.createDataFrame(pytest.test_df)
@@ -68,9 +68,9 @@ def test_spark_stability_metrics(spark_context):
 
 
 @pytest.mark.spark
-@pytest.mark.skipif(not spark_found, reason="spark not found")
-@pytest.mark.filterwarnings(
-    "ignore:createDataFrame attempted Arrow optimization because"
+@pytest.mark.xfail(
+    not spark_found,
+    reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
 )
 def test_spark_make_histograms(spark_context):
     names = [
