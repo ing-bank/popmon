@@ -1,3 +1,5 @@
+import json
+
 from setuptools import find_packages, setup
 
 __version__ = "1.0.0"
@@ -8,6 +10,10 @@ with open("requirements.txt") as f:
 # read the contents of abstract file
 with open("README.rst", encoding="utf-8") as f:
     long_description = f.read()
+
+# read dynamically generated extras from json file
+with open("extras.json") as f:
+    EXTRAS = json.loads(f.read())
 
 
 def setup_package() -> None:
@@ -28,6 +34,7 @@ def setup_package() -> None:
         python_requires=">=3.6",
         packages=find_packages(),
         install_requires=REQUIREMENTS,
+        extras_require=EXTRAS,
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: MIT License",
