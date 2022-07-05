@@ -18,34 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# histogram and report functions
-from histogrammar.dfinterface.make_histograms import (
-    get_bin_specs,
-    get_time_axes,
-    make_histograms,
-)
+from popmon.extensions.profile_diptest import Diptest
 
-# pandas/spark dataframe decorators
-from popmon import decorators
-
-from .config import Settings
-from .extensions import extensions
-from .pipeline.metrics import df_stability_metrics, stability_metrics
-from .pipeline.report import df_stability_report, stability_report
-from .stitching import stitch_histograms
-from .version import version as __version__
-
-__all__ = [
-    "get_bin_specs",
-    "get_time_axes",
-    "make_histograms",
-    "decorators",
-    "df_stability_metrics",
-    "stability_metrics",
-    "df_stability_report",
-    "stability_report",
-    "stitch_histograms",
-    "__version__",
-    "Settings",
-    "extensions",
-]
+extensions = [Diptest()]
+for extension in extensions:
+    extension.check()
