@@ -131,6 +131,18 @@ def profile_count(hist):
 
 
 @Profiles.register(
+    key="entropy",
+    description="Entropy in nats",
+    dim=-1,
+    htype=None,
+)
+def profile_entropy(hist):
+    h = hist.bin_entries()
+    h = h / h.sum()
+    return -(h * np.ma.log(h)).sum()
+
+
+@Profiles.register(
     key="filled",
     description="Number of non-missing entries (non-NaN)",
     dim=1,
