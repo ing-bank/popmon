@@ -28,7 +28,7 @@ Comparisons = Registry()
 
 @Comparisons.register(
     key="max_prob_diff",
-    description="The largest absolute difference between all bin pairs of two normalized histograms (one histogram in a time slot and one in {ref})",
+    description="The largest absolute difference between all bin pairs of two normalized histograms",
     htype="all",
 )
 def googl_test(bins_1, bins_2):
@@ -147,9 +147,9 @@ def ks_prob(testscore):
 @Comparisons.register(
     key=["ks", "ks_pvalue", "ks_zscore"],
     description=[
-        "Kolmogorov-Smirnov test statistic comparing each time slot to {ref}",
-        "p-value of the Kolmogorov-Smirnov test, comparing each time slot with {ref}",
-        "Z-score of the Kolmogorov-Smirnov test, comparing each time slot with {ref}",
+        "Kolmogorov-Smirnov test statistic",
+        "p-value of the Kolmogorov-Smirnov test",
+        "Z-score of the Kolmogorov-Smirnov test",
     ],
     dim=1,
     htype="num",
@@ -164,7 +164,7 @@ def ks(p, q, *args):
 
 @Comparisons.register(
     key="unknown_labels",
-    description="Are categories observed in a given time slot that are not present in {ref}?",
+    description="Are categories observed in a given time slot that are not present in the reference?",
     dim=1,
     htype="cat",
 )
@@ -178,7 +178,7 @@ def unknown_labels(hist1, hist2):
 
 @Comparisons.register(
     key="pearson",
-    description="Pearson correlation between each time slot and {ref}",
+    description="Pearson correlation coefficient",
     dim=(2,),
     htype="all",
 )
@@ -259,14 +259,12 @@ def uu_chi2(n, m):
         "chi2_spike_count",
     ],
     description=[
-        "Chi-squared test statistic, comparing each time slot with {ref}",
-        "Normalized chi-squared statistic, comparing each time slot with {ref}",
-        "Z-score of the chi-squared statistic, comparing each time slot with {ref}",
-        "p-value of the chi-squared statistic, comparing each time slot with {ref}",
-        "The largest absolute normalized residual (|chi|) observed in all bin pairs "
-        + "(one histogram in a time slot and one in {ref})",
-        "The number of normalized residuals of all bin pairs (one histogram in a time"
-        + " slot and one in {ref}) with absolute value bigger than a given threshold (default: 7).",
+        "Chi-squared test statistic",
+        "Normalized chi-squared statistic",
+        "Z-score of the chi-squared statistic",
+        "p-value of the chi-squared statistic",
+        "The largest absolute normalized residual (|chi|) observed in all bin pairs",
+        "The number of normalized residuals of all bin pairs with absolute value bigger than a given threshold (default: 7).",
     ],
     htype="all",
 )

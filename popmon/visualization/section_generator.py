@@ -16,8 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
+from collections import defaultdict
 from typing import Optional
 
 import numpy as np
@@ -28,7 +27,7 @@ from popmon.analysis.comparison import Comparisons
 from popmon.analysis.profiling import Profiles
 
 from ..base import Module
-from ..config import Comparison, Report, Settings
+from ..config import Report
 from ..utils import filter_metrics, parallel, short_date
 from ..visualization.utils import _prune, plot_bars
 
@@ -37,11 +36,21 @@ profiles = Profiles.get_descriptions()
 comparisons = Comparisons.get_descriptions()
 
 
+group_titles = {
+    "prev1": "Previous Reference",
+    "rolling": "Rolling Reference",
+    "self": "Self-Reference",
+    "ref": "External Reference",
+    "expanding": "Expanding Reference",
+}
 references = {
     "ref": "the reference data",
     "roll": "a rolling window",
     "prev1": "the preceding time slot",
     "expanding": "all preceding time slots",
+}
+group_descriptions = {
+    key: f"Comparing each time slot to {value}." for key, value in references.items()
 }
 
 
@@ -65,7 +74,7 @@ def get_stat_description(name: str):
     tail = "_".join(tail)
 
     if tail in comparisons and head in references:
-        return comparisons[tail].format(ref=references[head])
+        return comparisons[tail]
 
     return ""
 
@@ -205,28 +214,21 @@ class SectionGenerator(Module):
                     del layouts["yaxis"]["range"]
 
             # Group comparisons in Comparison section
-            if self.section_name == "Comparisons":
-                prev_key = (
-                    "Rolling Reference "
-                    + "(window = "
-                    + str(Comparison().window)
-                    + ", Shift = "
-                    + str(Comparison().shift)
-                    + ")"
-                )
-                reference_key = Settings().reference_type + " Reference"
-                grouped_metrics = {reference_key: [], prev_key: []}
+            if self.read_key == "comparisons":
+                grouped_metrics = defaultdict(list)
                 for plot in plots:
-                    if "ref" in plot["name"]:
-                        grouped_metrics[reference_key].append(plot)
-                    else:
-                        grouped_metrics[prev_key].append(plot)
+                    prefix = plot["name"].split("_")[0]
+                    if prefix not in references:
+                        prefix = "Others"
+                    grouped_metrics[prefix].append(plot)
 
                 features_w_metrics.append(
                     {
                         "name": feature,
                         "plot_type_layouts": {"barplot": layouts},
                         "plots": grouped_metrics,
+                        "titles": group_titles,
+                        "descriptions": group_descriptions,
                     }
                 )
             else:
