@@ -102,6 +102,7 @@ class HistProfiler(Module):
 
         # difference between htype=None and htype="all" are arguments (bin labels vs hist)
         profile.update(Profiles.run([hist], dim=1, htype=None))
+        profile.update(Profiles.run([hist], dim=-1, htype=None))
 
         # postprocessing TS
         if is_ts:
@@ -109,9 +110,6 @@ class HistProfiler(Module):
                 k: pd.Timestamp(v) if k != "std" else pd.Timedelta(v)
                 for k, v in profile.items()
             }
-
-        # postprocessing sum
-        profile["count"] = profile["filled"] + profile["nan"]
 
         return profile
 
