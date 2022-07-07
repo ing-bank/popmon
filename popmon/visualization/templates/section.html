@@ -30,12 +30,25 @@
         {%- endfor -%}
         </script>
         <div class="row section_feature" data-section-feature="{{ feature.name }}">
+          {%- if feature.plots is mapping -%}
+            {%- for ref,plots in feature.plots.items() -%}
+              {%- set count = (plots|length + 1)*(loop.index - 1) -%}
+              <h3> {{ref}} </h3>
+              {%- for metric in plots -%}
+                {%- set plt = count + loop.index  -%}
+                {%- with metric=metric -%}
+                  {%- include 'card.html' -%}
+                {%- endwith -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- else -%}
             {%- for metric in feature.plots -%}
               {%- set plt = loop.index  -%}
               {%- with metric=metric -%}
                 {%- include 'card.html' -%}
               {%- endwith -%}
             {%- endfor -%}
+          {%- endif-%}
         </div>
       {%- endfor -%}
     {%- else -%}

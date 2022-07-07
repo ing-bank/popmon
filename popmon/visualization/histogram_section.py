@@ -159,7 +159,7 @@ class HistogramSection(Module):
                 plot_type_layouts["heatmap"] = hplots[0]["layout"]
 
             plots = hplots + plots
-            # print(plot_types,layouts)
+
             features_w_metrics.append(
                 {
                     "name": feature,
@@ -167,6 +167,7 @@ class HistogramSection(Module):
                     "plots": plots,
                 }
             )
+
         sections.append(
             {
                 "section_title": self.section_name,

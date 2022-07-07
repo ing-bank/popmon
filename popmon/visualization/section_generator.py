@@ -28,7 +28,7 @@ from popmon.analysis.comparison import Comparisons
 from popmon.analysis.profiling import Profiles
 
 from ..base import Module
-from ..config import Report
+from ..config import Comparison, Report, Settings
 from ..utils import filter_metrics, parallel, short_date
 from ..visualization.utils import _prune, plot_bars
 
@@ -126,7 +126,6 @@ class SectionGenerator(Module):
         self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
         self.show_stats = settings.show_stats if not settings.extended_report else None
-
         self.primary_color = settings.primary_color
         self.tl_colors = settings.tl_colors
 
@@ -205,13 +204,39 @@ class SectionGenerator(Module):
                 if "range" in layouts["yaxis"]:
                     del layouts["yaxis"]["range"]
 
-            features_w_metrics.append(
-                {
-                    "name": feature,
-                    "plot_type_layouts": {"barplot": layouts},
-                    "plots": sorted(plots, key=lambda plot: plot["name"]),
-                }
-            )
+            # Group comparisons in Comparison section
+            if self.section_name == "Comparisons":
+                prev_key = (
+                    "Rolling Reference "
+                    + "(window = "
+                    + str(Comparison().window)
+                    + ", Shift = "
+                    + str(Comparison().shift)
+                    + ")"
+                )
+                reference_key = Settings().reference_type + " Reference"
+                grouped_metrics = {reference_key: [], prev_key: []}
+                for plot in plots:
+                    if "ref" in plot["name"]:
+                        grouped_metrics[reference_key].append(plot)
+                    else:
+                        grouped_metrics[prev_key].append(plot)
+
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": grouped_metrics,
+                    }
+                )
+            else:
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": plots,
+                    }
+                )
 
         sections.append(
             {
