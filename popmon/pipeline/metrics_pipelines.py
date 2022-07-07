@@ -102,7 +102,9 @@ def get_splitting_modules(
             features=features,
             feature_begins_with=f"{time_axis}:",
         ),
-        PreviousHistComparer(read_key="split_hists", store_key="comparisons"),
+        PreviousHistComparer(
+            read_key="split_hists", store_key="comparisons", suffix="prev1"
+        ),
         HistProfiler(read_key="split_hists", store_key="profiles"),
     ]
     return modules
@@ -226,6 +228,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
                 reference_key="split_hists",
                 assign_to_key="split_hists",
                 store_key="comparisons",
+                suffix=reference_prefix,
             ),
             RefMedianMadPullCalculator(
                 reference_key="comparisons",
@@ -288,6 +291,7 @@ class ExternalReferenceMetricsPipeline(Pipeline):
                 reference_key="split_ref_hists",
                 assign_to_key="split_hists",
                 store_key="comparisons",
+                suffix=reference_prefix,
             ),
             HistProfiler(read_key="split_ref_hists", store_key="ref_profiles"),
             RefMedianMadPullCalculator(
@@ -343,6 +347,7 @@ class RollingReferenceMetricsPipeline(Pipeline):
                 window=settings.comparison.window,
                 shift=settings.comparison.shift,
                 store_key="comparisons",
+                suffix=reference_prefix,
             ),
             RefMedianMadPullCalculator(
                 reference_key="comparisons",
@@ -399,6 +404,7 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
                 read_key="split_hists",
                 shift=settings.comparison.shift,
                 store_key="comparisons",
+                suffix=reference_prefix,
             ),
             # 4. profiling of histograms, then pull calculation compared with reference mean and std,
             #        to obtain normalized residuals of profiles
