@@ -16,8 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
+from collections import defaultdict
 from typing import Optional
 
 import numpy as np
@@ -37,11 +36,21 @@ profiles = Profiles.get_descriptions()
 comparisons = Comparisons.get_descriptions()
 
 
+group_titles = {
+    "prev1": "Previous Reference",
+    "rolling": "Rolling Reference",
+    "self": "Self-Reference",
+    "ref": "External Reference",
+    "expanding": "Expanding Reference",
+}
 references = {
     "ref": "the reference data",
     "roll": "a rolling window",
     "prev1": "the preceding time slot",
     "expanding": "all preceding time slots",
+}
+group_descriptions = {
+    key: f"Comparing each time slot to {value}." for key, value in references.items()
 }
 
 
@@ -65,7 +74,7 @@ def get_stat_description(name: str):
     tail = "_".join(tail)
 
     if tail in comparisons and head in references:
-        return comparisons[tail].format(ref=references[head])
+        return comparisons[tail]
 
     return ""
 
@@ -126,7 +135,6 @@ class SectionGenerator(Module):
         self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
         self.show_stats = settings.show_stats if not settings.extended_report else None
-
         self.primary_color = settings.primary_color
         self.tl_colors = settings.tl_colors
 
@@ -205,13 +213,32 @@ class SectionGenerator(Module):
                 if "range" in layouts["yaxis"]:
                     del layouts["yaxis"]["range"]
 
-            features_w_metrics.append(
-                {
-                    "name": feature,
-                    "plot_type_layouts": {"barplot": layouts},
-                    "plots": sorted(plots, key=lambda plot: plot["name"]),
-                }
-            )
+            # Group comparisons in Comparison section
+            if self.read_key == "comparisons":
+                grouped_metrics = defaultdict(list)
+                for plot in plots:
+                    prefix = plot["name"].split("_")[0]
+                    if prefix not in references:
+                        prefix = "Others"
+                    grouped_metrics[prefix].append(plot)
+
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": grouped_metrics,
+                        "titles": group_titles,
+                        "descriptions": group_descriptions,
+                    }
+                )
+            else:
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": plots,
+                    }
+                )
 
         sections.append(
             {
