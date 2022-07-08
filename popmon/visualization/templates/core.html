@@ -24,6 +24,11 @@
 </head>
 <body id="page-top">
     {%- include 'modal-popup.html' -%}
+    <script>
+    var rendered = {};
+    var layouts = {};
+    var render_func = {};
+    </script>
     {%- include 'header.html' -%}
     {{ sections }}
     {%- include 'footer.html' -%}

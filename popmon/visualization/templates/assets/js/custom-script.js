@@ -71,7 +71,7 @@ $("#toggleDescriptions").change(function() {
     }
 });
 
-var plotly_config = {scrollZoom: true, displaylogo: false, modeBarButtonsToRemove: ['lasso2d']} ;
+var plotly_config = {scrollZoom: true, displaylogo: false, modeBarButtonsToRemove: ['lasso2d']};
 
 
 const deepCopy = (inObject) => {

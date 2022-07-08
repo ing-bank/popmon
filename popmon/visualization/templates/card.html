@@ -14,29 +14,29 @@
         {%- if metric.type in ['traffic_light', 'alert'] -%}
             {{ metric.plot }}
         {%- else -%}
-            <div class="skeleton-loader" id="{% if feature%}{{ feature.name }}-{%endif%}{{ metric.name }}-loading"></div>
+            <div class="skeleton-loader" id="{{ card_id }}-loading"></div>
             <script>
-            var feature{{ section_index }}{{ curr }}{{ plt }}_rendered = false ;
-            function render_{{ section_index }}{{ curr }}{{ plt }}(){
-                var layout = deepCopy(feature{{ section_index }}{{ curr }}_layout["{{ metric.type }}"]);
+            rendered["{{ card_id }}"] = false;
+            render_func["{{ card_id }}"] = (function(){
+                var layout = deepCopy(layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"]);
                 {%- if metric.shapes | length -%}
-                    layout["shapes"] = {{ metric.shapes | json_plot}} ;
+                    layout["shapes"] = {{ metric.shapes | json_plot}};
                 {%- endif -%}
                 {%- if metric.yaxis_range | length -%}
-                    layout["yaxis"]["range"] = {{ metric.yaxis_range | json_plot }} ;
+                    layout["yaxis"]["range"] = {{ metric.yaxis_range | json_plot }};
                 {%- endif -%}
-                Plotly.newPlot(document.getElementById("{{ card_id }}"), {{ metric.plot | json_plot }}, layout, plotly_config).then(function() { document.getElementById("{{ card_id }}-loading").remove(); feature{{ section_index }}{{ curr }}{{ plt }}_rendered = true ;});
-            }
+                Plotly.newPlot(document.getElementById("{{ card_id }}"), {{ metric.plot | json_plot }}, layout, plotly_config).then(function() { document.getElementById("{{ card_id }}-loading").remove(); rendered["{{ card_id }}"] = true;});
+            });
 
             var io = new IntersectionObserver(function(entries) {
                 var entry = entries[0];
-                if(entry.isIntersecting === true && feature{{ section_index }}{{ curr }}{{ plt }}_rendered === false){
+                if(entry.isIntersecting === true && rendered["{{ card_id }}"] === false){
                     if(document.readyState === "complete"){
-                        render_{{ section_index }}{{ curr }}{{ plt }}();
+                        render_func["{{ card_id }}"]();
                         io.unobserve(entry.target);
                     }else{
                         document.addEventListener('DOMContentLoaded', function() {
-                            render_{{ section_index }}{{ curr }}{{ plt }}();
+                            render_func["{{ card_id }}"]();
                             io.unobserve(entry.target);
                         });
                     }

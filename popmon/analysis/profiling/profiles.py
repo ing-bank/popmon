@@ -159,7 +159,12 @@ def profile_distinct(bin_labels, bin_counts):
     return len(np.unique(bin_labels[bin_counts > 0]))
 
 
-@Profiles.register(key="fraction_of_true", description="", dim=1, htype="cat")
+@Profiles.register(
+    key="fraction_of_true",
+    description="Compute fraction of 'true' (as in boolean) labels",
+    dim=1,
+    htype="cat",
+)
 def profile_fraction_of_true(bin_labels, bin_counts):
     """Compute fraction of 'true' labels
 
