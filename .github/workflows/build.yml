@@ -4,7 +4,6 @@ on:
   push:
     branches: [ master, develop ]
   pull_request:
-    branches: [ master, develop ]
 
 jobs:
   test:
@@ -20,6 +19,12 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
+    - uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/requirements-test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -35,37 +40,65 @@ jobs:
   test_spark:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python: [3.7]
+        include:
+          - SPARK_VERSION: "2.4.7"
+            HADOOP_VERSION: "2.7"
+            JAVA_VERSION: "8"
+            python: "3.7"
+            os: ubuntu-latest
+          - SPARK_VERSION: "3.3.0"
+            HADOOP_VERSION: "3"
+            JAVA_VERSION: "11"
+            python: "3.8"
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
-      
+    name: ${{ matrix.os }}, Spark ${{ matrix.SPARK_VERSION}}, Python ${{ matrix.python }}
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python }}
+    - name: Cache pip + Spark
+      id: cache-spark
+      uses: actions/cache@v3
+      with:
+        path: |
+          /home/runner/work/spark.tgz
+          ~/.cache/pip
+        key: ${{ runner.os }}-spark-${{ matrix.SPARK_VERSION }}-hadoop${{ matrix.HADOOP_VERSION }}-java${{ matrix.JAVA_VERSION }}-${{ hashFiles('**/requirements-test.txt') }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .
         pip install -r requirements-test.txt
+    - name: Download spark
+      if: steps.cache-spark.outputs.cache-hit != 'true'
+      env:
+        BUILD_DIR: "/home/runner/work/"
+        SPARK_VERSION: "${{ matrix.SPARK_VERSION }}"
+        HADOOP_VERSION: "${{ matrix.HADOOP_VERSION }}"
+      run: |
+        curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}spark.tgz
     - name: Install Spark
       env:
-        BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
-        JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
-        SPARK_VERSION: "2.4.7"
-        HADOOP_VERSION: "2.7"
-        SPARK_HOME: "/home/runner/work/spark/" #${{ github.workspace }}/spark/
-        SPARK_LOCAL_IP: "localhost"
+        BUILD_DIR: "/home/runner/work/"
+        SPARK_VERSION: "${{ matrix.SPARK_VERSION }}"
+        HADOOP_VERSION: "${{ matrix.HADOOP_VERSION }}"
+        SPARK_HOME: "/home/runner/work/spark/"
       run: |
         sudo apt-get update
-        sudo apt-get -y install openjdk-8-jdk
-        curl https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz --output ${BUILD_DIR}/spark.tgz
-        tar -xvzf ${BUILD_DIR}/spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
-        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==2.4.7
+        sudo apt-get -y install openjdk-${{ matrix.JAVA_VERSION }}-jdk
+        tar -xvzf ${BUILD_DIR}spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
+        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==${SPARK_VERSION}
     - name: Test with pytest (spark-specific)
       env:
+        BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
+        JAVA_HOME: "/usr/lib/jvm/java-${{ matrix.JAVA_VERSION }}-openjdk-amd64"
+        SPARK_VERSION: "${{ matrix.SPARK_VERSION }}"
+        HADOOP_VERSION: "${{ matrix.HADOOP_VERSION }}"
+        SPARK_HOME: "/home/runner/work/spark/"
         SPARK_LOCAL_IP: "localhost"
       run: |
         pytest -m spark
@@ -85,11 +118,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
+          pip install scikit-learn
+      - name: Download datasets
+        run: |
+          wget https://www.win.tue.nl/~mpechen/data/DriftSets/hyperplane1.arff -O examples/synthetic_data_streams/data/hyperplane1.arff
       - name: Build examples
         run: |
           cd examples
           python synthetic_data.py
           python flight_delays.py
+          cd synthetic_data_streams
+          python hyperplane.py
       - uses: actions/upload-artifact@v2
         with:
           name: synthetic-report
@@ -99,4 +138,9 @@ jobs:
         with:
           name: flight-delays-report
           path: examples/flight_delays_report.html
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v2
+        with:
+          name: hyperplane-1-report
+          path: examples/synthetic_data_streams/reports/hyperplane_1.html
           if-no-files-found: error

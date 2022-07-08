@@ -33,6 +33,4 @@ dataset_summary(df)
 
 # The training set for the model will be used as reference.
 # The reduced time_width is because this is a smaller dataset compared to the rest
-synthetic_data_stream_report(
-    df, features, report_file, time_width=500, reference="start", split=1000
-)
+synthetic_data_stream_report(df, features, report_file, time_width=500, split=1000)

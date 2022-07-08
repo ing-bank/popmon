@@ -1,4 +1,4 @@
-popmon
+POPMON
 ======
 
 .. toctree::

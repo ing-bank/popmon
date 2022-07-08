@@ -16,18 +16,67 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
+from collections import defaultdict
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from popmon.analysis.comparison import Comparisons
+from popmon.analysis.profiling import Profiles
+
 from ..base import Module
-from ..config import get_stat_description
+from ..config import Report
 from ..utils import filter_metrics, parallel, short_date
-from ..visualization.utils import _prune, plot_bars_b64
+from ..visualization.utils import _prune, plot_bars
+
+profiles = Profiles.get_descriptions()
+
+comparisons = Comparisons.get_descriptions()
+
+
+group_titles = {
+    "prev1": "Previous Reference",
+    "rolling": "Rolling Reference",
+    "self": "Self-Reference",
+    "ref": "External Reference",
+    "expanding": "Expanding Reference",
+}
+references = {
+    "ref": "the reference data",
+    "roll": "a rolling window",
+    "prev1": "the preceding time slot",
+    "expanding": "all preceding time slots",
+}
+group_descriptions = {
+    key: f"Comparing each time slot to {value}." for key, value in references.items()
+}
+
+
+def get_stat_description(name: str):
+    """Gets the description of a statistic.
+
+    :param str name: the name of the statistic.
+
+    :returns str: the description of the statistic. If not found, returns an empty string
+    """
+    if not isinstance(name, str):
+        raise TypeError("Statistic's name should be a string.")
+
+    if name in profiles:
+        return profiles[name]
+
+    if name in "mean_trend10_zscore":
+        return "Significance of (rolling) trend in means of features"
+
+    head, *tail = name.split("_")
+    tail = "_".join(tail)
+
+    if tail in comparisons and head in references:
+        return comparisons[tail]
+
+    return ""
 
 
 class SectionGenerator(Module):
@@ -44,19 +93,15 @@ class SectionGenerator(Module):
         read_key,
         store_key,
         section_name,
+        settings: Report,
         features=None,
         ignore_features=None,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
         suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
         ignore_stat_endswith=None,
-        skip_empty_plots=True,
         description="",
-        show_stats=None,
     ):
         """Initialize an instance of SectionGenerator.
 
@@ -65,17 +110,12 @@ class SectionGenerator(Module):
         :param str section_name: key of output data to store in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
         :param str static_bounds: key to static traffic light bounds key in datastore (optional)
         :param str dynamic_bounds: key to dynamic traffic light bounds key in datastore (optional)
         :param str prefix: dynamic traffic light prefix. default is ``'traffic_light_'`` (optional)
         :param str suffices: dynamic traffic light suffices. (optional)
         :param list ignore_stat_endswith: ignore stats ending with any of list of suffices. (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
         :param str description: description of the section. default is empty (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
         """
         super().__init__()
         self.read_key = read_key
@@ -86,15 +126,17 @@ class SectionGenerator(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.section_name = section_name
-        self.last_n = last_n
-        self.skip_first_n = skip_first_n
-        self.skip_last_n = skip_last_n
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = skip_empty_plots
+        self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
-        self.show_stats = show_stats
+        self.show_stats = settings.show_stats if not settings.extended_report else None
+        self.primary_color = settings.primary_color
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -152,6 +194,8 @@ class SectionGenerator(Module):
                     self.skip_first_n,
                     self.skip_last_n,
                     self.skip_empty_plots,
+                    self.primary_color,
+                    self.tl_colors,
                 )
                 for metric in metrics
             ]
@@ -160,9 +204,41 @@ class SectionGenerator(Module):
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
-            features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
-            )
+
+            layouts = ""
+            if len(plots) > 0:
+                layouts = plots[0]["layout"]
+                if "shapes" in layouts:
+                    del layouts["shapes"]
+                if "range" in layouts["yaxis"]:
+                    del layouts["yaxis"]["range"]
+
+            # Group comparisons in Comparison section
+            if self.read_key == "comparisons":
+                grouped_metrics = defaultdict(list)
+                for plot in plots:
+                    prefix = plot["name"].split("_")[0]
+                    if prefix not in references:
+                        prefix = "Others"
+                    grouped_metrics[prefix].append(plot)
+
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": grouped_metrics,
+                        "titles": group_titles,
+                        "descriptions": group_descriptions,
+                    }
+                )
+            else:
+                features_w_metrics.append(
+                    {
+                        "name": feature,
+                        "plot_type_layouts": {"barplot": layouts},
+                        "plots": plots,
+                    }
+                )
 
         sections.append(
             {
@@ -187,10 +263,12 @@ def _plot_metric(
     skip_first_n,
     skip_last_n,
     skip_empty,
+    primary_color,
+    zline_color,
 ):
     """Split off plot histogram generation to allow for parallel processing"""
     # pick up static traffic light boundaries
-    name = feature + ":" + metric
+    name = f"{feature}:{metric}"
     sbounds = static_bounds.get(name, ())
     # pick up dynamic traffic light boundaries
     names = [prefix + metric + suffix for suffix in suffices]
@@ -207,12 +285,36 @@ def _plot_metric(
     values = _prune(values, last_n, skip_first_n, skip_last_n)
 
     # make plot. note: slow!
-    plot = plot_bars_b64(
+    plot = plot_bars(
         data=values,
         labels=dates,
         ylim=True,
         bounds=bounds,
         skip_empty=skip_empty,
+        primary_color=primary_color,
+        tl_colors=zline_color,
+        metric=metric,
     )
 
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
+    if not isinstance(plot, dict):
+        return {
+            "name": metric,
+            "type": "barplot",
+            "description": get_stat_description(metric),
+            "plot": plot,
+            "layout": plot,
+        }
+
+    return {
+        "name": metric,
+        "type": "barplot",
+        "description": get_stat_description(metric),
+        "plot": plot["data"],
+        "shapes": plot["layout"]["shapes"] if "shapes" in plot["layout"] else "",
+        "yaxis_range": [
+            "null" if r is None else r for r in plot["layout"]["yaxis"]["range"]
+        ]
+        if "range" in plot["layout"]["yaxis"]
+        else "",
+        "layout": plot["layout"],
+    }

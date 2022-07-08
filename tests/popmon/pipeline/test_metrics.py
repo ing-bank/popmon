@@ -3,11 +3,22 @@ import pytest
 
 from popmon import resources
 from popmon.base import Pipeline
+from popmon.config import Settings
 from popmon.io import JsonReader
 from popmon.pipeline.metrics import df_stability_metrics, stability_metrics
 
 
 def test_hists_stability_metrics():
+    settings = Settings(reference_type="rolling")
+    settings.comparison.window = 5
+    settings.features = [
+        "date:bankrupt",
+        "date:country",
+        "date:bankrupt",
+        "date:A_score",
+        "date:A_score:num_employees",
+    ]
+
     # get histograms
     pipeline = Pipeline(
         modules=[
@@ -20,16 +31,7 @@ def test_hists_stability_metrics():
     hists = datastore["hists"]
 
     # generate metrics
-    hist_list = [
-        "date:bankrupt",
-        "date:country",
-        "date:bankrupt",
-        "date:A_score",
-        "date:A_score:num_employees",
-    ]
-    ds = stability_metrics(
-        hists, reference_type="rolling", window=5, features=hist_list
-    )
+    ds = stability_metrics(hists, settings=settings)
 
     cols = ["profiles", "comparisons", "traffic_lights", "alerts"]
     for c in cols:
@@ -38,7 +40,6 @@ def test_hists_stability_metrics():
 
 def test_df_stability_metrics():
     # generate metrics directly from dataframe
-    features = ["date:isActive", "date:eyeColor", "date:latitude"]
     bin_specs = {
         "date": {
             "bin_width": pd.Timedelta("1y").value,
@@ -46,12 +47,17 @@ def test_df_stability_metrics():
         },
         "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
     }
-    ds = df_stability_metrics(
-        pytest.test_df,
+
+    settings = Settings(
         time_axis="date",
-        features=features,
         binning="unit",
+        features=["date:isActive", "date:eyeColor", "date:latitude"],
         bin_specs=bin_specs,
+    )
+
+    ds = df_stability_metrics(
+        df=pytest.test_df,
+        settings=settings,
     )
 
     cols = ["profiles", "comparisons", "traffic_lights", "alerts"]

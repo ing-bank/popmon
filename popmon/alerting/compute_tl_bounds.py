@@ -33,7 +33,7 @@ from ..base import Module, Pipeline
 def traffic_light_summary(row, cols=None, prefix=""):
     """Make a summary of traffic light alerts present in the dataframe
 
-    Count number of green, yellow, red traffic lights and worst value.
+    Count number of green, yellow and red traffic lights.
 
     Evaluate with df.apply(traffic_light_summary, axis=1)
 
@@ -41,9 +41,7 @@ def traffic_light_summary(row, cols=None, prefix=""):
     :param list cols: list of cols to calculate traffic light summary of (optional)
     :param str prefix: prefix of traffic light columns, in case cols is empty. default is ``"tl_"``
     """
-    x = pd.Series(
-        {"worst": np.nan, "n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
-    )
+    x = {"n_red": np.nan, "n_yellow": np.nan, "n_green": np.nan}
 
     if cols is None or len(cols) == 0:
         # if no columns are given, find traffic light columns for which summary is made.
@@ -53,14 +51,13 @@ def traffic_light_summary(row, cols=None, prefix=""):
             else row.index.to_list()
         )
     if len(cols) == 0:
-        return x
+        return pd.Series(x)
 
     traffic_lights = np.array([row[c] for c in cols])
-    x["worst"] = np.max(traffic_lights)
     x["n_red"] = (traffic_lights == 2).sum()
     x["n_yellow"] = (traffic_lights == 1).sum()
     x["n_green"] = (traffic_lights == 0).sum()
-    return x
+    return pd.Series(x)
 
 
 def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
@@ -174,13 +171,14 @@ class ComputeTLBounds(Module):
     def get_description(self):
         return self.traffic_light_func.__name__
 
-    def _set_traffic_lights(self, feature, cols, pattern, rule_name):
+    def _set_traffic_lights(self, feature, cols, pattern, rule):
         process_cols = fnmatch.filter(cols, pattern)
 
         for pcol in process_cols:
             name = feature + ":" + pcol
             if name not in self.traffic_lights:
-                bounds = self.monitoring_rules[eval(rule_name)]
+                key = rule(name, feature, pattern)
+                bounds = self.monitoring_rules[key]
                 self.traffic_lights[name] = bounds
                 metrics = (
                     [pcol]
@@ -220,7 +218,10 @@ class ComputeTLBounds(Module):
 
                 # --- A1. tl bounds explicitly defined for a particular feature/profile combo
                 self._set_traffic_lights(
-                    feature, explicit_cols, pattern="*", rule_name="name"
+                    feature,
+                    explicit_cols,
+                    pattern="*",
+                    rule=lambda name, _, __: name,
                 )
 
                 # --- B1. tl bounds implicitly defined for particular feature
@@ -230,13 +231,16 @@ class ComputeTLBounds(Module):
                         feature,
                         test_df.columns,
                         pattern,
-                        rule_name="feature + ':' + pattern",
+                        rule=lambda _, feat, pat: f"{feat}:{pat}",
                     )
             # --- 2. tl bounds not explicitly defined for a particular feature,
             #        see if a wildcard match can be found.
             for pattern in nkeys:
                 self._set_traffic_lights(
-                    feature, test_df.columns, pattern, rule_name="pattern"
+                    feature,
+                    test_df.columns,
+                    pattern,
+                    rule=lambda _, __, pat: pat,
                 )
 
         return self.traffic_lights, self.traffic_light_funcs
@@ -283,7 +287,7 @@ def pull_bounds(
             required = [m + suffix_mean, m + suffix_std]
             assert all(r in row for r in required)
 
-    x = pd.Series()
+    x = {}
     for m in cols:
         x[m + "_red_high"] = np.nan
         x[m + "_yellow_high"] = np.nan
@@ -296,7 +300,7 @@ def pull_bounds(
         x[m + "_yellow_high"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_high
         x[m + "_yellow_low"] = row[m + suffix_mean] + row[m + suffix_std] * yellow_low
         x[m + "_red_low"] = row[m + suffix_mean] + row[m + suffix_std] * red_low
-    return x
+    return pd.Series(x)
 
 
 def df_single_op_pull_bounds(

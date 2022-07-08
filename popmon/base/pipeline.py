@@ -68,3 +68,12 @@ class Pipeline(ABC):
             self.logger.debug(f"transform {module.__class__.__name__}")
             datastore = module.transform(datastore)
         return datastore
+
+    def __repr__(self):
+        """String representation for pipeline"""
+        name = self.__class__.__name__
+        ret = f"{name}: [\n"
+        for m in self.modules:
+            ret += "\t" + str(m).replace("\n", "\n\t") + "\n"
+        ret += "]"
+        return ret

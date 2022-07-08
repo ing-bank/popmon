@@ -28,7 +28,6 @@ popmon.io.json\_reader module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -1,5 +1,6 @@
 from popmon import resources
 from popmon.base import Pipeline
+from popmon.config import Settings
 from popmon.io import JsonReader
 from popmon.pipeline.report_pipelines import (
     ExpandingReference,
@@ -17,7 +18,7 @@ def test_self_reference():
             JsonReader(
                 file_path=resources.data("example_histogram.json"), store_key="hists"
             ),
-            SelfReference(hists_key="hists", features=hist_list),
+            SelfReference(hists_key="hists", settings=Settings(features=hist_list)),
         ]
     )
     pipeline.transform(datastore={})
@@ -34,7 +35,7 @@ def test_external_reference():
             ExternalReference(
                 hists_key="hists",
                 ref_hists_key="hists",
-                features=hist_list,
+                settings=Settings(features=hist_list),
             ),
         ]
     )
@@ -44,6 +45,9 @@ def test_external_reference():
 def test_rolling_reference():
     hist_list = ["date:country", "date:A_score:num_employees"]
 
+    settings = Settings(features=hist_list)
+    settings.comparison.window = 5
+
     pipeline = Pipeline(
         modules=[
             JsonReader(
@@ -51,8 +55,7 @@ def test_rolling_reference():
             ),
             RollingReference(
                 hists_key="hists",
-                window=5,
-                features=hist_list,
+                settings=settings,
             ),
         ]
     )
@@ -67,7 +70,9 @@ def test_expanding_reference():
             JsonReader(
                 file_path=resources.data("example_histogram.json"), store_key="hists"
             ),
-            ExpandingReference(hists_key="hists", features=hist_list),
+            ExpandingReference(
+                hists_key="hists", settings=Settings(features=hist_list)
+            ),
         ]
     )
     pipeline.transform(datastore={})

@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    popmon.hist.filling
 
@@ -19,22 +20,13 @@ popmon.hist.hist\_splitter module
    :undoc-members:
    :show-inheritance:
 
-popmon.hist.histogram module
-----------------------------
+popmon.hist.hist\_utils module
+------------------------------
 
-.. automodule:: popmon.hist.histogram
+.. automodule:: popmon.hist.hist_utils
    :members:
    :undoc-members:
    :show-inheritance:
-
-popmon.hist.patched\_histogrammer module
-----------------------------------------
-
-.. automodule:: popmon.hist.patched_histogrammer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Module contents
 ---------------

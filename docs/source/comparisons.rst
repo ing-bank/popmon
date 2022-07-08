@@ -8,12 +8,32 @@ Available comparisons
 ---------------------
 A rich set of the most frequently used comparisons is available out-of-the-box:
 
-- Kolmogorov-Smirnov test
-- Chi-squared test
-- Pearson correlation
-- Jensen-Shannon Divergence
-- Population Stability Index
-- Maximum probability difference
++------------+-----------------+---------------------------------+
+| Dimension  | Histogram Type  | Comparison                      |
++============+=================+=================================+
+| 1D         | Numeric         | Kolmogorov-Smirnov test         |
++------------+-----------------+---------------------------------+
+| 1D         | Categorical     | Unknown labels present          |
++------------+-----------------+---------------------------------+
+| 2D+        | Any             | Pearson correlation             |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Chi-squared test                |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Jensen-Shannon Divergence       |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Population Stability Index      |
++------------+-----------------+---------------------------------+
+| Any        | Any             | Maximum probability difference  |
++------------+-----------------+---------------------------------+
+
+The comparisons registry can be consulted for available comparisons:
+
+.. code-block:: python
+
+    from popmon.analysis import Comparisons
+
+    print(Comparisons.get_keys())
+
 
 Custom comparisons
 ------------------
@@ -35,3 +55,19 @@ The code below demonstrates how this could be achieved:
         return np.sum(np.abs(p - q))
 
 If you developed a custom comparison that could be generically used, then please considering contributing it to the package.
+
+Comparison settings
+-------------------
+
+Whenever a comparison has parameters, it is possible to alter them globally:
+
+.. code-block:: python
+
+    from functools import partial
+
+    from popmon.analysis.comparison.comparison_registry import Comparisons
+
+    # Set the max_res_bound to 5 (default 7) for the chi2 comparison function
+    Comparisons.update_func(
+        "chi2", partial(Comparisons.get_func("chi2"), max_res_bound=5.0)
+    )

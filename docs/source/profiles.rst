@@ -8,30 +8,43 @@ Available profiles
 ------------------
 The following metrics are implemented:
 
-Any dimension
++------------+-----------------+-------------------------------------------------------+
+| Dimension  | Histogram Type  | Metric                                                |
++============+=================+=======================================================+
+| Any        | Any             | Count                                                 |
++------------+-----------------+-------------------------------------------------------+
+| Any        | Any             | Entropy                                               |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Any             | Filled                                                |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Any             | Distinct                                              |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Any             | Underflow, Overflow                                   |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Any             | NaN                                                   |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Any             | Mode                                                  |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Numeric         | Mean                                                  |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Numeric         | 1%, 5%, 16%, 50% (median), 84%, 95%, 99% percentiles  |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Numeric         | Standard deviation                                    |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Numeric         | Min, Max                                              |
++------------+-----------------+-------------------------------------------------------+
+| 1D         | Categorical     | Fraction of True                                      |
++------------+-----------------+-------------------------------------------------------+
+| 2D         | Any             | PhiK Correlation                                      |
++------------+-----------------+-------------------------------------------------------+
 
-- count
+The comparisons registry can be consulted for available comparisons:
 
-1D histogram, all types:
+.. code-block:: python
 
-- filled
-- underflow, overflow
-- nan
+    from popmon.analysis import Profiles
 
-1D histogram, numeric:
-
-- mean
-- 1%, 5%, 16%, 50% (median), 84%, 95%, 99% percentiles
-- std
-- min, max
-
-1D histogram, categorical
-
-- fraction of true
-
-2D histogram:
-
-- phik
+    print(Profiles.get_keys())
 
 
 Custom profiles
@@ -65,8 +78,7 @@ Variations:
         result1, result2 = your_logic(hist)
         return result1, result2
 
-- A profile may work on the histogram, or on the value counts/labels (also for efficiency).
-This occurs when the ``htype`` parameter is passed (1D only)
+- A profile may work on the histogram, or on the value counts/labels (also for efficiency). This occurs when the ``htype`` parameter is passed (1D only)
 
 .. code-block:: python
 

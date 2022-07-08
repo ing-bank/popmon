@@ -28,13 +28,6 @@ from popmon.visualization.traffic_light_section_generator import (
     TrafficLightSectionGenerator,
 )
 
-# set matplotlib backend to batch mode when running in shell
-# need to do this *before* matplotlib.pyplot gets imported
-from ..visualization.backend import set_matplotlib_backend
-
-set_matplotlib_backend()
-
-
 __all__ = [
     "SectionGenerator",
     "HistogramSection",

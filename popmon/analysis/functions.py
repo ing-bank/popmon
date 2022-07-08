@@ -421,12 +421,12 @@ def normalized_hist_mean_cov(x, hist_name=""):
         entries_list, binning = get_consistent_numpy_entries(
             hist_list, get_bin_labels=True
         )
-        entries_list = np.array(entries_list, dtype=np.float)
+        entries_list = np.array(entries_list, dtype=float)
     else:
         entries_list, keys = get_consistent_numpy_2dgrids(
             hist_list, get_bin_labels=True
         )
-        entries_list = np.array([h.flatten() for h in entries_list], dtype=np.float)
+        entries_list = np.array([h.flatten() for h in entries_list], dtype=float)
         binning = tuple(keys)
 
     # calculation of mean normalized histogram and its covariance matrix
@@ -514,11 +514,11 @@ def relative_chi_squared(
             (norm_mean - single_norm), np.dot(pm, (norm_mean - single_norm))
         )
         if chi_squared <= 0:
-            chi_squared = np.finfo(np.float).eps
+            chi_squared = np.finfo(float).eps
     else:
         # If a covariance matrix is singular we fall back on using variances
         chi_squared = np.sum(
-            (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)
+            (norm_mean - single_norm) ** 2 / (variance + np.finfo(float).eps)
         )
 
     # pvalue and zvalue based on naive number of degrees of freedom
@@ -534,7 +534,7 @@ def relative_chi_squared(
         z_score = np.sqrt(u - np.log(u))
 
     max_resid = np.max(
-        np.abs((norm_mean - single_norm) / np.sqrt(variance + np.finfo(np.float).eps))
+        np.abs((norm_mean - single_norm) / np.sqrt(variance + np.finfo(float).eps))
     )
 
     x["chi2"] = chi_squared

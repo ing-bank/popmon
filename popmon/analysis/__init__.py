@@ -19,5 +19,7 @@
 
 
 from ..analysis.apply_func import ApplyFunc
+from .comparison import Comparisons
+from .profiling import Profiles
 
-__all__ = ["ApplyFunc"]
+__all__ = ["ApplyFunc", "Comparisons", "Profiles"]

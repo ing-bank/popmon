@@ -12,6 +12,14 @@ popmon.pipeline.amazing\_pipeline module
    :undoc-members:
    :show-inheritance:
 
+popmon.pipeline.dataset\_splitter module
+----------------------------------------
+
+.. automodule:: popmon.pipeline.dataset_splitter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 popmon.pipeline.metrics module
 ------------------------------
 
@@ -43,7 +51,6 @@ popmon.pipeline.report\_pipelines module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

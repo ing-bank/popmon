@@ -93,9 +93,6 @@ class AlertsSummary(Module):
         tlv = pd.concat(df_list, axis=1)
         dfc = pd.DataFrame(index=tlv.index)
 
-        # worst traffic light
-        cols = fnmatch.filter(tlv.columns, "*_worst")
-        dfc["worst"] = tlv[cols].values.max(axis=1) if len(cols) else 0
         # colors of traffic lights
         for color in ["green", "yellow", "red"]:
             cols = fnmatch.filter(tlv.columns, f"*_n_{color}")

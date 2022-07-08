@@ -4,10 +4,10 @@ popmon.visualization package
 Submodules
 ----------
 
-popmon.visualization.backend module
------------------------------------
+popmon.visualization.alert\_section\_generator module
+-----------------------------------------------------
 
-.. automodule:: popmon.visualization.backend
+.. automodule:: popmon.visualization.alert_section_generator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -16,6 +16,14 @@ popmon.visualization.histogram\_section module
 ----------------------------------------------
 
 .. automodule:: popmon.visualization.histogram_section
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+popmon.visualization.overview\_section module
+---------------------------------------------
+
+.. automodule:: popmon.visualization.overview_section
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,6 +44,14 @@ popmon.visualization.section\_generator module
    :undoc-members:
    :show-inheritance:
 
+popmon.visualization.traffic\_light\_section\_generator module
+--------------------------------------------------------------
+
+.. automodule:: popmon.visualization.traffic_light_section_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 popmon.visualization.utils module
 ---------------------------------
 
@@ -43,7 +59,6 @@ popmon.visualization.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

@@ -3,12 +3,16 @@ import pytest
 
 from popmon import resources
 from popmon.base import Pipeline
+from popmon.config import Report, Settings
 from popmon.hist.filling import get_bin_specs
 from popmon.io import JsonReader
 from popmon.pipeline.report import df_stability_report, stability_report
 
 
 def test_hists_stability_report():
+    settings = Settings()
+    settings.comparison.window = 5
+
     # get histograms
     pipeline = Pipeline(
         modules=[
@@ -28,7 +32,9 @@ def test_hists_stability_report():
         "date:A_score",
         "date:A_score:num_employees",
     ]
-    stability_report(hists, reference_type="rolling", window=5, features=hist_list)
+    stability_report(
+        hists, reference_type="rolling", settings=settings, features=hist_list
+    )
 
 
 def test_df_stability_report():
@@ -49,9 +55,17 @@ def test_df_stability_report():
         bin_specs=bin_specs,
     )
 
+    settings = Report()
+    settings.last_n = 4
+
     # regenerate report, changing the plot window settings
-    rep.regenerate(last_n=4)
-    rep.regenerate(skip_first_n=1, skip_last_n=1)
+    rep.regenerate(report_settings=settings)
+
+    settings.last_n = 0
+    settings.skip_first_n = 1
+    settings.skip_last_n = 1
+
+    rep.regenerate(report_settings=settings)
 
 
 def test_df_stability_report_self():

@@ -20,14 +20,12 @@
 
 from typing import Optional
 
-import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from ..base import Module
-from ..config import get_stat_description
-from ..utils import filter_metrics, parallel, short_date
-from ..visualization.utils import _prune, plot_bars_b64
+from ..config import Report
+from ..utils import filter_metrics, short_date
 from .traffic_light_section_generator import _plot_metrics
 
 
@@ -44,39 +42,26 @@ class AlertSectionGenerator(Module):
         self,
         read_key,
         store_key,
-        section_name,
+        settings: Report,
         features=None,
         ignore_features=None,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
         suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
         ignore_stat_endswith=None,
-        skip_empty_plots=True,
-        description="",
-        show_stats=None,
     ):
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
         :param str store_key: key for output data to be stored in the datastore
-        :param str section_name: key of output data to store in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
         :param str static_bounds: key to static traffic light bounds key in datastore (optional)
         :param str dynamic_bounds: key to dynamic traffic light bounds key in datastore (optional)
         :param str prefix: dynamic traffic light prefix. default is ``'traffic_light_'`` (optional)
         :param str suffices: dynamic traffic light suffices. (optional)
         :param list ignore_stat_endswith: ignore stats ending with any of list of suffices. (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param str description: description of the section. default is empty (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
         """
         super().__init__()
         self.read_key = read_key
@@ -86,18 +71,20 @@ class AlertSectionGenerator(Module):
 
         self.features = features or []
         self.ignore_features = ignore_features or []
-        self.section_name = section_name
-        self.last_n = last_n
-        self.skip_first_n = skip_first_n
-        self.skip_last_n = skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = skip_empty_plots
-        self.description = description
-        self.show_stats = show_stats
-        self.plot_overview = True
-        self.plot_metrics = False
+
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
+        self.skip_empty_plots = settings.skip_empty_plots
+        self.show_stats = settings.show_stats if not settings.extended_report else None
+
+        self.section_name = settings.section.alerts.name
+        self.description = settings.section.alerts.description
+        self.descriptions = settings.section.alerts.descriptions
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -145,46 +132,31 @@ class AlertSectionGenerator(Module):
                 df.columns, self.ignore_stat_endswith, self.show_stats
             )
 
-            plots = []
-            if self.plot_overview:
-                plots.append(
-                    _plot_metrics(
-                        feature,
-                        [m for m in metrics if not m.endswith("worst")],
-                        dates,
-                        df,
-                        0,
-                        0,
-                        0,
-                        0,
-                        style="alerts",
-                    )
+            plots = [
+                _plot_metrics(
+                    feature,
+                    metrics,
+                    dates,
+                    df,
+                    0,
+                    0,
+                    0,
+                    0,
+                    self.tl_colors,
+                    style="alerts",
                 )
-            if self.plot_metrics:
-                args = [
-                    (
-                        feature,
-                        metric,
-                        dates,
-                        df[metric],
-                        static_bounds,
-                        fdbounds,
-                        self.prefix,
-                        self.suffices,
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
-                    for metric in metrics
-                ]
-                plots += parallel(_plot_metric, args)
+            ]
+
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
 
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {
+                    "name": feature,
+                    "plot_type_layouts": {"traffic_lights": ""},
+                    "plots": sorted(plots, key=lambda plot: plot["name"]),
+                }
             )
 
         sections.append(
@@ -195,46 +167,3 @@ class AlertSectionGenerator(Module):
             }
         )
         return sections
-
-
-def _plot_metric(
-    feature,
-    metric,
-    dates,
-    values,
-    static_bounds,
-    fdbounds,
-    prefix,
-    suffices,
-    last_n,
-    skip_first_n,
-    skip_last_n,
-    skip_empty,
-):
-    """Split off plot histogram generation to allow for parallel processing"""
-    # pick up static traffic light boundaries
-    name = feature + ":" + metric
-    sbounds = static_bounds.get(name, ())
-    # pick up dynamic traffic light boundaries
-    names = [prefix + metric + suffix for suffix in suffices]
-    dbounds = tuple(
-        _prune(fdbounds[n].tolist(), last_n, skip_first_n, skip_last_n)
-        for n in names
-        if n in fdbounds.columns
-    )
-    # choose dynamic bounds if present
-    bounds = dbounds if len(dbounds) > 0 else sbounds
-    # prune dates and values
-    dates = _prune(dates, last_n, skip_first_n, skip_last_n)
-    values = _prune(values, last_n, skip_first_n, skip_last_n)
-
-    # make plot. note: slow!
-    plot = plot_bars_b64(
-        data=np.array(values),
-        labels=dates,
-        ylim=True,
-        bounds=bounds,
-        skip_empty=skip_empty,
-    )
-
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}

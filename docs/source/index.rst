@@ -14,11 +14,11 @@ Contents
    :maxdepth: 2
 
    introduction
+   reference_types
    profiles
    comparisons
    tutorials
    configuration
-   tree
    developing
    changelog
 

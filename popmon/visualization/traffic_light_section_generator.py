@@ -25,12 +25,11 @@ import pandas as pd
 from tqdm import tqdm
 
 from ..base import Module
-from ..config import get_stat_description
-from ..utils import filter_metrics, parallel, short_date
+from ..config import Report
+from ..utils import filter_metrics, short_date
 from ..visualization.utils import (
     _prune,
-    plot_traffic_lights_alerts_b64,
-    plot_traffic_lights_b64,
+    plot_traffic_lights_alerts_aggregate,
     plot_traffic_lights_overview,
 )
 
@@ -48,43 +47,26 @@ class TrafficLightSectionGenerator(Module):
         self,
         read_key,
         store_key,
-        section_name,
+        settings: Report,
         features=None,
         ignore_features=None,
-        last_n=0,
-        skip_first_n=0,
-        skip_last_n=0,
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
         suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
         ignore_stat_endswith=None,
-        skip_empty_plots=True,
-        description="",
-        show_stats=None,
-        plot_overview=True,
-        plot_metrics=False,
     ):
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
         :param str store_key: key for output data to be stored in the datastore
-        :param str section_name: key of output data to store in the datastore
         :param list features: list of features to pick up from input data (optional)
         :param list ignore_features: ignore list of features, if present (optional)
-        :param int last_n: plot statistic data for last 'n' periods (optional)
-        :param int skip_first_n: when plotting data skip first 'n' periods. last_n takes precedence (optional)
-        :param int skip_last_n: in plot skip last 'n' periods. last_n takes precedence (optional)
         :param str static_bounds: key to static traffic light bounds key in datastore (optional)
         :param str dynamic_bounds: key to dynamic traffic light bounds key in datastore (optional)
         :param str prefix: dynamic traffic light prefix. default is ``'traffic_light_'`` (optional)
         :param str suffices: dynamic traffic light suffices. (optional)
         :param list ignore_stat_endswith: ignore stats ending with any of list of suffices. (optional)
-        :param bool skip_empty_plots: if false, also show empty plots in report with only nans or zeroes (optional)
-        :param str description: description of the section. default is empty (optional)
-        :param list show_stats: list of statistic name patterns to show in the report. If None, show all (optional)
-        :param bool plot_overview: heatmap overview of traffic lights (features x time)
-        :param bool plot_metrics: individual plot per feature
         """
         super().__init__()
         self.read_key = read_key
@@ -94,18 +76,18 @@ class TrafficLightSectionGenerator(Module):
 
         self.features = features or []
         self.ignore_features = ignore_features or []
-        self.section_name = section_name
-        self.last_n = last_n
-        self.skip_first_n = skip_first_n
-        self.skip_last_n = skip_last_n
+        self.last_n = settings.last_n
+        self.skip_first_n = settings.skip_first_n
+        self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = skip_empty_plots
-        self.description = description
-        self.show_stats = show_stats
-        self.plot_overview = plot_overview
-        self.plot_metrics = plot_metrics
+        self.skip_empty_plots = settings.skip_empty_plots
+        self.show_stats = settings.show_stats if not settings.extended_report else None
+
+        self.section_name = settings.section.traffic_lights.name
+        self.description = settings.section.traffic_lights.description
+        self.tl_colors = settings.tl_colors
 
     def get_description(self):
         return self.section_name
@@ -145,45 +127,33 @@ class TrafficLightSectionGenerator(Module):
             )
             dates = [short_date(str(date)) for date in df.index.tolist()]
 
-            metrics = filter_metrics(
-                df.columns, self.ignore_stat_endswith, self.show_stats
+            metrics = sorted(
+                filter_metrics(df.columns, self.ignore_stat_endswith, self.show_stats)
             )
 
-            plots = []
-            if self.plot_overview:
-                plots.append(
-                    _plot_metrics(
-                        feature,
-                        metrics,
-                        dates,
-                        df,
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
+            plots = [
+                _plot_metrics(
+                    feature,
+                    metrics,
+                    dates,
+                    df,
+                    self.last_n,
+                    self.skip_first_n,
+                    self.skip_last_n,
+                    self.skip_empty_plots,
+                    tl_colors=self.tl_colors,
                 )
-
-            if self.plot_metrics:
-                args = [
-                    (
-                        metric,
-                        dates,
-                        df[metric],
-                        self.last_n,
-                        self.skip_first_n,
-                        self.skip_last_n,
-                        self.skip_empty_plots,
-                    )
-                    for metric in metrics
-                ]
-                plots += parallel(_plot_metric, args)
+            ]
 
             # filter out potential empty plots (from skip empty plots)
             if self.skip_empty_plots:
                 plots = [e for e in plots if len(e["plot"])]
             features_w_metrics.append(
-                {"name": feature, "plots": sorted(plots, key=lambda plot: plot["name"])}
+                {
+                    "name": feature,
+                    "plot_type_layouts": {"traffic_lights": ""},
+                    "plots": sorted(plots, key=lambda plot: plot["name"]),
+                }
             )
 
         sections.append(
@@ -196,21 +166,6 @@ class TrafficLightSectionGenerator(Module):
         return sections
 
 
-def _plot_metric(metric, dates, values, last_n, skip_first_n, skip_last_n, skip_empty):
-    """Split off plot histogram generation to allow for parallel processing"""
-
-    # prune dates and values
-    dates = _prune(dates, last_n, skip_first_n, skip_last_n)
-    values = _prune(values, last_n, skip_first_n, skip_last_n)
-
-    # make plot. note: slow!
-    plot = plot_traffic_lights_b64(
-        data=np.array(values), labels=dates, skip_empty=skip_empty
-    )
-
-    return {"name": metric, "description": get_stat_description(metric), "plot": plot}
-
-
 def _plot_metrics(
     feature,
     metrics,
@@ -220,6 +175,7 @@ def _plot_metrics(
     skip_first_n,
     skip_last_n,
     skip_empty,
+    tl_colors,
     style="heatmap",
 ):
     # prune dates and values
@@ -237,21 +193,27 @@ def _plot_metrics(
     if len(values) > 0:
         values = np.stack(values)
 
-        # make plot. note: slow!
         if style == "heatmap":
             plot = plot_traffic_lights_overview(
                 feature, values, metrics=nonempty_metrics, labels=dates
             )
         elif style == "alerts":
-            plot = plot_traffic_lights_alerts_b64(
+            plot = plot_traffic_lights_alerts_aggregate(
                 feature,
                 values,
                 metrics=nonempty_metrics,
                 labels=dates,
+                tl_colors=tl_colors,
             )
         else:
             raise ValueError("style must be either 'heatmap' or 'alerts'")
     else:
         plot = ""
 
-    return {"name": "Overview", "description": "", "plot": plot, "full_width": True}
+    return {
+        "name": "Overview",
+        "type": "traffic_light",
+        "description": "",
+        "plot": plot,
+        "full_width": True,
+    }
