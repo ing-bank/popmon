@@ -24,14 +24,13 @@
       {%- for feature in features -%}
         <script> 
           {%- set curr = loop.index  -%}
-          var feature{{ section_index }}{{ curr }}_layout = {};
         {%- for plot_type, layout in feature.plot_type_layouts.items() -%}
-            feature{{ section_index }}{{ curr }}_layout["{{ plot_type }}"] = {{ layout | json_plot }};
+            layouts["{{ section_index }}-{{ plot_type }}"] = {{ layout | json_plot }};
         {%- endfor -%}
         </script>
         <div class="section_feature" data-section-feature="{{ feature.name }}">
           {%- if feature.plots is mapping -%}
-            {%- for ref,plots in feature.plots.items() -%}
+            {%- for ref, plots in feature.plots.items() -%}
               {%- set count = (plots|length + 1)*(loop.index - 1) -%}
               <h3> {{ feature.titles.get(ref, ref) }} </h3>
               <div class="section-description">{{ feature.descriptions[ref] }}</div>
