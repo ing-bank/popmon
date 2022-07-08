@@ -18,7 +18,7 @@
             <script>
             rendered["{{ card_id }}"] = false;
             render_func["{{ card_id }}"] = (function(){
-                var layout = deepCopy(layouts["{{ section_index }}-{{ metric.type }}"]);
+                var layout = deepCopy(layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"]);
                 {%- if metric.shapes | length -%}
                     layout["shapes"] = {{ metric.shapes | json_plot}};
                 {%- endif -%}
