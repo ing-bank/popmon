@@ -252,6 +252,28 @@ Project contributors
 This package was authored by ING Wholesale Banking Advanced Analytics.
 Special thanks to the following people who have contributed to the development of this package: `Ahmet Erdem <https://github.com/aerdem4>`_, `Fabian Jansen <https://github.com/faab5>`_, `Nanne Aben <https://github.com/nanne-aben>`_, Mathieu Grimal.
 
+
+Citing popmon
+=============
+If ``popmon`` has been relevant in your work, and you would like to acknowledge the project in your publication, we suggest citing the following paper:
+
+* Brugman, S., Sostak, T., Patil, P., Baak, M. *popmon: Analysis Package for Dataset Shift Detection*. Proceedings of the 21st Python in Science Conference. 161-168 (2022). (`link <https://conference.scipy.org/proceedings/scipy2022/popmon.html>`_)
+
+*In BibTeX format:*
+
+.. code-block:: bibtex
+
+    @InProceedings{ popmon-proc-scipy-2022,
+      author    = { {S}imon {B}rugman and {T}omas {S}ostak and {P}radyot {P}atil and {M}ax {B}aak },
+      title     = { popmon: {A}nalysis {P}ackage for {D}ataset {S}hift {D}etection },
+      booktitle = { {P}roceedings of the 21st {P}ython in {S}cience {C}onference },
+      pages     = { 161 - 168 },
+      year      = { 2022 },
+      editor    = { {M}eghann {A}garwal and {C}hris {C}alloway and {D}illon {N}iederhut and {D}avid {S}hupe },
+    }
+
+
+
 Contact and support
 ===================
 
