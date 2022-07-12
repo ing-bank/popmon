@@ -1,0 +1,27 @@
+type: proceedings
+title: "popmon: Analysis Package for Dataset Shift Detection"
+authors:
+- family-names: Brugman
+  given-names: Simon
+- family-names: Sostak
+  given-names: Tomas
+- family-names: Pradyot
+  given-names: Patil
+- family-names: Baak
+  given-names: Max
+year: "2022"
+collection-title: "Proceedings of the 21st Python in Science Conference"
+editors:
+- family-names: Agarwal
+  given-names: Meghann
+- family-names: Calloway
+  given-names: Chris
+- family-names: Niederhut
+  given-names: Dillon
+- family-names: Shupe
+  given-names: David
+start: '161'
+end: '168'
+conference:
+    name: "Python in Science Conference"
+    address: "Austin, Texas"
