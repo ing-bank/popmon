@@ -2,6 +2,50 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2022-07-08)
+### Feature
+* **report:** Group comparisons by reference key ([#237](https://github.com/ing-bank/popmon/issues/237)) ([`e813534`](https://github.com/ing-bank/popmon/commit/e813534b03ea4662e46f5b782839506fcf49b1ed))
+* Entropy profile ([`96dd7d1`](https://github.com/ing-bank/popmon/commit/96dd7d16025db36f9a65149c49c37504cc8f3c7f))
+* Configurable title and colors ([`37fcd0e`](https://github.com/ing-bank/popmon/commit/37fcd0e48f4201e1955cd360ce5705a505eeb074))
+* Online report CDN for bootstrap, jquery ([`72df86d`](https://github.com/ing-bank/popmon/commit/72df86db4638f7e700857c5fcaf876916e1041d4))
+* Plotly express ([`2c2395c`](https://github.com/ing-bank/popmon/commit/2c2395c0b46e7c692bfbb82d4832ab97fbdd0a87))
+* Introduce self start reference type ([`ca22268`](https://github.com/ing-bank/popmon/commit/ca22268422100f5fdd932f0bce2fe885c48e62f9))
+* String representation for base classes ([`bd480a6`](https://github.com/ing-bank/popmon/commit/bd480a6a134ebdf6c7cba8defca9d77b887b5b76))
+* Keep section when changing features ([`7b12d06`](https://github.com/ing-bank/popmon/commit/7b12d061ee329f4a3e8d173a176097fba9d21744))
+* **config:** Settings required parameter ([`47d6b17`](https://github.com/ing-bank/popmon/commit/47d6b178ee924d360afabc5b487da1a6ec7d9f8a))
+* **registry:** Generalize registry ([`d01c68a`](https://github.com/ing-bank/popmon/commit/d01c68adc9b247ddd382a13b0c7bbd276c9d2ed4))
+* **registry:** Add ks, pearson, chi2 to registry ([`4f8126d`](https://github.com/ing-bank/popmon/commit/4f8126df928f948430ef2991af691c30d7199fba))
+* **config:** Structured config using pydantic ([`bc52aeb`](https://github.com/ing-bank/popmon/commit/bc52aebc72b1814af3269e99d7a552b383c860cf))
+
+### Fix
+* Prevent plot name collision that stops rendering ([#238](https://github.com/ing-bank/popmon/issues/238)) ([`32c7ef4`](https://github.com/ing-bank/popmon/commit/32c7ef47cac005dfbc83dcffd7b28e0df90ccfb6))
+* Set time_width in synthetic data example ([`fbf7e41`](https://github.com/ing-bank/popmon/commit/fbf7e41b44d118c539862525f1bf17b57337d05e))
+* Guaranteed ordering of traffic light metrics ([`88c3f4a`](https://github.com/ing-bank/popmon/commit/88c3f4a667a80b9f3042797a7996bcbf7cd98690))
+* **plot:** Plot_heatmap_b64 `top` argument is now supported ([`8be8115`](https://github.com/ing-bank/popmon/commit/8be811521d23a32f0db7eace353e0ee292c597b4))
+
+### Breaking
+* matplotlib-related config is removed  ([`2c2395c`](https://github.com/ing-bank/popmon/commit/2c2395c0b46e7c692bfbb82d4832ab97fbdd0a87))
+* Configuration of time_axis, features etc. is moved to the Settings class.  ([`ca22268`](https://github.com/ing-bank/popmon/commit/ca22268422100f5fdd932f0bce2fe885c48e62f9))
+* new configuration syntax  ([`bc52aeb`](https://github.com/ing-bank/popmon/commit/bc52aebc72b1814af3269e99d7a552b383c860cf))
+* the `plot_metrics` and `plot_overview` settings are no longer available for Tl/alerts  ([`1c4f072`](https://github.com/ing-bank/popmon/commit/1c4f072b74d61f12e239aefbad17edb1787361b3))
+* the `worst` entry will no long be present in the datastore  ([`e2b9ef7`](https://github.com/ing-bank/popmon/commit/e2b9ef734d325c88c0aaab58eb4927b72ada9b9c))
+
+### Documentation
+* **profiles:** Add entropy ([`8e8ac00`](https://github.com/ing-bank/popmon/commit/8e8ac009d28f3d05b7ca7af79b1995460441e98c))
+* Registry snippet to list available profiles/comparisons ([`7760047`](https://github.com/ing-bank/popmon/commit/7760047c4f93aea35622d3b74f84bd588fedc45a))
+* **comparisons:** Overview in table ([`cde48c4`](https://github.com/ing-bank/popmon/commit/cde48c446e6eb7f14dc0725b7ec9beb3a04aa29c))
+* Profiles in table ([`65459af`](https://github.com/ing-bank/popmon/commit/65459af216231f920e6c09d30daa732e19ea48c3))
+* Description for mean trend score ([`b5b7626`](https://github.com/ing-bank/popmon/commit/b5b76264648bb989bd5c0d1b2715ee8812ced458))
+* Update api structure ([`c6c53ba`](https://github.com/ing-bank/popmon/commit/c6c53bab953894da3845b70bb5c9ea670d9401e6))
+* Documentation for reference types ([`9cf8117`](https://github.com/ing-bank/popmon/commit/9cf8117e9314799af2356a955a484e762100e88e))
+* Update api documentation ([`74eb223`](https://github.com/ing-bank/popmon/commit/74eb2231ed6789abe7e383d0930b2d35b6afc29a))
+* **config:** Configuration parameter docstrings ([`9eec883`](https://github.com/ing-bank/popmon/commit/9eec883eb65af8b9ed176a8e183e85bca9002fdc))
+* **registry:** Instructions on comparison parameter setting ([`2e3b134`](https://github.com/ing-bank/popmon/commit/2e3b1349be6f9a470a3af22ff01dede48a3904c1))
+* **config:** Update configuration examples ([`daccc36`](https://github.com/ing-bank/popmon/commit/daccc36eacbb2ac051dd40d2fe252268ac86600b))
+
+### Performance
+* Reduce file size of reports ([`329564f`](https://github.com/ing-bank/popmon/commit/329564f729b240bb973bae80dcdbfc7878658c04))
+
 ## v0.10.2 (2022-06-21)
 ### Fix
 * Patched histogrammar bin_edges call for Bin histograms ([`590d266`](https://github.com/ing-bank/popmon/commit/590d266f1fc2a5e0d85f26661f6462e31d811103))
