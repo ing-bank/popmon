@@ -105,10 +105,10 @@ def split_dataset(dataset, split: Union[int, float, pd.Series, str], time_axis: 
 
     :param pd.Dataset|pyspark.sql.Dataset dataset: dataset as input
     :param Any split: split details, meaning depends on the type:
-    if integer, then the reference will be the first ``split`` instances
-    if float, then ``split`` will be used as ration (e.g. 0.5 returns a 50/50 split)
-    otherwise, the ``split`` are interpreted as condition, where the records for which the condition is
-    true are considered the reference, and the other records the remaining dataset.
+        if integer, then the reference will be the first ``split`` instances
+        if float, then ``split`` will be used as ration (e.g. 0.5 returns a 50/50 split)
+        otherwise, the ``split`` are interpreted as condition, where the records for which the condition is
+        true are considered the reference, and the other records the remaining dataset.
     :param time_axis: the time axis
     :return: tuple of reference, dataset
     """

@@ -87,11 +87,9 @@ class Registry:
 
     def get_func_by_name(self, function_name: str) -> Callable:
         """
-        Get a function by the function name
+         Get a function by the function name
 
-        Parameters
-        ----------
-        function_name: name of the original function
+        :param str function_name: name of the original function
         """
         dim, htype, key = self._get_func_properties_by_name(function_name)
         return self._properties_to_func[dim][htype][key]
