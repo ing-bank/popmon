@@ -1,6 +1,11 @@
 popmon.decorators package
 =========================
 
+.. automodule:: popmon.decorators
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Submodules
 ----------
 
@@ -9,21 +14,13 @@ popmon.decorators.pandas module
 
 .. automodule:: popmon.decorators.pandas
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.decorators.spark module
 ------------------------------
 
 .. automodule:: popmon.decorators.spark
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon.decorators
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:
