@@ -5,6 +5,72 @@ Report settings
 Some more details on stability report settings, in particular how to set:
 the reference dataset, binning specifications, monitoring rules, and where to plot boundaries.
 
+Using ``Settings`` for configuration
+------------------------------------
+
+As of ``popmon`` v1.0.0, most options are specified on the ``Settings`` object, that is provided to the package.
+Instantiating an object with the default settings and passing it to ``popmon`` is as simple as:
+
+.. code-block:: python
+
+    from popmon import Settings
+
+    settings = Settings()
+    df.pm_stability_report(settings=settings)
+
+In the next example, we change the ``reference_type`` to ``"rolling"``:
+
+.. code-block:: python
+
+    from popmon import Settings
+
+    settings = Settings()
+    settings.reference_type = "rolling"
+
+    df.pm_stability_report(settings=settings)
+
+``reference_type`` is one of the options that is defined on the top level of ``Settings``.
+Other parameters are logically grouped, such as the options related to the HTML report.
+Changing grouped items works similarly:
+
+.. code-block:: python
+
+    from popmon import Settings
+
+    settings = Settings()
+    settings.report.title = "Report showing fewer stats"
+    settings.report.extended_report = False
+    settings.report.show_stats = ["distinct*", "filled*", "nan*"]
+
+    df.pm_stability_report(settings=settings)
+
+
+A full overview of settings is available in the :doc:`api documentation <popmon>` (or one could view the `config.py <https://github.com/ing-bank/popmon/blob/master/popmon/config.py>`_).
+The settings management is created on top of `pydantic <https://github.com/samuelcolvin/pydantic>`_.
+For detailed instructions on how the settings object can be used, for instance exporting, we refer to `their documentation <https://pydantic-docs.helpmanual.io/>`_.
+
+The settings are validated on assignment, and when the validation fails an ``ValidationError`` will be raised.
+
+In some examples you may encounter an alternative syntax that has the same effect.
+For completeness, we list them below:
+
+.. code-block:: python
+
+    from popmon import Settings
+
+    # consider providing settings in the following way
+    settings = Settings()
+    settings.time_axis = "date"
+    df.pm_stability_report(settings=settings)
+
+    # This is identical to passing the parameters directly to the settings object
+    settings = Settings(time_axis="date")
+    df.pm_stability_report(settings=settings)
+
+    # When not passing the `settings` argument, keyword arguments will be passed on to a newly instantiated
+    # Settings object. This allows us to even do:
+    df.pm_stability_report(time_axis="date")
+
 
 Binning specifications
 ----------------------
@@ -248,7 +314,7 @@ Global configuration
 
 A number of settings is configured globally.
 These can be found in the ``popmon.config`` module.
-At the moment of writing these primarily cover parallel processing and descriptions of plots.
+At the moment of writing this covers parallel processing.
 
 The following snippet modifies the number of jobs and the backend used by ``joblib.Parallel``:
 
@@ -260,9 +326,6 @@ The following snippet modifies the number of jobs and the backend used by ``jobl
     # Set Parallel to use 4 threads
     popmon.config.parallel_args["n_jobs"] = 4
     popmon.config.parallel_args["backend"] = "threading"
-
-    # Disable `ing_matplotlib_theme`
-    popmon.config.themed = False
 
     # Create report as usual
     report = df.pm_stability_report(reference_type="self")
