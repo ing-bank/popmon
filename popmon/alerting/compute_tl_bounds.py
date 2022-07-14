@@ -169,13 +169,14 @@ class ComputeTLBounds(Module):
             raise TypeError("supplied function must be callable object")
 
     def get_description(self):
+        """Returns the traffic light function as description."""
         return self.traffic_light_func.__name__
 
     def _set_traffic_lights(self, feature, cols, pattern, rule):
         process_cols = fnmatch.filter(cols, pattern)
 
         for pcol in process_cols:
-            name = feature + ":" + pcol
+            name = f"{feature}:{pcol}"
             if name not in self.traffic_lights:
                 key = rule(name, feature, pattern)
                 bounds = self.monitoring_rules[key]

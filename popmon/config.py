@@ -39,20 +39,20 @@ class SectionModel(BaseModel):
 
 
 class ProfilesSection(SectionModel):
-    name = "Profiles"
+    name: str = "Profiles"
     """Name of the profiles section in the report"""
 
-    description = """Basic statistics of the data (profiles) calculated for each time period (a period
+    description: str = """Basic statistics of the data (profiles) calculated for each time period (a period
                        is represented by one bin). The yellow and red lines represent the corresponding
                        traffic light bounds (default: 4 and 7 standard deviations with respect to the reference data)."""
     """Description of the profiles section in the report"""
 
 
 class AlertSection(SectionModel):
-    name = "Alerts"
+    name: str = "Alerts"
     """Name of the alerts section in the report"""
 
-    description = "Alerts aggregated by all traffic lights for each feature."
+    description: str = "Alerts aggregated by all traffic lights for each feature."
     """Description of the alerts section in the report"""
 
     descriptions: Dict[Literal["n_green", "n_yellow", "n_red"], str] = {
@@ -64,10 +64,10 @@ class AlertSection(SectionModel):
 
 
 class HistogramSectionModel(SectionModel):
-    name = "Histograms"
+    name: str = "Histograms"
     """Name of the histograms section in the report"""
 
-    description = "Histograms of the last few time slots (default: 2)."
+    description: str = "Histograms of the last few time slots (default: 2)."
     """Description of the histograms section in the report"""
 
     hist_names: List[
@@ -110,28 +110,28 @@ class HistogramSectionModel(SectionModel):
 
 
 class TrafficLightsSection(SectionModel):
-    name = "Traffic Lights"
+    name: str = "Traffic Lights"
     """Name of the traffic lights section in the report"""
 
-    description = "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default."
+    description: str = "Traffic light calculation for different statistics (based on the calculated normalized residual, a.k.a. pull). Statistics for which all traffic lights are green are hidden from view by default."
     """Description of the traffic lights section in the report"""
 
 
 class ComparisonsSection(SectionModel):
-    name = "Comparisons"
+    name: str = "Comparisons"
     """Name of the comparisons section in the report"""
 
-    description = (
+    description: str = (
         "Statistical comparisons of each time period (one bin) to the reference data."
     )
     """Description of the comparisons section in the report"""
 
 
 class OverviewSection(SectionModel):
-    name = "Overview"
+    name: str = "Overview"
     """Name of the overview section in the report"""
 
-    description = "Alerts aggregated per feature"
+    description: str = "Alerts aggregated per feature"
     """Description of the overview section in the report"""
 
 
@@ -139,17 +139,28 @@ class Section(BaseModel):
     """Configuration for the individual sections"""
 
     profiles: ProfilesSection = ProfilesSection()
+    """Configuration related to the profiles section"""
+
     alerts: AlertSection = AlertSection()
+    """Configuration related to the alerts section"""
+
     histograms: HistogramSectionModel = HistogramSectionModel()
+    """Configuration related to the histogram section"""
+
     overview: OverviewSection = OverviewSection()
+    """Configuration related to the overview section"""
+
     comparisons: ComparisonsSection = ComparisonsSection()
+    """Configuration related to the comparisons section"""
+
     traffic_lights: TrafficLightsSection = TrafficLightsSection()
+    """Configuration related to the traffic lights section"""
 
 
 class Report(BaseModel):
     """Report-specific configuration"""
 
-    title = "POPMON Report"
+    title: str = "POPMON Report"
     """Report title in browser and navbar. May contain HTML."""
 
     skip_empty_plots: bool = True
@@ -197,7 +208,7 @@ class Report(BaseModel):
     ]
     """list of statistic name patterns to show in the report. If None, show all (optional)"""
 
-    primary_color = "#000080"
+    primary_color: str = "#000080"
     """Primary color used throughout the report"""
 
     tl_colors: Dict[str, str] = {
@@ -337,13 +348,13 @@ class Settings(BaseSettings):
     """
 
     # Config utilities
-    def ensure_features_time_axis(self):
+    def _ensure_features_time_axis(self):
         self.features = [
             c if c.startswith(self.time_axis) else f"{self.time_axis}:{c}"
             for c in self.features
         ]
 
-    def set_time_axis_dataframe(self, df):
+    def _set_time_axis_dataframe(self, df):
         time_axes = get_time_axes(df)
         num = len(time_axes)
         if num == 1:
@@ -357,12 +368,12 @@ class Settings(BaseSettings):
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
 
-    def set_time_axis_hists(self, hists):
+    def _set_time_axis_hists(self, hists):
         # auto guess the time_axis: find the most frequent first column name in the histograms list
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         self.time_axis = max(set(first_cols), key=first_cols.count)
 
-    def set_bin_specs_by_time_width_and_offset(
+    def _set_bin_specs_by_time_width_and_offset(
         self, time_width: Union[str, int, float], time_offset: Union[str, int, float]
     ):
         if self.time_axis in self.bin_specs:

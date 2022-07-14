@@ -53,27 +53,27 @@ _TEMPLATES_ENV = Environment(
 _TEMPLATES_ENV.filters["fmt_metric"] = lambda x: x.replace("_", " ")
 
 
-def js_list(encoder, data):
-    pairs = [js_val(encoder, v) for v in data]
+def _js_list(encoder, data):
+    pairs = [_js_val(encoder, v) for v in data]
     return "[" + ", ".join(pairs) + "]"
 
 
-def js_dict(encoder, data):
-    pairs = [k + ": " + js_val(encoder, v) for k, v in data.items()]
+def _js_dict(encoder, data):
+    pairs = [k + ": " + _js_val(encoder, v) for k, v in data.items()]
     return "{" + ", ".join(pairs) + "}"
 
 
-def js_val(encoder, data):
+def _js_val(encoder, data):
     if isinstance(data, dict):
-        val = js_dict(encoder, data)
+        val = _js_dict(encoder, data)
     elif isinstance(data, list):
-        val = js_list(encoder, data)
+        val = _js_list(encoder, data)
     else:
         val = encoder.encode(data)
     return val
 
 
-_TEMPLATES_ENV.filters["json_plot"] = lambda x: js_val(
+_TEMPLATES_ENV.filters["json_plot"] = lambda x: _js_val(
     json.JSONEncoder(ensure_ascii=False), x
 )
 
