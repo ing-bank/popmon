@@ -1,6 +1,11 @@
 popmon package
 ==============
 
+.. automodule:: popmon
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Subpackages
 -----------
 
@@ -27,37 +32,29 @@ popmon.config module
 
 .. automodule:: popmon.config
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.resources module
 -----------------------
 
 .. automodule:: popmon.resources
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.utils module
 -------------------
 
 .. automodule:: popmon.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.version module
 ---------------------
 
 .. automodule:: popmon.version
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:

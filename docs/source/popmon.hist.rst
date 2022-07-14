@@ -1,6 +1,11 @@
 popmon.hist package
 ===================
 
+.. automodule:: popmon.hist
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Subpackages
 -----------
 
@@ -17,21 +22,13 @@ popmon.hist.hist\_splitter module
 
 .. automodule:: popmon.hist.hist_splitter
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.hist.hist\_utils module
 ------------------------------
 
 .. automodule:: popmon.hist.hist_utils
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon.hist
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:
