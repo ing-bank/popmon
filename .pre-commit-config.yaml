@@ -18,7 +18,7 @@ repos:
             - tryceratops
         args: [ "--ignore=E501,E203,W503,TC003,TC101,TC300"]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
+    rev: v2.37.3
     hooks:
     -   id: pyupgrade
         args: ['--py36-plus','--exit-zero-even-if-changed']
