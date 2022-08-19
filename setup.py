@@ -2,7 +2,7 @@ import json
 
 from setuptools import find_packages, setup
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 with open("requirements.txt") as f:
     REQUIREMENTS = f.read().splitlines()

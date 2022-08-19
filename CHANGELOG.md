@@ -2,6 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.0 (2022-08-19)
+### Feature
+* Extension functionality + diptest implementation @RUrlus ([`8487991`](https://github.com/ing-bank/popmon/commit/8487991380e85635d5580a68b9e09ba33ac9392f))
+
+### Documentation
+* **config:** Extend settings documentation ([`fa4d2fc`](https://github.com/ing-bank/popmon/commit/fa4d2fce01018111454d780166c4ca6b042eb146))
+* **api:** Restructure api documentation for clarity ([`affdd75`](https://github.com/ing-bank/popmon/commit/affdd75b918ea6201cf2f5879e01fb7b267585c7))
+* **profiles:** Profile extension ([`e859530`](https://github.com/ing-bank/popmon/commit/e8595308340ab3d0edba55b7e4d9fcfa66b0beee))
+* **comparisons:** Comparison extensions section ([`581e63c`](https://github.com/ing-bank/popmon/commit/581e63c8b926319c9b63bfbe30abd907bd08d3c6))
+* Extensions in index ([`6c87fcb`](https://github.com/ing-bank/popmon/commit/6c87fcbd9a0ffe0b5029b5bc2e7fbd6bda3dacd9))
+* **readme:** Add section about profile integrations and diptest ([`aa860a7`](https://github.com/ing-bank/popmon/commit/aa860a7193c4a44f378592fe7f8779e3a6af122b))
+* **readme:** Include citation information ([#241](https://github.com/ing-bank/popmon/issues/241)) ([`3a29135`](https://github.com/ing-bank/popmon/commit/3a29135fc8ccd7b0a0ba9302eb4281b598ef5608))
+
 ## v1.0.0 (2022-07-08)
 ### Feature
 * **report:** Group comparisons by reference key ([#237](https://github.com/ing-bank/popmon/issues/237)) ([`e813534`](https://github.com/ing-bank/popmon/commit/e813534b03ea4662e46f5b782839506fcf49b1ed))
