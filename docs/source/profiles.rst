@@ -46,6 +46,20 @@ The comparisons registry can be consulted for available comparisons:
 
     print(Profiles.get_keys())
 
+Profile extensions
+------------------
+
+How to enable profile extensions:
+
+- Install the required package(s). This can be achieved via ``popmon``'s extras: ``pip install popmon[extension_name]``
+- To show the profile values in your report:
+    - Include the relevant values to the ``show_stats`` list: ``settings.report.show_stats.append("[value_prefix]*")`` or
+    - Show all statistics: ``settings.report.extended_report = True``
+
+Available profile extensions:
+
+- `diptest <popmon/extensions/profile_diptest.py>`_: Hartigan & Hartigan's dip test for unimodality. Available for 1D numerical histograms. Uses the `diptest package <https://github.com/rurlus/diptest>`_ by Ralph Urlus.
+
 
 Custom profiles
 ---------------

@@ -45,7 +45,7 @@ Profiles = Registry()
     dim=1,
     htype="num",
 )
-def profile_quantiles(x, w):
+def profile_quantiles(x, w, bin_width):
     return tuple(
         pm_np.quantile(
             x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
@@ -54,12 +54,12 @@ def profile_quantiles(x, w):
 
 
 @Profiles.register(key="mean", description="Mean value", dim=1, htype="num")
-def profile_mean(x, w):
+def profile_mean(x, w, bin_width):
     return pm_np.mean(x, w)
 
 
 @Profiles.register(key="std", description="Standard deviation", dim=1, htype="num")
-def profile_std(x, w):
+def profile_std(x, w, bin_width):
     return pm_np.std(x, w)
 
 

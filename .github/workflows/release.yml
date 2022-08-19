@@ -21,3 +21,21 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository_username: __token__
         repository_password: ${{ secrets.PYPI_TOKEN }}
+
+  merge-master-back-to-dev:
+    runs-on: ubuntu-latest
+    needs:
+    - release
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set Git config
+      run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+    - name: Merge master back to dev
+      run: |
+          git fetch --unshallow
+          git checkout dev
+          git pull
+          git merge --no-ff master -m "chore: auto-merge master back to develop"
+          git push

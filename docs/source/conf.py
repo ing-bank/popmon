@@ -38,6 +38,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
+    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -68,7 +69,7 @@ language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["*test*", "popmon.tutorials.*", "popmon.decorators.*"]
+exclude_patterns = ["*test*", "popmon.decorators.*"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -86,6 +87,9 @@ if not on_rtd:
 
     html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+    html_theme_options = {
+        "navigation_depth": 8,
+    }
 # otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -39,6 +39,7 @@ def stability_metrics(
     """Create a data stability monitoring datastore for given dict of input histograms.
 
     :param dict hists: input histograms to be profiled and monitored over time.
+    :param popmon.config.Settings settings: popmon configuration object
     :param reference: histograms used as reference. default is None
     :return: dict with results of metrics pipeline
     """
@@ -47,7 +48,7 @@ def stability_metrics(
         raise TypeError("hists should be a dict of histogrammar histograms.")
 
     if isinstance(settings.time_axis, str) and len(settings.time_axis) == 0:
-        settings.set_time_axis_hists(hists)
+        settings._set_time_axis_hists(hists)
 
     kwargs = {}
     if (
@@ -82,6 +83,7 @@ def df_stability_metrics(
     """Create a data stability monitoring html datastore for given pandas or spark dataframe.
 
     :param df: input pandas/spark dataframe to be profiled and monitored over time.
+    :param popmon.config.Settings settings: popmon configuration object
     :param time_width: bin width of time axis. str or number (ns). note: bin_specs takes precedence. (optional)
 
         .. code-block:: text
@@ -105,7 +107,7 @@ def df_stability_metrics(
         settings = Settings(**kwargs)
 
     if len(settings.time_axis) == 0:
-        settings.set_time_axis_dataframe(df)
+        settings._set_time_axis_dataframe(df)
         logger.info(f'Time-axis automatically set to "{settings.time_axis}"')
 
     if settings.time_axis not in df.columns:
@@ -124,7 +126,7 @@ def df_stability_metrics(
 
     if settings.features is not None:
         # by now time_axis is defined. ensure that all histograms start with it.
-        settings.ensure_features_time_axis()
+        settings._ensure_features_time_axis()
 
     # interpret time_width and time_offset
     if time_width is not None:
@@ -133,7 +135,7 @@ def df_stability_metrics(
         if not isinstance(time_offset, (str, int, float)):
             raise TypeError
 
-        settings.set_bin_specs_by_time_width_and_offset(time_width, time_offset)
+        settings._set_bin_specs_by_time_width_and_offset(time_width, time_offset)
 
     if reference is not None:
         if settings.reference_type not in ["external", "self_split"]:

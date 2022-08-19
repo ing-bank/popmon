@@ -1,6 +1,11 @@
 popmon.analysis package
 =======================
 
+.. automodule:: popmon.analysis
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Subpackages
 -----------
 
@@ -18,37 +23,29 @@ popmon.analysis.apply\_func module
 
 .. automodule:: popmon.analysis.apply_func
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.analysis.functions module
 --------------------------------
 
 .. automodule:: popmon.analysis.functions
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.analysis.hist\_numpy module
 ----------------------------------
 
 .. automodule:: popmon.analysis.hist_numpy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.analysis.merge\_statistics module
 ----------------------------------------
 
 .. automodule:: popmon.analysis.merge_statistics
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon.analysis
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:

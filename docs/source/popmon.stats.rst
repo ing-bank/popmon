@@ -1,6 +1,11 @@
 popmon.stats package
 ====================
 
+.. automodule:: popmon.stats
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Submodules
 ----------
 
@@ -9,13 +14,5 @@ popmon.stats.numpy module
 
 .. automodule:: popmon.stats.numpy
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon.stats
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:

@@ -18,34 +18,26 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# histogram and report functions
-from histogrammar.dfinterface.make_histograms import (
-    get_bin_specs,
-    get_time_axes,
-    make_histograms,
-)
+import importlib.util
+from typing import Callable, List
 
-# pandas/spark dataframe decorators
-from popmon import decorators
 
-from .config import Settings
-from .extensions import extensions
-from .pipeline.metrics import df_stability_metrics, stability_metrics
-from .pipeline.report import df_stability_report, stability_report
-from .stitching import stitch_histograms
-from .version import version as __version__
+def is_installed(package):
+    is_present = importlib.util.find_spec(package)
+    return is_present is not None
 
-__all__ = [
-    "get_bin_specs",
-    "get_time_axes",
-    "make_histograms",
-    "decorators",
-    "df_stability_metrics",
-    "stability_metrics",
-    "df_stability_report",
-    "stability_report",
-    "stitch_histograms",
-    "__version__",
-    "Settings",
-    "extensions",
-]
+
+class Extension:
+    name: str
+    requirements: List[str]
+    extension: Callable
+
+    @property
+    def extras(self):
+        return {self.name: self.requirements}
+
+    def check(self):
+        if all(is_installed(package) for package in self.requirements):
+            func = self.extension
+            func = func.__func__
+            func()

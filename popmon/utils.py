@@ -19,16 +19,24 @@
 
 import fnmatch
 from textwrap import shorten
-from typing import Iterable, Optional
+from typing import Callable, List, Optional
 
 from joblib import Parallel, delayed
 
 
 def short_date(date: str):
+    """
+    Shorten date string to length of 22
+    """
     return shorten(date, width=22, placeholder="")
 
 
-def filter_metrics(metrics, ignore_stat_endswith, show_stats: Optional[Iterable]):
+def filter_metrics(
+    metrics, ignore_stat_endswith: List[str], show_stats: Optional[List[str]] = None
+):
+    """
+    Filter metrics by excluding based on suffix and/or including when matching a pattern
+    """
     metrics = [
         m for m in metrics if not any(m.endswith(s) for s in ignore_stat_endswith)
     ]
@@ -41,7 +49,7 @@ def filter_metrics(metrics, ignore_stat_endswith, show_stats: Optional[Iterable]
     return metrics
 
 
-def parallel(func, args_list, mode="args"):
+def parallel(func: Callable, args_list, mode="args"):
     """
     Routine for parallel processing
     """
