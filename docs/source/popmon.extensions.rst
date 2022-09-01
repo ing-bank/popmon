@@ -1,6 +1,11 @@
 popmon.extensions package
 =========================
 
+.. automodule:: popmon.extensions
+   :members:
+   :show-inheritance:
+   :ignore-module-all:
+
 Submodules
 ----------
 
@@ -9,29 +14,21 @@ popmon.extensions.extension module
 
 .. automodule:: popmon.extensions.extension
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.extensions.profile\_diptest module
 -----------------------------------------
 
 .. automodule:: popmon.extensions.profile_diptest
    :members:
-   :undoc-members:
    :show-inheritance:
+   :ignore-module-all:
 
 popmon.extensions.utils module
 ------------------------------
 
 .. automodule:: popmon.extensions.utils
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: popmon.extensions
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :ignore-module-all:
