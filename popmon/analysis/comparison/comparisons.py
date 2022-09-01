@@ -173,7 +173,7 @@ def unknown_labels(hist1, hist2):
     labels1 = hist1.keySet
     labels2 = hist2.keySet
     subset = labels1 <= labels2
-    return int(not subset)
+    return not subset
 
 
 @Comparisons.register(
