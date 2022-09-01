@@ -46,6 +46,7 @@ class HistogramSection(Module):
         self,
         read_key,
         store_key,
+        reference_type: str,
         settings: HistogramSectionModel,
         features=None,
         ignore_features=None,
@@ -64,6 +65,7 @@ class HistogramSection(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.reference_type = reference_type
 
         self.features = features or []
         self.ignore_features = ignore_features or []
