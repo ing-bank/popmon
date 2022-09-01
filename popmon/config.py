@@ -81,8 +81,11 @@ class HistogramSectionModel(SectionModel):
     name: str = "Histograms"
     """Name of the histograms section in the report"""
 
-    description: str = "Histograms of the last few time slots (default: 2)."
+    description: str = "This section contains visualisations of individual histograms and heatmaps of them over time."
     """Description of the histograms section in the report"""
+
+    inspector_histogram_choices: int = 2
+    """The number of histograms that can be compared at once (e.g. the number of dropdowns)"""
 
     hist_names: List[
         Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"]
@@ -113,8 +116,8 @@ class HistogramSectionModel(SectionModel):
     }
     """Descriptions of the heatmaps in the report"""
 
-    plot_hist_n: int = 2
-    """plot histograms for last 'n' periods. default is 2 (optional)"""
+    plot_hist_n: int = 0
+    """plot histograms for last 'n' periods. default is 0 to show all (optional)"""
 
     top_n: int = 20
     """plot heatmap for top 'n' categories. default is 20 (optional)"""
