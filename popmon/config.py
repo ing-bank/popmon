@@ -16,26 +16,18 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import get_time_axes
 from pydantic import BaseModel, BaseSettings
-from pydantic.class_validators import validator
 from typing_extensions import Literal
 
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
 parallel_args = {"n_jobs": 1}
-
-
-class ValidatedBaseModel(BaseModel):
-    class Config:
-        validate_all = True
-        validate_assignment = True
 
 
 class ValidatedSettings(BaseSettings):
@@ -174,22 +166,11 @@ class Section(BaseModel):
     """Configuration related to the traffic lights section"""
 
 
-class Report(ValidatedBaseModel):
+class Report(BaseModel):
     """Report-specific configuration"""
 
     title: str = "POPMON Report"
     """Report title in browser and navbar. May contain HTML."""
-
-    skip_empty_plots: bool = False
-    """(deprecated) if false, also show empty plots in report with only nans or zeroes (optional)"""
-
-    @validator("skip_empty_plots")
-    def skip_empty_plots_deprecated(cls, v):
-        if v:
-            warnings.warn(
-                "The 'skip_empty_plots' parameter is deprecated and will be removed in the next release."
-            )
-        return v
 
     last_n: int = 0
     """plot statistic data for last 'n' periods (optional)"""
