@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v1.2.0 (2022-09-01)
+### Feature
+* **report:** Histogram inspector ([`5e78f98`](https://github.com/ing-bank/popmon/commit/5e78f98e4775e12746e62b29f18fee8d7423b8b0))
+* Remove time of day from label when midnight or noon ([`1615bed`](https://github.com/ing-bank/popmon/commit/1615bed87450dd603d7ee34ba32dc4379f701e9c))
+* **config:** Deprecate skip_empty_plots ([#249](https://github.com/ing-bank/popmon/issues/249)) ([`372ef85`](https://github.com/ing-bank/popmon/commit/372ef85ced7810614f0d828f304284b9157cf534))
+
+### Fix
+* Show heatmap descriptions ([`64a4952`](https://github.com/ing-bank/popmon/commit/64a495255b98ab933b791aa31334bf6025139b73))
+
+### Documentation
+* **readme:** Include histogram inspector in readme ([`3e68508`](https://github.com/ing-bank/popmon/commit/3e685081f55f4a77413dc238ae1140235689ce49))
+
 ## v1.1.0 (2022-08-19)
 ### Feature
 * Extension functionality + diptest implementation @RUrlus ([`8487991`](https://github.com/ing-bank/popmon/commit/8487991380e85635d5580a68b9e09ba33ac9392f))
