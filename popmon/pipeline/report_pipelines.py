@@ -23,7 +23,7 @@ from pathlib import Path
 from typing_extensions import Literal
 
 from ..base import Pipeline
-from ..config import Report, Settings
+from ..config import Settings
 from ..io import FileWriter
 from ..pipeline.metrics_pipelines import (
     ExpandingReferenceMetricsPipeline,
@@ -80,7 +80,7 @@ class SelfReference(Pipeline):
             ReportPipe(
                 sections_key="report_sections",
                 store_key="html_report",
-                settings=settings.report,
+                settings=settings,
             ),
         ]
 
@@ -110,7 +110,7 @@ class ExternalReference(Pipeline):
             ReportPipe(
                 sections_key="report_sections",
                 store_key="html_report",
-                settings=settings.report,
+                settings=settings,
             ),
         ]
 
@@ -136,7 +136,7 @@ class RollingReference(Pipeline):
             ReportPipe(
                 sections_key="report_sections",
                 store_key="html_report",
-                settings=settings.report,
+                settings=settings,
             ),
         ]
 
@@ -162,7 +162,7 @@ class ExpandingReference(Pipeline):
             ReportPipe(
                 sections_key="report_sections",
                 store_key="html_report",
-                settings=settings.report,
+                settings=settings,
             ),
         ]
 
@@ -174,12 +174,13 @@ class ReportPipe(Pipeline):
 
     def __init__(
         self,
-        settings: Report,
+        settings: Settings,
         sections_key: str = "report_sections",
         store_key: str = "html_report",
     ):
         """Initialize an instance of Report.
 
+        :param Settings settings: the configuration object
         :param str sections_key: key to store sections data in the datastore
         :param str store_key: key to store the HTML report data in the datastore
         """
@@ -189,59 +190,62 @@ class ReportPipe(Pipeline):
             OverviewSectionGenerator(
                 read_key="traffic_lights",
                 store_key=sections_key,
-                settings=settings,
+                settings=settings.report,
             ),
             # generate section with histogram
             HistogramSection(
                 read_key="split_hists",
                 store_key=sections_key,
                 hist_name_starts_with="histogram",
-                settings=settings.section.histograms,
+                reference_type=settings.reference_type,
+                settings=settings.report.section.histograms,
             ),
             # section showing all traffic light alerts of monitored statistics
             TrafficLightSectionGenerator(
                 read_key="traffic_lights",
                 store_key=sections_key,
-                settings=settings,
+                settings=settings.report,
             ),
             # section with a summary of traffic light alerts
             AlertSectionGenerator(
                 read_key="alerts",
                 store_key=sections_key,
-                settings=settings,
+                settings=settings.report,
             ),
             # section of histogram and pull comparison statistics
             SectionGenerator(
                 dynamic_bounds="dynamic_bounds_comparisons",
                 static_bounds="static_bounds_comparisons",
-                section_name=settings.section.comparisons.name,
+                section_name=settings.report.section.comparisons.name,
                 ignore_stat_endswith=["_mean", "_std", "_pull"],
                 read_key="comparisons",
-                description=settings.section.comparisons.description,
+                description=settings.report.section.comparisons.description,
                 store_key=sections_key,
-                settings=settings,
+                settings=settings.report,
             ),
             # section of profiled statistics with dynamic or static traffic light bounds
             SectionGenerator(
                 dynamic_bounds="dynamic_bounds",
-                section_name=settings.section.profiles.name,
+                section_name=settings.report.section.profiles.name,
                 static_bounds="static_bounds",
                 ignore_stat_endswith=["_mean", "_std", "_pull"],
                 read_key="profiles",
-                description=settings.section.profiles.description,
+                description=settings.report.section.profiles.description,
                 store_key=sections_key,
-                settings=settings,
+                settings=settings.report,
             ),
             # generate report
             ReportGenerator(
-                read_key=sections_key, store_key=store_key, settings=settings
+                read_key=sections_key, store_key=store_key, settings=settings.report
             ),
         ]
         if (
-            isinstance(settings.report_filepath, (str, Path))
-            and len(settings.report_filepath) > 0
+            isinstance(settings.report.report_filepath, (str, Path))
+            and len(settings.report.report_filepath) > 0
         ):
-            modules.append(FileWriter(store_key, file_path=settings.report_filepath))
+            modules.append(
+                FileWriter(store_key, file_path=settings.report.report_filepath)
+            )
 
         super().__init__(modules=modules)
 

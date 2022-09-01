@@ -3,7 +3,7 @@ import pytest
 
 from popmon import resources
 from popmon.base import Pipeline
-from popmon.config import Report, Settings
+from popmon.config import Settings
 from popmon.hist.filling import get_bin_specs
 from popmon.io import JsonReader
 from popmon.pipeline.report import df_stability_report, stability_report
@@ -55,17 +55,17 @@ def test_df_stability_report():
         bin_specs=bin_specs,
     )
 
-    settings = Report()
-    settings.last_n = 4
+    settings = Settings()
+    settings.report.last_n = 4
 
     # regenerate report, changing the plot window settings
-    rep.regenerate(report_settings=settings)
+    rep.regenerate(settings=settings)
 
-    settings.last_n = 0
-    settings.skip_first_n = 1
-    settings.skip_last_n = 1
+    settings.report.last_n = 0
+    settings.report.skip_first_n = 1
+    settings.report.skip_last_n = 1
 
-    rep.regenerate(report_settings=settings)
+    rep.regenerate(settings=settings)
 
 
 def test_df_stability_report_self():

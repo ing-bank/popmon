@@ -33,7 +33,11 @@ from ..analysis.hist_numpy import (
 from ..base import Module
 from ..config import HistogramSectionModel
 from ..utils import parallel, short_date
-from ..visualization.utils import plot_heatmap, plot_histogram_overlay
+from ..visualization.utils import (
+    histogram_basic_checks,
+    plot_heatmap,
+    plot_histogram_overlay,
+)
 
 
 class HistogramSection(Module):
@@ -46,6 +50,7 @@ class HistogramSection(Module):
         self,
         read_key,
         store_key,
+        reference_type: str,
         settings: HistogramSectionModel,
         features=None,
         ignore_features=None,
@@ -64,6 +69,7 @@ class HistogramSection(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.reference_type = reference_type
 
         self.features = features or []
         self.ignore_features = ignore_features or []
@@ -78,6 +84,7 @@ class HistogramSection(Module):
         self.hist_names_formatted = settings.hist_names_formatted
         self.plot_hist_n = settings.plot_hist_n
         self.top_n = settings.top_n
+        self.n_choices = settings.inspector_histogram_choices
         self.cmap = settings.cmap
 
     def get_description(self):
@@ -90,12 +97,17 @@ class HistogramSection(Module):
         features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
 
+        # Treat these as static
+        is_static_reference = self.reference_type in ["self", "external"]
+
         self.logger.info(f'Generating section "{self.section_name}".')
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
             last_n = (
-                len(df.index) if len(df.index) < self.plot_hist_n else self.plot_hist_n
+                len(df.index)
+                if (len(df.index) < self.plot_hist_n or self.plot_hist_n == 0)
+                else self.plot_hist_n
             )
             hist_names = [hn for hn in self.hist_names if hn in df.columns]
             if len(hist_names) == 0 and len(self.hist_name_starts_with) > 0:
@@ -110,7 +122,7 @@ class HistogramSection(Module):
                 continue
 
             # base64 heatmap plot for each metric
-            dates = [short_date(str(date)) for date in df.index[:]]
+            dates = [short_date(date) for date in df.index[:]]
             hists = [
                 df[hist_names].iloc[-i].values
                 for i in reversed(range(1, len(dates) + 1))
@@ -129,7 +141,7 @@ class HistogramSection(Module):
             )
 
             # get base64 encoded plot for each metric; do parallel processing to speed up.
-            dates = [short_date(str(date)) for date in df.index[-last_n:]]
+            dates = [short_date(date) for date in df.index[-last_n:]]
             hists = [
                 df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
             ]
@@ -138,15 +150,43 @@ class HistogramSection(Module):
                 (feature, dates[i], hists[i], hist_names, self.top_n)
                 for i in range(last_n)
             ]
+
+            # get histograms for each timestamp
             plots = parallel(_plot_histograms, args)
 
             plot_type_layouts = {}
 
             # filter out potential empty plots
-            plots = [e for e in plots if len(e["plot"])]
-            plots = sorted(plots, key=lambda plot: plot["name"])
-            if len(plots) > 0:
-                plot_type_layouts["histogram"] = plots[0]["layout"]
+            plots = [e for e in plots if len(e)]
+            plots = sorted(plots, key=lambda plot: plot["date"])
+
+            # basic checks for histograms
+            histogram_basic_checks(plots)
+
+            for plot in plots:
+                for index in range(len(plot["hists"])):
+                    if plot["hist_names"][index] == "histogram_prev1":
+                        del plot["hist_names"][index]
+                        del plot["hists"][index]
+                        break
+
+            # get histogram plots
+            histogram = {}
+            if len(plots) > 1:
+                histogram = plot_histogram_overlay(
+                    plots,
+                    plots[0]["is_num"],
+                    plots[0]["is_ts"],
+                    is_static_reference,
+                    top=self.top_n,
+                    n_choices=self.n_choices,
+                )
+
+            if len(histogram) > 0:
+                plot_type_layouts["histogram"] = histogram["layout"]
+                histogram = [histogram]
+            else:
+                histogram = []
 
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
             hplots = []
@@ -158,7 +198,7 @@ class HistogramSection(Module):
             if len(hplots) > 0:
                 plot_type_layouts["heatmap"] = hplots[0]["layout"]
 
-            plots = hplots + plots
+            plots = hplots + histogram
 
             features_w_metrics.append(
                 {
@@ -186,7 +226,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
     :param list hc_list: histogram list
     :param list hist_names: names of histograms to show as labels
     :param int max_nbins: maximum number of histogram bins allowed for plot (default 1000)
-    :return: dict with plotted histogram
+    :return: dict with histograms for each timestamp
     """
     # basic checks
     if len(hc_list) != len(hist_names):
@@ -204,7 +244,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
 
     # make plot. note: slow!
     if hc_list[0].n_dim == 1:
-        if all(h.size == 0 for h in hc_list):
+        if all(h.entries == 0 for h in hc_list):
             # triviality checks, skip all histograms empty
             return {"name": date, "description": "", "plot": ""}
 
@@ -243,20 +283,20 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
                 entries_list = np.reshape(entries_list.ravel(), (-1, len(bins)))
 
         hists = [(el, bins) for el in entries_list]
-        plot = plot_histogram_overlay(
-            hists, feature, hist_names, y_label, is_num, is_ts
-        )
+
     elif hc_list[0].n_dim == 2:
-        plot = {}
+        return {}
     else:
-        plot = {}
+        return {}
 
     return {
-        "name": date,
-        "type": "histogram",
-        "description": "",
-        "plot": plot.get("data", ""),
-        "layout": plot.get("layout", ""),
+        "date": date,
+        "hists": hists,
+        "feature": feature,
+        "hist_names": hist_names,
+        "y_label": y_label,
+        "is_num": is_num,
+        "is_ts": is_ts,
     }
 
 
@@ -350,7 +390,7 @@ def _plot_heatmap(
             {
                 "name": hist_names_formatted[hist_name],
                 "type": "heatmap",
-                "description": "",
+                "description": descriptions[hist_name],
                 "plot": pl["plot"],
                 "layout": pl["layout"],
                 "full_width": True,

@@ -19,6 +19,8 @@ using monitoring business rules.
 
 |example|
 
+|histograms|
+
 Announcements
 =============
 
@@ -304,6 +306,8 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :target: https://github.com/ing-bank/popmon
 .. |example| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/report_overview.png
     :alt: Traffic Light Overview
+.. |histograms| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/histogram_inspector.png
+    :alt: Histogram inspector
 .. |pipeline| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/pipeline.png
     :alt: Pipeline Visualization
     :target: https://github.com/ing-bank/popmon/files/7417124/pipeline_amazingpipeline_subgraphs_unversioned.pdf

@@ -16,18 +16,32 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import get_time_axes
 from pydantic import BaseModel, BaseSettings
+from pydantic.class_validators import validator
 from typing_extensions import Literal
 
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
 # the backend from default (loki) to 'multiprocessing' or 'threading'.
 # (see https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html for details)
 parallel_args = {"n_jobs": 1}
+
+
+class ValidatedBaseModel(BaseModel):
+    class Config:
+        validate_all = True
+        validate_assignment = True
+
+
+class ValidatedSettings(BaseSettings):
+    class Config:
+        validate_all = True
+        validate_assignment = True
 
 
 class SectionModel(BaseModel):
@@ -67,8 +81,11 @@ class HistogramSectionModel(SectionModel):
     name: str = "Histograms"
     """Name of the histograms section in the report"""
 
-    description: str = "Histograms of the last few time slots (default: 2)."
+    description: str = "This section contains visualisations of individual histograms and heatmaps of them over time."
     """Description of the histograms section in the report"""
+
+    inspector_histogram_choices: int = 2
+    """The number of histograms that can be compared at once (e.g. the number of dropdowns)"""
 
     hist_names: List[
         Literal["heatmap", "heatmap_column_normalized", "heatmap_row_normalized"]
@@ -99,8 +116,8 @@ class HistogramSectionModel(SectionModel):
     }
     """Descriptions of the heatmaps in the report"""
 
-    plot_hist_n: int = 2
-    """plot histograms for last 'n' periods. default is 2 (optional)"""
+    plot_hist_n: int = 0
+    """plot histograms for last 'n' periods. default is 0 to show all (optional)"""
 
     top_n: int = 20
     """plot heatmap for top 'n' categories. default is 20 (optional)"""
@@ -157,14 +174,22 @@ class Section(BaseModel):
     """Configuration related to the traffic lights section"""
 
 
-class Report(BaseModel):
+class Report(ValidatedBaseModel):
     """Report-specific configuration"""
 
     title: str = "POPMON Report"
     """Report title in browser and navbar. May contain HTML."""
 
-    skip_empty_plots: bool = True
-    """if false, also show empty plots in report with only nans or zeroes (optional)"""
+    skip_empty_plots: bool = False
+    """(deprecated) if false, also show empty plots in report with only nans or zeroes (optional)"""
+
+    @validator("skip_empty_plots")
+    def skip_empty_plots_deprecated(cls, v):
+        if v:
+            warnings.warn(
+                "The 'skip_empty_plots' parameter is deprecated and will be removed in the next release."
+            )
+        return v
 
     last_n: int = 0
     """plot statistic data for last 'n' periods (optional)"""
@@ -287,7 +312,7 @@ class Monitoring(BaseModel):
     """
 
 
-class Settings(BaseSettings):
+class Settings(ValidatedSettings):
     report: Report = Report()
     """Settings regarding the report"""
 
@@ -385,7 +410,3 @@ class Settings(BaseSettings):
             "bin_width": float(pd.Timedelta(time_width).value),
             "bin_offset": float(pd.Timestamp(time_offset).value),
         }
-
-    class Config:
-        validate_all = True
-        validate_assignment = True

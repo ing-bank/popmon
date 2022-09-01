@@ -23,7 +23,7 @@ from typing import Optional
 
 from histogrammar.dfinterface.make_histograms import get_bin_specs, make_histograms
 
-from ..config import Report, Settings
+from ..config import Settings
 from ..pipeline.dataset_splitter import split_dataset
 from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
 from ..resources import templates_env
@@ -277,12 +277,12 @@ class StabilityReport:
         self,
         store_key: str = "html_report",
         sections_key: str = "report_sections",
-        report_settings: Report = None,
+        settings: Settings = None,
     ):
         """Regenerate HTML report with different plot settings
         :param str sections_key: key to store sections data in the datastore. default is 'report_sections'.
         :param str store_key: key to store the HTML report data in the datastore. default is 'html_report'
-        :param Report report_settings: configuration to regenerate the report
+        :param Settings settings: configuration to regenerate the report
         :return HTML: HTML report in an iframe
         """
         # basic checks
@@ -295,12 +295,12 @@ class StabilityReport:
             del self.datastore[sections_key]
         if store_key in self.datastore:
             del self.datastore[store_key]
-        if report_settings is None:
-            report_settings = Report()
+        if settings is None:
+            settings = Settings()
 
         pipeline = ReportPipe(
             sections_key=sections_key,
-            settings=report_settings,
+            settings=settings,
         )
         result = pipeline.transform(self.datastore)
 
