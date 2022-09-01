@@ -51,7 +51,6 @@ def plot_bars(
     labels: List[str],
     bounds: tuple,
     ylim: bool,
-    skip_empty: bool,
     primary_color: str,
     tl_colors: Dict[str, str],
     metric: str,
@@ -62,7 +61,6 @@ def plot_bars(
     :param labels: common bin labels for all histograms. default is None.
     :param bounds: traffic light bounds (y-coordinates). default is None.
     :param ylim: place y-axis limits for zooming into the data. default is False.
-    :param skip_empty: if false, also plot empty plots with only nans or only zeroes. default is True.
     :return: JSON plot image
     :rtype: str
     """
@@ -72,14 +70,12 @@ def plot_bars(
         raise ValueError("shape mismatch: x-axis labels do not match the data shape")
 
     # skip plot generation for empty datasets
-    if skip_empty:
-        n_data = len(data)
-        n_zero = n_data - np.count_nonzero(data)
-        n_nan = pd.isnull(data).sum()
-        n_inf = np.sum([np.isinf(x) for x in data if isinstance(x, float)])
-        if n_nan + n_zero + n_inf == n_data:
-            logger.debug("skipping plot with empty data.")
-            return ""
+    n_data = len(data)
+    n_nan = pd.isnull(data).sum()
+    n_inf = np.sum([np.isinf(x) for x in data if isinstance(x, float)])
+    if n_nan + n_inf == n_data:
+        logger.debug("skipping plot with empty data.")
+        return ""
 
     # plot bar
     fig = go.Figure(

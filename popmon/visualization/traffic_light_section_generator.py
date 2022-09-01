@@ -82,7 +82,6 @@ class TrafficLightSectionGenerator(Module):
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = settings.skip_empty_plots
         self.show_stats = settings.show_stats if not settings.extended_report else None
 
         self.section_name = settings.section.traffic_lights.name
@@ -109,9 +108,7 @@ class TrafficLightSectionGenerator(Module):
         features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
 
-        self.logger.info(
-            f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
-        )
+        self.logger.info(f'Generating section "{self.section_name}"')
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
@@ -140,14 +137,13 @@ class TrafficLightSectionGenerator(Module):
                     self.last_n,
                     self.skip_first_n,
                     self.skip_last_n,
-                    self.skip_empty_plots,
                     tl_colors=self.tl_colors,
                 )
             ]
 
             # filter out potential empty plots (from skip empty plots)
-            if self.skip_empty_plots:
-                plots = [e for e in plots if len(e["plot"])]
+            plots = [e for e in plots if len(e["plot"])]
+
             features_w_metrics.append(
                 {
                     "name": feature,
@@ -174,34 +170,28 @@ def _plot_metrics(
     last_n,
     skip_first_n,
     skip_last_n,
-    skip_empty,
     tl_colors,
     style="heatmap",
 ):
     # prune dates and values
     dates = _prune(dates, last_n, skip_first_n, skip_last_n)
 
-    values = []
-    nonempty_metrics = []
-    for metric in metrics:
-        value = _prune(df[metric], last_n, skip_first_n, skip_last_n)
-
-        if not skip_empty or np.sum(value) > 0:
-            values.append(value)
-            nonempty_metrics.append(metric)
+    values = [
+        _prune(df[metric], last_n, skip_first_n, skip_last_n) for metric in metrics
+    ]
 
     if len(values) > 0:
         values = np.stack(values)
 
         if style == "heatmap":
             plot = plot_traffic_lights_overview(
-                feature, values, metrics=nonempty_metrics, labels=dates
+                feature, values, metrics=metrics, labels=dates
             )
         elif style == "alerts":
             plot = plot_traffic_lights_alerts_aggregate(
                 feature,
                 values,
-                metrics=nonempty_metrics,
+                metrics=metrics,
                 labels=dates,
                 tl_colors=tl_colors,
             )

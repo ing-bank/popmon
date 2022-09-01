@@ -80,7 +80,6 @@ class OverviewSectionGenerator(Module):
         self.last_n = settings.last_n
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
-        self.skip_empty_plots = settings.skip_empty_plots
         self.show_stats = settings.show_stats if not settings.extended_report else None
         self.section_name = settings.section.overview.name
         self.description = settings.section.overview.description
@@ -104,9 +103,7 @@ class OverviewSectionGenerator(Module):
 
         features = self.get_features(list(data_obj.keys()))
 
-        self.logger.info(
-            f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
-        )
+        self.logger.info(f'Generating section "{self.section_name}"')
 
         values = {}
         for feature in tqdm(features, ncols=100):
@@ -132,15 +129,11 @@ class OverviewSectionGenerator(Module):
                 self.last_n,
                 self.skip_first_n,
                 self.skip_last_n,
-                self.skip_empty_plots,
             )
 
         plots = [_plot_metrics(values)]
-
         # filter out potential empty plots (from skip empty plots)
-        if self.skip_empty_plots:
-            plots = [e for e in plots if len(e["plot"])]
-
+        plots = [e for e in plots if len(e["plot"])]
         plots = sorted(plots, key=lambda plot: plot["name"])
 
         sections.append(
@@ -190,16 +183,10 @@ def _get_metrics(
     last_n,
     skip_first_n,
     skip_last_n,
-    skip_empty,
 ):
-    values = []
-    nonempty_metrics = []
-    for metric in metrics:
-        value = _prune(df[metric], last_n, skip_first_n, skip_last_n)
-
-        if not skip_empty or np.sum(value) > 0:
-            values.append(value)
-            nonempty_metrics.append(metric)
+    values = [
+        _prune(df[metric], last_n, skip_first_n, skip_last_n) for metric in metrics
+    ]
 
     empty = {0: 0, 1: 0, 2: 0}
     if len(values) > 0:

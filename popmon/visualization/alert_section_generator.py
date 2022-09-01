@@ -78,7 +78,6 @@ class AlertSectionGenerator(Module):
         self.last_n = settings.last_n
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
-        self.skip_empty_plots = settings.skip_empty_plots
         self.show_stats = settings.show_stats if not settings.extended_report else None
 
         self.section_name = settings.section.alerts.name
@@ -110,9 +109,7 @@ class AlertSectionGenerator(Module):
         features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
 
-        self.logger.info(
-            f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
-        )
+        self.logger.info(f'Generating section "{self.section_name}"')
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
@@ -141,15 +138,13 @@ class AlertSectionGenerator(Module):
                     0,
                     0,
                     0,
-                    0,
                     self.tl_colors,
                     style="alerts",
                 )
             ]
 
             # filter out potential empty plots (from skip empty plots)
-            if self.skip_empty_plots:
-                plots = [e for e in plots if len(e["plot"])]
+            plots = [e for e in plots if len(e["plot"])]
 
             features_w_metrics.append(
                 {
