@@ -390,7 +390,7 @@ def _plot_heatmap(
             {
                 "name": hist_names_formatted[hist_name],
                 "type": "heatmap",
-                "description": "",
+                "description": descriptions[hist_name],
                 "plot": pl["plot"],
                 "layout": pl["layout"],
                 "full_width": True,
