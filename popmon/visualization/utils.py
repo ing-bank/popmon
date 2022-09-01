@@ -21,6 +21,7 @@
 import json
 import logging
 import math
+import warnings
 from collections import defaultdict
 from typing import Dict, List
 
@@ -231,16 +232,61 @@ def plot_traffic_lights_alerts_aggregate(
     )
 
 
+# basic checks for histograms
+def histogram_basic_checks(plots={}):
+    if len(plots) == 0:
+        return
+
+    for plot in plots:
+        if len(plot["hist_names"]) == 0:
+            plot["hist_names"] = [f"hist{i}" for i in range(len(plot["hists"]))]
+        if plot["hist_names"]:
+            if len(plot["hists"]) != len(plot["hist_names"]):
+                raise ValueError("length of hist and hist_names are different")
+
+        for i, hist in enumerate(plot["hists"]):
+            try:
+                hist_values, hist_bins = hist
+            except BaseException as e:
+                raise ValueError(
+                    "Cannot extract binning and values from input histogram"
+                ) from e
+
+            assert hist_values is not None and len(
+                hist_values
+            ), "Histogram bin values have not been set."
+            assert hist_bins is not None and len(
+                hist_bins
+            ), "Histogram binning has not been set."
+
+            if plot["is_ts"]:
+                plot["is_num"] = True
+
+            if plot["is_num"]:
+                bin_edges = hist_bins
+                bin_values = hist_values
+                assert (
+                    len(bin_edges) == len(bin_values) + 1
+                ), "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
+                    len(bin_edges), len(bin_values), plot["feature"]
+                )
+            else:
+                labels = hist_bins
+                values = hist_values
+                assert len(labels) == len(
+                    values
+                ), f'labels and values have different array lengths: {len(labels):d} vs {len(values):d}. {plot["feature"]}'
+
+
 def plot_histogram_overlay(
-    hists,
-    x_label,
-    hist_names=[],
-    y_label=None,
+    plots=[],
     is_num=True,
     is_ts=False,
+    is_static_reference=True,
     top=20,
+    n_choices=2,
 ):
-    """Create and plot (overlapping) histogram(s) of column values.
+    """Create and plot (overlapping/grouped) histogram(s) of column values.
 
     Copyright Eskapade:
     Kindly taken from Eskapade package and then modified. Reference link:
@@ -248,92 +294,132 @@ def plot_histogram_overlay(
     License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
     Modifications copyright ING WBAA.
 
-    :param list hists: list of input numpy histogram = values, bin_edges
-    :param str x_label: Label for histogram x-axis
-    :param list hist_names: list of histogram names. default is [].
-    :param str y_label: Label for histogram y-axis. default is None.
-    :param bool is_num: True if observable to plot is numeric. default is True.
-    :param bool is_ts: True if observable to plot is a timestamp. default is False.
+    :param list plots: list of dicts containing histograms for all timestamps
+        :param bool is_num: True if observable to plot is numeric. default is True.
+        :param bool is_ts: True if observable to plot is a timestamp. default is False.
+    :param bool is_static_reference: True if the reference is static. default is True
     :param int top: only print the top 20 characters of x-labels and y-labels. default is 20.
+    :param int n_choices: number of plots to compare at once
     :return: JSON encoded plot image
     :rtype: str
     """
-    # basic checks
-    if len(hist_names) == 0:
-        hist_names = [f"hist{i}" for i in range(len(hists))]
-    if hist_names:
-        if len(hists) != len(hist_names):
-            raise ValueError("length of hist and hist_names are different")
 
     fig = go.Figure()
 
-    alpha = 1.0 / len(hists)
-    for i, hist in enumerate(hists):
-        try:
-            hist_values, hist_bins = hist
-        except BaseException as e:
-            raise ValueError(
-                "Cannot extract binning and values from input histogram"
-            ) from e
+    alpha = 0.4
 
-        assert hist_values is not None and len(
-            hist_values
-        ), "Histogram bin values have not been set."
-        assert hist_bins is not None and len(
-            hist_bins
-        ), "Histogram binning has not been set."
+    # check number of plots
+    if len(plots) < 2:
+        warnings.warn("insufficient plots for histogram inspection")
+        return
 
-        # basic attribute check: time stamps treated as numeric.
-        if is_ts:
-            is_num = True
+    base_plot = plots[0]
 
-        # plot numeric and time stamps
-        if is_num:
-            bin_edges = hist_bins
-            bin_values = hist_values
-            assert (
-                len(bin_edges) == len(bin_values) + 1
-            ), "bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}".format(
-                len(bin_edges), len(bin_values), x_label
-            )
+    # basic attribute check: time stamps treated as numeric.
+    if is_ts:
+        is_num = True
 
-            # plot histogram
+    # plot numeric and time stamps
+    if is_num:
+
+        # plot histogram
+        for index in range(n_choices):
+            bin_edges = plots[index]["hists"][0][1]
+            bin_values = plots[index]["hists"][0][0]
             fig.add_trace(
                 go.Bar(
                     x=bin_edges[1:],
                     y=bin_values,
-                    showlegend=True,
                     opacity=alpha,
-                    name=hist_names[i],
+                    showlegend=True,
+                    name=plots[index]["date"],
+                    meta=index,
                 )
             )
 
-            # set x-axis properties
-            xlim = [min(bin_edges), max(bin_edges)]
-            fig.update_xaxes(range=xlim)
+        # plot reference
+        for index in range(1 if is_static_reference else n_choices):
+            bin_edges = (
+                plots[index]["hists"][0][1]
+                if len(plots[index]["hists"]) < 2
+                else plots[index]["hists"][1][1]
+            )
+            bin_values = (
+                [0 for x in range(len(plots[index]["hists"][0][0]))]
+                if len(plots[index]["hists"]) < 2
+                else plots[index]["hists"][1][0]
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=bin_edges[1:],
+                    y=bin_values,
+                    opacity=alpha,
+                    showlegend=True,
+                    name="no_ref"
+                    if len(plots[index]["hists"]) < 2
+                    else "Reference"
+                    if is_static_reference
+                    else (plots[index]["date"] + "-")
+                    + plots[index]["hist_names"][1].split("_")[-1],
+                    meta=index + 2,
+                )
+            )
 
-        # plot categories
-        else:
-            labels = hist_bins
-            values = hist_values
-            assert len(labels) == len(
-                values
-            ), f"labels and values have different array lengths: {len(labels):d} vs {len(values):d}. {x_label}"
+        # set x-axis properties
+        xlim = [min(bin_edges), max(bin_edges)]
+        fig.update_xaxes(range=xlim)
 
-            # plot histogram
+    # plot categories
+    else:
+
+        # plot histogram for first 'n_choices' timestamps
+        for index in range(n_choices):
+            labels = plots[index]["hists"][0][1]
+            values = plots[index]["hists"][0][0]
             fig.add_trace(
                 go.Bar(
                     x=[xtick(lab, top) for lab in labels],
                     y=values,
-                    showlegend=True,
                     opacity=alpha,
-                    name=hist_names[i],
-                    hovertemplate="%{y:.4f}",
+                    showlegend=True,
+                    name=plots[index]["date"],
+                    meta=index,
+                )
+            )
+
+        # plot reference for first 1 or 'n_choices' timestamps
+        for index in range(1 if is_static_reference else n_choices):
+            labels = (
+                plots[index]["hists"][0][1]
+                if len(plots[index]["hists"]) < 2
+                else plots[index]["hists"][1][1]
+            )
+            values = (
+                [0 for _ in range(len(plots[index]["hists"][0][0]))]
+                if len(plots[index]["hists"]) < 2
+                else plots[index]["hists"][1][0]
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=[xtick(lab, top) for lab in labels],
+                    y=values,
+                    opacity=alpha,
+                    showlegend=True,
+                    name="no_ref"
+                    if len(plots[index]["hists"]) < 2
+                    else "Reference"
+                    if is_static_reference
+                    else plots[index]["date"]
+                    + " "
+                    + plots[index]["hist_names"][1].split("_")[-1],
+                    meta=index + n_choices,
                 )
             )
 
     # set common histogram layout properties
-    y_label = str(y_label) if y_label is not None else "Bin count"
+    y_label = (
+        str(base_plot["y_label"]) if base_plot["y_label"] is not None else "Bin count"
+    )
     fig.update_yaxes(
         title=y_label,
         minor_ticks="outside",
@@ -342,7 +428,7 @@ def plot_histogram_overlay(
         mirror=True,
     )
     fig.update_xaxes(
-        title=x_label,
+        title=base_plot["feature"],
         minor_ticks="outside",
         showline=True,
         linecolor="black",
@@ -362,8 +448,85 @@ def plot_histogram_overlay(
         margin={"l": 40, "r": 10},
     )
 
+    # dropdown menu
+    fig.update_layout(
+        updatemenus=[
+            *[
+                {
+                    "buttons": [
+                        {
+                            "label": f'{plot["date"]}',
+                            "method": "restyle",
+                            "args": [
+                                {
+                                    "y": [
+                                        plot["hists"][0][0],
+                                        [0 for _ in range(len(plot["hists"][0][0]))]
+                                        if len(plot["hists"]) < 2
+                                        else plot["hists"][1][0],
+                                    ],
+                                    "name": [
+                                        plot["date"],
+                                        "no_ref"
+                                        if len(plot["hist_names"]) < 2
+                                        else "Reference"
+                                        if is_static_reference
+                                        else plots[index]["date"]
+                                        + " "
+                                        + plot["hist_names"][1].split("_")[-1],
+                                    ],
+                                },
+                                [b, b + 2],
+                            ],
+                        }
+                        for plot in plots
+                    ],
+                    "active": b,
+                    "pad": {"r": 10, "t": 10},
+                    "borderwidth": 0,
+                    "bgcolor": "#d3d3d3",
+                    "showactive": True,
+                    "x": b / 5,
+                    "y": 1.45,
+                    "xanchor": "left",
+                    "yanchor": "top",
+                }
+                for b in range(n_choices)
+            ],
+            {
+                "buttons": [
+                    {
+                        "label": mode,
+                        "method": "relayout",
+                        "args": [
+                            {
+                                "barmode": mode,
+                            }
+                        ],
+                    }
+                    for mode in ["overlay", "group"]
+                ],
+                "pad": {"r": 10, "t": 10},
+                "borderwidth": 0,
+                "bgcolor": "#d3d3d3",
+                "showactive": True,
+                "x": 1,
+                "y": 1.45,
+                "xanchor": "right",
+                "yanchor": "top",
+            },
+        ]
+    )
+
     plot = json.loads(fig.to_json())
-    return plot
+    return {
+        "name": "Histogram Inspector ",
+        "type": "histogram",
+        "description": "",
+        "plot": plot.get("data", ""),
+        "layout": plot.get("layout", ""),
+        "full_width": True,
+    }
 
 
 def plot_heatmap(
