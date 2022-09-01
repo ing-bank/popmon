@@ -117,6 +117,10 @@ def plot_bars(
         linecolor="black",
         mirror=True,
     )
+    fig.update_traces(
+        marker_line_color=primary_color,
+        marker_line_width=1,
+    )
     # plot boundaries
     try:
         all_nan = (np.isnan(data)).all()
