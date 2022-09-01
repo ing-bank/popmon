@@ -112,7 +112,7 @@ class HistogramSection(Module):
                 continue
 
             # base64 heatmap plot for each metric
-            dates = [short_date(str(date)) for date in df.index[:]]
+            dates = [short_date(date) for date in df.index[:]]
             hists = [
                 df[hist_names].iloc[-i].values
                 for i in reversed(range(1, len(dates) + 1))
@@ -131,7 +131,7 @@ class HistogramSection(Module):
             )
 
             # get base64 encoded plot for each metric; do parallel processing to speed up.
-            dates = [short_date(str(date)) for date in df.index[-last_n:]]
+            dates = [short_date(date) for date in df.index[-last_n:]]
             hists = [
                 df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
             ]

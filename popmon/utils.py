@@ -21,14 +21,24 @@ import fnmatch
 from textwrap import shorten
 from typing import Callable, List, Optional
 
+import pandas as pd
 from joblib import Parallel, delayed
 
 
-def short_date(date: str):
+def short_date(date):
     """
     Shorten date string to length of 22
     """
-    return shorten(date, width=22, placeholder="")
+    if isinstance(date, pd.Timestamp):
+        # Drop the time of day when midnight or noon
+        if date.hour in [0, 12] and date.minute == 0 and date.second == 0:
+            d = str(date).split(" ")[0]
+        else:
+            d = str(date)
+    else:
+        d = str(date)
+
+    return shorten(d, width=22, placeholder="")
 
 
 def filter_metrics(

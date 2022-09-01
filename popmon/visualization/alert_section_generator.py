@@ -126,7 +126,7 @@ class AlertSectionGenerator(Module):
                 inplace=True,
                 errors="ignore",
             )
-            dates = [short_date(str(date)) for date in df.index.tolist()]
+            dates = [short_date(date) for date in df.index.tolist()]
 
             metrics = filter_metrics(
                 df.columns, self.ignore_stat_endswith, self.show_stats
