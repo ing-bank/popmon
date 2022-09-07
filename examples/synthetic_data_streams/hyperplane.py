@@ -12,7 +12,7 @@ dataset_name = "hyperplane"
 v = "1"
 
 # Monitor the each feature w.r.t. the label
-features = [f"index:attr{i}:output" for i in range(10)]
+features = [f"index:attr{i}:output" for i in range(10)] + ["index:attr0"]
 
 # Also monitor predictions w.r.t. the label (see below)
 features += ["index:prediction:output"]

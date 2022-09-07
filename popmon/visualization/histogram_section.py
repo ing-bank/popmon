@@ -121,7 +121,7 @@ class HistogramSection(Module):
                 )
                 continue
 
-            # base64 heatmap plot for each metric
+            # heatmap plot for each metric
             dates = [short_date(date) for date in df.index[:]]
             hists = [
                 df[hist_names].iloc[-i].values
@@ -140,18 +140,20 @@ class HistogramSection(Module):
                 self.descriptions,
             )
 
-            # get base64 encoded plot for each metric; do parallel processing to speed up.
+            # get encoded plot for each metric
             dates = [short_date(date) for date in df.index[-last_n:]]
             hists = [
                 df[hist_names].iloc[-i].values for i in reversed(range(1, last_n + 1))
             ]
 
+            # collect args for parallel processing
             args = [
                 (feature, dates[i], hists[i], hist_names, self.top_n)
                 for i in range(last_n)
             ]
 
             # get histograms for each timestamp
+            # TODO: isn't this redundant now?
             plots = parallel(_plot_histograms, args)
 
             plot_type_layouts = {}
@@ -172,6 +174,8 @@ class HistogramSection(Module):
 
             # get histogram plots
             histogram = {}
+
+            # TODO: rather check histogram dimensionality
             if len(plots) > 1:
                 histogram = plot_histogram_overlay(
                     plots,
@@ -181,6 +185,8 @@ class HistogramSection(Module):
                     top=self.top_n,
                     n_choices=self.n_choices,
                 )
+            # IF DIM == 2
+            # plot = heamap
 
             if len(histogram) > 0:
                 plot_type_layouts["histogram"] = histogram["layout"]
@@ -218,6 +224,7 @@ class HistogramSection(Module):
         return sections
 
 
+# TODO: This doesn't plot anymore; refactor
 def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
     """Split off plot histogram generation to allow for parallel processing
 
@@ -242,7 +249,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
         return {"name": date, "description": "", "plot": ""}
     assert_similar_hists(hc_list)
 
-    # make plot. note: slow!
+    # compute plotting data
     if hc_list[0].n_dim == 1:
         if all(h.entries == 0 for h in hc_list):
             # triviality checks, skip all histograms empty
@@ -265,6 +272,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
 
         # skip histograms with too many bins to plot (default more than 1000)
         if len(bins) > max_nbins:
+            # TODO: inconsistent return type...
             return {"name": date, "description": "", "plot": ""}
 
         # normalize histograms for plotting (comparison!) in case there is more than one.
@@ -415,7 +423,7 @@ def get_top_categories(entries_list, bins, top_n):
     # aggregate all other rows
     bottom_rows = entries_list[sorted_index[:-top_n], :]
     bottom_row = np.sum(bottom_rows, axis=0).ravel().tolist()
-    # append alll other aggregated row to top_rows
+    # append all other aggregated row to top_rows
     top_rows = np.append(top_rows, [bottom_row], axis=0)
 
     # select the corresponding bins/labels
