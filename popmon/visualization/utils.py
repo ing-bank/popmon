@@ -37,6 +37,11 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 logger = logging.getLogger()
 
 
+def plotly_serialize(fig):
+    """Plotly figure to data structure (via JSON)"""
+    return json.loads(fig.to_json())
+
+
 # set x-axis tick length
 def xtick(lab, top):
     """Get x-tick."""
@@ -99,6 +104,7 @@ def plot_bars(
         xaxis_tickangle=-90,
         xaxis={"type": "category"},
         margin={"l": 40, "r": 10, "t": 30},
+        autosize=True,
     )
     fig.update_xaxes(
         tickvals=labels,
@@ -161,8 +167,7 @@ def plot_bars(
     except Exception:
         logger.debug("unable to plot boundaries")
 
-    plot = json.loads(fig.to_json())
-    return plot
+    return plotly_serialize(fig)
 
 
 def plot_traffic_lights_overview(feature, data, metrics: List[str], labels: List[str]):
@@ -233,7 +238,10 @@ def plot_traffic_lights_alerts_aggregate(
 
 
 # basic checks for histograms
-def histogram_basic_checks(plots={}):
+def histogram_basic_checks(plots=None):
+    if plots is None:
+        plots = {}
+
     if len(plots) == 0:
         return
 
@@ -279,7 +287,7 @@ def histogram_basic_checks(plots={}):
 
 
 def plot_histogram_overlay(
-    plots=[],
+    plots=None,
     is_num=True,
     is_ts=False,
     is_static_reference=True,
@@ -304,8 +312,10 @@ def plot_histogram_overlay(
     :rtype: str
     """
 
-    fig = go.Figure()
+    if plots is None:
+        plots = []
 
+    fig = go.Figure()
     alpha = 0.4
 
     # check number of plots
@@ -345,7 +355,7 @@ def plot_histogram_overlay(
                 else plots[index]["hists"][1][1]
             )
             bin_values = (
-                [0 for x in range(len(plots[index]["hists"][0][0]))]
+                [0 for _ in range(len(plots[index]["hists"][0][0]))]
                 if len(plots[index]["hists"]) < 2
                 else plots[index]["hists"][1][0]
             )
@@ -435,6 +445,7 @@ def plot_histogram_overlay(
         mirror=True,
     )
     fig.update_layout(
+        autosize=True,
         barmode="overlay",
         legend={
             "orientation": "h",
@@ -518,9 +529,9 @@ def plot_histogram_overlay(
         ]
     )
 
-    plot = json.loads(fig.to_json())
+    plot = plotly_serialize(fig)
     return {
-        "name": "Histogram Inspector ",
+        "name": "Histogram Inspector",
         "type": "histogram",
         "description": "",
         "plot": plot.get("data", ""),
@@ -562,9 +573,8 @@ def plot_heatmap(
     :return: base64 encoded plot image
     :rtype: str
     """
-    if hist_name:
-        if len(hist_name) == 0:
-            raise ValueError("length of heatmap names is zero")
+    if hist_name and len(hist_name) == 0:
+        raise ValueError("length of heatmap names is zero")
 
     assert hist_values is not None and len(
         hist_values
@@ -614,9 +624,11 @@ def plot_heatmap(
 
         fig.update_xaxes(tickvals=date, ticktext=date, tickangle=-90)
         fig.update_yaxes(ticks="outside")
-        fig.update_layout(xaxis={"type": "category"}, margin={"l": 40, "r": 10, "t": 0})
+        fig.update_layout(
+            xaxis={"type": "category"}, margin={"l": 40, "r": 10, "t": 0}, autosize=True
+        )
         fig.update_coloraxes(colorbar_len=0.8, colorbar_ticks="outside")
-        plot = json.loads(fig.to_json())
+        plot = plotly_serialize(fig)
 
     return {
         "name": hist_name,
