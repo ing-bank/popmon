@@ -132,7 +132,6 @@ class SectionGenerator(Module):
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
-        self.skip_empty_plots = settings.skip_empty_plots
         self.description = description
         self.show_stats = settings.show_stats if not settings.extended_report else None
         self.primary_color = settings.primary_color
@@ -158,9 +157,7 @@ class SectionGenerator(Module):
         features = self.get_features(list(data_obj.keys()))
         features_w_metrics = []
 
-        self.logger.info(
-            f'Generating section "{self.section_name}". skip empty plots: {self.skip_empty_plots}'
-        )
+        self.logger.info(f'Generating section "{self.section_name}"')
 
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
@@ -193,7 +190,6 @@ class SectionGenerator(Module):
                     self.last_n,
                     self.skip_first_n,
                     self.skip_last_n,
-                    self.skip_empty_plots,
                     self.primary_color,
                     self.tl_colors,
                 )
@@ -202,8 +198,7 @@ class SectionGenerator(Module):
             plots = parallel(_plot_metric, args)
 
             # filter out potential empty plots (from skip empty plots)
-            if self.skip_empty_plots:
-                plots = [e for e in plots if len(e["plot"])]
+            plots = [e for e in plots if len(e["plot"])]
 
             layouts = ""
             if len(plots) > 0:
@@ -262,7 +257,6 @@ def _plot_metric(
     last_n,
     skip_first_n,
     skip_last_n,
-    skip_empty,
     primary_color,
     zline_color,
 ):
@@ -290,7 +284,6 @@ def _plot_metric(
         labels=dates,
         ylim=True,
         bounds=bounds,
-        skip_empty=skip_empty,
         primary_color=primary_color,
         tl_colors=zline_color,
         metric=metric,
