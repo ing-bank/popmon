@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v1.3.0 (2022-09-09)
+### Feature
+* Remove skip_empty_plots ([`bd3ea29`](https://github.com/ing-bank/popmon/commit/bd3ea29f142818e28107aab254949c095ee32ab0))
+
+### Fix
+* **comparisons:** Unknown labels correct label axis ([`e0bbf04`](https://github.com/ing-bank/popmon/commit/e0bbf045212063dd775660f7ecda376c3da57f37))
+* **report:** Show zero value in bar plots ([`6a350d4`](https://github.com/ing-bank/popmon/commit/6a350d4c49f855c4f0c62b7a1c5c15697d94c73f))
+
+### Documentation
+* **readme:** Fix table formatting ([`d6958c6`](https://github.com/ing-bank/popmon/commit/d6958c6666a0eae9a1c7407712eb1db0a05793a3))
+* **readme:** Include scipy presentation ([`695ee17`](https://github.com/ing-bank/popmon/commit/695ee17b09f3a82289e2a3c3845536c37d7f271c))
+
 ## v1.2.0 (2022-09-01)
 ### Feature
 * **report:** Histogram inspector ([`5e78f98`](https://github.com/ing-bank/popmon/commit/5e78f98e4775e12746e62b29f18fee8d7423b8b0))
