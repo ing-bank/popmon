@@ -140,7 +140,7 @@ class OverviewSection(SectionModel):
     name: str = "Overview"
     """Name of the overview section in the report"""
 
-    description: str = "Alerts aggregated per feature"
+    description: str = "Overview of the dataset, analysis and alerts."
     """Description of the overview section in the report"""
 
 

@@ -11,7 +11,7 @@ from synthetic_data_streams import (
 dataset_name = "hyperplane"
 v = "1"
 
-# Monitor the each feature w.r.t. the label
+# Monitor each feature w.r.t. the label
 features = [f"index:attr{i}:output" for i in range(10)]
 
 # Also monitor predictions w.r.t. the label (see below)
