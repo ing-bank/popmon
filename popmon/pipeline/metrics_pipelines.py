@@ -43,6 +43,7 @@ from ..analysis.profiling.pull_calculator import (
 from ..base import Module, Pipeline
 from ..config import Settings
 from ..hist.hist_splitter import HistSplitter
+from .timing import Timing
 
 
 def get_metrics_pipeline_class(reference_type, reference):
@@ -86,6 +87,10 @@ def create_metrics_pipeline(
     cls = get_metrics_pipeline_class(reference_type, reference)
     pipeline = cls(**cfg)
     return pipeline
+
+
+def get_timing_module(key: str) -> List[Module]:
+    return [Timing(store_key=key)]
 
 
 def get_splitting_modules(
@@ -251,11 +256,13 @@ class SelfReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, settings.features, settings.time_axis)
+            get_timing_module("start_time")
+            + get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_static_bound_modules(settings.monitoring.pull_rules)
             + get_traffic_light_modules(settings.monitoring.monitoring_rules)
+            + get_timing_module("end_time")
         )
         super().__init__(modules)
 
@@ -312,11 +319,13 @@ class ExternalReferenceMetricsPipeline(Pipeline):
             ),
         ]
         modules = (
-            get_splitting_modules(hists_key, settings.features, settings.time_axis)
+            get_timing_module("start_time")
+            + get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_static_bound_modules(settings.monitoring.pull_rules)
             + get_traffic_light_modules(settings.monitoring.monitoring_rules)
+            + get_timing_module("end_time")
         )
         super().__init__(modules)
 
@@ -369,11 +378,13 @@ class RollingReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, settings.features, settings.time_axis)
+            get_timing_module("start_time")
+            + get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_dynamic_bound_modules(settings.monitoring.pull_rules)
             + get_traffic_light_modules(settings.monitoring.monitoring_rules)
+            + get_timing_module("end_time")
         )
         super().__init__(modules)
 
@@ -424,10 +435,12 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         ]
 
         modules = (
-            get_splitting_modules(hists_key, settings.features, settings.time_axis)
+            get_timing_module("start_time")
+            + get_splitting_modules(hists_key, settings.features, settings.time_axis)
             + reference_modules
             + get_trend_modules(settings.comparison.window)
             + get_dynamic_bound_modules(settings.monitoring.pull_rules)
             + get_traffic_light_modules(settings.monitoring.monitoring_rules)
+            + get_timing_module("end_time")
         )
         super().__init__(modules)

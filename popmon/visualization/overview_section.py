@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from datetime import datetime
 from typing import Optional
 
 import numpy as np
@@ -28,7 +29,8 @@ from ..base import Module
 from ..config import Report
 from ..resources import templates_env
 from ..utils import filter_metrics
-from ..visualization.utils import _prune
+from ..version import version as __version__
+from ..visualization.utils import _prune, get_reproduction_table, get_summary_table
 
 
 class OverviewSectionGenerator(Module):
@@ -37,7 +39,7 @@ class OverviewSectionGenerator(Module):
     which later will be used for the report generation.
     """
 
-    _input_keys = ("read_key", "dynamic_bounds", "store_key")
+    _input_keys = ("read_key", "dynamic_bounds", "store_key", "start_time", "end_time")
     _output_keys = ("store_key",)
 
     def __init__(
@@ -45,6 +47,9 @@ class OverviewSectionGenerator(Module):
         read_key,
         store_key,
         settings: Report,
+        reference_type,
+        time_axis,
+        bin_specs,
         features=None,
         ignore_features=None,
         static_bounds=None,
@@ -68,6 +73,8 @@ class OverviewSectionGenerator(Module):
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key
+        self.start_time = "start_time"
+        self.end_time = "end_time"
         self.dynamic_bounds = dynamic_bounds
         self.static_bounds = static_bounds
 
@@ -76,6 +83,9 @@ class OverviewSectionGenerator(Module):
         self.prefix = prefix
         self.suffices = suffices
         self.ignore_stat_endswith = ignore_stat_endswith or []
+        self.reference_type = reference_type
+        self.time_axis = time_axis
+        self.bin_specs = bin_specs
 
         self.last_n = settings.last_n
         self.skip_first_n = settings.skip_first_n
@@ -92,6 +102,8 @@ class OverviewSectionGenerator(Module):
         data_obj: dict,
         dynamic_bounds: Optional[dict] = None,
         sections: Optional[list] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
     ):
         assert isinstance(data_obj, dict)
         if dynamic_bounds is None:
@@ -104,12 +116,17 @@ class OverviewSectionGenerator(Module):
         features = self.get_features(list(data_obj.keys()))
 
         self.logger.info(f'Generating section "{self.section_name}"')
-
+        time_windows = 0
         values = {}
+        offset = ""
+        max_timestamp = ""
         for feature in tqdm(features, ncols=100):
             df = data_obj.get(feature, pd.DataFrame())
-            fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
+            time_windows = len(df.index)
+            offset = df.index.min()
+            max_timestamp = df.index.max()
 
+            fdbounds = dynamic_bounds.get(feature, pd.DataFrame(index=df.index))
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
@@ -131,10 +148,42 @@ class OverviewSectionGenerator(Module):
                 self.skip_last_n,
             )
 
+        # Dataset summary table and Analysis Details  table
+        tables = []
+        bin_width = (
+            self.bin_specs[self.time_axis]["bin_width"]
+            if self.time_axis in self.bin_specs.keys()
+            else 0
+        )
+
+        if (
+            self.time_axis in self.bin_specs.keys()
+            and self.bin_specs[self.time_axis]["bin_offset"] > 0
+        ):
+            offset = datetime.utcfromtimestamp(
+                self.bin_specs[self.time_axis]["bin_offset"] // 1e9
+            )
+        tables.append(
+            get_summary_table(
+                len(features),
+                time_windows,
+                self.time_axis,
+                self.reference_type,
+                bin_width,
+                offset,
+                max_timestamp,
+            )
+        )
+
+        tables.append(get_reproduction_table(start_time, end_time, __version__))
+
+        # overview plots
         plots = [_plot_metrics(values)]
         # filter out potential empty plots (from skip empty plots)
         plots = [e for e in plots if len(e["plot"])]
         plots = sorted(plots, key=lambda plot: plot["name"])
+
+        plots = tables + plots
 
         sections.append(
             {
@@ -169,10 +218,11 @@ def _plot_metrics(
     )
 
     return {
-        "name": "Alert frequency per Feature",
+        "name": "Alerts",
         "type": "alert",
         "description": "",
         "plot": plot,
+        "layout": "",
         "full_width": True,
     }
 

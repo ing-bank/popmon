@@ -191,6 +191,9 @@ class ReportPipe(Pipeline):
                 read_key="traffic_lights",
                 store_key=sections_key,
                 settings=settings.report,
+                reference_type=settings.reference_type,
+                time_axis=settings.time_axis,
+                bin_specs=settings.bin_specs,
             ),
             # generate section with histogram
             HistogramSection(

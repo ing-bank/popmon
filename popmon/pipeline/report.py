@@ -35,7 +35,10 @@ logger = logging.getLogger()
 
 
 def stability_report(
-    hists, settings: Optional[Settings] = None, reference=None, **kwargs
+    hists,
+    settings: Optional[Settings] = None,
+    reference=None,
+    **kwargs,
 ):
     """Create a data stability monitoring html report for given dict of input histograms.
 

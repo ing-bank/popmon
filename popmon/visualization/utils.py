@@ -18,12 +18,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import datetime
 import json
 import logging
 import math
 import warnings
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -44,6 +45,163 @@ def xtick(lab, top):
     if len(lab) > top:
         lab = lab[: top - 3] + "..."
     return lab
+
+
+def convert_time_delta(td: Union[datetime.timedelta, float, int]) -> str:
+    """
+    It converts a time delta in nanoseconds to a string
+
+    :param td: Timedelta or the time difference in nanoseconds
+    :rtype: str
+    """
+    if not isinstance(td, datetime.timedelta):
+        td = datetime.timedelta(seconds=td // 1e9)
+
+    time_delta = ""
+    if td.days // 7 > 0:
+        time_delta = str(td.days // 7) + "w"
+
+    if td.days % 7 > 0:
+        time_delta += " " + str(td.days % 7) + "d"
+
+    if td.seconds // 3600 > 0:
+        time_delta += " " + str(td.seconds // 3600) + "h"
+
+    if (td.seconds // 60) % 60 > 0:
+        time_delta += " " + str((td.seconds // 60) % 60) + "m"
+
+    if td.seconds % 60 > 0:
+        time_delta += " " + str(td.seconds % 60) + "s"
+
+    if time_delta == "" and td.microseconds > 0:
+        if td.microseconds // 1000 > 0:
+            time_delta += f" {td.microseconds // 1000} ms"
+        else:
+            time_delta += f" {td.microseconds} μs"
+
+    return time_delta.strip()
+
+
+def get_summary_table(
+    num_features: int,
+    time_bins: int,
+    time_axis: str,
+    reference_type: str,
+    time_width: float,
+    offset: str,
+    max_timestamp: str,
+) -> dict:
+    """
+    This function returns a dictionary of summary statistics for a given set of features
+
+    :param num_features: number of features in the dataset
+    :param time_bins: number of time bins to use
+    :param time_axis: the name of the time axis
+    :param reference_type: the type of reference to use
+    :param time_width: the width of the time bins in seconds
+    :param offset: the time offset from the start of the data
+    :param max_timestamp: the maximum timestamp in the data
+    :rtype: dict
+    """
+
+    bin_width = convert_time_delta(time_width)
+    data = {
+        "reference type": reference_type,
+        "number of features": num_features,
+        "time axis": time_axis,
+        "time bins": time_bins,
+        "bin width": bin_width if len(bin_width) > 0 else time_width,
+        "time range": str(offset) + " - " + str(max_timestamp),
+    }
+
+    # plot summary table
+    fig = go.Figure(
+        data=[
+            go.Table(
+                header={
+                    "fill_color": "white",
+                    "line": {"color": "white"},
+                },
+                cells={
+                    "values": [list(data.keys()), list(data.values())],
+                    "fill": {"color": ["rgb(235, 240, 248)", "rgb(235, 240, 248)"]},
+                    "line": {"color": "white"},
+                    "align": "left",
+                },
+            )
+        ],
+    )
+
+    fig.update_layout(
+        autosize=False,
+        margin={"l": 50, "r": 50, "t": 10, "b": 10},
+        height=200,
+        width=538,
+    )
+
+    plot = json.loads(fig.to_json())
+
+    return {
+        "name": "Dataset",
+        "type": "overview",
+        "description": "",
+        "plot": plot.get("data", ""),
+        "layout": plot.get("layout", ""),
+    }
+
+
+def get_reproduction_table(
+    start_time: datetime.datetime, end_time: datetime.datetime, version: str
+):
+    """
+    > This function returns a table of the reproduction data for a given version of the model
+
+    :param start_time: The time at which the analysis was started
+    :param end_time: The time at which the analysis was concluded
+    :param version: the version of the model you want to use
+    """
+
+    data = {
+        "time started": start_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "time ended": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "duration": convert_time_delta(end_time - start_time),
+        "popmon version": version,
+    }
+
+    # plot summary table
+    fig = go.Figure(
+        data=[
+            go.Table(
+                header={
+                    "fill_color": "white",
+                    "line": {"color": "white"},
+                },
+                cells={
+                    "values": [list(data.keys()), list(data.values())],
+                    "fill": {"color": ["rgb(235, 240, 248)", "rgb(235, 240, 248)"]},
+                    "line": {"color": "white"},
+                    "align": "left",
+                },
+            )
+        ]
+    )
+
+    fig.update_layout(
+        autosize=False,
+        margin={"l": 50, "r": 50, "t": 10, "b": 0},
+        height=200,
+        width=538,
+    )
+
+    plot = json.loads(fig.to_json())
+
+    return {
+        "name": "Analysis",
+        "type": "overview",
+        "description": "",
+        "plot": plot.get("data", ""),
+        "layout": plot.get("layout", ""),
+    }
 
 
 def plot_bars(
