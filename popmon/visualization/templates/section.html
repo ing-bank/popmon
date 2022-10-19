@@ -55,6 +55,10 @@
     {%- else -%}
         <div class="row" >
             {%- for metric in plots -%}
+              <script> 
+                {%- set curr = loop.index  -%}
+                layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"] = {{ metric.layout | json_plot }};
+              </script>
               {%- with metric=metric -%}
                 {%- include 'card.html' -%}
               {%- endwith -%}
