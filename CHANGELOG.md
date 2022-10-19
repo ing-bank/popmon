@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.0 (2022-10-19)
+### Feature
+* **report:** Summary table ([`a5b9a30`](https://github.com/ing-bank/popmon/commit/a5b9a30e1c80bca74204eecc153e27193bf4a6a9))
+
 ## v1.3.0 (2022-09-09)
 ### Feature
 * Remove skip_empty_plots ([`bd3ea29`](https://github.com/ing-bank/popmon/commit/bd3ea29f142818e28107aab254949c095ee32ab0))
