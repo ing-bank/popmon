@@ -16,7 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -98,18 +98,103 @@ def hist_compare(row, hist_name1="", hist_name2=""):
     return pd.Series(x)
 
 
-class HistComparer(Pipeline):
+class GenericHistComparer(Pipeline):
+    def __init__(
+        self,
+        store_key: str,
+        hist_col: str,
+        prefix: str,
+        assign_to_key: Optional[str] = None,
+        left_read_key: Optional[str] = None,
+        right_read_key: Optional[str] = None,
+        func_left: Optional[Callable] = None,
+        func_right: Optional[Callable] = None,
+        suffix1: Optional[str] = None,
+        suffix2: Optional[str] = None,
+        left_kwargs: Optional[Dict[Any, Any]] = None,
+        right_kwargs: Optional[Dict[Any, Any]] = None,
+        *args,
+        **kwargs,
+    ):
+        # TODO: add reference type to datastore (along the lines of datastore["references"] =
+        #  {"ref": "Self Reference", "prev1": Rolling Reference (window=1, shift=1)"})
+
+        if assign_to_key is None:
+            raise ValueError("Ambiguous assign to key")
+        #     assign_to_key = read_key
+
+        if left_kwargs is None:
+            left_kwargs = {}
+
+        if right_kwargs is None:
+            right_kwargs = {}
+
+        modules = []
+
+        # make left reference histograms
+        hist_name1 = hist_col
+        if func_left is not None and suffix1 is not None:
+            hist_name1 = f"{hist_name1}_{suffix1}"
+            hist_collector1 = ApplyFunc(
+                apply_to_key=left_read_key,
+                assign_to_key=assign_to_key,
+            )
+            hist_collector1.add_apply_func(
+                func=func_left,
+                entire=True,
+                suffix=suffix1,
+                hist_name=hist_col,
+                **left_kwargs,
+            )
+            modules.append(hist_collector1)
+
+        # right left reference histograms
+        hist_name2 = hist_col
+        if func_right is not None and suffix2 is not None:
+            hist_name2 = f"{hist_name2}_{suffix2}"
+            hist_collector2 = ApplyFunc(
+                apply_to_key=right_read_key,
+                assign_to_key=assign_to_key,
+            )
+            hist_collector2.add_apply_func(
+                func=func_right,
+                entire=True,
+                suffix=suffix2,
+                hist_name=hist_col,
+                **right_kwargs,
+            )
+            modules.append(hist_collector2)
+
+        # do histogram comparison
+        hist_comparer = ApplyFunc(
+            apply_to_key=assign_to_key,
+            assign_to_key=store_key,
+            apply_funcs=[
+                {
+                    "func": hist_compare,
+                    "hist_name1": hist_name1,
+                    "hist_name2": hist_name2,
+                    "prefix": prefix,
+                    "axis": 1,
+                }
+            ],
+        )
+        modules.append(hist_comparer)
+
+        super().__init__(modules)
+
+
+class HistComparer(GenericHistComparer):
     """Base pipeline to compare histogram to previous rolling histograms"""
 
     def __init__(
         self,
-        func_hist_collector,
-        read_key,
-        store_key,
-        assign_to_key=None,
-        hist_col="histogram",
-        suffix="comp",
-        *args,
+        func_hist_collector: Callable,
+        read_key: str,
+        store_key: str,
+        hist_col: str,
+        suffix: str,
+        assign_to_key: Optional[str] = None,
         **kwargs,
     ):
         """Initialize an instance of RollingHistComparer.
@@ -123,33 +208,16 @@ class HistComparer(Pipeline):
         :param args: (tuple, optional): residual args passed on to func_mean and func_std
         :param kwargs: (dict, optional): residual kwargs passed on to func_mean and func_std
         """
-        if assign_to_key is None:
-            assign_to_key = read_key
-
-        # make reference histogram(s)
-        hist_collector = ApplyFunc(
-            apply_to_key=read_key,
+        super().__init__(
+            store_key,
+            right_read_key=read_key,
+            hist_col=hist_col,
             assign_to_key=assign_to_key,
+            func_right=func_hist_collector,
+            right_kwargs=kwargs,
+            suffix2=suffix,
+            prefix=suffix,
         )
-        hist_collector.add_apply_func(
-            func=func_hist_collector, entire=True, suffix=suffix, *args, **kwargs
-        )
-        # do histogram comparison
-        hist_comparer = ApplyFunc(
-            apply_to_key=assign_to_key,
-            assign_to_key=store_key,
-            apply_funcs=[
-                {
-                    "func": hist_compare,
-                    "hist_name1": hist_col,
-                    "hist_name2": hist_col + "_" + suffix,
-                    "prefix": suffix,
-                    "axis": 1,
-                }
-            ],
-        )
-
-        super().__init__(modules=[hist_collector, hist_comparer])
 
 
 class RollingHistComparer(HistComparer):
@@ -177,12 +245,11 @@ class RollingHistComparer(HistComparer):
             rolling_hist,
             read_key,
             store_key,
-            read_key,
-            hist_col,
-            suffix,
+            assign_to_key=read_key,
+            hist_col=hist_col,
+            suffix=suffix,
             window=window,
             shift=shift,
-            hist_name=hist_col,
         )
         self.read_key = read_key
         self.window = window
@@ -244,11 +311,10 @@ class ExpandingHistComparer(HistComparer):
             expanding_hist,
             read_key,
             store_key,
-            read_key,
-            hist_col,
-            suffix,
+            assign_to_key=read_key,
+            hist_col=hist_col,
+            suffix=suffix,
             shift=shift,
-            hist_name=hist_col,
         )
         self.read_key = read_key
 
@@ -282,9 +348,9 @@ class ReferenceHistComparer(HistComparer):
             hist_sum,
             reference_key,
             store_key,
-            assign_to_key,
-            hist_col,
-            suffix,
+            assign_to_key=assign_to_key,
+            hist_col=hist_col,
+            suffix=suffix,
             metrics=[hist_col],
         )
         self.reference_key = reference_key
@@ -295,6 +361,29 @@ class ReferenceHistComparer(HistComparer):
             f'Comparing "{self.assign_to_key}" with reference "{self.reference_key}"'
         )
         return super().transform(datastore)
+
+
+class RollingInputFixedReference(GenericHistComparer):
+    def __init__(
+        self,
+        read_key,
+        reference_key,
+        store_key,
+        assign_to_key=None,
+        window=1,
+        shift=1,
+        hist_col="histogram",
+        suffix1="roll",
+        suffix2="ref",
+        prefix="rollref",
+    ):
+        super().__init__(
+            read_key,  # left read key
+            store_key,
+            # right_read_key = reference_key,
+            hist_col=hist_col,
+            assign_to_key=assign_to_key,
+        )
 
 
 class NormHistComparer(Pipeline):
