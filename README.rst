@@ -2,7 +2,7 @@
 Population Shift Monitoring
 ===========================
 
-|build| |docs| |release| |release_date| |downloads|
+|build| |docs| |release| |release_date| |downloads| |ruff|
 
 |logo|
 
@@ -270,7 +270,7 @@ Software
 Project contributors
 ====================
 
-This package was authored by ING Wholesale Banking Advanced Analytics.
+This package was authored by ING Analytics Wholesale Banking (INGA WB).
 Special thanks to the following people who have contributed to the development of this package: `Ahmet Erdem <https://github.com/aerdem4>`_, `Fabian Jansen <https://github.com/faab5>`_, `Nanne Aben <https://github.com/nanne-aben>`_, Mathieu Grimal.
 
 
@@ -300,11 +300,11 @@ Contact and support
 
 * Issues & Ideas & Support: https://github.com/ing-bank/popmon/issues
 
-Please note that ING WBAA provides support only on a best-effort basis.
+Please note that INGA WB provides support only on a best-effort basis.
 
 License
 =======
-Copyright ING WBAA. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
+Copyright INGA WB. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
 
 .. |logo| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png
     :alt: POPMON logo
@@ -318,6 +318,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :target: https://github.com/ing-bank/popmon/files/7417124/pipeline_amazingpipeline_subgraphs_unversioned.pdf
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json
+    :alt: Ruff
+    :target: https://github.com/charliermarsh/ruff
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
     :alt: Package docs status
     :target: https://popmon.readthedocs.io

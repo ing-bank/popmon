@@ -1,3 +1,97 @@
+[tool.ruff]
+target-version = "py37"
+line-length = 120
+namespace-packages = ["popmon"]
+select = ["ALL"]
+ignore = [
+    # COM812 is incompatible with COM819
+    "COM",
+
+    # Not sure if these are helpful
+    "EM",
+    "FBT",
+
+    # Manual check/fix needed
+    "ERA",
+    "S101",
+    "ANN",
+    "TCH",
+    "SLF001",
+    "PLR2004",
+    "BLE001",
+    "D",
+    "PLR0915",
+    "PLR0911",
+    "N802",
+    "C901",
+    "PD901",
+    "PLR0912",
+    "PLR0913",
+    "TRY003",
+    "E501",
+    "DTZ",
+
+    # Prefer autofix
+    "PD011", # .to_numpy() instead of values
+    "PD003", # `.isna` is preferred to `.isnull`; functionality is equivalent
+    "PT018", # Assertion should be broken down into multiple parts
+    "RET504", # Unnecessary variable assignment before `return` statement
+    "RET506", # Unnecessary `else` after `raise` statement
+    "PTH123", #  `open("foo")` should be replaced by `Path("foo").open()`
+    "PTH120", # similar to above
+    "RET505", # Unnecessary `else` after `return` statement
+    "SIM102", # (when comments are in the statement) Use a single `if` statement instead of nested `if` statements
+    "SIM114", # (when comments are in the statement) Combine `if` branches using logical `or` operator
+    "PD010", # `.pivot_table` is preferred to `.pivot` or `.unstack`; provides same functionality
+    "PD013", # `.melt` is preferred to `.stack`; provides same functionality
+    "G004", # Logging statement uses f-string
+
+
+]
+
+[tool.ruff.per-file-ignores]
+# Allow these outside of the package
+"{tests,docs,tools}/*" = [
+    # Asserts
+    "S101",
+    # magical constants
+    "PLR2004",
+    # non-PEP8 naming
+    "N",
+    "E741",
+    # implicit namespaces
+    "INP001",
+    # broad exceptions
+    "PT011",
+    # Too many statements
+    "PLR0915",
+]
+
+# Sphinx config
+"docs/source/conf.py" = ["A001", "ARG001"]
+
+# Example
+"examples/*" = [
+    # Print statement
+    "T201",
+
+    # implicit namespaces
+    "INP001",
+]
+
+# Notebooks & NBQA
+"popmon/notebooks/*" = [
+    # Imports cannot be checked properly with NBQA
+    # (It splits each cell into a .py file)
+    "INP001", "E401", "E402", "F401", "I001",
+
+    # Allow print statements
+     "T201",
+
+    # Ignore magic value in comparison for now
+    "PLR2004",
+]
+
 [tool.pytest.ini_options]
 markers = ["spark"]
 
