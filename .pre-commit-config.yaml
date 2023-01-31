@@ -1,29 +1,15 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 23.1.0
     hooks:
     - id: black
--   repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: 'v0.0.246'
     hooks:
-      - id: isort
-        files: '.*'
-        args: [ --profile=black, --project=popmon ]
--   repo: https://github.com/PyCQA/flake8
-    rev: "5.0.4"
-    hooks:
-    -   id: flake8
-        additional_dependencies:
-            - flake8-comprehensions
-            - tryceratops
-        args: [ "--ignore=E501,E203,W503,TC003,TC101,TC300"]
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.1.0
-    hooks:
-    -   id: pyupgrade
-        args: ['--py36-plus','--exit-zero-even-if-changed']
+    -   id: ruff
+        args: [--fix]
 -   repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.1
+    rev: 1.13.0
     hooks:
     -   id: blacken-docs
 -   repo: local
@@ -34,10 +20,7 @@ repos:
         language: system
         pass_filenames: false
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.5.2
+    rev: 1.6.1
     hooks:
     -   id: nbqa-black
-    -   id: nbqa-pyupgrade
-        args: ['--py36-plus']
-    -   id: nbqa-isort
-        args: ['--profile=black']
+    -   id: nbqa-ruff
