@@ -228,7 +228,7 @@ def test_probability_distribution_mean_covariance():
         else:
             # If a covariance matrix is singular we fall back on using variances
             chi_squared = np.sum(
-                (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)
+                (norm_mean - single_norm) ** 2 / (variance + np.finfo(float).eps)
             )
 
         n_bins = len(bin_entries[i])
