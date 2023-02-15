@@ -15,7 +15,7 @@ except (ModuleNotFoundError, AttributeError):
     spark_found = False
 
 
-@pytest.fixture
+@pytest.fixture()
 def spark_context():
     if not spark_found:
         return None
@@ -36,7 +36,7 @@ def spark_context():
     return spark
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_dataframe_spark(spark_context):
     n_samples = 1000
     start = datetime.today()
@@ -51,7 +51,7 @@ def test_dataframe_spark(spark_context):
     return spark_df
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -65,7 +65,7 @@ def test_split_dataset_spark_int(test_dataframe_spark):
     assert df.columns == ["date", "f1", "f2"]
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -77,7 +77,7 @@ def test_split_dataset_spark_int_underflow(test_dataframe_spark):
     assert e.value.args[0] == "Number of instances should be greater than 0"
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -92,7 +92,7 @@ def test_split_dataset_spark_int_overflow(test_dataframe_spark):
     )
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -106,7 +106,7 @@ def test_split_dataset_spark_float(test_dataframe_spark):
     assert df.columns == ["date", "f1", "f2"]
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -120,7 +120,7 @@ def test_split_dataset_spark_float_round(test_dataframe_spark):
     assert df.columns == ["date", "f1", "f2"]
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -137,7 +137,7 @@ def test_split_dataset_spark_float_underflow(test_dataframe_spark):
     assert e.value.args[0] == "Fraction should be 0 > fraction > 1"
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -154,7 +154,7 @@ def test_split_dataset_spark_float_overflow(test_dataframe_spark):
     assert e.value.args[0] == "Fraction should be 0 > fraction > 1"
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -162,7 +162,10 @@ def test_split_dataset_spark_float_overflow(test_dataframe_spark):
 def test_split_dataset_spark_condition(test_dataframe_spark):
     reference, df = split_dataset(
         test_dataframe_spark,
-        split=f"date < '{(datetime.today() + timedelta(days=50, hours=5)).strftime('%Y-%m-%d %H:%M:%S')}'",
+        split=(
+            "date <"
+            f" '{(datetime.today() + timedelta(days=50, hours=5)).strftime('%Y-%m-%d %H:%M:%S')}'"
+        ),
         time_axis="date",
     )
 
@@ -172,7 +175,7 @@ def test_split_dataset_spark_condition(test_dataframe_spark):
     assert df.columns == ["date", "f1", "f2"]
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -181,7 +184,10 @@ def test_split_dataset_spark_condition_false(test_dataframe_spark):
     with pytest.raises(ValueError) as e:
         split_dataset(
             test_dataframe_spark,
-            split=f"date < '{(datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')}'",
+            split=(
+                "date <"
+                f" '{(datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')}'"
+            ),
             time_axis="date",
         )
 

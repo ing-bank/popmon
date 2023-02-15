@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pytest import test_comparer_df
+import pytest
 
 from popmon.analysis.apply_func import ApplyFunc, apply_func, apply_func_array
 from popmon.analysis.functions import pull
@@ -71,7 +71,7 @@ def test_apply_func_module():
 
 
 def test_variance_comparer():
-    datastore = {"to_profile": test_comparer_df}
+    datastore = {"to_profile": pytest.test_comparer_df}
 
     module1 = ApplyFunc(
         apply_to_key="to_profile", features=["the_feature", "dummy_feature"]
@@ -98,7 +98,7 @@ def test_variance_comparer():
 
 
 def test_reference_pull_comparer():
-    datastore = {"to_profile": test_comparer_df}
+    datastore = {"to_profile": pytest.test_comparer_df}
 
     mod = ReferencePullCalculator(
         reference_key="to_profile",
@@ -116,7 +116,7 @@ def test_reference_pull_comparer():
 
 
 def test_median_mad_pull_comparer():
-    datastore = {"to_profile": test_comparer_df}
+    datastore = {"to_profile": pytest.test_comparer_df}
 
     mod = RefMedianMadPullCalculator(
         reference_key="to_profile",
@@ -134,7 +134,7 @@ def test_median_mad_pull_comparer():
 
 
 def test_rolling_pull_comparer():
-    datastore = {"to_profile": test_comparer_df}
+    datastore = {"to_profile": pytest.test_comparer_df}
 
     mod = RollingPullCalculator(
         read_key="to_profile", features=["the_feature", "dummy_feature"], window=3
@@ -151,7 +151,7 @@ def test_rolling_pull_comparer():
 
 
 def test_expanding_pull_comparer():
-    datastore = {"to_profile": test_comparer_df}
+    datastore = {"to_profile": pytest.test_comparer_df}
 
     mod = ExpandingPullCalculator(
         read_key="to_profile", features=["the_feature", "dummy_feature"]

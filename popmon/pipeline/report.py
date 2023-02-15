@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -23,10 +23,10 @@ from typing import Optional
 
 from histogrammar.dfinterface.make_histograms import get_bin_specs, make_histograms
 
-from ..config import Settings
-from ..pipeline.dataset_splitter import split_dataset
-from ..pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
-from ..resources import templates_env
+from popmon.config import Settings
+from popmon.pipeline.dataset_splitter import split_dataset
+from popmon.pipeline.report_pipelines import ReportPipe, get_report_pipeline_class
+from popmon.resources import templates_env
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"
@@ -129,7 +129,7 @@ def df_stability_report(
         and settings.time_axis not in reference.columns
     ):
         raise ValueError(
-            f'time_axis  "{settings.time_axis}" not found in columns of reference dataframe.'
+            f'time_axis "{settings.time_axis}" not found in columns of reference dataframe.'
         )
 
     if settings.features is not None:

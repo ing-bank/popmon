@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,14 +24,14 @@ from numpy.lib.stride_tricks import as_strided
 from scipy import linalg, stats
 from scipy.stats import linregress, norm
 
-from ..analysis.hist_numpy import (
+from popmon.analysis.hist_numpy import (
     check_similar_hists,
     get_consistent_numpy_2dgrids,
     get_consistent_numpy_entries,
     set_2dgrid,
 )
-from ..hist.hist_utils import COMMON_HIST_TYPES, is_numeric
-from ..stats.numpy import probability_distribution_mean_covariance
+from popmon.hist.hist_utils import COMMON_HIST_TYPES, is_numeric
+from popmon.stats.numpy import probability_distribution_mean_covariance
 
 
 def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
@@ -57,15 +57,17 @@ def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
         ]
 
     x = {
-        m: np.nan
-        if (
-            any(
-                r not in rdict or pd.isnull(rdict[r])
-                for r in [m, m + suffix_mean, m + suffix_std]
+        m: (
+            np.nan
+            if (
+                any(
+                    r not in rdict or pd.isnull(rdict[r])
+                    for r in [m, m + suffix_mean, m + suffix_std]
+                )
+                or rdict[m + suffix_std] == 0.0
             )
-            or rdict[m + suffix_std] == 0.0
+            else (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
         )
-        else (rdict[m] - rdict[m + suffix_mean]) / rdict[m + suffix_std]
         for m in cols
     }
 
@@ -183,6 +185,7 @@ def rolling_lr_zscore(df, window, shift=0):
     :param int shift: size of shift. default is 0.
     :return: df with rolling z-score results of lin_regress() function applied to all columns
     """
+
     # MB 20200420: turn original df.rolling off, it doesn't accept timestamps.
     # raw=True suppresses Future warning
     # return df.shift(shift).rolling(window).apply(func, raw=True)

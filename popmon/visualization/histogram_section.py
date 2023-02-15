@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,15 +25,15 @@ import pandas as pd
 from histogrammar.util import get_hist_props
 from tqdm import tqdm
 
-from ..analysis.hist_numpy import (
+from popmon.analysis.hist_numpy import (
     assert_similar_hists,
     get_consistent_numpy_1dhists,
     get_consistent_numpy_entries,
 )
-from ..base import Module
-from ..config import HistogramSectionModel
-from ..utils import parallel, short_date
-from ..visualization.utils import (
+from popmon.base import Module
+from popmon.config import HistogramSectionModel
+from popmon.utils import parallel, short_date
+from popmon.visualization.utils import (
     histogram_basic_checks,
     plot_heatmap,
     plot_histogram_overlay,
@@ -191,9 +191,8 @@ class HistogramSection(Module):
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
             hplots = []
             for h in heatmaps:
-                if isinstance(h, dict):
-                    if len(h["plot"]):
-                        hplots.append(h)
+                if isinstance(h, dict) and len(h["plot"]):
+                    hplots.append(h)
 
             if len(hplots) > 0:
                 plot_type_layouts["heatmap"] = hplots[0]["layout"]
@@ -274,8 +273,8 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
                 for el, hc in zip(entries_list, hc_list)
             ]
         # if categorical
+        # get top_n categories for histogram
         if not is_num:
-            # get top_n categories for histogram
             if len(bins) > top_n:
                 entries_list = np.stack(entries_list, axis=1)
                 entries_list, bins = get_top_categories(entries_list, bins, top_n)
@@ -430,3 +429,4 @@ def hist_lookup(plot, hist_name):
     for pl in plot:
         if pl["name"] == hist_name:
             return pl
+    return None

@@ -199,7 +199,7 @@ def test_probability_distribution_mean_covariance():
     max_hist_entries = 10000
     rel_error = 0.1
     bin_entries = []
-    for k in range(n_histos):
+    for _ in range(n_histos):
         bin_probs = np.random.normal(1.0, rel_error, size=n_bins)  # + basic
         bin_probs /= np.sum(bin_probs)
         bin_entries.append(np.random.multinomial(max_hist_entries, bin_probs))

@@ -24,4 +24,4 @@ jobs:
     - name: Check license
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
-        addlicense -check -l mit -c "ING Wholesale Banking Advanced Analytics" $(find popmon/ -type f -name '*.py' -not -path popmon/version.py)
+        addlicense -check -l mit -c "ING Analytics Wholesale Banking" $(find popmon/ -type f -name '*.py' -not -path popmon/version.py)

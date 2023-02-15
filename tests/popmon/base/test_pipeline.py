@@ -66,7 +66,7 @@ class WeightedSum(Module):
         return result
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_pipeline():
     logger = logging.getLogger()
     logger.addHandler(logging.StreamHandler())

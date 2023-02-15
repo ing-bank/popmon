@@ -54,7 +54,7 @@ def test_registry_duplicate():
 
     with pytest.raises(ValueError) as e:
 
-        @DuplicatedRegistry.register(key="another", description="value")  # noqa: F811
+        @DuplicatedRegistry.register(key="another", description="value")
         def func1():  # noqa: F811
             pass
 

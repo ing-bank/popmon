@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,8 @@ import histogrammar
 import numpy as np
 from histogrammar.util import get_hist_props
 
-from ..hist.hist_utils import get_bin_centers, is_numeric
-from ..stats.numpy import quantile
+from popmon.hist.hist_utils import get_bin_centers, is_numeric
+from popmon.stats.numpy import quantile
 
 used_hist_types = (histogrammar.Bin, histogrammar.SparselyBin, histogrammar.Categorize)
 
@@ -51,7 +51,7 @@ def prepare_ndgrid(hist, n_dim):
         elif hasattr(h, "values"):
             return set(range(len(h.values)))
         else:
-            raise TypeError()
+            raise TypeError
 
     # SparselyBin or Categorize
     def keys_recursive(hist, hist_keys, idx):
@@ -64,7 +64,7 @@ def prepare_ndgrid(hist, n_dim):
                 for h in hist.values:
                     hist_keys = keys_recursive(h, hist_keys, idx + 1)
             else:
-                raise TypeError()
+                raise TypeError
         return hist_keys
 
     keys = [set() for _ in range(n_dim)]
@@ -114,19 +114,19 @@ def set_ndgrid(hist, keys, n_dim):
                     if k not in keys[dim]:
                         continue
                     i = keys[dim].index(k)
-                    flatten(h, keys, grid, dim + 1, [i] + prefix)
+                    flatten(h, keys, grid, dim + 1, [i, *prefix])
             elif hasattr(histogram, "values"):
                 for i, h in enumerate(histogram.values):
-                    flatten(h, keys, grid, dim + 1, [i] + prefix)
+                    flatten(h, keys, grid, dim + 1, [i, *prefix])
             else:
-                raise TypeError()
+                raise TypeError
 
     flatten(hist, keys, grid)
     return grid
 
 
 def set_2dgrid(hist, keys):
-    """Set 2d grid of first two dimenstions of input histogram
+    """Set 2d grid of first two dimensions of input histogram
 
     Used as input by get_2dgrid(hist).
 
@@ -142,7 +142,7 @@ def get_ndgrid(hist, get_bin_labels=False, n_dim=2):
     """Get filled n-d grid of first n dimensions of input histogram
 
     :param hist: input histogrammar histogram
-    :return: grid of first n dimenstions of input histogram
+    :return: grid of first n dimensions of input histogram
     """
     if hist.n_dim < n_dim:
         warnings.warn(
@@ -163,12 +163,12 @@ def get_2dgrid(hist, get_bin_labels=False):
     """Get filled x,y grid of first two dimensions of input histogram
 
     :param hist: input histogrammar histogram
-    :return: x,y grid of first two dimenstions of input histogram
+    :return: x,y grid of first two dimensions of input histogram
     """
     return get_ndgrid(hist, get_bin_labels, n_dim=2)
 
 
-def get_consistent_numpy_ndgrids(hist_list=[], get_bin_labels=False, dim=3):
+def get_consistent_numpy_ndgrids(hist_list=None, get_bin_labels=False, dim=3):
     """Get list of consistent x,y grids of first n dimensions of (sparse) input histograms
 
     :param list hist_list: list of input histogrammar histograms
@@ -177,7 +177,7 @@ def get_consistent_numpy_ndgrids(hist_list=[], get_bin_labels=False, dim=3):
     :return: list of consistent x,y grids of first two dimensions of each input histogram in list
     """
     # --- basic checks
-    if len(hist_list) == 0:
+    if hist_list is None or len(hist_list) == 0:
         raise ValueError("Input histogram list has zero length.")
     if hist_list[0].n_dim < dim:
         raise ValueError(
@@ -200,13 +200,15 @@ def get_consistent_numpy_ndgrids(hist_list=[], get_bin_labels=False, dim=3):
     return gridnd_list
 
 
-def get_consistent_numpy_2dgrids(hist_list=[], get_bin_labels=False):
+def get_consistent_numpy_2dgrids(hist_list=None, get_bin_labels=False):
     """Get list of consistent x,y grids of first two dimensions of (sparse) input histograms
 
     :param list hist_list: list of input histogrammar histograms
     :param bool get_bin_labels: if true, return x-keys and y-keys describing binnings of 2d-grid.
     :return: list of consistent x,y grids of first two dimensions of each input histogram in list
     """
+    if hist_list is None:
+        hist_list = []
     return get_consistent_numpy_ndgrids(hist_list, get_bin_labels, dim=2)
 
 
@@ -389,11 +391,11 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
 
     # Check generic attributes - filled histograms only
     n_d = [hist.n_dim for hist in hist_list]
-    if not n_d.count(n_d[0]) == len(n_d):
+    if n_d.count(n_d[0]) != len(n_d):
         warnings.warn("Input histograms have inconsistent dimensions.")
         return False
     dts = [hist.datatype for hist in hist_list]
-    if not dts.count(dts[0]) == len(dts):
+    if dts.count(dts[0]) != len(dts):
         warnings.warn(f"Input histograms have inconsistent datatypes: {dts}")
         return False
     # Check generic attributes
@@ -402,7 +404,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
         # histogrammar.primitives.categorize.Categorize are both of type hg.Categorize
         # Make this consistent first.
         types = [get_contentType(hist) for hist in hist_list]
-        if not types.count(types[0]) == len(types):
+        if types.count(types[0]) != len(types):
             warnings.warn(
                 "Input histograms have inconsistent class types: {types}".format(
                     types=types
@@ -413,7 +415,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
     # Check Bin attributes
     if isinstance(hist_list[0], histogrammar.Bin):
         nums = [hist.num for hist in hist_list]
-        if not nums.count(nums[0]) == len(nums):
+        if nums.count(nums[0]) != len(nums):
             warnings.warn(
                 "Input Bin histograms have inconsistent num attributes: {types}".format(
                     types=nums
@@ -421,7 +423,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
             )
             return False
         lows = [hist.low for hist in hist_list]
-        if not lows.count(lows[0]) == len(lows):
+        if lows.count(lows[0]) != len(lows):
             warnings.warn(
                 "Input Bin histograms have inconsistent low attributes: {types}".format(
                     types=lows
@@ -429,7 +431,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
             )
             return False
         highs = [hist.high for hist in hist_list]
-        if not highs.count(highs[0]) == len(highs):
+        if highs.count(highs[0]) != len(highs):
             warnings.warn(
                 "Input histograms have inconsistent high attributes: {types}".format(
                     types=highs
@@ -440,7 +442,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
     # Check SparselyBin attributes
     if isinstance(hist_list[0], histogrammar.SparselyBin):
         origins = [hist.origin for hist in hist_list]
-        if not origins.count(origins[0]) == len(origins):
+        if origins.count(origins[0]) != len(origins):
             warnings.warn(
                 "Input SparselyBin histograms have inconsistent origin attributes: {types}".format(
                     types=origins
@@ -448,7 +450,7 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
             )
             return False
         bws = [hist.binWidth for hist in hist_list]
-        if not bws.count(bws[0]) == len(bws):
+        if bws.count(bws[0]) != len(bws):
             warnings.warn(
                 "Input SparselyBin histograms have inconsistent binWidth attributes: {types}".format(
                     types=bws

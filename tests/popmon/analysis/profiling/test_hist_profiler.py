@@ -14,7 +14,7 @@ def test_profile_hist1d():
     split = []
 
     np.random.seed(0)
-    for i in range(split_len):
+    for _ in range(split_len):
         h = hg.Bin(num_bins, 0, 1, lambda x: x)
         h.fill.numpy(np.random.uniform(0, 1, num_entries))
         split.append({"date": pd.Timestamp("2019 - 1 - 1"), hist_name: h})

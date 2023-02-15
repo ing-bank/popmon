@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from ..base import Module
-from ..utils import parallel
+from popmon.base import Module
+from popmon.utils import parallel
 
 
 class ApplyFunc(Module):
@@ -97,8 +97,8 @@ class ApplyFunc(Module):
         func,
         suffix=None,
         prefix=None,
-        metrics=[],
-        features=[],
+        metrics=None,
+        features=None,
         entire=None,
         *args,
         **kwargs,
@@ -117,6 +117,10 @@ class ApplyFunc(Module):
         :param kwargs: (dict, optional) kwargs for 'func'
         """
         # check inputs
+        if features is None:
+            features = []
+        if metrics is None:
+            metrics = []
         if not callable(func):
             raise TypeError("functions in ApplyFunc must be callable objects")
         if suffix is not None and not isinstance(suffix, str):
@@ -252,9 +256,12 @@ def apply_func(feature, selected_metrics, df, arr):
     :return: dictionary with outputs of applied-to metric pd.Series
     """
     # basic checks of feature
-    if "features" in arr and len(arr["features"]) > 0:
-        if feature not in arr["features"]:
-            return {}
+    if (
+        "features" in arr
+        and len(arr["features"]) > 0
+        and feature not in arr["features"]
+    ):
+        return {}
 
     # get func input
     keys = list(arr.keys())
@@ -343,20 +350,15 @@ def apply_func(feature, selected_metrics, df, arr):
         and all(obj.index == df.index)
     ):
         obj = {"_".join(df.columns): obj}
+    # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
     elif (
         isinstance(obj, pd.DataFrame)
         and len(obj.columns) == 1
-        and len(obj.index) != len(df.index)
+        and (
+            len(obj.index) != len(df.index)
+            or (len(obj.index) == len(df.index) and (obj.index != df.index).any())
+        )
     ):
-        # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
-        obj = obj[obj.columns[0]].to_dict()
-    elif (
-        isinstance(obj, pd.DataFrame)
-        and len(obj.columns) == 1
-        and len(obj.index) == len(df.index)
-        and (obj.index != df.index).any()
-    ):
-        # e.g. output of normalized_hist_mean_cov: a dataframe with one column, actually a series
         obj = obj[obj.columns[0]].to_dict()
     elif isinstance(obj, pd.Series):
         # e.g. output of np.mean of np.std: results in one number per column when applied to a dataframe

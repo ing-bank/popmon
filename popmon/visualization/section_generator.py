@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,11 +25,10 @@ from tqdm import tqdm
 
 from popmon.analysis.comparison import Comparisons
 from popmon.analysis.profiling import Profiles
-
-from ..base import Module
-from ..config import Report
-from ..utils import filter_metrics, parallel, short_date
-from ..visualization.utils import _prune, plot_bars
+from popmon.base import Module
+from popmon.config import Report
+from popmon.utils import filter_metrics, parallel, short_date
+from popmon.visualization.utils import _prune, plot_bars
 
 profiles = Profiles.get_descriptions()
 
@@ -99,7 +98,7 @@ class SectionGenerator(Module):
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
-        suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
+        suffices=None,
         ignore_stat_endswith=None,
         description="",
     ):
@@ -130,7 +129,12 @@ class SectionGenerator(Module):
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
-        self.suffices = suffices
+        self.suffices = suffices or [
+            "_red_high",
+            "_yellow_high",
+            "_yellow_low",
+            "_red_low",
+        ]
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.description = description
         self.show_stats = settings.show_stats if not settings.extended_report else None
@@ -166,9 +170,8 @@ class SectionGenerator(Module):
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
-            df.drop(
+            df = df.drop(
                 columns=["histogram", "reference_histogram"],
-                inplace=True,
                 errors="ignore",
             )
             dates = np.array([short_date(date) for date in df.index.tolist()])
@@ -304,10 +307,10 @@ def _plot_metric(
         "description": get_stat_description(metric),
         "plot": plot["data"],
         "shapes": plot["layout"]["shapes"] if "shapes" in plot["layout"] else "",
-        "yaxis_range": [
-            "null" if r is None else r for r in plot["layout"]["yaxis"]["range"]
-        ]
-        if "range" in plot["layout"]["yaxis"]
-        else "",
+        "yaxis_range": (
+            ["null" if r is None else r for r in plot["layout"]["yaxis"]["range"]]
+            if "range" in plot["layout"]["yaxis"]
+            else ""
+        ),
         "layout": plot["layout"],
     }

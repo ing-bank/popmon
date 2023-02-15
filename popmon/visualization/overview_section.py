@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -25,12 +25,12 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from ..base import Module
-from ..config import Report
-from ..resources import templates_env
-from ..utils import filter_metrics
-from ..version import version as __version__
-from ..visualization.utils import _prune, get_reproduction_table, get_summary_table
+from popmon.base import Module
+from popmon.config import Report
+from popmon.resources import templates_env
+from popmon.utils import filter_metrics
+from popmon.version import version as __version__
+from popmon.visualization.utils import _prune, get_reproduction_table, get_summary_table
 
 
 class OverviewSectionGenerator(Module):
@@ -55,7 +55,7 @@ class OverviewSectionGenerator(Module):
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
-        suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
+        suffices=None,
         ignore_stat_endswith=None,
     ):
         """Initialize an instance of SectionGenerator.
@@ -81,7 +81,12 @@ class OverviewSectionGenerator(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.prefix = prefix
-        self.suffices = suffices
+        self.suffices = suffices or [
+            "_red_high",
+            "_yellow_high",
+            "_yellow_low",
+            "_red_low",
+        ]
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.reference_type = reference_type
         self.time_axis = time_axis
@@ -130,9 +135,8 @@ class OverviewSectionGenerator(Module):
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
-            df.drop(
+            df = df.drop(
                 columns=["histogram", "reference_histogram"],
-                inplace=True,
                 errors="ignore",
             )
 
@@ -152,12 +156,12 @@ class OverviewSectionGenerator(Module):
         tables = []
         bin_width = (
             self.bin_specs[self.time_axis]["bin_width"]
-            if self.time_axis in self.bin_specs.keys()
+            if self.time_axis in self.bin_specs
             else 0
         )
 
         if (
-            self.time_axis in self.bin_specs.keys()
+            self.time_axis in self.bin_specs
             and self.bin_specs[self.time_axis]["bin_offset"] > 0
         ):
             offset = datetime.utcfromtimestamp(

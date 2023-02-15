@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -82,7 +82,7 @@ def ks_test(hist_1, hist_2):
     Formulas translated from c++ to python, but formulas otherwise not modified.
     Reference: link: https://root.cern.ch/doc/master/classTH1.html#TH1:KolmogorovTest
     GNU license: https://root.cern.ch/license
-    All modifications copyright ING WBAA.
+    All modifications copyright INGA WB.
 
     :param hist_1: 1D array with bin counts of the histogram_1
     :param hist_2: 1D array with bin counts of the histogram_2
@@ -115,7 +115,7 @@ def ks_prob(testscore):
     Formulas translated from c++ to python, but formulas otherwise not modified.
     Reference: https://root.cern.ch/doc/master/classTH1.html#TH1:KolmogorovTest
     GNU license: https://root.cern.ch/license
-    All modifications copyright ING WBAA.
+    All modifications copyright INGA WB.
 
     :param float testscore: Kolmogorov-Smirnov test score
 
@@ -154,7 +154,7 @@ def ks_prob(testscore):
     dim=1,
     htype="num",
 )
-def ks(p, q, *args):
+def ks(p, q, *_):
     # KS-test only properly defined for (ordered) 1D interval variables
     ks_testscore = ks_test(p, q)
     ks_pvalue = ks_prob(ks_testscore)
@@ -182,7 +182,7 @@ def unknown_labels(hist1, hist2):
     dim=(2,),
     htype="all",
 )
-def pearson(p, q, *args):
+def pearson(p, q, *_):
     # calculate pearson coefficient
     pearson_coeff = np.nan
     if len(p) >= 2:
@@ -201,7 +201,7 @@ def uu_chi2(n, m):
     Formulas translated from c++ to python, but formulas otherwise not modified.
     Reference: https://root.cern.ch/doc/master/classTH1.html#a6c281eebc0c0a848e7a0d620425090a5
     GNU License: https://root.cern.ch/license
-    All modifications copyright ING WBAA.
+    All modifications copyright INGA WB.
 
     :param n: 1d array with bin counts of the reference set
     :param m: 1d array with bin counts of the test set
@@ -218,8 +218,8 @@ def uu_chi2(n, m):
     if len(n) != len(m):
         raise ValueError("Input histograms have unequal size.")
 
-    N = np.sum(n)
-    M = np.sum(m)
+    N = np.sum(n)  # noqa: N806
+    M = np.sum(m)  # noqa: N806
 
     if N == 0 or M == 0:
         return np.nan, np.nan, np.nan, np.nan, [0] * len(n)

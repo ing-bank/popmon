@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -23,9 +23,10 @@ from typing import Optional
 import pandas as pd
 from tqdm import tqdm
 
-from ..base import Module
-from ..config import Report
-from ..utils import filter_metrics, short_date
+from popmon.base import Module
+from popmon.config import Report
+from popmon.utils import filter_metrics, short_date
+
 from .traffic_light_section_generator import _plot_metrics
 
 
@@ -48,7 +49,7 @@ class AlertSectionGenerator(Module):
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
-        suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
+        suffices=None,
         ignore_stat_endswith=None,
     ):
         """Initialize an instance of SectionGenerator.
@@ -72,7 +73,12 @@ class AlertSectionGenerator(Module):
         self.features = features or []
         self.ignore_features = ignore_features or []
         self.prefix = prefix
-        self.suffices = suffices
+        self.suffices = suffices or [
+            "_red_high",
+            "_yellow_high",
+            "_yellow_low",
+            "_red_low",
+        ]
         self.ignore_stat_endswith = ignore_stat_endswith or []
 
         self.last_n = settings.last_n
@@ -118,9 +124,8 @@ class AlertSectionGenerator(Module):
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
-            df.drop(
+            df = df.drop(
                 columns=["histogram", "reference_histogram"],
-                inplace=True,
                 errors="ignore",
             )
             dates = [short_date(date) for date in df.index.tolist()]

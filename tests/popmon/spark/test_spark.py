@@ -16,7 +16,7 @@ except (ModuleNotFoundError, AttributeError):
     spark_found = False
 
 
-@pytest.fixture
+@pytest.fixture()
 def spark_context():
     if not spark_found:
         return None
@@ -37,7 +37,7 @@ def spark_context():
     return spark
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -67,7 +67,7 @@ def test_spark_stability_metrics(spark_context):
         assert c in list(ds.keys())
 
 
-@pytest.mark.spark
+@pytest.mark.spark()
 @pytest.mark.xfail(
     not spark_found,
     reason="spark not found - install spark or exclude spark from tests (`pytest -m 'not spark'`)",
@@ -121,4 +121,4 @@ def test_spark_make_histograms(spark_context):
         v2["data"]["name"] = f"b'{name}'"
 
         output = current_hists[name].toJson()
-        assert output == v1 or output == v2
+        assert output in (v1, v2)

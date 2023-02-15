@@ -2,7 +2,7 @@
 Population Shift Monitoring
 ===========================
 
-|build| |docs| |release| |release_date| |downloads|
+|build| |docs| |release| |release_date| |downloads| |ruff|
 
 |logo|
 
@@ -191,7 +191,7 @@ Possible integrations are:
 Resources on how to integrate popmon are available in the `examples directory <https://github.com/ing-bank/popmon/tree/master/examples/integrations>`_.
 Contributions of additional or improved integrations are welcome!
 
-.. |grafana_logo| image:: https://upload.wikimedia.org/wikipedia/en/a/a1/Grafana_logo.svg
+.. |grafana_logo| image:: https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg
     :alt: Grafana logo
     :height: 120
     :target: https://github.com/grafana/grafana
@@ -248,6 +248,8 @@ Articles
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+---------------------------------------------+
 | Title                                                                                                                                                                                             | Date             | Author                                      |
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+---------------------------------------------+
+|`POPMON v1.0.0: The Dataset-Shift Pokémon <https://medium.com/wbaa/popmon-v1-0-0-the-dataset-shift-pok%C3%A9mon-7dea9cb49a71>`_                                                                    | Aug 3, 2022      | Pradyot Patil                               |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+---------------------------------------------+
 |`Monitoring Model Drift with Python <https://medium.com/broadhorizon-cmotions/monitoring-model-drift-with-python-b9e15ca16b18>`_                                                                   | April 16, 2022   | Jeanine Schoonemann                         |
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+---------------------------------------------+
 |`The Statistics Underlying the Popmon Hood <https://www.theanalyticslab.nl/the-statistics-underlying-the-popmon-hood/>`_                                                                           | April 15, 2022   | Jurriaan Nagelkerke and Jeanine Schoonemann |
@@ -259,6 +261,7 @@ Articles
 | `Popmon Open Source Package — Population Shift Monitoring Made Easy <https://medium.com/wbaa/population-monitoring-open-source-1ce3139d8c3a>`_                                                    | May 20, 2020     | Nicole Mpozika                              |
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------+---------------------------------------------+
 
+
 Software
 --------
 
@@ -267,7 +270,7 @@ Software
 Project contributors
 ====================
 
-This package was authored by ING Wholesale Banking Advanced Analytics.
+This package was authored by ING Analytics Wholesale Banking (INGA WB).
 Special thanks to the following people who have contributed to the development of this package: `Ahmet Erdem <https://github.com/aerdem4>`_, `Fabian Jansen <https://github.com/faab5>`_, `Nanne Aben <https://github.com/nanne-aben>`_, Mathieu Grimal.
 
 
@@ -297,11 +300,11 @@ Contact and support
 
 * Issues & Ideas & Support: https://github.com/ing-bank/popmon/issues
 
-Please note that ING WBAA provides support only on a best-effort basis.
+Please note that INGA WB provides support only on a best-effort basis.
 
 License
 =======
-Copyright ING WBAA. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
+Copyright INGA WB. `popmon` is completely free, open-source and licensed under the `MIT license <https://en.wikipedia.org/wiki/MIT_License>`_.
 
 .. |logo| image:: https://raw.githubusercontent.com/ing-bank/popmon/master/docs/source/assets/popmon-logo.png
     :alt: POPMON logo
@@ -315,6 +318,9 @@ Copyright ING WBAA. `popmon` is completely free, open-source and licensed under 
     :target: https://github.com/ing-bank/popmon/files/7417124/pipeline_amazingpipeline_subgraphs_unversioned.pdf
 .. |build| image:: https://github.com/ing-bank/popmon/workflows/build/badge.svg
     :alt: Build status
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json
+    :alt: Ruff
+    :target: https://github.com/charliermarsh/ruff
 .. |docs| image:: https://readthedocs.org/projects/popmon/badge/?version=latest
     :alt: Package docs status
     :target: https://popmon.readthedocs.io

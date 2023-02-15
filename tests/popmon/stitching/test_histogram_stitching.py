@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import numpy as np
 import pytest
 
@@ -28,7 +26,7 @@ def test_histogram_stitching():
         hists_basis=hists2, hists_delta=hists2, time_axis="date", time_bin_idx=[50, 51]
     )
     np.testing.assert_array_equal(
-        sorted(hists3.keys()), sorted(features1 + ["date:age"])
+        sorted(hists3.keys()), sorted([*features1, "date:age"])
     )
     assert hists3["date:age"].entries == 800
     assert hists3["date:age"].bins[50].entries == 400
@@ -37,7 +35,7 @@ def test_histogram_stitching():
     # add 'date' axis to hists2 and hists2 and stitch at auto-bins 0, 1
     hists3 = stitch_histograms(hists_basis=hists2, hists_delta=hists2, time_axis="date")
     np.testing.assert_array_equal(
-        sorted(hists3.keys()), sorted(features1 + ["date:age"])
+        sorted(hists3.keys()), sorted([*features1, "date:age"])
     )
     assert hists3["date:age"].entries == 800
     assert 0 in hists3["date:age"].bins
@@ -48,7 +46,7 @@ def test_histogram_stitching():
         hists_basis=hists2, hists_delta=hists2, time_axis="date", time_bin_idx=50
     )
     np.testing.assert_array_equal(
-        sorted(hists3.keys()), sorted(features1 + ["date:age"])
+        sorted(hists3.keys()), sorted([*features1, "date:age"])
     )
     assert hists3["date:age"].entries == 800
     assert 51 in hists3["date:age"].bins

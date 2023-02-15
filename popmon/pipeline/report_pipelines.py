@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -22,23 +22,23 @@ from pathlib import Path
 
 from typing_extensions import Literal
 
-from ..base import Pipeline
-from ..config import Settings
-from ..io import FileWriter
-from ..pipeline.metrics_pipelines import (
+from popmon.base import Pipeline
+from popmon.config import Settings
+from popmon.io import FileWriter
+from popmon.pipeline.metrics_pipelines import (
     ExpandingReferenceMetricsPipeline,
     ExternalReferenceMetricsPipeline,
     RollingReferenceMetricsPipeline,
     SelfReferenceMetricsPipeline,
 )
-from ..visualization import (
+from popmon.visualization import (
     AlertSectionGenerator,
     HistogramSection,
     ReportGenerator,
     SectionGenerator,
     TrafficLightSectionGenerator,
 )
-from ..visualization.overview_section import OverviewSectionGenerator
+from popmon.visualization.overview_section import OverviewSectionGenerator
 
 
 def get_report_pipeline_class(
