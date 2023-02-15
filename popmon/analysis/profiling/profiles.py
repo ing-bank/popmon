@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,10 @@
 
 import numpy as np
 
+from popmon.analysis.hist_numpy import get_2dgrid
 from popmon.base.registry import Registry
-
-from ...analysis.hist_numpy import get_2dgrid
-from ...hist.hist_utils import sum_entries
-from ...stats import numpy as pm_np
+from popmon.hist.hist_utils import sum_entries
+from popmon.stats import numpy as pm_np
 
 Profiles = Registry()
 
@@ -45,7 +44,7 @@ Profiles = Registry()
     dim=1,
     htype="num",
 )
-def profile_quantiles(x, w, bin_width):
+def profile_quantiles(x, w, _):
     return tuple(
         pm_np.quantile(
             x, q=[0.0, 1.0, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99], weights=w
@@ -54,12 +53,12 @@ def profile_quantiles(x, w, bin_width):
 
 
 @Profiles.register(key="mean", description="Mean value", dim=1, htype="num")
-def profile_mean(x, w, bin_width):
+def profile_mean(x, w, _):
     return pm_np.mean(x, w)
 
 
 @Profiles.register(key="std", description="Standard deviation", dim=1, htype="num")
-def profile_std(x, w, bin_width):
+def profile_std(x, w, _):
     return pm_np.std(x, w)
 
 

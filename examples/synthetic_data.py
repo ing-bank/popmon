@@ -1,6 +1,6 @@
 import pandas as pd
 
-import popmon  # noqa
+import popmon  # noqa: F401
 from popmon import Settings, resources
 
 # open synthetic data

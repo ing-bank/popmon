@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -31,10 +31,11 @@ def short_date(date):
     """
     if isinstance(date, pd.Timestamp):
         # Drop the time of day when midnight or noon
-        if date.hour in [0, 12] and date.minute == 0 and date.second == 0:
-            d = str(date).split(" ")[0]
-        else:
-            d = str(date)
+        d = (
+            str(date).split(" ")[0]
+            if date.hour in [0, 12] and date.minute == 0 and date.second == 0
+            else str(date)
+        )
     else:
         d = str(date)
 

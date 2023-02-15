@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,8 @@ import logging
 
 from histogrammar.dfinterface.make_histograms import get_bin_specs, make_histograms
 
-from ..config import Settings
-from ..pipeline.metrics_pipelines import create_metrics_pipeline
+from popmon.config import Settings
+from popmon.pipeline.metrics_pipelines import create_metrics_pipeline
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"

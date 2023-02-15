@@ -200,7 +200,6 @@ def test_expanding_hist_comparer():
 @pytest.mark.filterwarnings("ignore:An input array is constant")
 @pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_rolling_hist_comparer():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 

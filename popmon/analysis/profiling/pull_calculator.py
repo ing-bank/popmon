@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,16 +21,16 @@
 import numpy as np
 import pandas as pd
 
-from ...analysis.apply_func import ApplyFunc
-from ...analysis.functions import (
+from popmon.analysis.apply_func import ApplyFunc
+from popmon.analysis.functions import (
     expanding_mean,
     expanding_std,
     pull,
     rolling_mean,
     rolling_std,
 )
-from ...base import Pipeline
-from ...stats.numpy import mad
+from popmon.base import Pipeline
+from popmon.stats.numpy import mad
 
 
 class PullCalculator(Pipeline):
@@ -82,10 +82,10 @@ class PullCalculator(Pipeline):
             apply_to_key=apply_to_key, assign_to_key=assign_to_key, features=features
         )
         calc_mean_std.add_apply_func(
-            func_std, suffix=suffix_std, entire=True, *args, **kwargs
+            func_std, *args, suffix=suffix_std, entire=True, **kwargs
         )
         calc_mean_std.add_apply_func(
-            func_mean, suffix=suffix_mean, entire=True, *args, **kwargs
+            func_mean, *args, suffix=suffix_mean, entire=True, **kwargs
         )
 
         calc_pull = ApplyFunc(

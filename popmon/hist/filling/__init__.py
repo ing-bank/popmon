@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -17,7 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# MB 20210323: histogrammming code hade been moved to histogrammar v1.0.20+
+# MB 20210323: histogrammming code has been moved to histogrammar v1.0.20+
 #              these imports are kept for backwards compatibility.
 
 from histogrammar.dfinterface.make_histograms import (

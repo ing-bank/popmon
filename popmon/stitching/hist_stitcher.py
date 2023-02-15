@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,8 +21,8 @@
 import histogrammar as hg
 import numpy as np
 
-from ..analysis.hist_numpy import assert_similar_hists
-from ..base import Module
+from popmon.analysis.hist_numpy import assert_similar_hists
+from popmon.base import Module
 
 
 class HistStitcher(Module):
@@ -341,7 +341,7 @@ class HistStitcher(Module):
             )
         if len(hbasis.bins) > 0:
             hbk0 = list(hbasis.bins.values())[0]
-            assert_similar_hists([hbk0] + hdelta_list)
+            assert_similar_hists([hbk0, *hdelta_list])
         else:
             assert_similar_hists(hdelta_list)
 
@@ -349,9 +349,10 @@ class HistStitcher(Module):
         if isinstance(time_bin_idx[0], str):
             if not isinstance(hbasis, hg.Categorize):
                 raise TypeError("hbasis does not accept string time-values.")
-        elif isinstance(time_bin_idx[0], (int, np.integer)):
-            if not isinstance(hbasis, hg.SparselyBin):
-                raise TypeError("hbasis does not accept integer time-values.")
+        elif isinstance(time_bin_idx[0], (int, np.integer)) and not isinstance(
+            hbasis, hg.SparselyBin
+        ):
+            raise TypeError("hbasis does not accept integer time-values.")
 
         # stitch all the hdeltas into hbasis
         hsum = hbasis.copy()
@@ -391,7 +392,7 @@ class HistStitcher(Module):
             hg.SparselyBin(binWidth=1.0, origin=0.0, quantity=lambda x: x)
             if isinstance(time_bin_idx, int)
             else hg.Categorize(quantity=lambda x: x)
-        )  # noqa
+        )
         ht.bins[time_bin_idx] = hist
         ht.entries = hist.entries
         return ht

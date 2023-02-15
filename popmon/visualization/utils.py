@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -391,18 +391,17 @@ def plot_traffic_lights_alerts_aggregate(
 
 
 # basic checks for histograms
-def histogram_basic_checks(plots={}):
-    if len(plots) == 0:
+def histogram_basic_checks(plots=None):
+    if plots is None or len(plots) == 0:
         return
 
     for plot in plots:
         if len(plot["hist_names"]) == 0:
             plot["hist_names"] = [f"hist{i}" for i in range(len(plot["hists"]))]
-        if plot["hist_names"]:
-            if len(plot["hists"]) != len(plot["hist_names"]):
-                raise ValueError("length of hist and hist_names are different")
+        if plot["hist_names"] and len(plot["hists"]) != len(plot["hist_names"]):
+            raise ValueError("length of hist and hist_names are different")
 
-        for i, hist in enumerate(plot["hists"]):
+        for hist in plot["hists"]:
             try:
                 hist_values, hist_bins = hist
             except BaseException as e:
@@ -437,7 +436,7 @@ def histogram_basic_checks(plots={}):
 
 
 def plot_histogram_overlay(
-    plots=[],
+    plots=None,
     is_num=True,
     is_ts=False,
     is_static_reference=True,
@@ -450,7 +449,7 @@ def plot_histogram_overlay(
     Kindly taken from Eskapade package and then modified. Reference link:
     https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
     License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
-    Modifications copyright ING WBAA.
+    Modifications copyright INGA WB.
 
     :param list plots: list of dicts containing histograms for all timestamps
         :param bool is_num: True if observable to plot is numeric. default is True.
@@ -462,6 +461,8 @@ def plot_histogram_overlay(
     :rtype: str
     """
 
+    if plots is None:
+        plots = []
     fig = go.Figure()
 
     alpha = 0.4
@@ -469,7 +470,7 @@ def plot_histogram_overlay(
     # check number of plots
     if len(plots) < 2:
         warnings.warn("insufficient plots for histogram inspection")
-        return
+        return None
 
     base_plot = plots[0]
 
@@ -479,7 +480,6 @@ def plot_histogram_overlay(
 
     # plot numeric and time stamps
     if is_num:
-
         # plot histogram
         for index in range(n_choices):
             bin_edges = plots[index]["hists"][0][1]
@@ -513,12 +513,16 @@ def plot_histogram_overlay(
                     y=bin_values,
                     opacity=alpha,
                     showlegend=True,
-                    name="no_ref"
-                    if len(plots[index]["hists"]) < 2
-                    else "Reference"
-                    if is_static_reference
-                    else (plots[index]["date"] + "-")
-                    + plots[index]["hist_names"][1].split("_")[-1],
+                    name=(
+                        "no_ref"
+                        if len(plots[index]["hists"]) < 2
+                        else (
+                            "Reference"
+                            if is_static_reference
+                            else (plots[index]["date"] + "-")
+                            + plots[index]["hist_names"][1].split("_")[-1]
+                        )
+                    ),
                     meta=index + 2,
                 )
             )
@@ -529,7 +533,6 @@ def plot_histogram_overlay(
 
     # plot categories
     else:
-
         # plot histogram for first 'n_choices' timestamps
         for index in range(n_choices):
             labels = plots[index]["hists"][0][1]
@@ -563,13 +566,17 @@ def plot_histogram_overlay(
                     y=values,
                     opacity=alpha,
                     showlegend=True,
-                    name="no_ref"
-                    if len(plots[index]["hists"]) < 2
-                    else "Reference"
-                    if is_static_reference
-                    else plots[index]["date"]
-                    + " "
-                    + plots[index]["hist_names"][1].split("_")[-1],
+                    name=(
+                        "no_ref"
+                        if len(plots[index]["hists"]) < 2
+                        else (
+                            "Reference"
+                            if is_static_reference
+                            else plots[index]["date"]
+                            + " "
+                            + plots[index]["hist_names"][1].split("_")[-1]
+                        )
+                    ),
                     meta=index + n_choices,
                 )
             )
@@ -619,19 +626,25 @@ def plot_histogram_overlay(
                                 {
                                     "y": [
                                         plot["hists"][0][0],
-                                        [0 for _ in range(len(plot["hists"][0][0]))]
-                                        if len(plot["hists"]) < 2
-                                        else plot["hists"][1][0],
+                                        (
+                                            [0 for _ in range(len(plot["hists"][0][0]))]
+                                            if len(plot["hists"]) < 2
+                                            else plot["hists"][1][0]
+                                        ),
                                     ],
                                     "name": [
                                         plot["date"],
-                                        "no_ref"
-                                        if len(plot["hist_names"]) < 2
-                                        else "Reference"
-                                        if is_static_reference
-                                        else plots[index]["date"]
-                                        + " "
-                                        + plot["hist_names"][1].split("_")[-1],
+                                        (
+                                            "no_ref"
+                                            if len(plot["hist_names"]) < 2
+                                            else (
+                                                "Reference"
+                                                if is_static_reference
+                                                else plots[index]["date"]
+                                                + " "
+                                                + plot["hist_names"][1].split("_")[-1]
+                                            )
+                                        ),
                                     ],
                                 },
                                 [b, b + 2],
@@ -705,7 +718,7 @@ def plot_heatmap(
     Kindly taken from Eskapade package and then modified. Reference link:
     https://github.com/KaveIO/Eskapade/blob/master/python/eskapade/visualization/vis_utils.py#L397
     License: https://github.com/KaveIO/Eskapade-Core/blob/master/LICENSE
-    Modifications copyright ING WBAA.
+    Modifications copyright INGA WB.
 
     :param list hist_values: values of heatmap in a 2d numpy array =
     :param list hist_bins: bin labels/edges on y-axis
@@ -720,9 +733,8 @@ def plot_heatmap(
     :return: base64 encoded plot image
     :rtype: str
     """
-    if hist_name:
-        if len(hist_name) == 0:
-            raise ValueError("length of heatmap names is zero")
+    if hist_name and len(hist_name) == 0:
+        raise ValueError("length of heatmap names is zero")
 
     assert hist_values is not None and len(
         hist_values

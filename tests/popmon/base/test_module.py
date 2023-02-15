@@ -23,7 +23,7 @@ class Scaler(Module):
         return res
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_module():
     return Scaler(input_key="x", output_key="scaled_x", mean=2.0, std=0.3)
 

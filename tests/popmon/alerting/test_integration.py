@@ -1,5 +1,5 @@
 import pandas as pd
-from pytest import test_comparer_df
+import pytest
 
 from popmon.alerting import AlertsSummary, ComputeTLBounds, traffic_light_summary
 from popmon.analysis.apply_func import ApplyFunc
@@ -7,7 +7,7 @@ from popmon.base import Pipeline
 
 
 def test_integration_alerting():
-    datastore = {"test_data": test_comparer_df}
+    datastore = {"test_data": pytest.test_comparer_df}
 
     conf = {
         "monitoring_rules": {
@@ -50,7 +50,7 @@ def test_integration_alerting():
 
 
 def test_traffic_light_summary():
-    datastore = {"test_data": test_comparer_df}
+    datastore = {"test_data": pytest.test_comparer_df}
 
     conf = {
         "monitoring_rules": {
@@ -94,7 +94,7 @@ def test_traffic_light_summary():
 
 
 def test_traffic_light_summary_combination():
-    datastore = {"test_data": test_comparer_df}
+    datastore = {"test_data": pytest.test_comparer_df}
 
     conf = {
         "monitoring_rules": {

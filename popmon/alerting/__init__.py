@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,8 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from ..alerting.alerts_summary import AlertsSummary
-from ..alerting.compute_tl_bounds import (
+from popmon.alerting.alerts_summary import AlertsSummary
+from popmon.alerting.compute_tl_bounds import (
     ComputeTLBounds,
     DynamicBounds,
     StaticBounds,

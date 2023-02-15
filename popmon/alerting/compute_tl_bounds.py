@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -26,8 +26,8 @@ from typing import Any, Tuple
 import numpy as np
 import pandas as pd
 
-from ..analysis.apply_func import ApplyFunc
-from ..base import Module, Pipeline
+from popmon.analysis.apply_func import ApplyFunc
+from popmon.base import Module, Pipeline
 
 
 def traffic_light_summary(row, cols=None, prefix=""):
@@ -95,7 +95,7 @@ def collect_traffic_light_bounds(monitoring_rules):
     """
     metrics_per_feature = defaultdict(list)
     metrics = []
-    for pattern in monitoring_rules.keys():
+    for pattern in monitoring_rules:
         psplit = pattern.split(":")
         feature = ":".join(psplit[:-1])
         metric = psplit[-1]

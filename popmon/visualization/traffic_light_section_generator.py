@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -24,10 +24,10 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from ..base import Module
-from ..config import Report
-from ..utils import filter_metrics, short_date
-from ..visualization.utils import (
+from popmon.base import Module
+from popmon.config import Report
+from popmon.utils import filter_metrics, short_date
+from popmon.visualization.utils import (
     _prune,
     plot_traffic_lights_alerts_aggregate,
     plot_traffic_lights_overview,
@@ -53,7 +53,7 @@ class TrafficLightSectionGenerator(Module):
         static_bounds=None,
         dynamic_bounds=None,
         prefix="traffic_light_",
-        suffices=["_red_high", "_yellow_high", "_yellow_low", "_red_low"],
+        suffices=None,
         ignore_stat_endswith=None,
     ):
         """Initialize an instance of SectionGenerator.
@@ -80,7 +80,12 @@ class TrafficLightSectionGenerator(Module):
         self.skip_first_n = settings.skip_first_n
         self.skip_last_n = settings.skip_last_n
         self.prefix = prefix
-        self.suffices = suffices
+        self.suffices = suffices or [
+            "_red_high",
+            "_yellow_high",
+            "_yellow_low",
+            "_red_low",
+        ]
         self.ignore_stat_endswith = ignore_stat_endswith or []
         self.show_stats = settings.show_stats if not settings.extended_report else None
 
@@ -117,9 +122,8 @@ class TrafficLightSectionGenerator(Module):
             assert all(df.index == fdbounds.index)
 
             # prepare date labels
-            df.drop(
+            df = df.drop(
                 columns=["histogram", "reference_histogram"],
-                inplace=True,
                 errors="ignore",
             )
             dates = [short_date(date) for date in df.index.tolist()]
