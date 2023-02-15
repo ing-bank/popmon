@@ -9,7 +9,6 @@ from popmon.io import JsonReader
 
 
 def test_hist_splitter():
-
     hist_list = [
         "date:country",
         "date:bankrupt",

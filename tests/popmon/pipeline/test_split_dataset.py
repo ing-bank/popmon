@@ -6,7 +6,7 @@ import pytest
 from popmon.pipeline.dataset_splitter import split_dataset
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_dataframe_pandas():
     n_samples = 1000
     start = datetime.today()

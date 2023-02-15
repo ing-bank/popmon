@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -123,8 +123,8 @@ def quantile(a, q, weights=None, axis=None, keepdims: bool = False):
         idx = np.argsort(raveled_data)
         sorted_data = raveled_data[idx]
         sorted_weights = np.ravel(weights)[idx]
-        Sn = np.cumsum(sorted_weights)
-        Pn = (Sn - 0.5 * sorted_weights) / Sn[-1]
+        Sn = np.cumsum(sorted_weights)  # noqa: N806
+        Pn = (Sn - 0.5 * sorted_weights) / Sn[-1]  # noqa: N806
         y = np.interp(q, Pn, sorted_data)
         if keepdims:
             y = y.reshape((*y.shape, *(1,) * np.ndim(a)))
@@ -233,7 +233,7 @@ def mad(a, c=0.6745, axis=0):
     Kindly taken from statsmodels package and then modified to work with dataframes as well.
     Reference: https://www.statsmodels.org/dev/_modules/statsmodels/robust/scale.html#mad
     License: https://github.com/statsmodels/statsmodels/blob/master/LICENSE.txt
-    All modifications copyright ING WBAA.
+    All modifications copyright INGA WB.
 
     :param a: array_like Input array.
     :param float c: optional. The normalization constant. Defined as scipy.stats.norm.ppf(3/4.),

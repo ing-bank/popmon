@@ -17,7 +17,7 @@ def get_comparer_data():
             "date": [2000, 2001, 2002, 2003, 2004],
         }
     )
-    df.set_index("date", inplace=True)
+    df = df.set_index("date")
     test_comparer_df["the_feature"] = df
 
     df = pd.DataFrame(
@@ -26,7 +26,7 @@ def get_comparer_data():
             "date": [2000, 2001, 2002, 2003, 2004],
         }
     )
-    df.set_index("date", inplace=True)
+    df = df.set_index("date")
     test_comparer_df["dummy_feature"] = df
 
     return test_comparer_df

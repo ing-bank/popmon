@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -67,7 +67,7 @@ def _split_dataset_spark(
     :param partition_cols: cols to partition by (for performance)
     :param persist: persist or not, enabled by default since we are checking for empty dataframes
     """
-    from pyspark.sql import functions as F
+    from pyspark.sql import functions as F  # noqa: N812
     from pyspark.sql.window import Window
 
     if split_type in ["n_instances", "fraction"]:

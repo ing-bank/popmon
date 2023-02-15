@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,8 +21,8 @@
 from histogrammar.dfinterface.make_histograms import make_histograms
 from pandas import DataFrame
 
-from ..pipeline.metrics import df_stability_metrics
-from ..pipeline.report import df_stability_report
+from popmon.pipeline.metrics import df_stability_metrics
+from popmon.pipeline.report import df_stability_report
 
 # add function to create histogrammar histograms.
 # pm_make_histograms is kept for bkw compatibility.

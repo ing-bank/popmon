@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 from elastic_connector import ElasticConnector
 
-import popmon  # noqa
+import popmon  # noqa: F401
 from popmon import resources
 
 if __name__ == "__main__":

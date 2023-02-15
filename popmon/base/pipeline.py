@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -18,13 +18,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import logging
-from abc import ABC
+from typing import Optional
 
 
-class Pipeline(ABC):
-    """Abstract base class used for to run modules in a pipeline."""
+class Pipeline:
+    """Base class used for to run modules in a pipeline."""
 
-    def __init__(self, modules, logger=None):
+    def __init__(self, modules, logger: Optional[logging.Logger] = None):
         """Initialization of the pipeline
 
         :param list modules: modules of the pipeline.
@@ -33,14 +33,12 @@ class Pipeline(ABC):
         self.modules = modules
         self.set_logger(logger)
 
-    def set_logger(self, logger):
+    def set_logger(self, logger: Optional[logging.Logger]):
         """Set the logger to be used by each module
 
         :param logger: input logger
         """
-        self.logger = logger
-        if self.logger is None:
-            self.logger = logging.getLogger()
+        self.logger = logger or logging.getLogger()
         for module in self.modules:
             module.set_logger(self.logger)
 
@@ -56,7 +54,7 @@ class Pipeline(ABC):
         """Central function of the pipeline.
 
         Calls transform() of each module in the pipeline.
-        Typically transform() of a module takes something from the datastore, does something to it,
+        Typically, transform() of a module takes something from the datastore, does something to it,
         and puts the results back into the datastore again, to be passed on to the next module in the pipeline.
 
         :param dict datastore: input datastore

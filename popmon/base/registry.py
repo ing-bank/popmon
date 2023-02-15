@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -103,9 +103,7 @@ class Registry:
 
     def get_keys_by_dim_and_htype(self, dim, htype) -> List[str]:
         """Flat list of keys for a provided dimension and histogram type"""
-        return [
-            v for values in self._properties_to_func[dim][htype].keys() for v in values
-        ]
+        return [v for values in self._properties_to_func[dim][htype] for v in values]
 
     def get_descriptions(self) -> Dict[str, str]:
         """Dictionary of key->description associated with registered functions"""

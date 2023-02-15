@@ -1,4 +1,4 @@
-# Copyright (c) 2022 ING Wholesale Banking Advanced Analytics
+# Copyright (c) 2023 ING Analytics Wholesale Banking
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -21,8 +21,8 @@
 import numpy as np
 import pandas as pd
 
-from ...analysis.apply_func import ApplyFunc
-from ...analysis.functions import (
+from popmon.analysis.apply_func import ApplyFunc
+from popmon.analysis.functions import (
     expand_norm_hist_mean_cov,
     expanding_hist,
     hist_sum,
@@ -31,13 +31,13 @@ from ...analysis.functions import (
     roll_norm_hist_mean_cov,
     rolling_hist,
 )
-from ...analysis.hist_numpy import (
+from popmon.analysis.hist_numpy import (
     check_similar_hists,
     get_consistent_numpy_entries,
     get_consistent_numpy_ndgrids,
 )
-from ...base import Pipeline
-from ...hist.hist_utils import COMMON_HIST_TYPES, is_numeric
+from popmon.base import Pipeline
+from popmon.hist.hist_utils import COMMON_HIST_TYPES, is_numeric
 
 
 def hist_compare(row, hist_name1="", hist_name2=""):
@@ -132,7 +132,7 @@ class HistComparer(Pipeline):
             assign_to_key=assign_to_key,
         )
         hist_collector.add_apply_func(
-            func=func_hist_collector, entire=True, suffix=suffix, *args, **kwargs
+            *args, func=func_hist_collector, entire=True, suffix=suffix, **kwargs
         )
         # do histogram comparison
         hist_comparer = ApplyFunc(
@@ -326,7 +326,7 @@ class NormHistComparer(Pipeline):
         # make reference histogram(s)
         hist_collector = ApplyFunc(apply_to_key=read_key, assign_to_key=assign_to_key)
         hist_collector.add_apply_func(
-            func=func_hist_collector, hist_name=hist_col, suffix="", *args, **kwargs
+            *args, func=func_hist_collector, hist_name=hist_col, suffix="", **kwargs
         )
 
         # do histogram comparison

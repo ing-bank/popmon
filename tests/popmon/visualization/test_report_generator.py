@@ -14,7 +14,6 @@ from popmon.visualization import ReportGenerator, SectionGenerator
 @pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 @pytest.mark.filterwarnings("ignore:All-NaN slice encountered")
 def test_report_generator():
-
     hist_list = ["date:country", "date:bankrupt", "date:num_employees", "date:A_score"]
     features = ["country", "bankrupt", "num_employees", "A_score"]
 
