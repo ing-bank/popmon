@@ -191,7 +191,7 @@ Possible integrations are:
 Resources on how to integrate popmon are available in the `examples directory <https://github.com/ing-bank/popmon/tree/master/examples/integrations>`_.
 Contributions of additional or improved integrations are welcome!
 
-.. |grafana_logo| image:: https://upload.wikimedia.org/wikipedia/en/a/a1/Grafana_logo.svg
+.. |grafana_logo| image:: https://upload.wikimedia.org/wikipedia/commons/a/a1/Grafana_logo.svg
     :alt: Grafana logo
     :height: 120
     :target: https://github.com/grafana/grafana
