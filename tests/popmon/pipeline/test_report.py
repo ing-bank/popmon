@@ -42,7 +42,9 @@ def test_df_stability_report():
     features = ["date:isActive", "date:eyeColor", "date:latitude"]
     bin_specs = {
         "date": {
-            "bin_width": pd.Timedelta("1y").value,
+            # Note that 2000 is a leap year (366 days), timedelta cannot account for this
+            # if this is important for the analysis, use an IDs for each year
+            "bin_width": pd.Timedelta("365d").value,
             "bin_offset": pd.Timestamp("2000-1-1").value,
         },
         "latitude": {"bin_width": 5.0, "bin_offset": 0.0},
@@ -69,7 +71,9 @@ def test_df_stability_report():
 
 
 def test_df_stability_report_self():
-    time_width = "1y"
+    # Note that 2020 is a leap year (366 days), timedelta cannot account for this
+    # if this is important for the analysis, use an IDs for each year
+    time_width = "365d"
     time_offset = "2020-1-1"
 
     # generate report directly from dataframe
