@@ -192,14 +192,15 @@ notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+""
 
 [tool.pytest.ini_options]
 markers = ["spark"]
+filterwarnings = ["error"]
 
-[tool.pytest.ini_options.spark_options]
-"spark.executor.id" = "driver"
-"spark.app.name" = "PySparkShell"
-"spark.executor.instances" = 1
-"master" = "local[*]"
-"spark.driver.host" = "192.168.1.78"
-"spark.sql.catalogImplementation" = "in-memory"
+#[tool.pytest.ini_options.spark_options]
+#"spark.executor.id" = "driver"
+#"spark.app.name" = "PySparkShell"
+#"spark.executor.instances" = 1
+#"master" = "local[*]"
+#"spark.driver.host" = "192.168.1.78"
+#"spark.sql.catalogImplementation" = "in-memory"
 
 [tool.semantic_release]
 version_variable = [
