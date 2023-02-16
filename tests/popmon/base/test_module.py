@@ -8,7 +8,7 @@ class Scaler(Module):
     _input_keys = ("input_key",)
     _output_keys = ("output_key",)
 
-    def __init__(self, input_key, output_key, mean, std):
+    def __init__(self, input_key, output_key, mean, std) -> None:
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key

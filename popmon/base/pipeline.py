@@ -24,7 +24,7 @@ import logging
 class Pipeline:
     """Base class used for to run modules in a pipeline."""
 
-    def __init__(self, modules, logger: logging.Logger | None = None):
+    def __init__(self, modules, logger: logging.Logger | None = None) -> None:
         """Initialization of the pipeline
 
         :param list modules: modules of the pipeline.
@@ -33,7 +33,7 @@ class Pipeline:
         self.modules = modules
         self.set_logger(logger)
 
-    def set_logger(self, logger: logging.Logger | None):
+    def set_logger(self, logger: logging.Logger | None) -> None:
         """Set the logger to be used by each module
 
         :param logger: input logger
@@ -42,7 +42,7 @@ class Pipeline:
         for module in self.modules:
             module.set_logger(self.logger)
 
-    def add_modules(self, modules):
+    def add_modules(self, modules) -> None:
         """Add more modules to existing list of modules.
 
         :param list modules: list of more modules
@@ -67,7 +67,7 @@ class Pipeline:
             datastore = module.transform(datastore)
         return datastore
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """String representation for pipeline"""
         name = self.__class__.__name__
         ret = f"{name}: [\n"

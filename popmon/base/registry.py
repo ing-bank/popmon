@@ -19,17 +19,19 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable
+from typing import Any, Callable, DefaultDict, Dict, List, Optional, Tuple, Union
 
 
 class Registry:
     _properties = ("dim", "htype")
 
-    def __init__(self):
-        self._keys: list[str] = []
-        self._descriptions: dict[str, str] = {}
-        self._properties_to_func = defaultdict(lambda: defaultdict(dict))
-        self._func_name_to_properties = {}
+    def __init__(self) -> None:
+        self._keys: List[str] = []
+        self._descriptions: Dict[str, str] = {}
+        self._properties_to_func: DefaultDict[
+            str, DefaultDict[str, Dict[Any, Any]]
+        ] = defaultdict(lambda: defaultdict(dict))
+        self._func_name_to_properties: Dict[Any, Any] = {}
 
     def register(
         self,

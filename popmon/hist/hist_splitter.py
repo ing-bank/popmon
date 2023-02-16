@@ -46,15 +46,15 @@ class HistSplitter(Module):
         store_key,
         features=None,
         ignore_features=None,
-        feature_begins_with="",
-        project_on_axes=True,
-        flatten_output=False,
-        short_keys=True,
+        feature_begins_with: str = "",
+        project_on_axes: bool = True,
+        flatten_output: bool = False,
+        short_keys: bool = True,
         var_timestamp=None,
-        index_col="date",
-        hist_col="histogram",
-        filter_empty_split_hists=True,
-    ):
+        index_col: str = "date",
+        hist_col: str = "histogram",
+        filter_empty_split_hists: bool = True,
+    ) -> None:
         """Initialize an instance.
 
         :param str read_key: key of input histogram-dict to read from data store
@@ -90,7 +90,7 @@ class HistSplitter(Module):
                 "flatten_output requires short_keys attribute to be False."
             )
 
-    def get_description(self):
+    def get_description(self) -> str:
         return ""
 
     def update_divided(self, divided, split, yname):

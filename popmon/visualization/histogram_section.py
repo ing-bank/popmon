@@ -53,8 +53,8 @@ class HistogramSection(Module):
         features=None,
         ignore_features=None,
         hist_names=None,
-        hist_name_starts_with="histogram",
-    ):
+        hist_name_starts_with: str = "histogram",
+    ) -> None:
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
@@ -212,7 +212,7 @@ class HistogramSection(Module):
         return sections
 
 
-def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins=1000):
+def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins: int = 1000):
     """Split off plot histogram generation to allow for parallel processing
 
     :param str feature: feature

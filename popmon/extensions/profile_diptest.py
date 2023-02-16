@@ -34,7 +34,7 @@ from popmon.analysis import Profiles
 from popmon.extensions.extension import Extension
 
 
-def extension():
+def extension() -> None:
     from diptest import diptest
 
     @Profiles.register(

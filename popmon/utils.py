@@ -62,7 +62,7 @@ def filter_metrics(
     return metrics
 
 
-def parallel(func: Callable, args_list, mode="args"):
+def parallel(func: Callable, args_list, mode: str = "args"):
     """
     Routine for parallel processing
     """

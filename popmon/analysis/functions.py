@@ -34,7 +34,7 @@ from popmon.hist.hist_utils import COMMON_HIST_TYPES, is_numeric
 from popmon.stats.numpy import probability_distribution_mean_covariance
 
 
-def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
+def pull(row, suffix_mean: str = "_mean", suffix_std: str = "_std", cols=None):
     """Calculate normalized residual (pull) for list of cols
 
     Function can be used by ApplyFunc module.
@@ -74,7 +74,7 @@ def pull(row, suffix_mean="_mean", suffix_std="_std", cols=None):
     return pd.Series(x)
 
 
-def expanding_mean(df, shift=1):
+def expanding_mean(df, shift: int = 1):
     """Calculate expanding mean of all numeric columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -86,7 +86,7 @@ def expanding_mean(df, shift=1):
     return df.shift(shift).expanding().mean()
 
 
-def expanding_std(df, shift=1):
+def expanding_std(df, shift: int = 1):
     """Calculate expanding std of all numeric columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -98,7 +98,7 @@ def expanding_std(df, shift=1):
     return df.shift(shift).expanding().std()
 
 
-def expanding_apply(df, func, shift=1, *args, **kwargs):
+def expanding_apply(df, func, shift: int = 1, *args, **kwargs):
     """Calculate expanding apply() to all columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -113,7 +113,7 @@ def expanding_apply(df, func, shift=1, *args, **kwargs):
     return df.shift(shift).expanding().apply(func, args=args, **kwargs)
 
 
-def rolling_std(df, window, shift=1):
+def rolling_std(df, window, shift: int = 1):
     """Calculate rolling std of all numeric columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -126,7 +126,7 @@ def rolling_std(df, window, shift=1):
     return df.shift(shift).rolling(window).std()
 
 
-def rolling_mean(df, window, shift=1):
+def rolling_mean(df, window, shift: int = 1):
     """Calculate rolling mean of all numeric columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -139,7 +139,7 @@ def rolling_mean(df, window, shift=1):
     return df.shift(shift).rolling(window).mean()
 
 
-def rolling_apply(df, window, func, shift=1, *args, **kwargs):
+def rolling_apply(df, window, func, shift: int = 1, *args, **kwargs):
     """Calculate rolling apply() to all columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -156,7 +156,7 @@ def rolling_apply(df, window, func, shift=1, *args, **kwargs):
     return df.shift(shift).rolling(window).apply(func, raw=False, args=args, **kwargs)
 
 
-def rolling_lr(df, window, index=0, shift=0):
+def rolling_lr(df, window, index: int = 0, shift: int = 0):
     """Calculate rolling scipy lin_regress() to all columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -175,7 +175,7 @@ def rolling_lr(df, window, index=0, shift=0):
     )
 
 
-def rolling_lr_zscore(df, window, shift=0):
+def rolling_lr_zscore(df, window, shift: int = 0):
     """Calculate rolling z-score of scipy lin_regress() to all columns of a pandas dataframe
 
     Function can be used by ApplyFunc module.
@@ -202,7 +202,7 @@ def rolling_lr_zscore(df, window, shift=0):
     return roll(df, window=window, shift=shift).apply(func, axis=1)
 
 
-def roll(df, window, shift=1):
+def roll(df, window, shift: int = 1):
     """Implementation of rolling window that can handle non-numerical columns such as histograms
 
     :param pd.DataFrame df: input dataframe to apply rolling function to.
@@ -250,7 +250,7 @@ def roll(df, window, shift=1):
     return rolled_df
 
 
-def expand(df, shift=1):
+def expand(df, shift: int = 1):
     """Implementation of expanding window that can handle non-numerical values such as histograms
 
     Split up input array into expanding sub-arrays
@@ -283,7 +283,7 @@ def expand(df, shift=1):
     return expanded_df
 
 
-def expanding_hist(df, shift=1, *args, **kwargs):
+def expanding_hist(df, shift: int = 1, *args, **kwargs):
     """Apply expanding histogram sum
 
     Function can be used by ApplyFunc module.
@@ -297,7 +297,7 @@ def expanding_hist(df, shift=1, *args, **kwargs):
     return expand(df, shift=shift).apply(hist_sum, axis=1, args=args, **kwargs)
 
 
-def rolling_hist(df, window, shift=1, *args, **kwargs):
+def rolling_hist(df, window, shift: int = 1, *args, **kwargs):
     """Apply rolling histogram sum
 
     Function can be used by ApplyFunc module.
@@ -314,7 +314,7 @@ def rolling_hist(df, window, shift=1, *args, **kwargs):
     )
 
 
-def hist_sum(x, hist_name=""):
+def hist_sum(x, hist_name: str = ""):
     """Return sum of histograms
 
     Usage: df['hists'].apply(hist_sum) ; series.apply(hist_sum)
@@ -351,7 +351,7 @@ def hist_sum(x, hist_name=""):
     return pd.Series(o)
 
 
-def roll_norm_hist_mean_cov(df, window, shift=1, *args, **kwargs):
+def roll_norm_hist_mean_cov(df, window, shift: int = 1, *args, **kwargs):
     """Apply rolling normalized_hist_mean_cov function
 
     Function can be used by ApplyFunc module.
@@ -368,7 +368,7 @@ def roll_norm_hist_mean_cov(df, window, shift=1, *args, **kwargs):
     )
 
 
-def expand_norm_hist_mean_cov(df, shift=1, *args, **kwargs):
+def expand_norm_hist_mean_cov(df, shift: int = 1, *args, **kwargs):
     """Apply expanding normalized_hist_mean_cov function
 
     Function can be used by ApplyFunc module.
@@ -384,7 +384,7 @@ def expand_norm_hist_mean_cov(df, shift=1, *args, **kwargs):
     )
 
 
-def normalized_hist_mean_cov(x, hist_name=""):
+def normalized_hist_mean_cov(x, hist_name: str = ""):
     """Mean normalized histogram and its covariance of list of input histograms
 
     Usage: df['hists'].apply(normalized_hist_mean_cov) ; series.apply(normalized_hist_mean_cov)
@@ -446,10 +446,10 @@ def normalized_hist_mean_cov(x, hist_name=""):
 
 def relative_chi_squared(
     row,
-    hist_name="histogram",
-    suffix_mean="_mean",
-    suffix_cov="_cov",
-    suffix_binning="_binning",
+    hist_name: str = "histogram",
+    suffix_mean: str = "_mean",
+    suffix_cov: str = "_cov",
+    suffix_binning: str = "_binning",
 ):
     """Calculate chi squared of normalized histogram with pre-calculated mean normalized histogram
 

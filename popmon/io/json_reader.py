@@ -28,7 +28,7 @@ from popmon.io import FileReader
 class JsonReader(FileReader):
     """Read json file's contents into the datastore."""
 
-    def __init__(self, file_path: str | Path, store_key: str):
+    def __init__(self, file_path: str | Path, store_key: str) -> None:
         """Initialize an instance.
 
         :param str store_key: key of input data to be stored in the datastore

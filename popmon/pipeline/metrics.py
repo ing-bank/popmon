@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
 from histogrammar.dfinterface.make_histograms import get_bin_specs, make_histograms
 
@@ -74,9 +75,9 @@ def stability_metrics(
 
 def df_stability_metrics(
     df,
-    settings: Settings = None,
+    settings: Optional[Settings] = None,
     time_width=None,
-    time_offset=0,
+    time_offset: int = 0,
     var_dtype=None,
     reference=None,
     **kwargs,

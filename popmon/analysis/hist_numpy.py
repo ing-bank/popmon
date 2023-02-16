@@ -19,6 +19,7 @@
 
 
 import warnings
+from typing import List
 
 import histogrammar
 import numpy as np
@@ -102,7 +103,7 @@ def set_ndgrid(hist, keys, n_dim):
         )
         return grid
 
-    def flatten(histogram, keys, grid, dim=0, prefix=None):
+    def flatten(histogram, keys, grid, dim: int = 0, prefix=None):
         if prefix is None:
             prefix = []
 
@@ -137,7 +138,7 @@ def set_2dgrid(hist, keys):
     return set_ndgrid(hist, keys, n_dim=2)
 
 
-def get_ndgrid(hist, get_bin_labels=False, n_dim=2):
+def get_ndgrid(hist, get_bin_labels: bool = False, n_dim: int = 2):
     """Get filled n-d grid of first n dimensions of input histogram
 
     :param hist: input histogrammar histogram
@@ -158,7 +159,7 @@ def get_ndgrid(hist, get_bin_labels=False, n_dim=2):
     return grid
 
 
-def get_2dgrid(hist, get_bin_labels=False):
+def get_2dgrid(hist, get_bin_labels: bool = False):
     """Get filled x,y grid of first two dimensions of input histogram
 
     :param hist: input histogrammar histogram
@@ -167,7 +168,9 @@ def get_2dgrid(hist, get_bin_labels=False):
     return get_ndgrid(hist, get_bin_labels, n_dim=2)
 
 
-def get_consistent_numpy_ndgrids(hist_list=None, get_bin_labels=False, dim=3):
+def get_consistent_numpy_ndgrids(
+    hist_list=None, get_bin_labels: bool = False, dim: int = 3
+):
     """Get list of consistent x,y grids of first n dimensions of (sparse) input histograms
 
     :param list hist_list: list of input histogrammar histograms
@@ -184,22 +187,22 @@ def get_consistent_numpy_ndgrids(hist_list=None, get_bin_labels=False, dim=3):
         )
     assert_similar_hists(hist_list)
 
-    keys = [set() for _ in range(dim)]
+    keys: List[set] = [set() for _ in range(dim)]
     for hist in hist_list:
         hist_keys = prepare_ndgrid(hist, n_dim=dim)
         for i, h_keys in enumerate(hist_keys):
             keys[i] |= set(h_keys)
-    keys = [sorted(k) for k in keys]
+    sorted_keys = [sorted(k) for k in keys]
 
-    gridnd_list = [set_ndgrid(hist, keys, n_dim=dim) for hist in hist_list]
+    gridnd_list = [set_ndgrid(hist, sorted_keys, n_dim=dim) for hist in hist_list]
 
     if get_bin_labels:
-        return gridnd_list, keys
+        return gridnd_list, sorted_keys
 
     return gridnd_list
 
 
-def get_consistent_numpy_2dgrids(hist_list=None, get_bin_labels=False):
+def get_consistent_numpy_2dgrids(hist_list=None, get_bin_labels: bool = False):
     """Get list of consistent x,y grids of first two dimensions of (sparse) input histograms
 
     :param list hist_list: list of input histogrammar histograms
@@ -211,7 +214,9 @@ def get_consistent_numpy_2dgrids(hist_list=None, get_bin_labels=False):
     return get_consistent_numpy_ndgrids(hist_list, get_bin_labels, dim=2)
 
 
-def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False, crop_range=False):
+def get_consistent_numpy_1dhists(
+    hist_list, get_bin_labels: bool = False, crop_range: bool = False
+):
     """Get list of consistent numpy hists for list of sparse (or bin) input histograms
 
     Works for sparse and bin histograms.
@@ -294,7 +299,7 @@ def get_consistent_numpy_1dhists(hist_list, get_bin_labels=False, crop_range=Fal
         return nphist_list
 
 
-def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
+def get_consistent_numpy_entries(hist_list, get_bin_labels: bool = False):
     """Get list of consistent numpy bin_entries for list of 1d input histograms
 
     Works for categorize, sparse and bin histograms.
@@ -345,7 +350,7 @@ def get_consistent_numpy_entries(hist_list, get_bin_labels=False):
         return entries_list
 
 
-def get_contentType(hist):
+def get_contentType(hist) -> str:
     """Get content type of bins of histogram
 
     :param hist: input histogram
@@ -362,7 +367,9 @@ def get_contentType(hist):
     return "Count"
 
 
-def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types):
+def check_similar_hists(
+    hist_list, check_type: bool = True, assert_type=used_hist_types
+) -> bool:
     """Check consistent list of input histograms
 
     Check that type and dimension of all histograms in input list are the same.
@@ -478,7 +485,9 @@ def check_similar_hists(hist_list, check_type=True, assert_type=used_hist_types)
     return True
 
 
-def assert_similar_hists(hist_list, check_type=True, assert_type=used_hist_types):
+def assert_similar_hists(
+    hist_list, check_type: bool = True, assert_type=used_hist_types
+):
     """Assert consistent list of input histograms
 
     Assert that type and dimension of all histograms in input list are the same.

@@ -66,7 +66,7 @@ class SelfReference(Pipeline):
         self,
         settings: Settings,
         hists_key: str = "test_hists",
-    ):
+    ) -> None:
         """Example pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -93,7 +93,7 @@ class ExternalReference(Pipeline):
         settings: Settings,
         hists_key: str = "test_hists",
         ref_hists_key: str = "ref_hists",
-    ):
+    ) -> None:
         """Example pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -122,7 +122,7 @@ class RollingReference(Pipeline):
         self,
         settings: Settings,
         hists_key: str = "test_hists",
-    ):
+    ) -> None:
         """Example pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -148,7 +148,7 @@ class ExpandingReference(Pipeline):
         self,
         settings: Settings,
         hists_key: str = "test_hists",
-    ):
+    ) -> None:
         """Example pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -177,7 +177,7 @@ class ReportPipe(Pipeline):
         settings: Settings,
         sections_key: str = "report_sections",
         store_key: str = "html_report",
-    ):
+    ) -> None:
         """Initialize an instance of Report.
 
         :param Settings settings: the configuration object
@@ -244,7 +244,7 @@ class ReportPipe(Pipeline):
         ]
         if (
             isinstance(settings.report.report_filepath, (str, Path))
-            and len(settings.report.report_filepath) > 0
+            and len(str(settings.report.report_filepath)) > 0
         ):
             modules.append(
                 FileWriter(store_key, file_path=settings.report.report_filepath)

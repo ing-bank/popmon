@@ -40,14 +40,14 @@ class ApplyFunc(Module):
     def __init__(
         self,
         apply_to_key,
-        store_key="",
-        assign_to_key="",
-        apply_funcs_key="",
+        store_key: str = "",
+        assign_to_key: str = "",
+        apply_funcs_key: str = "",
         features=None,
         apply_funcs=None,
         metrics=None,
-        msg="",
-    ):
+        msg: str = "",
+    ) -> None:
         """Initialize an instance of ApplyFunc.
 
         :param str apply_to_key: key of the input data to apply funcs to.
