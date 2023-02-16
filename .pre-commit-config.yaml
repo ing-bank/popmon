@@ -20,7 +20,7 @@ repos:
         language: system
         pass_filenames: false
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.1
+    rev: 1.6.3
     hooks:
     -   id: nbqa-black
     -   id: nbqa-ruff
