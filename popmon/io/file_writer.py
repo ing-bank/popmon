@@ -39,7 +39,7 @@ class FileWriter(Module):
         file_path: str | Path | None = None,
         apply_func: Callable | None = None,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance.
 
         :param str read_key: key of input histogram-dict to read from data store

@@ -355,7 +355,7 @@ class Settings(ValidatedSettings):
     """
 
     # Config utilities
-    def _ensure_features_time_axis(self):
+    def _ensure_features_time_axis(self) -> None:
         self.features = [
             c if c.startswith(self.time_axis) else f"{self.time_axis}:{c}"
             for c in self.features
@@ -375,7 +375,7 @@ class Settings(ValidatedSettings):
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
 
-    def _set_time_axis_hists(self, hists):
+    def _set_time_axis_hists(self, hists) -> None:
         # auto guess the time_axis: find the most frequent first column name in the histograms list
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         self.time_axis = max(set(first_cols), key=first_cols.count)

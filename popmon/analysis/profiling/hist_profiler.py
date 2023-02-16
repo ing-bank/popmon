@@ -56,10 +56,10 @@ class HistProfiler(Module):
         features=None,
         ignore_features=None,
         var_timestamp=None,
-        hist_col="histogram",
-        index_col="date",
+        hist_col: str = "histogram",
+        index_col: str = "date",
         stats_functions=None,
-    ):
+    ) -> None:
         super().__init__()
         self.read_key = read_key
         self.store_key = store_key

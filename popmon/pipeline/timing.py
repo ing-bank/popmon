@@ -31,7 +31,7 @@ class Timing(Module):
         self,
         store_key: str,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance.
 
         :param str store_key: key of input data to be stored in the datastore

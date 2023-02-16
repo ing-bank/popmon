@@ -27,7 +27,7 @@ from popmon.pipeline.report_pipelines import SelfReference
 
 
 class AmazingPipeline(Pipeline):
-    def __init__(self, histogram_path: str, **kwargs):
+    def __init__(self, histogram_path: str, **kwargs) -> None:
         modules = [
             JsonReader(file_path=histogram_path, store_key=kwargs["hists_key"]),
             # Or ExternalReference, RollingReference etc.
@@ -36,7 +36,7 @@ class AmazingPipeline(Pipeline):
         super().__init__(modules)
 
 
-def run():
+def run() -> None:
     """Example that run self-reference pipeline and produces monitoring report"""
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s]: %(message)s"

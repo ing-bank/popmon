@@ -30,7 +30,7 @@ from popmon.analysis.apply_func import ApplyFunc
 from popmon.base import Module, Pipeline
 
 
-def traffic_light_summary(row, cols=None, prefix=""):
+def traffic_light_summary(row, cols=None, prefix: str = ""):
     """Make a summary of traffic light alerts present in the dataframe
 
     Count number of green, yellow and red traffic lights.
@@ -60,7 +60,9 @@ def traffic_light_summary(row, cols=None, prefix=""):
     return pd.Series(x)
 
 
-def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
+def traffic_light(
+    value, red_high, yellow_high, yellow_low: int = 0, red_low: int = 0
+) -> int:
     """Get the corresponding traffic light given a value and traffic light bounds.
 
     :param float value: value to check
@@ -120,17 +122,17 @@ class ComputeTLBounds(Module):
         self,
         read_key,
         monitoring_rules=None,
-        store_key="",
+        store_key: str = "",
         features=None,
         ignore_features=None,
-        apply_funcs_key="",
+        apply_funcs_key: str = "",
         func=None,
-        metrics_wide=False,
-        prefix="traffic_light_",
-        suffix="",
-        entire=False,
+        metrics_wide: bool = False,
+        prefix: str = "traffic_light_",
+        suffix: str = "",
+        entire: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of TrafficLightBounds module.
 
         :param str read_key: key of input data to read from datastore
@@ -171,7 +173,7 @@ class ComputeTLBounds(Module):
         """Returns the traffic light function as description."""
         return self.traffic_light_func.__name__
 
-    def _set_traffic_lights(self, feature, cols, pattern, rule):
+    def _set_traffic_lights(self, feature, cols, pattern, rule) -> None:
         process_cols = fnmatch.filter(cols, pattern)
 
         for pcol in process_cols:
@@ -250,10 +252,10 @@ def pull_bounds(
     row,
     red_high,
     yellow_high,
-    yellow_low=0,
-    red_low=0,
-    suffix_mean="_mean",
-    suffix_std="_std",
+    yellow_low: int = 0,
+    red_low: int = 0,
+    suffix_mean: str = "_mean",
+    suffix_std: str = "_std",
     cols=None,
 ):
     """Calculate traffic light pull bounds for list of cols
@@ -307,10 +309,10 @@ def df_single_op_pull_bounds(
     df,
     red_high,
     yellow_high,
-    yellow_low=0,
-    red_low=0,
-    suffix_mean="_mean",
-    suffix_std="_std",
+    yellow_low: int = 0,
+    red_low: int = 0,
+    suffix_mean: str = "_mean",
+    suffix_std: str = "_std",
     cols=None,
 ):
     """Calculate traffic light pull bounds for list of cols on first row only
@@ -341,10 +343,10 @@ class DynamicBounds(Pipeline):
         self,
         read_key,
         rules,
-        store_key="",
-        suffix_mean="_mean",
-        suffix_std="_std",
-    ):
+        store_key: str = "",
+        suffix_mean: str = "_mean",
+        suffix_std: str = "_std",
+    ) -> None:
         """Initialize an instance of DynamicTrafficLightBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.
@@ -385,10 +387,10 @@ class StaticBounds(Pipeline):
         self,
         read_key,
         rules,
-        store_key="",
-        suffix_mean="_mean",
-        suffix_std="_std",
-    ):
+        store_key: str = "",
+        suffix_mean: str = "_mean",
+        suffix_std: str = "_std",
+    ) -> None:
         """Initialize an instance of StaticBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.
@@ -432,7 +434,9 @@ class TrafficLightAlerts(Pipeline):
     - Apply them to profiled test statistics data
     """
 
-    def __init__(self, read_key, store_key, rules, expanded_rules_key=""):
+    def __init__(
+        self, read_key, store_key, rules, expanded_rules_key: str = ""
+    ) -> None:
         """Initialize an instance of TrafficLightBounds.
 
         :param str read_key: key of input data to read from data store, only used to extract feature list.

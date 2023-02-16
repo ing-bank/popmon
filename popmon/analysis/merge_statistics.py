@@ -30,7 +30,7 @@ class MergeStatistics(Module):
     _input_keys = ("read_keys",)
     _output_keys = ("store_key",)
 
-    def __init__(self, read_keys: list[str], store_key: str):
+    def __init__(self, read_keys: list[str], store_key: str) -> None:
         """Initialize an instance of MergeStatistics.
 
         :param list read_keys: list of keys of input data to read from the datastore

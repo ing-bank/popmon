@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch, helpers
 
 
 class ElasticConnector:
-    def __init__(self):
+    def __init__(self) -> None:
         self.host = "localhost"
         self.port = 9200
         self.es = None

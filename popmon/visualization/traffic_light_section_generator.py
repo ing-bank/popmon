@@ -50,10 +50,10 @@ class TrafficLightSectionGenerator(Module):
         ignore_features=None,
         static_bounds=None,
         dynamic_bounds=None,
-        prefix="traffic_light_",
+        prefix: str = "traffic_light_",
         suffices=None,
         ignore_stat_endswith=None,
-    ):
+    ) -> None:
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting
@@ -173,7 +173,7 @@ def _plot_metrics(
     skip_first_n,
     skip_last_n,
     tl_colors,
-    style="heatmap",
+    style: str = "heatmap",
 ):
     # prune dates and values
     dates = _prune(dates, last_n, skip_first_n, skip_last_n)

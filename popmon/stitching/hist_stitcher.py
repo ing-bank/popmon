@@ -33,13 +33,13 @@ class HistStitcher(Module):
 
     def __init__(
         self,
-        mode="add",
+        mode: str = "add",
         time_axis=None,
         time_bin_idx=None,
         read_key=None,
         delta_key=None,
         store_key=None,
-    ):
+    ) -> None:
         """Stitching histograms by first axis.
 
         :param str mode: options for histogram stitching: "add" or "replace". default is "add".
@@ -64,7 +64,7 @@ class HistStitcher(Module):
         if self.mode not in self.allowed_modes:
             raise ValueError("mode should be either 'add' or 'replace'")
 
-    def get_description(self):
+    def get_description(self) -> str:
         return f"{self.mode}"
 
     def transform(self, hists_basis: dict, hists_delta: dict) -> dict:
@@ -80,7 +80,7 @@ class HistStitcher(Module):
         hists_basis=None,
         hists_delta=None,
         hists_list=None,
-        time_axis="",
+        time_axis: str = "",
         time_bin_idx=None,
     ):
         """Stitching histograms by first axis.

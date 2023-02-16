@@ -38,11 +38,11 @@ class AlertsSummary(Module):
     def __init__(
         self,
         read_key,
-        store_key="",
+        store_key: str = "",
         features=None,
         ignore_features=None,
-        combined_variable="_AGGREGATE_",
-    ):
+        combined_variable: str = "_AGGREGATE_",
+    ) -> None:
         """Initialize an instance of AlertsSummary module.
 
         :param str read_key: key of input data to read from datastore.

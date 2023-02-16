@@ -34,7 +34,7 @@ class ReportGenerator(Module):
     _input_keys = ("read_key",)
     _output_keys = ("store_key",)
 
-    def __init__(self, read_key, store_key, settings: Report):
+    def __init__(self, read_key, store_key, settings: Report) -> None:
         """Initialize an instance of ReportGenerator.
 
         :param str read_key: key of input sections data to read from the datastore
@@ -48,7 +48,7 @@ class ReportGenerator(Module):
         self.online_report = settings.online_report
         self.tl_colors = settings.tl_colors
 
-    def get_description(self):
+    def get_description(self) -> str:
         return "HTML Report"
 
     def transform(self, sections: list) -> str:
