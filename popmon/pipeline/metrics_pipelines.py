@@ -72,7 +72,6 @@ def get_metrics_pipeline_class(reference_type, reference):
 
 def create_metrics_pipeline(
     settings: Settings,
-    reference_type="self",
     reference=None,
     hists_key="hists",
     **kwargs,
@@ -85,7 +84,7 @@ def create_metrics_pipeline(
     }
 
     # execute reporting pipeline
-    cls = get_metrics_pipeline_class(reference_type, reference)
+    cls = get_metrics_pipeline_class(settings.reference_type, reference)
     pipeline = cls(**cfg)
     return pipeline
 
