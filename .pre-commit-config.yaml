@@ -24,3 +24,5 @@ repos:
     hooks:
     -   id: nbqa-black
     -   id: nbqa-ruff
+        additional_dependencies: [ruff==0.0.246]
+
