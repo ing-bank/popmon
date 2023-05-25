@@ -187,4 +187,4 @@ version_variable = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "popmon.__version__"}
+version = {attr = "popmon.version.version"}
