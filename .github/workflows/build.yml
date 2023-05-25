@@ -89,7 +89,7 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install openjdk-${{ matrix.JAVA_VERSION }}-jdk
         tar -xvzf ${BUILD_DIR}spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
-        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==${SPARK_VERSION}
+        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==${SPARK_VERSION} pypandoc<1.8
     - name: Test with pytest (spark-specific)
       env:
         BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
