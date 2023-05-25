@@ -183,6 +183,6 @@ markers = ["spark"]
 
 [tool.semantic_release]
 version_variable = [
-    "setup.py:__version__",
+    "pyproject.toml:__version__",
     "popmon/version.py:version",
 ]
