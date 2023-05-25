@@ -17,9 +17,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from histogrammar.dfinterface.make_histograms import get_bin_specs, make_histograms
 
@@ -36,7 +36,7 @@ logger = logging.getLogger()
 
 def stability_report(
     hists,
-    settings: Optional[Settings] = None,
+    settings: Settings | None = None,
     reference=None,
     **kwargs,
 ):

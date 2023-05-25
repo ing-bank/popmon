@@ -10,6 +10,7 @@ ignore = [
     # Not sure if these are helpful
     "EM",
     "FBT",
+    "S301",
 
     # Manual check/fix needed
     "ERA",
@@ -25,6 +26,7 @@ ignore = [
     "N802",
     "C901",
     "PD901",
+    "PLC1901",
     "PLR0912",
     "PLR0913",
     "TRY003",
@@ -45,8 +47,7 @@ ignore = [
     "PD010", # `.pivot_table` is preferred to `.pivot` or `.unstack`; provides same functionality
     "PD013", # `.melt` is preferred to `.stack`; provides same functionality
     "G004", # Logging statement uses f-string
-
-
+    "B028", # No explicit `stacklevel` keyword argument found
 ]
 
 [tool.ruff.per-file-ignores]
@@ -90,6 +91,9 @@ ignore = [
 
     # Ignore magic value in comparison for now
     "PLR2004",
+
+    # Found useless expression. Either assign it to a variable or remove it.
+    "B018",
 ]
 
 [tool.pytest.ini_options]

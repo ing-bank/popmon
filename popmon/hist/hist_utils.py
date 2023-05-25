@@ -284,8 +284,8 @@ def split_hist_along_first_dimension(
         centers, values = _filter_empty_split_hists(centers, values)
 
     for name, val in zip(centers, values):
-        name = _edit_name(hist, name, xname, yname, convert_time_index, short_keys)
-        hdict[name] = val
+        hname = _edit_name(hist, name, xname, yname, convert_time_index, short_keys)
+        hdict[hname] = val
 
     return hdict
 

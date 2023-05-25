@@ -1,10 +1,10 @@
 repos:
 -   repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
     - id: black
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.0.246'
+    rev: 'v0.0.270'
     hooks:
     -   id: ruff
         args: [--fix]
@@ -20,9 +20,9 @@ repos:
         language: system
         pass_filenames: false
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.1
+    rev: 1.7.0
     hooks:
     -   id: nbqa-black
     -   id: nbqa-ruff
-        additional_dependencies: [ruff==0.0.246]
+        additional_dependencies: [ruff==v0.0.270]
 

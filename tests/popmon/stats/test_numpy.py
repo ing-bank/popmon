@@ -12,9 +12,9 @@ from popmon.stats.numpy import (
 
 
 def get_data():
-    np.random.seed(5)
-    a = np.random.randint(0, 10, size=(3, 4, 5, 6))
-    w = np.random.randint(0, 10, size=(3, 4, 5, 6))
+    rng = np.random.default_rng(5)
+    a = rng.integers(0, 10, size=(3, 4, 5, 6))
+    w = rng.integers(0, 10, size=(3, 4, 5, 6))
     return a, w
 
 
@@ -193,16 +193,16 @@ def test_statistics_1():
 
 
 def test_probability_distribution_mean_covariance():
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
     n_bins = 10
     n_histos = 5000
     max_hist_entries = 10000
     rel_error = 0.1
     bin_entries = []
     for _ in range(n_histos):
-        bin_probs = np.random.normal(1.0, rel_error, size=n_bins)  # + basic
+        bin_probs = rng.normal(1.0, rel_error, size=n_bins)  # + basic
         bin_probs /= np.sum(bin_probs)
-        bin_entries.append(np.random.multinomial(max_hist_entries, bin_probs))
+        bin_entries.append(rng.multinomial(max_hist_entries, bin_probs))
     bin_entries = np.array(bin_entries)
 
     chi2s = []
@@ -228,7 +228,7 @@ def test_probability_distribution_mean_covariance():
         else:
             # If a covariance matrix is singular we fall back on using variances
             chi_squared = np.sum(
-                (norm_mean - single_norm) ** 2 / (variance + np.finfo(np.float).eps)
+                (norm_mean - single_norm) ** 2 / (variance + np.finfo(float).eps)
             )
 
         n_bins = len(bin_entries[i])

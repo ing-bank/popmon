@@ -16,7 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-from typing import List, Union
+from __future__ import annotations
 
 from popmon.alerting import (
     AlertsSummary,
@@ -58,7 +58,7 @@ def get_metrics_pipeline_class(reference_type, reference):
 
     if reference_type not in _metrics_pipeline_register:
         raise ValueError(
-            f"reference_type should be in {str(_metrics_pipeline_register.keys())}'."
+            f"reference_type should be in {_metrics_pipeline_register.keys()!s}'."
         )
     if (
         reference_type in ["external", "self_split"]
@@ -90,18 +90,16 @@ def create_metrics_pipeline(
     return pipeline
 
 
-def get_timing_module(key: str) -> List[Module]:
+def get_timing_module(key: str) -> list[Module]:
     return [Timing(store_key=key)]
 
 
-def get_splitting_modules(
-    hists_key, features, time_axis
-) -> List[Union[Module, Pipeline]]:
+def get_splitting_modules(hists_key, features, time_axis) -> list[Module | Pipeline]:
     """
     Splitting of test histograms. For each histogram with datetime i, comparison of histogram i with histogram i-1,
     results in chi2 comparison of histograms
     """
-    modules: List[Union[Module, Pipeline]] = [
+    modules: list[Module | Pipeline] = [
         HistSplitter(
             read_key=hists_key,
             store_key="split_hists",
@@ -114,12 +112,12 @@ def get_splitting_modules(
     return modules
 
 
-def get_traffic_light_modules(monitoring_rules) -> List[Union[Module, Pipeline]]:
+def get_traffic_light_modules(monitoring_rules) -> list[Module | Pipeline]:
     """
     Expand all (wildcard) static traffic light bounds and apply them.
     Applied to both profiles and comparisons datasets
     """
-    modules: List[Union[Module, Pipeline]] = [
+    modules: list[Module | Pipeline] = [
         TrafficLightAlerts(
             read_key="profiles",
             rules=monitoring_rules,
@@ -143,12 +141,12 @@ def get_traffic_light_modules(monitoring_rules) -> List[Union[Module, Pipeline]]
     return modules
 
 
-def get_static_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
+def get_static_bound_modules(pull_rules) -> list[Module | Pipeline]:
     """
     generate dynamic traffic light boundaries, based on traffic lights for normalized residuals, used for
     plotting in popmon_profiles report.
     """
-    modules: List[Union[Module, Pipeline]] = [
+    modules: list[Module | Pipeline] = [
         StaticBounds(
             read_key="profiles",
             rules=pull_rules,
@@ -167,12 +165,12 @@ def get_static_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
     return modules
 
 
-def get_dynamic_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
+def get_dynamic_bound_modules(pull_rules) -> list[Module | Pipeline]:
     """
     Generate dynamic traffic light boundaries, based on traffic lights for normalized residuals, used for
     plotting in popmon_profiles report.
     """
-    modules: List[Union[Module, Pipeline]] = [
+    modules: list[Module | Pipeline] = [
         DynamicBounds(
             read_key="profiles",
             rules=pull_rules,
@@ -191,9 +189,9 @@ def get_dynamic_bound_modules(pull_rules) -> List[Union[Module, Pipeline]]:
     return modules
 
 
-def get_trend_modules(window) -> List[Union[Module, Pipeline]]:
+def get_trend_modules(window) -> list[Module | Pipeline]:
     """Looking for significant rolling linear trends in selected features/metrics"""
-    modules: List[Union[Module, Pipeline]] = [
+    modules: list[Module | Pipeline] = [
         ApplyFunc(
             apply_to_key="profiles",
             assign_to_key="comparisons",
@@ -226,7 +224,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
         from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "ref"
-        reference_modules: List[Union[Module, Pipeline]] = [
+        reference_modules: list[Module | Pipeline] = [
             # 3. Comparison of with profiled test histograms, results in chi2 comparison of histograms
             ReferenceHistComparer(
                 reference_key="split_hists",
@@ -284,7 +282,7 @@ class ExternalReferenceMetricsPipeline(Pipeline):
         from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "ref"
-        reference_modules: List[Union[Module, Pipeline]] = [
+        reference_modules: list[Module | Pipeline] = [
             # 3. Profiling of split reference histograms, then chi2 comparison with test histograms
             HistSplitter(
                 read_key=ref_hists_key,
@@ -345,7 +343,7 @@ class RollingReferenceMetricsPipeline(Pipeline):
         from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "roll"
-        reference_modules: List[Union[Module, Pipeline]] = [
+        reference_modules: list[Module | Pipeline] = [
             # 3. profiling of reference histograms, then comparison of with profiled test histograms
             #        results in chi2 comparison of histograms
             RollingHistComparer(
@@ -404,7 +402,7 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
         from popmon.analysis.comparison import Comparisons
 
         reference_prefix = "expanding"
-        reference_modules: List[Union[Module, Pipeline]] = [
+        reference_modules: list[Module | Pipeline] = [
             # 3. profiling of reference histograms, then comparison of with profiled test histograms
             #    results in chi2 comparison of histograms
             ExpandingHistComparer(

@@ -16,9 +16,9 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import annotations
 
 from math import floor
-from typing import List, Optional, Union
 
 import pandas as pd
 from typing_extensions import Literal
@@ -27,7 +27,7 @@ from typing_extensions import Literal
 def _split_dataset_pandas(
     dataset,
     split_type: Literal["n_instances", "fraction", "condition"],
-    split: Union[int, float, pd.Series, str],
+    split: int | float | pd.Series | str,
 ):
     if split_type in ["n_instances", "fraction"]:
         if split_type == "fraction":
@@ -52,9 +52,9 @@ def _split_dataset_pandas(
 def _split_dataset_spark(
     dataset,
     split_type: Literal["n_instances", "fraction", "condition"],
-    split: Union[int, float, pd.Series, str],
+    split: int | float | pd.Series | str,
     time_axis: str,
-    partition_cols: Optional[List[str]] = None,
+    partition_cols: list[str] | None = None,
     persist: bool = True,
 ):
     """
@@ -100,7 +100,7 @@ def _split_dataset_spark(
     return reference, df
 
 
-def split_dataset(dataset, split: Union[int, float, pd.Series, str], time_axis: str):
+def split_dataset(dataset, split: int | float | pd.Series | str, time_axis: str):
     """Split a dataset into a reference and remaining part based on split params.
 
     :param pd.Dataset|pyspark.sql.Dataset dataset: dataset as input

@@ -17,6 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import datetime
 import json
@@ -24,7 +25,6 @@ import logging
 import math
 import warnings
 from collections import defaultdict
-from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -47,7 +47,7 @@ def xtick(lab, top):
     return lab
 
 
-def convert_time_delta(td: Union[datetime.timedelta, float, int]) -> str:
+def convert_time_delta(td: datetime.timedelta | float | int) -> str:
     """
     It converts a time delta in nanoseconds to a string
 
@@ -206,11 +206,11 @@ def get_reproduction_table(
 
 def plot_bars(
     data,
-    labels: List[str],
+    labels: list[str],
     bounds: tuple,
     ylim: bool,
     primary_color: str,
-    tl_colors: Dict[str, str],
+    tl_colors: dict[str, str],
     metric: str,
 ) -> str:
     """Plotting histogram data.
@@ -323,7 +323,7 @@ def plot_bars(
     return plot
 
 
-def plot_traffic_lights_overview(feature, data, metrics: List[str], labels: List[str]):
+def plot_traffic_lights_overview(feature, data, metrics: list[str], labels: list[str]):
     colors = defaultdict(dict)
     color_map = ["g", "y", "r"]
     for c1, metric in enumerate(metrics):
@@ -346,7 +346,7 @@ def hex_to_rgb(h):
 
 
 def plot_traffic_lights_alerts_aggregate(
-    feature, data, metrics: List[str], labels: List[str], tl_colors: Dict[str, str]
+    feature, data, metrics: list[str], labels: list[str], tl_colors: dict[str, str]
 ):
     assert data.shape[0] == 3
 
@@ -467,7 +467,7 @@ def plot_histogram_overlay(
 
     alpha = 0.4
 
-    # check number of plots
+    # check the number of plots
     if len(plots) < 2:
         warnings.warn("insufficient plots for histogram inspection")
         return None
