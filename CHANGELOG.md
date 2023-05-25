@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.2 (2023-05-25)
+### Fix
+* Release version ([`dba70f2`](https://github.com/ing-bank/popmon/commit/dba70f2c692a82400d7091a3da4f4f169cd6bbc8))
+
 ## v1.4.1 (2023-05-25)
 ### Fix
 * Reference type in metric pipeline ([`99f8687`](https://github.com/ing-bank/popmon/commit/99f86875936e1e475be3b133b842d0d24778485b))
