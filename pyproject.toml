@@ -185,6 +185,7 @@ markers = ["spark"]
 version_variable = [
     "popmon/version.py:version",
 ]
+build_command = "pip install build && python -m build"
 
 [tool.setuptools.dynamic]
 version = {attr = "popmon.version.version"}
