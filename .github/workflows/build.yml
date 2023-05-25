@@ -40,12 +40,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - SPARK_VERSION: "2.4.7"
+          - SPARK_VERSION: "2.4.8"
             HADOOP_VERSION: "2.7"
             JAVA_VERSION: "8"
             python: "3.7"
             os: ubuntu-latest
-          - SPARK_VERSION: "3.3.0"
+          - SPARK_VERSION: "3.3.2"
             HADOOP_VERSION: "3"
             JAVA_VERSION: "11"
             python: "3.8"
