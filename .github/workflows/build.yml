@@ -22,14 +22,13 @@ jobs:
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/requirements-test.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
-        pip install -r requirements-test.txt
+        pip install -e .[test]
     - name: Lint with pre-commit
       run: |
         make lint
@@ -41,12 +40,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - SPARK_VERSION: "2.4.7"
-            HADOOP_VERSION: "2.7"
-            JAVA_VERSION: "8"
-            python: "3.7"
-            os: ubuntu-latest
-          - SPARK_VERSION: "3.3.0"
+#          - SPARK_VERSION: "2.4.8"
+#            HADOOP_VERSION: "2.7"
+#            JAVA_VERSION: "8"
+#            python: "3.7"
+#            os: ubuntu-latest
+          - SPARK_VERSION: "3.3.2"
             HADOOP_VERSION: "3"
             JAVA_VERSION: "11"
             python: "3.8"
@@ -67,12 +66,11 @@ jobs:
         path: |
           /home/runner/work/spark.tgz
           ~/.cache/pip
-        key: ${{ runner.os }}-spark-${{ matrix.SPARK_VERSION }}-hadoop${{ matrix.HADOOP_VERSION }}-java${{ matrix.JAVA_VERSION }}-${{ hashFiles('**/requirements-test.txt') }}
+        key: ${{ runner.os }}-spark-${{ matrix.SPARK_VERSION }}-hadoop${{ matrix.HADOOP_VERSION }}-java${{ matrix.JAVA_VERSION }}-${{ hashFiles('**/pyproject.toml') }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-        pip install -r requirements-test.txt
+        python -m pip install --upgrade pip setuptools
+        pip install -e .[test]
     - name: Download spark
       if: steps.cache-spark.outputs.cache-hit != 'true'
       env:
@@ -91,7 +89,10 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install openjdk-${{ matrix.JAVA_VERSION }}-jdk
         tar -xvzf ${BUILD_DIR}spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
-        pip install pytest-spark>=0.6.0 pyarrow>=0.8.0 pyspark==${SPARK_VERSION}
+        pip install "pytest-spark>=0.6.0" "pyarrow>=0.8.0"
+        # https://github.com/python-poetry/poetry/issues/6792
+        pip3 install "pypandoc<1.8" 
+        pip install "pyspark==${SPARK_VERSION}"
     - name: Test with pytest (spark-specific)
       env:
         BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}

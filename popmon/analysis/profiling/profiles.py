@@ -107,10 +107,7 @@ def profile_phik(hist):
     from phik import phik
 
     # calculate phik correlation
-    try:
-        grid = get_2dgrid(hist)
-    except Exception:
-        raise
+    grid = get_2dgrid(hist)
 
     try:
         phi_k = phik.phik_from_hist2d(observed=grid)

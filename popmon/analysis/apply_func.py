@@ -323,7 +323,7 @@ def apply_func(feature, selected_metrics, df, arr):
         and isinstance(df, pd.DataFrame)
         and len(df.columns) == len(obj)
     ):
-        obj = {c: o for c, o in zip(df.columns, obj)}
+        obj = dict(zip(df.columns, obj))
     elif (
         isinstance(obj, (list, tuple, np.ndarray))
         and isinstance(df, pd.Series)

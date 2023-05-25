@@ -108,18 +108,17 @@ def set_ndgrid(hist, keys, n_dim):
 
         if len(keys) == len(prefix):
             grid[tuple(prefix)] = histogram.entries
+        elif hasattr(histogram, "bins"):
+            for k, h in histogram.bins.items():
+                if k not in keys[dim]:
+                    continue
+                i = keys[dim].index(k)
+                flatten(h, keys, grid, dim + 1, [i, *prefix])
+        elif hasattr(histogram, "values"):
+            for i, h in enumerate(histogram.values):
+                flatten(h, keys, grid, dim + 1, [i, *prefix])
         else:
-            if hasattr(histogram, "bins"):
-                for k, h in histogram.bins.items():
-                    if k not in keys[dim]:
-                        continue
-                    i = keys[dim].index(k)
-                    flatten(h, keys, grid, dim + 1, [i, *prefix])
-            elif hasattr(histogram, "values"):
-                for i, h in enumerate(histogram.values):
-                    flatten(h, keys, grid, dim + 1, [i, *prefix])
-            else:
-                raise TypeError
+            raise TypeError
 
     flatten(hist, keys, grid)
     return grid

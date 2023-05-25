@@ -17,10 +17,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable
 
 from popmon.base import Module
 
@@ -34,9 +35,9 @@ class FileWriter(Module):
     def __init__(
         self,
         read_key: str,
-        store_key: Optional[str] = None,
-        file_path: Optional[Union[str, Path]] = None,
-        apply_func: Optional[Callable] = None,
+        store_key: str | None = None,
+        file_path: str | Path | None = None,
+        apply_func: Callable | None = None,
         **kwargs,
     ):
         """Initialize an instance.

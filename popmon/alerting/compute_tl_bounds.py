@@ -16,12 +16,12 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import annotations
 
 import copy
 import fnmatch
 from collections import defaultdict
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -61,7 +61,7 @@ def traffic_light_summary(row, cols=None, prefix=""):
 
 
 def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
-    """Get corresponding traffic light given a value and traffic light bounds.
+    """Get the corresponding traffic light given a value and traffic light bounds.
 
     :param float value: value to check
     :param float red_high: higher bound of red traffic light
@@ -71,9 +71,8 @@ def traffic_light(value, red_high, yellow_high, yellow_low=0, red_low=0):
 
     :return: corresponding traffic light based on the value and traffic light bounds
     """
-    assert (
-        np.diff([red_high, yellow_high, yellow_low, red_low]) > 0
-    ).sum() == 0, "Traffic lights not sorted!"
+    if (np.diff([red_high, yellow_high, yellow_low, red_low]) > 0).sum() != 0:
+        raise ValueError("Traffic lights not sorted!")
 
     if value < red_low or value >= red_high:
         return 2
@@ -199,7 +198,7 @@ class ComputeTLBounds(Module):
                     }
                 )
 
-    def transform(self, test_data: dict) -> Tuple[Any, Any]:
+    def transform(self, test_data: dict) -> tuple[Any, Any]:
         # determine all possible features, used for the comparison below
         features = self.get_features(list(test_data.keys()))
 

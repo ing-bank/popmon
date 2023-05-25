@@ -54,7 +54,7 @@ def get_report_pipeline_class(
     }
     reference_types = list(_report_pipeline.keys())
     if reference_type not in reference_types:
-        raise ValueError(f"reference_type should be one of {str(reference_types)}.")
+        raise ValueError(f"reference_type should be one of {reference_types!s}.")
     if reference_type == "external" and not isinstance(reference, dict):
         raise TypeError("reference should be a dict of histogrammar histograms.")
 
