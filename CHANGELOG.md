@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.3 (2023-05-25)
+### Fix
+* Semantic-release build command ([`4ba57e3`](https://github.com/ing-bank/popmon/commit/4ba57e32bd8893b1663015264f7bc4cb0b1da4e2))
+
 ## v1.4.2 (2023-05-25)
 ### Fix
 * Release version ([`dba70f2`](https://github.com/ing-bank/popmon/commit/dba70f2c692a82400d7091a3da4f4f169cd6bbc8))
