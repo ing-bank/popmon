@@ -16,15 +16,15 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import annotations
 
 import logging
-from typing import Optional
 
 
 class Pipeline:
     """Base class used for to run modules in a pipeline."""
 
-    def __init__(self, modules, logger: Optional[logging.Logger] = None):
+    def __init__(self, modules, logger: logging.Logger | None = None):
         """Initialization of the pipeline
 
         :param list modules: modules of the pipeline.
@@ -33,7 +33,7 @@ class Pipeline:
         self.modules = modules
         self.set_logger(logger)
 
-    def set_logger(self, logger: Optional[logging.Logger]):
+    def set_logger(self, logger: logging.Logger | None):
         """Set the logger to be used by each module
 
         :param logger: input logger

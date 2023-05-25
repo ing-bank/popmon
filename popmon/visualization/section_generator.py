@@ -16,8 +16,9 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -147,9 +148,9 @@ class SectionGenerator(Module):
     def transform(
         self,
         data_obj: dict,
-        static_bounds: Optional[dict] = None,
-        dynamic_bounds: Optional[dict] = None,
-        sections: Optional[list] = None,
+        static_bounds: dict | None = None,
+        dynamic_bounds: dict | None = None,
+        sections: list | None = None,
     ):
         if static_bounds is None:
             static_bounds = {}

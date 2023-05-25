@@ -17,9 +17,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
+
 import fnmatch
 from textwrap import shorten
-from typing import Callable, List, Optional
+from typing import Callable
 
 import pandas as pd
 from joblib import Parallel, delayed
@@ -43,7 +45,7 @@ def short_date(date):
 
 
 def filter_metrics(
-    metrics, ignore_stat_endswith: List[str], show_stats: Optional[List[str]] = None
+    metrics, ignore_stat_endswith: list[str], show_stats: list[str] | None = None
 ):
     """
     Filter metrics by excluding based on suffix and/or including when matching a pattern

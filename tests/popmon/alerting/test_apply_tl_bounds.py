@@ -35,7 +35,7 @@ def test_traffic_light():
     assert traffic_light(1.7, red_high=2.0, yellow_high=0.8) == 1
     assert traffic_light(0.5, red_high=2.0, yellow_high=0.8) == 0
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         traffic_light(0.5, red_high=1.0, yellow_high=2.0)
 
 

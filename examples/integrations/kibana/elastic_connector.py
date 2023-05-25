@@ -36,7 +36,7 @@ class ElasticConnector:
         try:
             self.es.index(index=index_name, id=i, document=message)
         except Exception as e:
-            print(f"Exception is :: {str(e)}")
+            print(f"Exception is :: {e!s}")
 
     def push_bulk_to_index(self, index_name, messages):
         """
@@ -45,4 +45,4 @@ class ElasticConnector:
         try:
             helpers.bulk(self.es, messages, index=index_name)
         except Exception as e:
-            print(f"Exception is :: {str(e)}")
+            print(f"Exception is :: {e!s}")

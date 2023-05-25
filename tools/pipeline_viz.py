@@ -16,8 +16,7 @@ def serialize_module(module, versioned, funcs, dsets):
         for k, in_key in in_keys.items():
             if in_key not in dsets:
                 dsets[in_key] = 1
-            in_key += f" (v{dsets[in_key]})"
-            new_ins[k] = in_key
+            new_ins[k] = f"{in_key} (v{dsets[in_key]})"
         in_keys = new_ins
 
     out_keys = module.get_outputs()
@@ -28,8 +27,7 @@ def serialize_module(module, versioned, funcs, dsets):
                 dsets[out_key] += 1
             else:
                 dsets[out_key] = 1
-            out_key += f" (v{dsets[out_key]})"
-            new_outs[k] = out_key
+            new_outs[k] = f"{out_key} (v{dsets[out_key]})"
         out_keys = new_outs
 
     # add unique id
