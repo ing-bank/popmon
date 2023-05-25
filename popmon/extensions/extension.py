@@ -39,7 +39,7 @@ class Extension:
 
     @property
     def requirements(self):
-        pyproject_path = Path().cwd().parent.parent / "pyproject.toml"
+        pyproject_path = Path(".").parent.parent / "pyproject.toml"
         with pyproject_path.open("rb") as f:
             data = tomllib.load(f)
 
