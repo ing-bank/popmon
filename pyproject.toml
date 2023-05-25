@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "popmon"
-version = "1.4.0"
 description = "Monitor the stability of a pandas or spark dataset"
 keywords = [
     "pandas",
@@ -41,6 +40,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 test = [
@@ -183,6 +183,8 @@ markers = ["spark"]
 
 [tool.semantic_release]
 version_variable = [
-    "pyproject.toml:__version__",
     "popmon/version.py:version",
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "popmon.__version__"}
