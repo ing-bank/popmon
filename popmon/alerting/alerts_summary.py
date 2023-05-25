@@ -16,10 +16,9 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import annotations
 
 import fnmatch
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -59,7 +58,7 @@ class AlertsSummary(Module):
         self.ignore_features = ignore_features or []
         self.combined_variable = combined_variable
 
-    def transform(self, data: dict) -> Optional[dict]:
+    def transform(self, data: dict) -> dict | None:
         # determine all possible features, used for the comparison below
         features = self.get_features(list(data.keys()))
         if len(features) == 0:

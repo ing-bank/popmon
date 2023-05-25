@@ -1,3 +1,77 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "popmon"
+version = "1.4.0"
+description = "Monitor the stability of a pandas or spark dataset"
+keywords = [
+    "pandas",
+    "spark",
+    "data-science",
+    "data-analysis",
+    "monitoring",
+    "statistics",
+    "python",
+    "jupyter",
+    "ipython"
+]
+readme = "README.rst"
+requires-python = ">=3.7"
+authors = [{name = "ING Analytics Wholesale Banking", email = "wbaa@ing.com"}]
+license = {type = "MIT", file = "LICENSE"}
+dependencies = [
+    "numpy>=1.18.0",
+    "pandas>=0.25.1,<2",
+    "scipy>=1.5.2",
+    "histogrammar>=1.0.32",
+    "phik",
+    "jinja2",
+    "tqdm",
+    "plotly>=5.8.0",
+    "joblib>=0.14.0",
+    "htmlmin",
+    "pydantic",
+    "typing_extensions",
+    "tomli >= 1.1.0 ; python_version < '3.11'"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=4.0.2",
+    "pytest-notebook>=0.6.1",
+    "jupyter_client>=5.2.3",
+    "ipykernel>=5.1.3",
+    "pre-commit>=2.9.0"
+]
+diptest = [
+    "diptest"
+]
+
+# files to be shipped with the installation, under: popmon/popmon/
+# after installation, these can be found with the functions in resources.py
+[tool.setuptools.package-data]
+popmon = [
+    "visualization/templates/*.html",
+    "visualization/templates/assets/css/*.css",
+    "visualization/templates/assets/js/*.js",
+    "test_data/*.csv.gz",
+    "test_data/*.json*",
+    "notebooks/popmon*tutorial*.ipynb"
+]
+
+[project.urls]
+repository = "https://github.com/ing-bank/popmon"
+
+[project.scripts]
+popmon_run = "popmon.pipeline.amazing_pipeline:run"
+
 [tool.ruff]
 target-version = "py37"
 line-length = 120
@@ -10,6 +84,7 @@ ignore = [
     # Not sure if these are helpful
     "EM",
     "FBT",
+    "S301",
 
     # Manual check/fix needed
     "ERA",
@@ -25,6 +100,7 @@ ignore = [
     "N802",
     "C901",
     "PD901",
+    "PLC1901",
     "PLR0912",
     "PLR0913",
     "TRY003",
@@ -45,8 +121,7 @@ ignore = [
     "PD010", # `.pivot_table` is preferred to `.pivot` or `.unstack`; provides same functionality
     "PD013", # `.melt` is preferred to `.stack`; provides same functionality
     "G004", # Logging statement uses f-string
-
-
+    "B028", # No explicit `stacklevel` keyword argument found
 ]
 
 [tool.ruff.per-file-ignores]
@@ -90,6 +165,9 @@ ignore = [
 
     # Ignore magic value in comparison for now
     "PLR2004",
+
+    # Found useless expression. Either assign it to a variable or remove it.
+    "B018",
 ]
 
 [tool.pytest.ini_options]

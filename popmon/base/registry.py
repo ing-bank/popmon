@@ -16,27 +16,27 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable
 
 
 class Registry:
     _properties = ("dim", "htype")
 
     def __init__(self):
-        self._keys: List[str] = []
-        self._descriptions: Dict[str, str] = {}
+        self._keys: list[str] = []
+        self._descriptions: dict[str, str] = {}
         self._properties_to_func = defaultdict(lambda: defaultdict(dict))
         self._func_name_to_properties = {}
 
     def register(
         self,
-        key: Union[str, List[str], Tuple[str]],
-        description: Union[str, List[str], Tuple[str]],
+        key: str | list[str] | tuple[str],
+        description: str | list[str] | tuple[str],
         dim: int = -1,
-        htype: Optional[str] = None,
+        htype: str | None = None,
     ):
         # rename for function use, without changing api
         keys = key
@@ -82,7 +82,7 @@ class Registry:
     # Methods
     def _get_func_properties_by_name(
         self, function_name: str
-    ) -> Tuple[int, str, Tuple[str]]:
+    ) -> tuple[int, str, tuple[str]]:
         return self._func_name_to_properties[function_name]
 
     def get_func_by_name(self, function_name: str) -> Callable:
@@ -94,18 +94,18 @@ class Registry:
         dim, htype, key = self._get_func_properties_by_name(function_name)
         return self._properties_to_func[dim][htype][key]
 
-    def get_func_by_dim_and_htype(self, dim, htype) -> Dict[Tuple[str], Callable]:
+    def get_func_by_dim_and_htype(self, dim, htype) -> dict[tuple[str], Callable]:
         return self._properties_to_func[dim][htype]
 
-    def get_keys(self) -> List[str]:
+    def get_keys(self) -> list[str]:
         """List of keys associated with registered functions"""
         return self._keys
 
-    def get_keys_by_dim_and_htype(self, dim, htype) -> List[str]:
+    def get_keys_by_dim_and_htype(self, dim, htype) -> list[str]:
         """Flat list of keys for a provided dimension and histogram type"""
         return [v for values in self._properties_to_func[dim][htype] for v in values]
 
-    def get_descriptions(self) -> Dict[str, str]:
+    def get_descriptions(self) -> dict[str, str]:
         """Dictionary of key->description associated with registered functions"""
         return self._descriptions
 

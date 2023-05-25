@@ -67,5 +67,4 @@ def extension():
 
 class Diptest(Extension):
     name = "diptest"
-    requirements = ["diptest"]
     extension = extension

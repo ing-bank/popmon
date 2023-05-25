@@ -17,10 +17,10 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Union
 
 from popmon.io import FileReader
 
@@ -28,7 +28,7 @@ from popmon.io import FileReader
 class JsonReader(FileReader):
     """Read json file's contents into the datastore."""
 
-    def __init__(self, file_path: Union[str, Path], store_key: str):
+    def __init__(self, file_path: str | Path, store_key: str):
         """Initialize an instance.
 
         :param str store_key: key of input data to be stored in the datastore

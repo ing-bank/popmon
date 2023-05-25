@@ -17,8 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-from typing import Optional
+from __future__ import annotations
 
 import pandas as pd
 from tqdm import tqdm
@@ -97,9 +96,9 @@ class AlertSectionGenerator(Module):
     def transform(
         self,
         data_obj: dict,
-        static_bounds: Optional[dict] = None,
-        dynamic_bounds: Optional[dict] = None,
-        sections: Optional[list] = None,
+        static_bounds: dict | None = None,
+        dynamic_bounds: dict | None = None,
+        sections: list | None = None,
     ):
         assert isinstance(data_obj, dict)
         if static_bounds is None:

@@ -17,9 +17,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -105,10 +105,10 @@ class OverviewSectionGenerator(Module):
     def transform(
         self,
         data_obj: dict,
-        dynamic_bounds: Optional[dict] = None,
-        sections: Optional[list] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        dynamic_bounds: dict | None = None,
+        sections: list | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
     ):
         assert isinstance(data_obj, dict)
         if dynamic_bounds is None:
@@ -203,9 +203,8 @@ def _plot_metrics(
     values,
 ):
     # sort features by n_red, n_yellow, n_green
-    values = {
-        k: v
-        for k, v in sorted(
+    values = dict(
+        sorted(
             values.items(),
             key=lambda x: (
                 x[1][2] / x[1]["total"] if x[1]["total"] > 0 else 0,
@@ -214,7 +213,7 @@ def _plot_metrics(
             ),
             reverse=True,
         )
-    }
+    )
 
     plot = templates_env(
         "aggregated-overview.html",

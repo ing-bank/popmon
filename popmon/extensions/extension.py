@@ -16,10 +16,16 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import annotations
 
 import importlib.util
-from typing import Callable, List
+from pathlib import Path
+from typing import Callable
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
 
 def is_installed(package):
@@ -29,12 +35,20 @@ def is_installed(package):
 
 class Extension:
     name: str
-    requirements: List[str]
     extension: Callable
 
     @property
-    def extras(self):
-        return {self.name: self.requirements}
+    def requirements(self):
+        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+        with pyproject_path.open("rb") as f:
+            data = tomllib.load(f)
+
+        project = data["project"]
+        extras = project.get("optional-dependencies", {})
+        if self.name not in extras:
+            return []
+
+        return extras[self.name]
 
     def check(self):
         if all(is_installed(package) for package in self.requirements):
