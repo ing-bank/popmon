@@ -89,6 +89,7 @@ jobs:
         sudo apt-get update
         sudo apt-get -y install openjdk-${{ matrix.JAVA_VERSION }}-jdk
         tar -xvzf ${BUILD_DIR}spark.tgz && mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME}
+        pip install -U pip setuptools
         pip install "pytest-spark>=0.6.0" "pyarrow>=0.8.0"
         # https://github.com/python-poetry/poetry/issues/6792
         pip install --use-pep517 "pypandoc<1.8" "pyspark==${SPARK_VERSION}"
