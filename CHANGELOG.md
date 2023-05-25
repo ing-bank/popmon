@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.1 (2023-05-25)
+### Fix
+* Reference type in metric pipeline ([`99f8687`](https://github.com/ing-bank/popmon/commit/99f86875936e1e475be3b133b842d0d24778485b))
+* Ci ([#269](https://github.com/ing-bank/popmon/issues/269)) ([`f3a34d1`](https://github.com/ing-bank/popmon/commit/f3a34d17474484b6a1fd02e33ee7c4317b4e4af2))
+
+### Documentation
+* Update grafana logo link ([`88bd19d`](https://github.com/ing-bank/popmon/commit/88bd19dbd7de30b74c5c8dab6a696d0bc49e606f))
+* **readme:** Article by Pradyot Patil ([`5496f8e`](https://github.com/ing-bank/popmon/commit/5496f8edb2c91c99514b555db327979cbed95457))
+
 ## v1.4.0 (2022-10-19)
 ### Feature
 * **report:** Summary table ([`a5b9a30`](https://github.com/ing-bank/popmon/commit/a5b9a30e1c80bca74204eecc153e27193bf4a6a9))
