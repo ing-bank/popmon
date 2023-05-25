@@ -93,7 +93,7 @@ jobs:
         pip install "pytest-spark>=0.6.0" "pyarrow>=0.8.0"
         # https://github.com/python-poetry/poetry/issues/6792
         pip3 install "pypandoc<1.8" 
-        pip install --use-pep517 "pyspark==${SPARK_VERSION}"
+        pip install "pyspark==${SPARK_VERSION}"
     - name: Test with pytest (spark-specific)
       env:
         BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
