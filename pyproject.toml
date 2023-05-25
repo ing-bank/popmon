@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "popmon"
-version = "1.4.1"
+version = "1.4.0"
 description = "Monitor the stability of a pandas or spark dataset"
 keywords = [
     "pandas",
