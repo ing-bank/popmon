@@ -50,10 +50,6 @@ class Extension:
 
         return extras[self.name]
 
-    @property
-    def extras(self):
-        return {self.name: self.requirements}
-
     def check(self):
         if all(is_installed(package) for package in self.requirements):
             func = self.extension
