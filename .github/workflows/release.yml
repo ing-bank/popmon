@@ -21,6 +21,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository_username: __token__
         repository_password: ${{ secrets.PYPI_TOKEN }}
+        build_command: pip install build && python -m build
 
   merge-master-back-to-dev:
     runs-on: ubuntu-latest
