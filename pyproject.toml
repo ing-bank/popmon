@@ -33,7 +33,8 @@ dependencies = [
     "joblib>=0.14.0",
     "htmlmin",
     "pydantic",
-    "typing_extensions"
+    "typing_extensions",
+    "tomli >= 1.1.0 ; python_version < '3.11'"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
