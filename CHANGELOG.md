@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.4 (2023-05-26)
+### Fix
+* Static listing of extension requirements ([`1152598`](https://github.com/ing-bank/popmon/commit/1152598c747e09aba83b2ac34a15db7f42c042f1))
+
 ## v1.4.3 (2023-05-25)
 ### Fix
 * Semantic-release build command ([`4ba57e3`](https://github.com/ing-bank/popmon/commit/4ba57e32bd8893b1663015264f7bc4cb0b1da4e2))
