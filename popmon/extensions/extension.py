@@ -19,13 +19,7 @@
 from __future__ import annotations
 
 import importlib.util
-from pathlib import Path
 from typing import Callable
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
 
 
 def is_installed(package):
@@ -36,19 +30,8 @@ def is_installed(package):
 class Extension:
     name: str
     extension: Callable
-
-    @property
-    def requirements(self):
-        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-        with pyproject_path.open("rb") as f:
-            data = tomllib.load(f)
-
-        project = data["project"]
-        extras = project.get("optional-dependencies", {})
-        if self.name not in extras:
-            return []
-
-        return extras[self.name]
+    # should also be added to `pyproject.toml` optional-dependencies
+    requirements: list[str]
 
     def check(self):
         if all(is_installed(package) for package in self.requirements):
