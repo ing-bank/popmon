@@ -16,10 +16,9 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from __future__ import annotations
 
 import warnings
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -40,14 +39,14 @@ class ApplyFunc(Module):
     def __init__(
         self,
         apply_to_key,
-        store_key="",
-        assign_to_key="",
-        apply_funcs_key="",
+        store_key: str = "",
+        assign_to_key: str = "",
+        apply_funcs_key: str = "",
         features=None,
         apply_funcs=None,
         metrics=None,
-        msg="",
-    ):
+        msg: str = "",
+    ) -> None:
         """Initialize an instance of ApplyFunc.
 
         :param str apply_to_key: key of the input data to apply funcs to.
@@ -147,8 +146,8 @@ class ApplyFunc(Module):
     def transform(
         self,
         apply_to_data: dict,
-        assign_to_data: Optional[dict] = None,
-        apply_funcs: Optional[list] = None,
+        assign_to_data: dict | None = None,
+        apply_funcs: list | None = None,
     ):
         """
         Apply functions to specified feature and metrics

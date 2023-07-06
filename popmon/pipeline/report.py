@@ -80,9 +80,9 @@ def stability_report(
 
 def df_stability_report(
     df,
-    settings: Settings = None,
+    settings: Settings | None | None = None,
     time_width=None,
-    time_offset=0,
+    time_offset: int = 0,
     var_dtype=None,
     reference=None,
     split=None,
@@ -210,7 +210,7 @@ class StabilityReport:
     as a HTML string, HTML file or Jupyter notebook's cell output.
     """
 
-    def __init__(self, datastore, read_key="html_report"):
+    def __init__(self, datastore, read_key: str = "html_report") -> None:
         """Initialize an instance of StabilityReport.
 
         :param str read_key: key of HTML report data to read from data store. default is html_report.
@@ -232,11 +232,11 @@ class StabilityReport:
 
         return display(self.to_notebook_iframe())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Override so that Jupyter Notebook does not print the object."""
         return ""
 
-    def to_html(self, escape=False):
+    def to_html(self, escape: bool = False):
         """HTML code representation of the report (represented as a string).
 
         :param bool escape: escape characters which could conflict with other HTML code. default: False
@@ -249,7 +249,7 @@ class StabilityReport:
             return html.escape(self.html_report)
         return self.html_report
 
-    def to_file(self, filename):
+    def to_file(self, filename) -> None:
         """Store HTML report in the local file system.
 
         :param str filename: filename for the HTML report
@@ -257,7 +257,7 @@ class StabilityReport:
         with open(filename, "w+") as file:
             file.write(self.to_html())
 
-    def to_notebook_iframe(self, width="100%", height="100%"):
+    def to_notebook_iframe(self, width: str = "100%", height: str = "100%"):
         """HTML representation of the class (report) embedded in an iframe.
 
         :param str width: width of the frame to be shown
@@ -280,7 +280,7 @@ class StabilityReport:
         self,
         store_key: str = "html_report",
         sections_key: str = "report_sections",
-        settings: Settings = None,
+        settings: Settings | None = None,
     ):
         """Regenerate HTML report with different plot settings
         :param str sections_key: key to store sections data in the datastore. default is 'report_sections'.

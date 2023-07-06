@@ -30,7 +30,7 @@
     var render_func = {};
     </script>
     {%- include 'header.html' -%}
-    {{ sections }}
+    {{ sections | safe }}
     {%- include 'footer.html' -%}
 </body>
 </html>

@@ -54,10 +54,10 @@ class OverviewSectionGenerator(Module):
         ignore_features=None,
         static_bounds=None,
         dynamic_bounds=None,
-        prefix="traffic_light_",
+        prefix: str = "traffic_light_",
         suffices=None,
         ignore_stat_endswith=None,
-    ):
+    ) -> None:
         """Initialize an instance of SectionGenerator.
 
         :param str read_key: key of input data to read from the datastore and use for plotting

@@ -52,13 +52,13 @@ class PullCalculator(Pipeline):
         apply_to_key,
         assign_to_key=None,
         store_key=None,
-        suffix_mean="_mean",
-        suffix_std="_std",
-        suffix_pull="_pull",
+        suffix_mean: str = "_mean",
+        suffix_std: str = "_std",
+        suffix_pull: str = "_pull",
         features=None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of HistComparer.
 
         :param str func_mean: applied-function to calculate mean of profiled statistics
@@ -109,15 +109,15 @@ class RollingPullCalculator(PullCalculator):
         self,
         read_key,
         window,
-        shift=1,
+        shift: int = 1,
         features=None,
         store_key=None,
-        suffix_mean="_roll_mean",
-        suffix_std="_roll_std",
-        suffix_pull="_roll_pull",
+        suffix_mean: str = "_roll_mean",
+        suffix_std: str = "_roll_std",
+        suffix_pull: str = "_roll_pull",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of HistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -161,15 +161,15 @@ class ExpandingPullCalculator(PullCalculator):
     def __init__(
         self,
         read_key,
-        shift=1,
+        shift: int = 1,
         features=None,
         store_key=None,
-        suffix_mean="_exp_mean",
-        suffix_std="_exp_std",
-        suffix_pull="_exp_pull",
+        suffix_mean: str = "_exp_mean",
+        suffix_std: str = "_exp_std",
+        suffix_pull: str = "_exp_pull",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of HistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -214,12 +214,12 @@ class ReferencePullCalculator(PullCalculator):
         assign_to_key,
         store_key=None,
         features=None,
-        suffix_mean="_ref_mean",
-        suffix_std="_ref_std",
-        suffix_pull="_ref_pull",
+        suffix_mean: str = "_ref_mean",
+        suffix_std: str = "_ref_std",
+        suffix_pull: str = "_ref_pull",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of HistComparer.
 
         :param str reference_key: key of input data to read from data store
@@ -264,12 +264,12 @@ class RefMedianMadPullCalculator(PullCalculator):
         assign_to_key,
         store_key=None,
         features=None,
-        suffix_mean="_ref_mean",
-        suffix_std="_ref_std",
-        suffix_pull="_ref_pull",
+        suffix_mean: str = "_ref_mean",
+        suffix_std: str = "_ref_std",
+        suffix_pull: str = "_ref_pull",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of HistComparer.
 
         :param str reference_key: key of input data to read from data store

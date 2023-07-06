@@ -10,7 +10,7 @@ class LogTransformer(Module):
     _input_keys = ("input_key",)
     _output_keys = ("output_key",)
 
-    def __init__(self, input_key, output_key):
+    def __init__(self, input_key, output_key) -> None:
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
@@ -25,7 +25,7 @@ class PowerTransformer(Module):
     _input_keys = ("input_key",)
     _output_keys = ("output_key",)
 
-    def __init__(self, input_key, output_key, power):
+    def __init__(self, input_key, output_key, power) -> None:
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
@@ -40,7 +40,7 @@ class SumNormalizer(Module):
     _input_keys = ("input_key",)
     _output_keys = ("output_key",)
 
-    def __init__(self, input_key, output_key):
+    def __init__(self, input_key, output_key) -> None:
         super().__init__()
         self.input_key = input_key
         self.output_key = output_key
@@ -54,7 +54,7 @@ class WeightedSum(Module):
     _input_keys = ("input_key", "weight_key")
     _output_keys = ("output_key",)
 
-    def __init__(self, input_key, weight_key, output_key):
+    def __init__(self, input_key, weight_key, output_key) -> None:
         super().__init__()
         self.input_key = input_key
         self.weight_key = weight_key

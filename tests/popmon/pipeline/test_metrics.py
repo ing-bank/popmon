@@ -42,7 +42,9 @@ def test_df_stability_metrics():
     # generate metrics directly from dataframe
     bin_specs = {
         "date": {
-            "bin_width": pd.Timedelta("1y").value,
+            # Note that 2000 is a leap year (366 days), timedelta cannot account for this
+            # if this is important for the analysis, use an IDs for each year
+            "bin_width": pd.Timedelta("365d").value,
             "bin_offset": pd.Timestamp("2000-1-1").value,
         },
         "latitude": {"bin_width": 5.0, "bin_offset": 0.0},

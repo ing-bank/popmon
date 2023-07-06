@@ -168,7 +168,7 @@ def ks(p, q, *_):
     dim=1,
     htype="cat",
 )
-def unknown_labels(hist1, hist2):
+def unknown_labels(hist1, hist2) -> bool:
     # check consistency of bin_labels
     labels1 = hist1.keySet
     labels2 = hist2.keySet

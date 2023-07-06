@@ -17,6 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import logging
 from abc import ABCMeta
@@ -88,10 +89,10 @@ def combine_classes(*args):
 class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
     """Abstract base class used for modules in a pipeline."""
 
-    _input_keys = None
-    _output_keys = None
+    _input_keys: tuple[str, ...] | None = None
+    _output_keys: tuple[str, ...] | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Module initialization"""
         self.logger = logging.getLogger()
         self.features = []
@@ -113,10 +114,10 @@ class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
     def get_outputs(self):
         return self._get_values(self._output_keys)
 
-    def get_description(self):
+    def get_description(self) -> str:
         return ""
 
-    def set_logger(self, logger):
+    def set_logger(self, logger) -> None:
         """Set logger of module
 
         :param logger: input logger
@@ -171,7 +172,7 @@ class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
         features = [feature for feature in features if feature in all_features]
         return features
 
-    def transform(self, *args):
+    def transform(self, *args, **kwargs):
         """Central function of the module.
 
         Typically transform() takes something from the datastore, does something to it, and puts the results
@@ -183,7 +184,7 @@ class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
         """
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """String representation for modules when printing a pipeline/list of modules"""
         name = self.__class__.__name__
         input_keys = [f"{v}='{getattr(self, v)}'" for v in self._input_keys]

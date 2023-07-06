@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 
-def mean(a, weights=None, axis=None, dtype=None, keepdims=False, ddof=0):
+def mean(a, weights=None, axis=None, dtype=None, keepdims: bool = False, ddof: int = 0):
     """
     Compute the weighted mean along the specified axis.
 
@@ -47,7 +47,7 @@ def mean(a, weights=None, axis=None, dtype=None, keepdims=False, ddof=0):
         )
 
 
-def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
+def std(a, weights=None, axis=None, dtype=None, ddof: int = 0, keepdims: bool = False):
     """
     Compute the weighted standard deviation along the specified axis.
 
@@ -73,7 +73,7 @@ def std(a, weights=None, axis=None, dtype=None, ddof=0, keepdims=False):
         return np.sqrt(v)
 
 
-def median(a, weights=None, axis=None, keepdims=False):
+def median(a, weights=None, axis=None, keepdims: bool = False):
     """
     Compute the weighted median along the specified axis.
 
@@ -224,7 +224,7 @@ def covariance_multinomial_probability_distribution(entries):
     return covariance_matrix
 
 
-def mad(a, c=0.6745, axis=0):
+def mad(a, c=0.6745, axis: int = 0):
     """Median Absolute Deviation along given axis of an array
 
     mad = median(abs(a - median(a)))/c

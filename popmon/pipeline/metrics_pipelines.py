@@ -73,7 +73,7 @@ def get_metrics_pipeline_class(reference_type, reference):
 def create_metrics_pipeline(
     settings: Settings,
     reference=None,
-    hists_key="hists",
+    hists_key: str = "hists",
     **kwargs,
 ):
     # configuration and datastore for report pipeline
@@ -214,7 +214,7 @@ class SelfReferenceMetricsPipeline(Pipeline):
         self,
         settings: Settings,
         hists_key,
-    ):
+    ) -> None:
         """Example metrics pipeline for comparing test data with itself (full test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -269,9 +269,9 @@ class ExternalReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
         settings: Settings,
-        hists_key="test_hists",
-        ref_hists_key="ref_hists",
-    ):
+        hists_key: str = "test_hists",
+        ref_hists_key: str = "ref_hists",
+    ) -> None:
         """Example metrics pipeline for comparing test data with other (full) external reference set
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -332,8 +332,8 @@ class RollingReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
         settings: Settings,
-        hists_key="test_hists",
-    ):
+        hists_key: str = "test_hists",
+    ) -> None:
         """Example metrics pipeline for comparing test data with itself (rolling test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'
@@ -391,8 +391,8 @@ class ExpandingReferenceMetricsPipeline(Pipeline):
     def __init__(
         self,
         settings: Settings,
-        hists_key="test_hists",
-    ):
+        hists_key: str = "test_hists",
+    ) -> None:
         """Example metrics pipeline for comparing test data with itself (expanding test set)
 
         :param str hists_key: key to test histograms in datastore. default is 'test_hists'

@@ -21,7 +21,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import get_time_axes
-from pydantic import BaseModel, BaseSettings
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 from typing_extensions import Literal
 
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
@@ -32,7 +33,7 @@ parallel_args = {"n_jobs": 1}
 
 class ValidatedSettings(BaseSettings):
     class Config:
-        validate_all = True
+        validate_default = True
         validate_assignment = True
 
 
@@ -354,7 +355,7 @@ class Settings(ValidatedSettings):
     """
 
     # Config utilities
-    def _ensure_features_time_axis(self):
+    def _ensure_features_time_axis(self) -> None:
         self.features = [
             c if c.startswith(self.time_axis) else f"{self.time_axis}:{c}"
             for c in self.features
@@ -374,7 +375,7 @@ class Settings(ValidatedSettings):
                 f"Found {num} time-axes: {time_axes}. Set *one* time_axis manually!"
             )
 
-    def _set_time_axis_hists(self, hists):
+    def _set_time_axis_hists(self, hists) -> None:
         # auto guess the time_axis: find the most frequent first column name in the histograms list
         first_cols = [k.split(":")[0] for k in list(hists.keys())]
         self.time_axis = max(set(first_cols), key=first_cols.count)

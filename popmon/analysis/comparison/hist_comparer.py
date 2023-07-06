@@ -40,7 +40,7 @@ from popmon.base import Pipeline
 from popmon.hist.hist_utils import COMMON_HIST_TYPES, is_numeric
 
 
-def hist_compare(row, hist_name1="", hist_name2=""):
+def hist_compare(row, hist_name1: str = "", hist_name2: str = ""):
     """Function to compare two histograms
 
     Apply statistical tests to compare two input histograms, such as:
@@ -107,11 +107,11 @@ class HistComparer(Pipeline):
         read_key,
         store_key,
         assign_to_key=None,
-        hist_col="histogram",
-        suffix="comp",
+        hist_col: str = "histogram",
+        suffix: str = "comp",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of RollingHistComparer.
 
         :param func_hist_collector: histogram collection function
@@ -160,10 +160,10 @@ class RollingHistComparer(HistComparer):
         read_key,
         store_key,
         window,
-        shift=1,
-        hist_col="histogram",
-        suffix="roll",
-    ):
+        shift: int = 1,
+        hist_col: str = "histogram",
+        suffix: str = "roll",
+    ) -> None:
         """Initialize an instance of RollingHistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -201,9 +201,9 @@ class PreviousHistComparer(RollingHistComparer):
         self,
         read_key,
         store_key,
-        hist_col="histogram",
-        suffix="prev1",
-    ):
+        hist_col: str = "histogram",
+        suffix: str = "prev1",
+    ) -> None:
         """Initialize an instance of PreviousHistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -228,10 +228,10 @@ class ExpandingHistComparer(HistComparer):
         self,
         read_key,
         store_key,
-        shift=1,
-        hist_col="histogram",
-        suffix="expanding",
-    ):
+        shift: int = 1,
+        hist_col: str = "histogram",
+        suffix: str = "expanding",
+    ) -> None:
         """Initialize an instance of ExpandingHistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -267,9 +267,9 @@ class ReferenceHistComparer(HistComparer):
         reference_key,
         assign_to_key,
         store_key,
-        hist_col="histogram",
-        suffix="ref",
-    ):
+        hist_col: str = "histogram",
+        suffix: str = "ref",
+    ) -> None:
         """Initialize an instance of ReferenceHistComparer.
 
         :param str reference_key: key of input data to read from data store
@@ -306,10 +306,10 @@ class NormHistComparer(Pipeline):
         read_key,
         store_key,
         assign_to_key=None,
-        hist_col="histogram",
+        hist_col: str = "histogram",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize an instance of NormHistComparer.
 
         :param func_hist_collector: histogram collection function
@@ -349,7 +349,9 @@ class NormHistComparer(Pipeline):
 class RollingNormHistComparer(NormHistComparer):
     """Compare histogram to previous rolling normalized histograms"""
 
-    def __init__(self, read_key, store_key, window, shift=1, hist_col="histogram"):
+    def __init__(
+        self, read_key, store_key, window, shift: int = 1, hist_col: str = "histogram"
+    ) -> None:
         """Initialize an instance of RollingNormHistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -383,7 +385,9 @@ class RollingNormHistComparer(NormHistComparer):
 class ExpandingNormHistComparer(NormHistComparer):
     """Compare histogram to previous expanding normalized histograms"""
 
-    def __init__(self, read_key, store_key, shift=1, hist_col="histogram"):
+    def __init__(
+        self, read_key, store_key, shift: int = 1, hist_col: str = "histogram"
+    ) -> None:
         """Initialize an instance of ExpandingNormHistComparer.
 
         :param str read_key: key of input data to read from data store
@@ -412,7 +416,9 @@ class ExpandingNormHistComparer(NormHistComparer):
 class ReferenceNormHistComparer(NormHistComparer):
     """Compare histogram to reference normalized histograms"""
 
-    def __init__(self, reference_key, assign_to_key, store_key, hist_col="histogram"):
+    def __init__(
+        self, reference_key, assign_to_key, store_key, hist_col: str = "histogram"
+    ) -> None:
         """Initialize an instance of ReferenceNormHistComparer.
 
         :param str reference_key: key of input data to read from data store

@@ -45,7 +45,7 @@ COMMON_HIST_TYPES = (
 HG_FACTORY = histogrammar.Factory()
 
 
-def sum_entries(hist, default=True):
+def sum_entries(hist, default: bool = True):
     """Recursively get sum of entries of histogram
 
     Sometimes hist.entries gives zero as answer? This function always works though.
@@ -164,7 +164,7 @@ def sum_over_x(hist):
     return h_proj
 
 
-def project_split2dhist_on_axis(splitdict, axis="x"):
+def project_split2dhist_on_axis(splitdict, axis: str = "x"):
     """Project a split 2d-histogram onto one axis
 
     Project a 2d hist that's been split with function split_hist_along_first_dimension
@@ -246,11 +246,11 @@ def get_bin_centers(hist):
 
 def split_hist_along_first_dimension(
     hist,
-    xname="x",
-    yname="y",
-    short_keys=True,
-    convert_time_index=True,
-    filter_empty_split_hists=True,
+    xname: str = "x",
+    yname: str = "y",
+    short_keys: bool = True,
+    convert_time_index: bool = True,
+    filter_empty_split_hists: bool = True,
 ):
     """Split (multi-dimensional) hist into sub-hists along x-axis
 

@@ -31,7 +31,8 @@ dependencies = [
     "plotly>=5.8.0",
     "joblib>=0.14.0",
     "htmlmin",
-    "pydantic",
+    "pydantic>=2",
+    "pydantic-settings",
     "typing_extensions"
 ]
 classifiers = [
@@ -75,7 +76,7 @@ popmon_run = "popmon.pipeline.amazing_pipeline:run"
 target-version = "py37"
 line-length = 120
 namespace-packages = ["popmon"]
-select = ["ALL"]
+select = ["ALL", "CPY001"]
 ignore = [
     # COM812 is incompatible with COM819
     "COM",
@@ -105,6 +106,10 @@ ignore = [
     "TRY003",
     "E501",
     "DTZ",
+    "PERF203", #  `try`-`except` within a loop incurs performance overhead
+
+    # False positive
+    "PERF401", # Use a list comprehension to create a transformed list
 
     # Prefer autofix
     "PD011", # .to_numpy() instead of values
@@ -139,6 +144,8 @@ ignore = [
     "PT011",
     # Too many statements
     "PLR0915",
+    # Copyright
+    "CPY001",
 ]
 
 # Sphinx config
@@ -151,6 +158,13 @@ ignore = [
 
     # implicit namespaces
     "INP001",
+
+    # Copyright
+    "CPY001",
+]
+
+"popmon/config.py" = [
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
 
 # Notebooks & NBQA
@@ -167,10 +181,17 @@ ignore = [
 
     # Found useless expression. Either assign it to a variable or remove it.
     "B018",
+
+    # Copyright
+    "CPY001",
 ]
+
+[tool.ruff.flake8-copyright]
+notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+"""
 
 [tool.pytest.ini_options]
 markers = ["spark"]
+#filterwarnings = ["error"]
 
 [tool.pytest.ini_options.spark_options]
 "spark.executor.id" = "driver"

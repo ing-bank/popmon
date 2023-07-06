@@ -15,7 +15,7 @@ from popmon.hist.hist_utils import (
 
 
 def get_test_data():
-    df = pd.util.testing.makeMixedDataFrame()
+    df = pd._testing.makeMixedDataFrame()
     df["date"] = df["D"].apply(lambda x: pd.to_datetime(x).value)
     return df
 

@@ -324,7 +324,7 @@ def plot_bars(
 
 
 def plot_traffic_lights_overview(feature, data, metrics: list[str], labels: list[str]):
-    colors = defaultdict(dict)
+    colors: defaultdict[str, dict[str, list[str]]] = defaultdict(dict)
     color_map = ["g", "y", "r"]
     for c1, metric in enumerate(metrics):
         for c2, label in enumerate(labels):
@@ -365,7 +365,7 @@ def plot_traffic_lights_alerts_aggregate(
     yellow = hex_to_rgb(tl_colors["yellow"])
     red = hex_to_rgb(tl_colors["red"])
 
-    colors = defaultdict(dict)
+    colors: defaultdict[str, dict[str, list[str]]] = defaultdict(dict)
     for c1, metric in enumerate(metrics):
         row_max = np.max(data[c1])
         for c2, label in enumerate(labels):
@@ -437,11 +437,11 @@ def histogram_basic_checks(plots=None):
 
 def plot_histogram_overlay(
     plots=None,
-    is_num=True,
-    is_ts=False,
-    is_static_reference=True,
-    top=20,
-    n_choices=2,
+    is_num: bool = True,
+    is_ts: bool = False,
+    is_static_reference: bool = True,
+    top: int = 20,
+    n_choices: int = 2,
 ):
     """Create and plot (overlapping/grouped) histogram(s) of column values.
 
@@ -796,7 +796,7 @@ def plot_heatmap(
     }
 
 
-def _prune(values, last_n=0, skip_first_n=0, skip_last_n=0):
+def _prune(values, last_n: int = 0, skip_first_n: int = 0, skip_last_n: int = 0):
     """inline function to select first or last items of input list
 
     :param values: input list to select from

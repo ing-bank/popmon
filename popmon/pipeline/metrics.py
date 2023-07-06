@@ -74,9 +74,9 @@ def stability_metrics(
 
 def df_stability_metrics(
     df,
-    settings: Settings = None,
+    settings: Settings | None = None,
     time_width=None,
-    time_offset=0,
+    time_offset: int = 0,
     var_dtype=None,
     reference=None,
     **kwargs,
