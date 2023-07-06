@@ -17,11 +17,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import logging
 from abc import ABCMeta
 from functools import wraps
-from typing import Optional, Tuple
 
 
 def datastore_helper(func):
@@ -89,8 +89,8 @@ def combine_classes(*args):
 class Module(metaclass=combine_classes(ABCMeta, ModuleMetaClass)):
     """Abstract base class used for modules in a pipeline."""
 
-    _input_keys: Optional[Tuple[str, ...]] = None
-    _output_keys: Optional[Tuple[str, ...]] = None
+    _input_keys: tuple[str, ...] | None = None
+    _output_keys: tuple[str, ...] | None = None
 
     def __init__(self) -> None:
         """Module initialization"""
