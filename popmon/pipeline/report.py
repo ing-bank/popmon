@@ -80,7 +80,7 @@ def stability_report(
 
 def df_stability_report(
     df,
-    settings: Optional[Settings] = None,
+    settings: Settings | None | None = None,
     time_width=None,
     time_offset: int = 0,
     var_dtype=None,
@@ -280,7 +280,7 @@ class StabilityReport:
         self,
         store_key: str = "html_report",
         sections_key: str = "report_sections",
-        settings: Optional[Settings] = None,
+        settings: Settings | None = None,
     ):
         """Regenerate HTML report with different plot settings
         :param str sections_key: key to store sections data in the datastore. default is 'report_sections'.
