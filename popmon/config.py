@@ -21,7 +21,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from histogrammar.dfinterface.make_histograms import get_time_axes
-from pydantic import BaseModel, BaseSettings
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 from typing_extensions import Literal
 
 # Global configuration for the joblib parallelization. Could be used to change the number of jobs, and/or change
@@ -32,7 +33,7 @@ parallel_args = {"n_jobs": 1}
 
 class ValidatedSettings(BaseSettings):
     class Config:
-        validate_all = True
+        validate_default = True
         validate_assignment = True
 
 
