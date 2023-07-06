@@ -25,7 +25,6 @@ import logging
 import math
 import warnings
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -325,7 +324,7 @@ def plot_bars(
 
 
 def plot_traffic_lights_overview(feature, data, metrics: list[str], labels: list[str]):
-    colors: DefaultDict[str, Dict[str, List[str]]] = defaultdict(dict)
+    colors: defaultdict[str, dict[str, list[str]]] = defaultdict(dict)
     color_map = ["g", "y", "r"]
     for c1, metric in enumerate(metrics):
         for c2, label in enumerate(labels):
@@ -366,7 +365,7 @@ def plot_traffic_lights_alerts_aggregate(
     yellow = hex_to_rgb(tl_colors["yellow"])
     red = hex_to_rgb(tl_colors["red"])
 
-    colors: DefaultDict[str, Dict[str, List[str]]] = defaultdict(dict)
+    colors: defaultdict[str, dict[str, list[str]]] = defaultdict(dict)
     for c1, metric in enumerate(metrics):
         row_max = np.max(data[c1])
         for c2, label in enumerate(labels):

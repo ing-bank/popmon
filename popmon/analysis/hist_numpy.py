@@ -17,9 +17,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import annotations
 
 import warnings
-from typing import List
 
 import histogrammar
 import numpy as np
@@ -187,7 +187,7 @@ def get_consistent_numpy_ndgrids(
         )
     assert_similar_hists(hist_list)
 
-    keys: List[set] = [set() for _ in range(dim)]
+    keys: list[set] = [set() for _ in range(dim)]
     for hist in hist_list:
         hist_keys = prepare_ndgrid(hist, n_dim=dim)
         for i, h_keys in enumerate(hist_keys):
