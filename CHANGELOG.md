@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.5 (2023-07-06)
+
+### Fix
+
+* Upgrade to pydantic 2 ([`6c19baa`](https://github.com/ing-bank/popmon/commit/6c19baaed7f9f0ca3eb2729587dd478b40ebcaa9))
+* Jinja safe html ([`ecfd7c5`](https://github.com/ing-bank/popmon/commit/ecfd7c55d1164bebd08cc514422221994ba09c7f))
+
 ## v1.4.4 (2023-05-26)
 ### Fix
 * Static listing of extension requirements ([`1152598`](https://github.com/ing-bank/popmon/commit/1152598c747e09aba83b2ac34a15db7f42c042f1))
