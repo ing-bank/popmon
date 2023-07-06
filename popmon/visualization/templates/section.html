@@ -25,7 +25,7 @@
         <script> 
           {%- set curr = loop.index  -%}
         {%- for plot_type, layout in feature.plot_type_layouts.items() -%}
-            layouts["{{ section_index }}{{ curr }}-{{ plot_type }}"] = {{ layout | json_plot }};
+            layouts["{{ section_index }}{{ curr }}-{{ plot_type }}"] = {{ layout | json_plot | safe }};
         {%- endfor -%}
         </script>
         <div class="section_feature" data-section-feature="{{ feature.name }}">
@@ -57,7 +57,7 @@
             {%- for metric in plots -%}
               <script> 
                 {%- set curr = loop.index  -%}
-                layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"] = {{ metric.layout | json_plot }};
+                layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"] = {{ metric.layout | json_plot | safe }};
               </script>
               {%- with metric=metric -%}
                 {%- include 'card.html' -%}
