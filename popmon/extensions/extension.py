@@ -18,23 +18,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
-import importlib.util
 from typing import Callable
-
-
-def is_installed(package) -> bool:
-    is_present = importlib.util.find_spec(package)
-    return is_present is not None
 
 
 class Extension:
     name: str
     extension: Callable
-    # should also be added to `pyproject.toml` optional-dependencies
-    requirements: list[str]
-
-    def check(self) -> None:
-        if all(is_installed(package) for package in self.requirements):
-            func = self.extension
-            func = func.__func__
-            func()

@@ -33,8 +33,7 @@ dependencies = [
     "htmlmin",
     "pydantic>=2",
     "pydantic-settings",
-    "typing_extensions",
-    "tomli >= 1.1.0 ; python_version < '3.11'"
+    "typing_extensions"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
