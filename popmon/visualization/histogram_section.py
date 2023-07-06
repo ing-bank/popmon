@@ -187,10 +187,7 @@ class HistogramSection(Module):
                 histogram = []
 
             # filter out potential empty heatmap plots, then prepend them to the sorted histograms
-            hplots = []
-            for h in heatmaps:
-                if isinstance(h, dict) and len(h["plot"]):
-                    hplots.append(h)
+            hplots = [h for h in heatmaps if isinstance(h, dict) and len(h["plot"])]
 
             if len(hplots) > 0:
                 plot_type_layouts["heatmap"] = hplots[0]["layout"]
