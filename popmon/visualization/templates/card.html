@@ -12,7 +12,7 @@
         </div>
         <div id="{{ card_id }}"> </div>
         {%- if metric.type in ['traffic_light', 'alert'] -%}
-            {{ metric.plot }}
+            {{ metric.plot | safe }}
         {%- else -%}
             <div class="skeleton-loader" id="{{ card_id }}-loading"></div>
             <script>
@@ -20,12 +20,12 @@
             render_func["{{ card_id }}"] = (function(){
                 var layout = deepCopy(layouts["{{ section_index }}{{ curr }}-{{ metric.type }}"]);
                 {%- if metric.shapes | length -%}
-                    layout["shapes"] = {{ metric.shapes | json_plot}};
+                    layout["shapes"] = {{ metric.shapes | json_plot | safe }};
                 {%- endif -%}
                 {%- if metric.yaxis_range | length -%}
-                    layout["yaxis"]["range"] = {{ metric.yaxis_range | json_plot }};
+                    layout["yaxis"]["range"] = {{ metric.yaxis_range | json_plot | safe }};
                 {%- endif -%}
-                Plotly.newPlot(document.getElementById("{{ card_id }}"), {{ metric.plot | json_plot }}, layout, plotly_config).then(function() { document.getElementById("{{ card_id }}-loading").remove(); rendered["{{ card_id }}"] = true;});
+                Plotly.newPlot(document.getElementById("{{ card_id }}"), {{ metric.plot | json_plot | safe }}, layout, plotly_config).then(function() { document.getElementById("{{ card_id }}-loading").remove(); rendered["{{ card_id }}"] = true;});
             });
 
             var io = new IntersectionObserver(function(entries) {
