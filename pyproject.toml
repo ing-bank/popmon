@@ -77,7 +77,7 @@ popmon_run = "popmon.pipeline.amazing_pipeline:run"
 target-version = "py37"
 line-length = 120
 namespace-packages = ["popmon"]
-select = ["ALL"]
+select = ["ALL", "CPY001"]
 ignore = [
     # COM812 is incompatible with COM819
     "COM",
@@ -145,6 +145,8 @@ ignore = [
     "PT011",
     # Too many statements
     "PLR0915",
+    # Copyright
+    "CPY001",
 ]
 
 # Sphinx config
@@ -157,6 +159,9 @@ ignore = [
 
     # implicit namespaces
     "INP001",
+
+    # Copyright
+    "CPY001",
 ]
 
 "popmon/config.py" = [
@@ -177,7 +182,13 @@ ignore = [
 
     # Found useless expression. Either assign it to a variable or remove it.
     "B018",
+
+    # Copyright
+    "CPY001",
 ]
+
+[tool.ruff.flake8-copyright]
+notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+"""
 
 [tool.pytest.ini_options]
 markers = ["spark"]
