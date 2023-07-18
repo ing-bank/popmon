@@ -94,9 +94,7 @@ def _resource(resource_type, name: str) -> str:
         return str(full_path)
 
     raise FileNotFoundError(
-        'Could not find {resource_type} "{name!s}"! Does it exist?'.format(
-            resource_type=resource_type, name=name
-        )
+        f'Could not find {resource_type} "{name!s}"! Does it exist?'
     )
 
 

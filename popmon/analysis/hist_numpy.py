@@ -382,11 +382,7 @@ def check_similar_hists(
         return True
     for hist in hist_list:
         if not isinstance(hist, assert_type):
-            raise TypeError(
-                "Input histogram type {htype} not of {htypes}.".format(
-                    htype=type(hist), htypes=assert_type
-                )
-            )
+            raise TypeError(f"Input histogram type {type(hist)} not of {assert_type}.")
     # perform similarity checks on:
     # - number of dimensions
     # - histogram type
@@ -411,11 +407,7 @@ def check_similar_hists(
         # Make this consistent first.
         types = [get_contentType(hist) for hist in hist_list]
         if types.count(types[0]) != len(types):
-            warnings.warn(
-                "Input histograms have inconsistent class types: {types}".format(
-                    types=types
-                )
-            )
+            warnings.warn(f"Input histograms have inconsistent class types: {types}")
             return False
 
     # Check Bin attributes
@@ -423,25 +415,19 @@ def check_similar_hists(
         nums = [hist.num for hist in hist_list]
         if nums.count(nums[0]) != len(nums):
             warnings.warn(
-                "Input Bin histograms have inconsistent num attributes: {types}".format(
-                    types=nums
-                )
+                f"Input Bin histograms have inconsistent num attributes: {nums}"
             )
             return False
         lows = [hist.low for hist in hist_list]
         if lows.count(lows[0]) != len(lows):
             warnings.warn(
-                "Input Bin histograms have inconsistent low attributes: {types}".format(
-                    types=lows
-                )
+                f"Input Bin histograms have inconsistent low attributes: {lows}"
             )
             return False
         highs = [hist.high for hist in hist_list]
         if highs.count(highs[0]) != len(highs):
             warnings.warn(
-                "Input histograms have inconsistent high attributes: {types}".format(
-                    types=highs
-                )
+                f"Input histograms have inconsistent high attributes: {highs}"
             )
             return False
 
@@ -450,17 +436,13 @@ def check_similar_hists(
         origins = [hist.origin for hist in hist_list]
         if origins.count(origins[0]) != len(origins):
             warnings.warn(
-                "Input SparselyBin histograms have inconsistent origin attributes: {types}".format(
-                    types=origins
-                )
+                f"Input SparselyBin histograms have inconsistent origin attributes: {origins}"
             )
             return False
         bws = [hist.binWidth for hist in hist_list]
         if bws.count(bws[0]) != len(bws):
             warnings.warn(
-                "Input SparselyBin histograms have inconsistent binWidth attributes: {types}".format(
-                    types=bws
-                )
+                f"Input SparselyBin histograms have inconsistent binWidth attributes: {bws}"
             )
             return False
 

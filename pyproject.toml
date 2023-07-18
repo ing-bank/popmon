@@ -164,7 +164,8 @@ ignore = [
 ]
 
 "popmon/config.py" = [
-    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`,
+    "FA100", # Missing `from __future__ import annotations`
 ]
 
 # Notebooks & NBQA
