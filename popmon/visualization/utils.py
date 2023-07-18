@@ -762,9 +762,7 @@ def plot_heatmap(
         values = hist_values
         assert len(labels) == len(
             values
-        ), "labels and values have different array lengths: {:d} vs {:d}. {}".format(
-            len(labels), len(values), x_label
-        )
+        ), f"labels and values have different array lengths: {len(labels):d} vs {len(values):d}. {x_label}"
 
         # plot histogram
         fig = px.imshow(

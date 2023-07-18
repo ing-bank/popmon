@@ -119,7 +119,7 @@ class HistogramSection(Module):
                 )
                 continue
 
-            # base64 heatmap plot for each metric
+            # heatmap plot for each metric
             dates = [short_date(date) for date in df.index[:]]
             hists = [
                 df[hist_names].iloc[-i].values
@@ -233,14 +233,14 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins: int =
     hist_names = [hn for i, hn in enumerate(hist_names) if i not in none_hists]
     # more basic checks
     if len(hc_list) == 0:
-        return {"name": date, "description": "", "plot": ""}
+        return {}
     assert_similar_hists(hc_list)
 
     # make plot. note: slow!
     if hc_list[0].n_dim == 1:
         if all(h.entries == 0 for h in hc_list):
             # triviality checks, skip all histograms empty
-            return {"name": date, "description": "", "plot": ""}
+            return {}
 
         props = get_hist_props(hc_list[0])
         is_num = props["is_num"]
@@ -259,7 +259,7 @@ def _plot_histograms(feature, date, hc_list, hist_names, top_n, max_nbins: int =
 
         # skip histograms with too many bins to plot (default more than 1000)
         if len(bins) > max_nbins:
-            return {"name": date, "description": "", "plot": ""}
+            return {}
 
         # normalize histograms for plotting (comparison!) in case there is more than one.
         if len(hc_list) >= 2:
