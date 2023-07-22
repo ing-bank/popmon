@@ -340,7 +340,7 @@ class HistStitcher(Module):
                 "basis histogram does not have bins attribute. cannot insert."
             )
         if len(hbasis.bins) > 0:
-            hbk0 = list(hbasis.bins.values())[0]
+            hbk0 = next(iter(hbasis.bins.values()))
             assert_similar_hists([hbk0, *hdelta_list])
         else:
             assert_similar_hists(hdelta_list)

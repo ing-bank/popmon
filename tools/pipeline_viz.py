@@ -152,7 +152,7 @@ def generate_pipeline_visualisation(
 
 
 if __name__ == "__main__":
-    data_path = Path(".")
+    data_path = Path()
 
     # Example pipeline
     from popmon import resources

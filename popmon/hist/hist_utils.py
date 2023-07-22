@@ -151,7 +151,7 @@ def sum_over_x(hist):
     # n_dim >= 2 and we have contents; here we sum over it.
     h_proj = None
     if hasattr(hist, "bins"):
-        h_proj = list(hist.bins.values())[0].zero()
+        h_proj = next(iter(hist.bins.values())).zero()
         # loop over all counters and integrate over x (=i)
         for bi in hist.bins.values():
             h_proj += bi
