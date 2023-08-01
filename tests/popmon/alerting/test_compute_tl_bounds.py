@@ -35,7 +35,7 @@ def test_compute_traffic_light_bounds():
     )
 
     output = module.transform(datastore)["output_data"]
-    assert "dummy_feature:mae" not in output.keys()
+    assert "dummy_feature:mae" not in output
     assert output["the_feature:mae"] == [8, 4, 2, 2]
     assert output["the_feature:mse"] == [0.2, 0.11, 0.09, 0]
 
