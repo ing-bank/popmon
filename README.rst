@@ -24,19 +24,21 @@ using monitoring business rules.
 Announcements
 =============
 
-Spark 3.0
+Spark 3.X
 ---------
 
-With Spark 3.0, based on Scala 2.12, make sure to pick up the correct `histogrammar` jar files:
+With Spark 3.X, based on Scala 2.12 or 2.13, make sure to pick up the correct histogrammar jar files:
 
 .. code-block:: python
 
   spark = SparkSession.builder.config(
       "spark.jars.packages",
-      "io.github.histogrammar:histogrammar_2.12:1.0.20,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.20",
+      "io.github.histogrammar:histogrammar_2.12:1.0.30,io.github.histogrammar:histogrammar-sparksql_2.12:1.0.30",
   ).getOrCreate()
 
-For Spark 2.X compiled against scala 2.11, in the string above simply replace 2.12 with 2.11.
+
+For Scala 2.13, in the string above simply replace "2.12" with "2.13".
+For Spark 2.X compiled against Scala 2.11, replace "2.12" with "2.11" and "1.0.30" with "1.0.20".
 
 Examples
 ========
