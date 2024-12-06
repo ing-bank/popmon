@@ -20,37 +20,30 @@
 
 # Resources lookup file for popmon
 import json
-import pathlib
+from importlib import resources
 
 from jinja2 import Environment, FileSystemLoader
-from pkg_resources import resource_filename
 
-import popmon
+from popmon import notebooks, test_data, visualization
 
 # data files that are shipped with popmon.
-_DATA = {
-    _.name: _
-    for _ in pathlib.Path(resource_filename(popmon.__name__, "test_data")).glob("*")
-}
+_DATA = {_.name: _ for _ in resources.files(test_data).iterdir()}
 
 # Tutorial notebooks
 _NOTEBOOK = {
-    _.name: _
-    for _ in pathlib.Path(resource_filename(popmon.__name__, "notebooks")).glob(
-        "*.ipynb"
-    )
+    p.name: p for p in resources.files(notebooks).iterdir() if p.suffix == ".ipynb"
 }
 
 # Resource types
 _RESOURCES = {"data": _DATA, "notebook": _NOTEBOOK}
 
 # Environment for visualization templates' directory
-_TEMPLATES_ENV = Environment(
-    loader=FileSystemLoader(
-        resource_filename(popmon.__name__, "visualization/templates")
-    ),
-    autoescape=True,
-)
+ref = resources.files(visualization) / "templates"
+with resources.as_file(ref) as templates_dir_path:
+    _TEMPLATES_ENV = Environment(
+        loader=FileSystemLoader(templates_dir_path),
+        autoescape=True,
+    )
 _TEMPLATES_ENV.filters["fmt_metric"] = lambda x: x.replace("_", " ")
 
 

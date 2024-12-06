@@ -16,7 +16,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -233,8 +233,8 @@ class ReferencePullCalculator(PullCalculator):
         :param kwargs: (dict, optional): residual kwargs passed on to mean and std functions
         """
         super().__init__(
-            np.mean,
-            np.std,
+            partial(pd.DataFrame.mean, numeric_only=True),
+            partial(pd.DataFrame.std, numeric_only=True, ddof=0),
             reference_key,
             assign_to_key,
             store_key,

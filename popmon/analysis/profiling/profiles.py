@@ -186,9 +186,7 @@ def profile_fraction_of_true(bin_labels, bin_counts):
     if len(bin_labels) == 0 or len(bin_labels) > 4 or np.sum(bin_entries) == 0:
         return np.nan
     if not np.all([isinstance(bl, (bool, np.bool_)) for bl in bin_labels]):
-        if not np.all(
-            [isinstance(bl, (str, np.str_, np.string_)) for bl in bin_labels]
-        ):
+        if not np.all([isinstance(bl, (str, np.str_, np.bytes_)) for bl in bin_labels]):
             return np.nan
         # all strings from hereon
         n_true = (bin_labels == "True").sum() + (bin_labels == "true").sum()

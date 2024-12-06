@@ -27,8 +27,8 @@ For this you'll need to install our test requirements:
 .. code-block:: bash
 
   cd popmon/
-  pip install -r requirements-test.txt
-  python setup.py test
+  pip install -r .[test]
+  pytest
 
 That's it!
 
