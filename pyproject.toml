@@ -17,14 +17,14 @@ keywords = [
     "ipython"
 ]
 readme = "README.rst"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 authors = [{name = "ING Analytics Wholesale Banking", email = "wbaa@ing.com"}]
 license = {type = "MIT", file = "LICENSE"}
 dependencies = [
     "numpy>=1.18.0",
-    "pandas>=0.25.1,<2",
+    "pandas>=0.25.1",
     "scipy>=1.5.2",
-    "histogrammar>=1.0.32",
+    "histogrammar>=1.0.34",
     "phik",
     "jinja2",
     "tqdm",

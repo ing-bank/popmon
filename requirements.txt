@@ -1,12 +1,13 @@
 numpy>=1.18.0
 pandas>=0.25.1
 scipy>=1.5.2
-histogrammar>=1.0.32
+histogrammar>=1.0.34
 phik
 jinja2
 tqdm
 plotly>=5.8.0
 joblib>=0.14.0
 htmlmin
-pydantic
+pydantic>=2
+pydantic-settings
 typing_extensions

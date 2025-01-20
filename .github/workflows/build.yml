@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python: ['3.8', '3.9', '3.10', '3.11']
+        python: ['3.9', '3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -35,21 +35,23 @@ jobs:
     - name: Test with pytest
       run: |
         pytest -m "not spark"
-        
+
   test_spark:
     strategy:
       matrix:
         include:
-#          - SPARK_VERSION: "2.4.8"
-#            HADOOP_VERSION: "2.7"
-#            JAVA_VERSION: "8"
-#            python: "3.7"
-#            os: ubuntu-latest
           - SPARK_VERSION: "3.3.2"
             HADOOP_VERSION: "3"
             JAVA_VERSION: "11"
-            python: "3.8"
+            python: "3.9"
             os: ubuntu-latest
+            dependency_constraints: '"pandas<2" "numpy<2"'
+          - SPARK_VERSION: "3.5.4"
+            HADOOP_VERSION: "3"
+            JAVA_VERSION: "11"
+            python: "3.12"
+            os: ubuntu-latest
+            dependency_constraints: '"pandas>=2" "numpy>=2"'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}, Spark ${{ matrix.SPARK_VERSION}}, Python ${{ matrix.python }}
 
@@ -67,10 +69,9 @@ jobs:
           /home/runner/work/spark.tgz
           ~/.cache/pip
         key: ${{ runner.os }}-spark-${{ matrix.SPARK_VERSION }}-hadoop${{ matrix.HADOOP_VERSION }}-java${{ matrix.JAVA_VERSION }}-${{ hashFiles('**/pyproject.toml') }}
-    - name: Install dependencies
+    - name: Install pip and setuptools
       run: |
         python -m pip install --upgrade pip setuptools
-        pip install -e .[test]
     - name: Download spark
       if: steps.cache-spark.outputs.cache-hit != 'true'
       env:
@@ -93,6 +94,12 @@ jobs:
         # https://github.com/python-poetry/poetry/issues/6792
         pip3 install "pypandoc<1.8" 
         pip install "pyspark==${SPARK_VERSION}"
+    - name: Install Spark-related dependency versions
+      run: |
+        pip install ${{ matrix.dependency_constraints }}
+    - name: Install project dependencies
+      run: |
+        pip install -e .[test]
     - name: Test with pytest (spark-specific)
       env:
         BUILD_DIR: "/home/runner/work/" #${{ github.workspace }}
@@ -106,15 +113,15 @@ jobs:
 
   examples:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
     - test
     - test_spark
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -130,17 +137,17 @@ jobs:
           python flight_delays.py
           cd synthetic_data_streams
           python hyperplane.py
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: synthetic-report
           path: examples/test_data_report.html
           if-no-files-found: error
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: flight-delays-report
           path: examples/flight_delays_report.html
           if-no-files-found: error
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: hyperplane-1-report
           path: examples/synthetic_data_streams/reports/hyperplane_1.html

@@ -1,6 +1,7 @@
 import histogrammar as hg
 import numpy as np
 import pandas as pd
+from conftest import make_mixed_dataframe
 
 from popmon.hist.hist_utils import (
     is_numeric,
@@ -15,7 +16,7 @@ from popmon.hist.hist_utils import (
 
 
 def get_test_data():
-    df = pd._testing.makeMixedDataFrame()
+    df = make_mixed_dataframe()
     df["date"] = df["D"].apply(lambda x: pd.to_datetime(x).value)
     return df
 

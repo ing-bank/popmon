@@ -13,6 +13,11 @@ from popmon.analysis.profiling.pull_calculator import (
 from popmon.base import Pipeline
 
 
+def mean(x):
+    """Column-wise np.mean."""
+    return np.mean(x, axis=0)
+
+
 def get_test_data():
     df = pd.DataFrame()
     df["a"] = np.arange(100)
@@ -25,7 +30,7 @@ def test_pull():
 
     module1 = ApplyFunc(apply_to_key="to_profile")
     module1.add_apply_func(np.std, suffix="_std", entire=True)
-    module1.add_apply_func(np.mean, suffix="_mean", entire=True)
+    module1.add_apply_func(mean, suffix="_mean", entire=True)
 
     module2 = ApplyFunc(apply_to_key="to_profile", features=["asc_numbers"])
     module2.add_apply_func(
@@ -57,7 +62,7 @@ def test_apply_func_module():
     )
 
     module.add_apply_func(np.std, entire=True)
-    module.add_apply_func(np.mean, entire=True)
+    module.add_apply_func(mean, entire=True)
     module.add_apply_func(func)
 
     datastore = module.transform(datastore)
@@ -77,7 +82,7 @@ def test_variance_comparer():
         apply_to_key="to_profile", features=["the_feature", "dummy_feature"]
     )
     module1.add_apply_func(np.std, suffix="_std", entire=True)
-    module1.add_apply_func(np.mean, suffix="_mean", entire=True)
+    module1.add_apply_func(mean, suffix="_mean", entire=True)
 
     module2 = ApplyFunc(
         apply_to_key="to_profile", features=["the_feature", "dummy_feature"]
@@ -171,7 +176,7 @@ def test_apply_func():
 
     apply_funcs = [
         {"func": np.std, "features": [feature], "metrics": ["a", "b"], "entire": True},
-        {"func": np.mean, "features": [feature], "metrics": ["a", "b"], "entire": True},
+        {"func": mean, "features": [feature], "metrics": ["a", "b"], "entire": True},
     ]
 
     d = apply_func(
@@ -195,7 +200,7 @@ def test_apply_func_array():
 
     apply_funcs = [
         {"func": np.std, "features": [feature], "metrics": ["a", "b"], "entire": True},
-        {"func": np.mean, "features": [feature], "metrics": ["a", "b"], "entire": True},
+        {"func": mean, "features": [feature], "metrics": ["a", "b"], "entire": True},
     ]
 
     f, p = apply_func_array(

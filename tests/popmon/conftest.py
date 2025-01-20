@@ -4,6 +4,7 @@ from os.path import dirname
 import numpy as np
 import pandas as pd
 import pytest
+from pandas.core.indexes.datetimes import bdate_range
 
 from popmon import resources
 
@@ -88,3 +89,14 @@ def pytest_configure():
     df = pd.read_csv(resources.data(CSV_FILE))
     df["date"] = pd.to_datetime(df["date"])
     pytest.test_df = df
+
+
+def make_mixed_dataframe() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "A": [0.0, 1.0, 2.0, 3.0, 4.0],
+            "B": [0.0, 1.0, 0.0, 1.0, 0.0],
+            "C": ["foo1", "foo2", "foo3", "foo4", "foo5"],
+            "D": bdate_range("1/1/2009", periods=5),
+        }
+    )

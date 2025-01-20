@@ -147,3 +147,5 @@ docs/build
 # Developer's playground
 /playground/
 .ruff_cache/
+
+notebooks/report.html

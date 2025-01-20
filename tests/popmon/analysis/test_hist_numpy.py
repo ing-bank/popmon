@@ -2,6 +2,7 @@ import histogrammar as hg
 import numpy as np
 import pandas as pd
 import pytest
+from conftest import make_mixed_dataframe
 
 from popmon.analysis.hist_numpy import (
     assert_similar_hists,
@@ -30,7 +31,7 @@ def get_test_histograms1():
     """Get set 1 of test histograms"""
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
-    df = pd._testing.makeMixedDataFrame()
+    df = make_mixed_dataframe()
     df["date"] = df["D"].apply(to_ns)
     df["boolT"] = True
     df["boolF"] = False
@@ -55,8 +56,7 @@ def get_test_histograms1():
 def get_test_histograms2():
     """Get set 2 of test histograms"""
     # dummy dataset with mixed types
-    # convert timestamp (col D) to nanosec since 1970-1-1
-    df = pd._testing.makeMixedDataFrame()
+    df = make_mixed_dataframe()
 
     # building 1d-, 2d-histogram (iteratively)
     hist1 = hg.Categorize(unit("C"))
@@ -351,7 +351,7 @@ def test_check_similar_hists():
     """
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
-    df = pd._testing.makeMixedDataFrame()
+    df = make_mixed_dataframe()
     df["date"] = df["D"].apply(to_ns)
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)
@@ -391,7 +391,7 @@ def test_assert_similar_hists():
     """
     # dummy dataset with mixed types
     # convert timestamp (col D) to nanosec since 1970-1-1
-    df = pd._testing.makeMixedDataFrame()
+    df = make_mixed_dataframe()
     df["date"] = df["D"].apply(to_ns)
 
     # building 1d-, 2d-, and 3d-histogram (iteratively)

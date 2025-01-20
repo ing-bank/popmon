@@ -83,7 +83,7 @@ def expanding_mean(df, shift: int = 1):
     :param int shift: size of shift. default is 1.
     :return: df with expanding means of columns
     """
-    return df.shift(shift).expanding().mean()
+    return df.shift(shift).expanding().mean(numeric_only=True)
 
 
 def expanding_std(df, shift: int = 1):
@@ -95,7 +95,7 @@ def expanding_std(df, shift: int = 1):
     :param int shift: size of shift. default is 1.
     :return: df with expanding std of columns
     """
-    return df.shift(shift).expanding().std()
+    return df.shift(shift).expanding().std(numeric_only=True)
 
 
 def expanding_apply(df, func, shift: int = 1, *args, **kwargs):
@@ -123,7 +123,7 @@ def rolling_std(df, window, shift: int = 1):
     :param int window: size of rolling window.
     :return: df with rolling std of columns
     """
-    return df.shift(shift).rolling(window).std()
+    return df.shift(shift).rolling(window).std(numeric_only=True)
 
 
 def rolling_mean(df, window, shift: int = 1):
@@ -136,7 +136,7 @@ def rolling_mean(df, window, shift: int = 1):
     :param int window: size of rolling window.
     :return: df with rolling mean of columns
     """
-    return df.shift(shift).rolling(window).mean()
+    return df.shift(shift).rolling(window).mean(numeric_only=True)
 
 
 def rolling_apply(df, window, func, shift: int = 1, *args, **kwargs):
