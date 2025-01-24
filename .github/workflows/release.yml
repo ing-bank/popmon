@@ -1,42 +1,17 @@
-name: Semantic Release
-
+name: Publish to PyPI
 on:
-  push:
-    branches:
-      - master
-
-jobs:
   release:
+    types: [published]
+jobs:
+  pypi:
     runs-on: ubuntu-latest
-    concurrency: release
-
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    - name: Python Semantic Release
-      uses: relekang/python-semantic-release@v7.34.4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository_username: __token__
-        repository_password: ${{ secrets.PYPI_TOKEN }}
-        build_command: pip install build && python -m build
-
-  merge-master-back-to-dev:
-    runs-on: ubuntu-latest
-    needs:
-    - release
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set Git config
-      run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
-    - name: Merge master back to dev
-      run: |
-          git fetch --unshallow
-          git checkout develop
-          git pull
-          git merge --no-ff master -m "chore: auto-merge master back to develop"
-          git push
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 -m pip install --upgrade build && python3 -m build
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
