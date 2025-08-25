@@ -448,5 +448,5 @@ def test_datatype():
     df, hist1, hist2, hist3 = get_test_histograms1()
 
     assert hist1.datatype == str
-    np.testing.assert_array_equal(hist2.datatype, [np.number, str])
-    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.number, str])
+    np.testing.assert_array_equal(hist2.datatype, [float, str])
+    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, float, str])
