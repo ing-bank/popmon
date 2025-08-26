@@ -78,4 +78,4 @@
           "nanflow:type": "Count",
           "origin": 0},
  "type": "SparselyBin",
- "version": "1.0"}
+ "version": "1.1"}
