@@ -344,5 +344,5 @@ def test_datatype():
 
     assert isinstance(None, hist0.datatype)
     assert hist1.datatype == str
-    np.testing.assert_array_equal(hist2.datatype, [np.number, str])
-    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, np.number, str])
+    np.testing.assert_array_equal(hist2.datatype, [float, str])
+    np.testing.assert_array_equal(hist3.datatype, [np.datetime64, float, str])
