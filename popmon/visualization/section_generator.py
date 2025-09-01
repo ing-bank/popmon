@@ -309,7 +309,10 @@ def _plot_metric(
         "plot": plot["data"],
         "shapes": plot["layout"]["shapes"] if "shapes" in plot["layout"] else "",
         "yaxis_range": (
-            ["null" if r is None else r for r in plot["layout"].get("yaxis", {}).get("range")]
+            [
+                "null" if r is None else r
+                for r in plot["layout"].get("yaxis", {}).get("range")
+            ]
             if "range" in plot["layout"].get("yaxis", {})
             else ""
         ),
