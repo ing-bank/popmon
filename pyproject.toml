@@ -28,7 +28,7 @@ dependencies = [
     "phik",
     "jinja2",
     "tqdm",
-    "plotly<6",
+    "plotly",
     "joblib>=0.14.0",
     "htmlmin",
     "pydantic>=2",

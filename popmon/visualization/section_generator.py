@@ -209,7 +209,7 @@ class SectionGenerator(Module):
                 layouts = plots[0]["layout"]
                 if "shapes" in layouts:
                     del layouts["shapes"]
-                if "range" in layouts["yaxis"]:
+                if "range" in layouts.get("yaxis", {}):
                     del layouts["yaxis"]["range"]
 
             # Group comparisons in Comparison section
@@ -309,8 +309,11 @@ def _plot_metric(
         "plot": plot["data"],
         "shapes": plot["layout"]["shapes"] if "shapes" in plot["layout"] else "",
         "yaxis_range": (
-            ["null" if r is None else r for r in plot["layout"]["yaxis"]["range"]]
-            if "range" in plot["layout"]["yaxis"]
+            [
+                "null" if r is None else r
+                for r in plot["layout"].get("yaxis", {}).get("range")
+            ]
+            if "range" in plot["layout"].get("yaxis", {})
             else ""
         ),
         "layout": plot["layout"],
