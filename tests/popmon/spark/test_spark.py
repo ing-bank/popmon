@@ -24,9 +24,7 @@ def spark_context():
     current_path = Path(__file__).parent
 
     scala = "2.12" if int(pyspark_version[0]) == 3 else "2.13"
-    hist_spark_jar = (
-        current_path / f"jars/histogrammar-sparksql_{scala}-1.0.30.jar"
-    )
+    hist_spark_jar = current_path / f"jars/histogrammar-sparksql_{scala}-1.0.30.jar"
     hist_jar = current_path / f"jars/histogrammar_{scala}-1.0.30.jar"
 
     spark = (
