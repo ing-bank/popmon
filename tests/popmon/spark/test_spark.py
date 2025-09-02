@@ -115,10 +115,10 @@ def test_spark_make_histograms(spark_context):
     # backwards compatibility
     for name in names:
         v1 = deepcopy(getattr(pytest, name))
-        v1["data"]["name"] = f"'{name}'"
+        v1["data"]["name"] = f"{name}"
 
         v2 = deepcopy(getattr(pytest, name))
-        v2["data"]["name"] = f"b'{name}'"
+        v2["data"]["name"] = f"b{name}"
 
         output = current_hists[name].toJson()
         assert output in (v1, v2)
