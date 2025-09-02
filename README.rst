@@ -37,7 +37,7 @@ For Spark make sure to pick up the correct `histogrammar` jar files. Spark 4.X i
   ).getOrCreate()
 
 
-For Scala 2.12, in the string above simply replace "2.13" with "2.12".
+For Scala 2.12, in the string above simply replace "2.13" with "2.12" (twice).
 
 
 Examples

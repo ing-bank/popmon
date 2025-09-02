@@ -22,20 +22,11 @@ def spark_context():
 
     current_path = Path(__file__).parent
 
-    if int(pyspark_version[0]) == 2:
-        scala = "2.11"
-        hg_version = "1.0.20"
-    elif int(pyspark_version[0]) == 3:
-        scala = "2.12"
-        hg_version = "1.0.20"
-    else:  # spark 4+
-        scala = "2.13"
-        hg_version = "1.0.30"
-
+    scala = "2.12" if int(pyspark_version[0]) == 3 else "2.13"
     hist_spark_jar = (
-        current_path / f"jars/histogrammar-sparksql_{scala}-{hg_version}.jar"
+        current_path / f"jars/histogrammar-sparksql_{scala}-1.0.30.jar"
     )
-    hist_jar = current_path / f"jars/histogrammar_{scala}-{hg_version}.jar"
+    hist_jar = current_path / f"jars/histogrammar_{scala}-1.0.30.jar"
 
     spark = (
         SparkSession.builder.master("local")
