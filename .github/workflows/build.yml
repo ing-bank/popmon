@@ -52,6 +52,12 @@ jobs:
             python: "3.12"
             os: ubuntu-latest
             dependency_constraints: '"pandas>=2" "numpy>=2"'
+          - SPARK_VERSION: "4.0.0"
+            HADOOP_VERSION: "3"
+            JAVA_VERSION: "11"
+            python: "3.12"
+            os: ubuntu-latest
+            dependency_constraints: '"pandas>=2" "numpy>=2"'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}, Spark ${{ matrix.SPARK_VERSION}}, Python ${{ matrix.python }}
 
