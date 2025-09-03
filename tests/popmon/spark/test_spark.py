@@ -23,9 +23,9 @@ def spark_context():
 
     current_path = Path(__file__).parent
 
-    scala = "2.12" if int(pyspark_version[0]) >= 3 else "2.11"
-    hist_spark_jar = current_path / f"jars/histogrammar-sparksql_{scala}-1.0.11.jar"
-    hist_jar = current_path / f"jars/histogrammar_{scala}-1.0.11.jar"
+    scala = "2.12" if int(pyspark_version[0]) == 3 else "2.13"
+    hist_spark_jar = current_path / f"jars/histogrammar-sparksql_{scala}-1.0.30.jar"
+    hist_jar = current_path / f"jars/histogrammar_{scala}-1.0.30.jar"
 
     spark = (
         SparkSession.builder.master("local")
@@ -115,10 +115,10 @@ def test_spark_make_histograms(spark_context):
     # backwards compatibility
     for name in names:
         v1 = deepcopy(getattr(pytest, name))
-        v1["data"]["name"] = f"'{name}'"
+        v1["data"]["name"] = f"{name}"
 
         v2 = deepcopy(getattr(pytest, name))
-        v2["data"]["name"] = f"b'{name}'"
+        v2["data"]["name"] = f"b{name}"
 
         output = current_hists[name].toJson()
         assert output in (v1, v2)
