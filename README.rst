@@ -17,15 +17,14 @@ It works with numerical, ordinal, categorical features, and the histograms can b
 as trends, shifts, peaks, outliers, anomalies, changing correlations, etc,
 using monitoring business rules.
 
+Latest update: Sep 2025.
+
 |example|
 
 |histograms|
 
-Announcements
-=============
-
 Spark
------
+=====
 
 For Spark make sure to pick up the correct `histogrammar` jar files. Spark 4.X is based on Scala 2.13; Spark 3.X is based on Scala 2.12 or 2.13.
 
