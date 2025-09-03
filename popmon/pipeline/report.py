@@ -228,7 +228,7 @@ class StabilityReport:
 
         :return HTML: HTML report in an iframe
         """
-        from IPython.core.display import display
+        from IPython.display import display
 
         return display(self.to_notebook_iframe())
 
@@ -242,7 +242,6 @@ class StabilityReport:
         :param bool escape: escape characters which could conflict with other HTML code. default: False
         :return str: HTML code of the report
         """
-
         if escape:
             import html
 
@@ -264,13 +263,15 @@ class StabilityReport:
         :param str height: height of the frame to be shown
         :return HTML: HTML report in an iframe
         """
-        from IPython.core.display import HTML
+        from IPython.display import HTML
 
         # get iframe's snippet code, insert report's HTML code and display it as HTML
         return HTML(
             templates_env(
                 filename="notebook_iframe.html",
-                src=self.to_html(escape=True),
+                src=self.to_html(
+                    escape=False
+                ),  # MB 2025-09-03: do not escape, breaks IPython display
                 width=width,
                 height=height,
             )
