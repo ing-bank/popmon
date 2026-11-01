@@ -50,11 +50,19 @@ def googl_test(bins_1, bins_2):
     return np.max(np.abs(dist(bins_1) - dist(bins_2)))
 
 
+def _normalize(x):
+    # comparisons receive raw bin entries (counts); PSI, KL and JSD are
+    # defined on the bin proportions
+    x = np.asarray(x, dtype=float)
+    total = x.sum()
+    return x / total if total else x.copy()
+
+
 @Comparisons.register(key="psi", description="Population Stability Index", htype="all")
 def population_stability_index(po, qo):
     epsilon = 10e-6
-    p = po.copy()
-    q = qo.copy()
+    p = _normalize(po)
+    q = _normalize(qo)
     p += epsilon
     q += epsilon
     return np.sum((p - q) * np.log(p / q))
@@ -62,8 +70,8 @@ def population_stability_index(po, qo):
 
 def kullback_leibler_divergence(po, qo):
     epsilon = 10e-6
-    p = po.copy()
-    q = qo.copy()
+    p = _normalize(po)
+    q = _normalize(qo)
     p += epsilon
     q += epsilon
     return np.sum(p * np.log(p / q))
@@ -71,6 +79,8 @@ def kullback_leibler_divergence(po, qo):
 
 @Comparisons.register(key="jsd", description="Jensen-Shannon Divergence", htype="all")
 def jensen_shannon_divergence(p, q):
+    p = _normalize(p)
+    q = _normalize(q)
     m = 0.5 * (p + q)
     return 0.5 * (kullback_leibler_divergence(p, m) + kullback_leibler_divergence(q, m))
 
@@ -140,6 +150,10 @@ def ks_prob(testscore):
         max_j = int(max(1, round(3.0 / u)))
         r[:max_j] = np.exp(fj[:max_j] * v)
         pvalue = 2 * (r[0] - r[1] + r[2] - r[3])
+    elif u >= 6.8116:
+        # as in ROOT's TMath::KolmogorovProb: beyond this point p is 0
+        # (it underflows double precision), not undefined
+        pvalue = 0
 
     return pvalue
 

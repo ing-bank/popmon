@@ -32,7 +32,7 @@ def test_ks_test():
 
 def test_ks_prob():
     np.testing.assert_equal(ks_prob(0.1), 1)
-    np.testing.assert_equal(ks_prob(10.0), np.nan)
+    np.testing.assert_equal(ks_prob(10.0), 0)
     np.testing.assert_equal(ks_prob(0.4), ks_prob(-0.4))
     np.testing.assert_almost_equal(ks_prob(0.8), 0.5441, 4)
     np.testing.assert_almost_equal(ks_prob(3.0), 0.0, 4)
@@ -98,3 +98,43 @@ def test_jsd():
 
     # JSD = 0 iff P=Q
     np.testing.assert_almost_equal(jensen_shannon_divergence(q, q), 0, 4)
+
+
+def test_ks_prob_large_score_is_zero_not_nan():
+    # ROOT's TMath::KolmogorovProb returns 0 for z >= 6.8116; a NaN here
+    # turns the strongest drifts into a green traffic light
+    for z in [6.8116, 7.0, 10.0, 50.0]:
+        assert ks_prob(z) == 0
+    assert ks_prob(6.8) > 0
+
+
+def test_ks_zscore_large_drift_is_red():
+    from popmon.alerting.compute_tl_bounds import traffic_light
+    from popmon.analysis.comparison.comparisons import ks
+
+    ref = np.array([0, 0, 0, 1000, 1000, 0, 0, 0], dtype=float)
+    cur = np.array([0, 0, 0, 0, 0, 1000, 1000, 0], dtype=float)
+    score, pvalue, zscore = ks(cur, ref)
+    assert score > 6.8116
+    assert pvalue == 0
+    assert traffic_light(zscore, 7, 4, -4, -7) == 2
+
+
+def test_psi_jsd_on_counts_equal_psi_jsd_on_proportions():
+    # comparisons are called with raw bin entries; the result must not
+    # depend on the sample sizes
+    p = np.array([0.85, 0.05, 0.05, 0.05])
+    q = np.array([0.25, 0.25, 0.25, 0.25])
+    np.testing.assert_almost_equal(
+        population_stability_index(p * 20000, q * 80000),
+        population_stability_index(p, q),
+        6,
+    )
+    np.testing.assert_almost_equal(
+        jensen_shannon_divergence(p * 20000, q * 80000),
+        jensen_shannon_divergence(p, q),
+        6,
+    )
+    # identical distributions, different sample sizes: no drift
+    np.testing.assert_almost_equal(population_stability_index(q * 5000, q * 80000), 0.0, 6)
+    np.testing.assert_almost_equal(jensen_shannon_divergence(q * 5000, q * 80000), 0.0, 6)
