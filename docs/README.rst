@@ -73,7 +73,7 @@ Mounting a different repository to vagrant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When you want to develop code that is not part of the repository that 
-your vagrant is in, you can mount it seperately. This is done by changing
+your vagrant is in, you can mount it separately. This is done by changing
 the Vagrantfile, by changing the ``#mount`` line to the path of the repository
 that you want to mount:
 
